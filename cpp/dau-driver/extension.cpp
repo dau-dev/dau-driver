@@ -1,3 +1,3 @@
-#include "cpp-template/extension.hpp"
+#include "dau-driver/extension.hpp"
 
 int add(int i, int j) { return i + j; }
