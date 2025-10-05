@@ -76,6 +76,9 @@ ignore = [
     ".clang-format",
     "Makefile",
     "docs/**/*",
+    "dau_driver/*.dll",
+    "dau_driver/*.dylib",
+    "dau_driver/*.so",
 ]
 
 [tool.cibuildwheel]
@@ -110,9 +113,9 @@ fail_under = 50
 
 [tool.hatch.build]
 artifacts = [
-    "project/*.dll",
-    "project/*.dylib",
-    "project/*.so",
+    "dau_driver/*.dll",
+    "dau_driver/*.dylib",
+    "dau_driver/*.so",
 ]
 
 [tool.hatch.build.sources]
@@ -121,7 +124,7 @@ src = "/"
 [tool.hatch.build.hooks.hatch-cpp]
 verbose = true
 libraries = [
-{name = "dau_driver/extension", sources = ["cpp/cpp-template/extension.cpp"], include-dirs = ["cpp"], binding="pybind11"}
+{name = "dau_driver/extension", sources = ["cpp/dau-driver/extension.cpp"], include-dirs = ["cpp"], binding="pybind11"}
 ]
 
 [tool.hatch.build.targets.sdist]
