@@ -13,7 +13,11 @@ description = "PCIe Driver for dau"
 readme = "README.md"
 license = { text = "Apache-2.0" }
 version = "0.1.0"
+<<<<<<< before updating
 requires-python = ">=3.11"
+=======
+requires-python = ">=3.10"
+>>>>>>> after updating
 keywords = []
 
 classifiers = [
@@ -22,6 +26,10 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
     "Programming Language :: Python :: 3",
+<<<<<<< before updating
+=======
+    "Programming Language :: Python :: 3.10",
+>>>>>>> after updating
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -82,7 +90,7 @@ ignore = [
 ]
 
 [tool.cibuildwheel]
-build = "cp39-* cp310-* cp311-* cp312-*"
+build = "cp310-* cp311-* cp312-* cp313-*"
 test-command = "echo 'TODO'"
 test-requires = []
 
