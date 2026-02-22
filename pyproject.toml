@@ -4,7 +4,7 @@ requires = [
     "hatch-cpp",
     "pybind11",
 ]
-build-backend="hatchling.build"
+build-backend = "hatchling.build"
 
 [project]
 name = "dau-driver"
@@ -36,17 +36,17 @@ dependencies = []
 develop = [
     "build",
     "bump-my-version",
-    "check-manifest",
+    "check-dist",
     "cibuildwheel",
-    "codespell>=2.4,<2.5",
+    "codespell",
     "hatch-cpp",
     "hatchling",
-    "mdformat>=0.7.22,<1.1",
+    "mdformat",
     "mdformat-tables>=1",
     "pybind11",
     "pytest",
     "pytest-cov",
-    "ruff>=0.9,<0.15",
+    "ruff",
     "twine",
     "ty",
     "uv",
@@ -74,17 +74,6 @@ replace = '__version__ = "{new_version}"'
 filename = "pyproject.toml"
 search = 'version = "{current_version}"'
 replace = 'version = "{new_version}"'
-
-[tool.check-manifest]
-ignore = [
-    ".copier-answers.yaml",
-    ".clang-format",
-    "Makefile",
-    "docs/**/*",
-    "dau_driver/*.dll",
-    "dau_driver/*.dylib",
-    "dau_driver/*.so",
-]
 
 [tool.cibuildwheel]
 build = "cp310-* cp311-* cp312-* cp313-*"
