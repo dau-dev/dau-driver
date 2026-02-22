@@ -141,14 +141,12 @@ js/node_modules
 js/test-results
 js/playwright-report
 js/*.tgz
-dau_driver/extension
 
 # Jupyter
 .ipynb_checkpoints
 .autoversion
 Untitled*.ipynb
-!dau_driver/extension/dau_driver.json
-!dau_driver/extension/install.json
+dau_driver/extension
 dau_driver/nbextension
 dau_driver/labextension
 
@@ -157,3 +155,7 @@ dau_driver/labextension
 
 # Rust
 target
+
+# Hydra
+outputs/
+multirun/
