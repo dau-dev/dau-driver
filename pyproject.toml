@@ -97,6 +97,7 @@ branch = true
 omit = [
     "dau_driver/tests/integration/",
 ]
+
 [tool.coverage.report]
 exclude_also = [
     "raise NotImplementedError",
