@@ -2,7 +2,7 @@
 requires = [
     "hatchling",
     "hatch-cpp",
-    "pybind11",
+    "nanobind",
 ]
 build-backend = "hatchling.build"
 
@@ -30,7 +30,7 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
 ]
 
-dependencies = []
+dependencies = ["dau-core"]
 
 [project.optional-dependencies]
 develop = [
@@ -43,7 +43,7 @@ develop = [
     "hatchling",
     "mdformat",
     "mdformat-tables>=1",
-    "pybind11",
+    "nanobind",
     "pytest",
     "pytest-cov",
     "ruff",
@@ -120,7 +120,7 @@ src = "/"
 [tool.hatch.build.hooks.hatch-cpp]
 verbose = true
 libraries = [
-    {name = "dau_driver/extension", sources = ["cpp/dau-driver/extension.cpp"], include-dirs = ["cpp"], binding="pybind11"}
+    {name = "dau_driver/extension", sources = ["cpp/dau-driver/extension.cpp"], include-dirs = ["cpp"], binding="nanobind"}
 ]
 
 [tool.hatch.build.targets.sdist]
@@ -154,6 +154,9 @@ combine-as-imports = true
 default-section = "third-party"
 known-first-party = [
     "dau_driver",
+]
+known-third-party = [
+    "dau_core",
 ]
 section-order = [
     "future",

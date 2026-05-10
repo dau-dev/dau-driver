@@ -1,12 +1,8 @@
 #pragma once
-#include <pybind11/pybind11.h>
 
-namespace py = pybind11;
+namespace dau_driver {
 
-int add(int i, int j);
+const char* native_backend();
+int native_abi_version();
 
-PYBIND11_MODULE(extension, m) {
-  m.doc() = "pybind11 example plugin";
-
-  m.def("add", &add, "A function that adds two numbers");
-}
+} // namespace dau_driver
