@@ -13,6 +13,10 @@ class RegisterAccessError(DauDriverError):
     pass
 
 
+class UnhealthyBarError(DauDriverError):
+    pass
+
+
 class TransferValidationError(DauDriverError):
     pass
 

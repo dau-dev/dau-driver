@@ -2,10 +2,20 @@ import os
 import os.path
 
 from .device import DauDevice
-from .errors import DauDriverError, DeviceNotFoundError, RegisterAccessError, TransferIoError, TransferValidationError, WrongBitstreamError
-from .linux_xdma import discover_devices, identify_device
+from .discovery import discover_devices, identify_device
+from .errors import (
+    DauDriverError,
+    DeviceNotFoundError,
+    RegisterAccessError,
+    TransferIoError,
+    TransferValidationError,
+    UnhealthyBarError,
+    WrongBitstreamError,
+)
 from .native import NativeInfo, native_info
 from .status import DeviceCounters, DeviceStatus
+from .stream_codec import DecodedStreamColumn, DecodedStreamResult, StreamDecoder, StreamEncoder
+from .stream_execution import StreamExecutionError, execute_scalar_operation
 from .transfer import DmaDirection, DmaTransfer
 
 __version__ = "0.1.0"
@@ -18,15 +28,22 @@ __all__ = [
     "DeviceStatus",
     "DmaDirection",
     "DmaTransfer",
+    "DecodedStreamColumn",
+    "DecodedStreamResult",
     "NativeInfo",
+    "StreamDecoder",
+    "StreamEncoder",
+    "StreamExecutionError",
     "RegisterAccessError",
     "TransferIoError",
     "TransferValidationError",
+    "UnhealthyBarError",
     "WrongBitstreamError",
     "bin_path",
     "discover_devices",
     "identify_device",
     "include_path",
+    "execute_scalar_operation",
     "lib_path",
     "native_info",
 ]

@@ -14,7 +14,7 @@ def read_exact_at(path: Path, offset: int, byte_count: int) -> bytes:
         while bytes_read < byte_count:
             chunk = os.pread(file_descriptor, byte_count - bytes_read, offset + bytes_read)
             if not chunk:
-                raise TransferIoError(f"short read from {path}: expected {byte_count} bytes, read {bytes_read}")
+                raise TransferIoError(f"short read from {path} at offset 0x{offset:x}: expected {byte_count} bytes, read {bytes_read}")
             chunks.append(chunk)
             bytes_read += len(chunk)
         return b"".join(chunks)
@@ -32,7 +32,7 @@ def write_all_at(path: Path, offset: int, data: bytes | bytearray | memoryview) 
         while bytes_written < len(data_view):
             written = os.pwrite(file_descriptor, data_view[bytes_written:], offset + bytes_written)
             if written == 0:
-                raise TransferIoError(f"short write to {path}: expected {len(data_view)} bytes, wrote {bytes_written}")
+                raise TransferIoError(f"short write to {path} at offset 0x{offset:x}: expected {len(data_view)} bytes, wrote {bytes_written}")
             bytes_written += written
         return bytes_written
     except OSError as exc:

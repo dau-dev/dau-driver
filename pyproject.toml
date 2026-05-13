@@ -54,6 +54,7 @@ develop = [
 ]
 
 [project.scripts]
+dau-xdma-macos-probe = "dau_driver.macos_xdma:main"
 
 [project.urls]
 Repository = "https://github.com/dau-dev/dau-driver"
