@@ -4,13 +4,13 @@ import struct
 from pathlib import Path
 
 import pytest
-from dau_core.capabilities import DeviceCapabilities, DmaConstraints, OperatorCapability
-from dau_core.registers import RegisterMapVersion, StreamProtocolVersion
-from dau_core.stream import InvalidStreamError, LogicalType, OperationCode, OperationDescriptor
+from dau_core.capabilities import OperatorCapability
+from dau_core.stream import LogicalType, OperationCode, OperationDescriptor
 
 from dau_driver import DauDevice
 from dau_driver.stream_codec import StreamDecoder, StreamEncoder
 from dau_driver.stream_execution import StreamExecutionError, execute_scalar_operation
+from dau_driver.testing import FakeTransport, default_int32_capabilities, fake_device
 
 
 def test_execute_scalar_operation_writes_encoded_stream_triggers_device_and_decodes_result(tmp_path: Path) -> None:
@@ -82,50 +82,11 @@ def test_execute_scalar_operation_rejects_capability_output_type_mismatch(tmp_pa
     assert transport.h2c_writes == []
 
 
-class FakeTransport:
-    def __init__(self) -> None:
-        self.h2c_writes: list[tuple[int, bytes]] = []
-        self.c2h_reads: list[tuple[int, int]] = []
-        self.c2h_payloads: dict[int, bytes] = {}
-
-    def read_u32(self, offset: int) -> int:
-        return 0
-
-    def write_u32(self, offset: int, value: int) -> None:
-        pass
-
-    def read_dma(self, device_address: int, byte_count: int) -> bytes:
-        self.c2h_reads.append((device_address, byte_count))
-        try:
-            payload = self.c2h_payloads[device_address]
-        except KeyError as exc:
-            raise InvalidStreamError(f"no fake C2H payload at 0x{device_address:x}") from exc
-        return payload[:byte_count]
-
-    def write_dma(self, device_address: int, data: bytes | bytearray | memoryview) -> int:
-        payload = bytes(data)
-        self.h2c_writes.append((device_address, payload))
-        return len(payload)
-
-
 def _make_device(tmp_path: Path, transport: FakeTransport) -> DauDevice:
-    return DauDevice(
-        name="xdma0",
-        backend="linux-xdma",
-        user_path=tmp_path / "xdma0_user",
-        h2c_path=tmp_path / "xdma0_h2c_0",
-        c2h_path=tmp_path / "xdma0_c2h_0",
-        capabilities=DeviceCapabilities(
-            platform_id="NITE",
-            pci_vendor_id=0x10EE,
-            pci_device_id=0x7011,
-            register_map_version=RegisterMapVersion(0, 1),
-            stream_protocol_version=StreamProtocolVersion(0, 1),
-            dma=DmaConstraints(alignment_bytes=64, descriptor_bytes=32, max_transfer_bytes=4096, read_channels=1, write_channels=1),
-            operators=(OperatorCapability(OperationCode.SUM, (LogicalType.INT32,), LogicalType.INT64, supports_group_by=False),),
-        ),
-        transport=transport,
+    capabilities = default_int32_capabilities(
+        operators=(OperatorCapability(OperationCode.SUM, (LogicalType.INT32,), LogicalType.INT64, supports_group_by=False),),
     )
+    return fake_device(tmp_path, transport, capabilities=capabilities)
 
 
 def _operation(opcode: OperationCode, *, output_type: LogicalType) -> OperationDescriptor:

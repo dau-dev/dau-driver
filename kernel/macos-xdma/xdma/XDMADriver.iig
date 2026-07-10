@@ -1,0 +1,39 @@
+/*
+ * XDMADriver.iig
+ * macOS DriverKit extension for Xilinx XDMA PCIe devices
+ *
+ * This is the main driver class that manages PCI device attachment,
+ * BAR access, DMA engine discovery, and interrupt handling.
+ */
+
+#ifndef XDMADriver_h
+#define XDMADriver_h
+
+#include <Availability.h>
+#include <DriverKit/IOService.iig>
+#include <DriverKit/IOUserClient.iig>
+#include <PCIDriverKit/IOPCIDevice.iig>
+
+class XDMADriver: public IOService
+{
+public:
+    virtual bool init() override;
+    virtual kern_return_t Start(IOService * provider) override;
+    virtual kern_return_t Stop(IOService * provider) override;
+    virtual kern_return_t NewUserClient(uint32_t type, IOUserClient **userClient) override;
+    virtual void free() override;
+
+    // BAR access methods (called by UserClient)
+    virtual kern_return_t ReadBAR(uint32_t bar_index, uint64_t offset, uint32_t *value) LOCALONLY;
+    virtual kern_return_t WriteBAR(uint32_t bar_index, uint64_t offset, uint32_t value) LOCALONLY;
+
+    // DMA transfer methods (stubs for now)
+    virtual kern_return_t DMAWrite(uint64_t device_offset, uint64_t length) LOCALONLY;
+    virtual kern_return_t DMARead(uint64_t device_offset, uint64_t length) LOCALONLY;
+
+    // Device info
+    virtual kern_return_t GetDeviceInfo(uint16_t *vendor, uint16_t *device,
+                                       uint16_t *subsystem_vendor, uint16_t *subsystem_device) LOCALONLY;
+};
+
+#endif /* XDMADriver_h */

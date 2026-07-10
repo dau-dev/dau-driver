@@ -30,7 +30,7 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
 ]
 
-dependencies = ["dau-core"]
+dependencies = ["dau-core @ git+https://github.com/dau-dev/dau-core.git"]
 
 [project.optional-dependencies]
 develop = [
@@ -84,6 +84,10 @@ test-extras = "develop"
 [tool.cibuildwheel.linux]
 manylinux-x86_64-image = "manylinux_2_28"
 skip = "*i686 musllinux*"
+# the container has no host git credentials; the test phase installs the
+# [develop] extra whose private deps clone from GitHub
+before-test = "sh -c 'if [ -n \"$GIT_AUTH_TOKEN\" ]; then git config --global url.\"https://x-access-token:$GIT_AUTH_TOKEN@github.com/dau-dev/\".insteadOf \"https://github.com/dau-dev/\"; fi'"
+environment-pass = ["GIT_AUTH_TOKEN"]
 
 [tool.cibuildwheel.macos]
 environment = {MACOSX_DEPLOYMENT_TARGET="11.0"}
@@ -107,6 +111,10 @@ exclude_also = [
 ]
 ignore_errors = true
 fail_under = 50
+
+[tool.hatch.metadata]
+# private dau packages install from GitHub (no PyPI releases)
+allow-direct-references = true
 
 [tool.hatch.build]
 artifacts = [

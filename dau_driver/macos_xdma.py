@@ -8,10 +8,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
 
-from dau_core.capabilities import DeviceCapabilities, DmaConstraints, OperatorCapability
-from dau_core.registers import DAU_MAGIC_WORD, RegisterBlockSnapshot, RegisterMapVersion, RegisterOffset, StreamProtocolVersion
-from dau_core.stream import LogicalType, OperationCode
+from dau_core.capabilities import DeviceCapabilities, DmaConstraints
+from dau_core.registers import DAU_MAGIC_WORD, RegisterBlockSnapshot, RegisterOffset
 
+from .capability_decode import REGISTER_WINDOW_OFFSETS, operators_from_bitmap, read_register_block_snapshot
 from .device import DauDevice
 from .errors import DeviceNotFoundError, RegisterAccessError, TransferIoError, UnhealthyBarError, WrongBitstreamError
 
@@ -20,8 +20,6 @@ CANONICAL_SERVICE_NAME = "com.dau-dev.xdma"
 LEGACY_SERVICE_NAME = "XDMADriver"
 DEFAULT_SERVICE_NAME = CANONICAL_SERVICE_NAME
 DEFAULT_SERVICE_NAMES = (CANONICAL_SERVICE_NAME, LEGACY_SERVICE_NAME)
-NITEFURY_PLATFORM_ID = "NITE"
-REGISTER_WINDOW_OFFSETS = (0x0, 0x1000)
 REGISTER_BAR_INDICES = (0, 1, 2, 3, 4, 5)
 K_METHOD_READ_BAR = 0
 K_METHOD_WRITE_BAR = 1
@@ -34,13 +32,6 @@ MACOS_XDMA_DMA_CONSTRAINTS = DmaConstraints(
     max_transfer_bytes=(1 << 28) - 1,
     read_channels=0,
     write_channels=0,
-)
-DEFAULT_INPUT_TYPES = (
-    LogicalType.INT8,
-    LogicalType.INT16,
-    LogicalType.INT32,
-    LogicalType.INT64,
-    LogicalType.FLOAT32,
 )
 
 
@@ -472,7 +463,7 @@ def identify_device(client: MacOSXDMAClientProtocol, *, index: int = 0) -> DauDe
         register_map_version=snapshot.register_map_version,
         stream_protocol_version=snapshot.stream_protocol_version,
         dma=MACOS_XDMA_DMA_CONSTRAINTS,
-        operators=_operators_from_bitmap(snapshot.operator_bitmap),
+        operators=operators_from_bitmap(snapshot.operator_bitmap),
     )
 
     return DauDevice(
@@ -503,57 +494,11 @@ def _find_register_window(client: MacOSXDMAClientProtocol) -> tuple[int, int, in
 
 
 def _read_register_block_snapshot(client: MacOSXDMAClientProtocol, bar_index: int, register_window_offset: int) -> RegisterBlockSnapshot:
-    return RegisterBlockSnapshot(
-        register_map_version=_decode_register_map_version(
-            _read_register(client, bar_index, register_window_offset, RegisterOffset.REGISTER_MAP_VERSION)
-        ),
-        stream_protocol_version=StreamProtocolVersion.from_u32(
-            _read_register(client, bar_index, register_window_offset, RegisterOffset.STREAM_PROTOCOL_VERSION)
-        ),
-        platform_id=_decode_platform_id(_read_register(client, bar_index, register_window_offset, RegisterOffset.PLATFORM_ID))
-        or NITEFURY_PLATFORM_ID,
-        operator_bitmap=_read_register(client, bar_index, register_window_offset, RegisterOffset.OPERATOR_BITMAP),
-    )
+    return read_register_block_snapshot(lambda offset: _read_register(client, bar_index, register_window_offset, offset))
 
 
 def _read_register(client: MacOSXDMAClientProtocol, bar_index: int, register_window_offset: int, offset: RegisterOffset) -> int:
     return client.read_bar_u32(bar_index, register_window_offset + int(offset))
-
-
-def _decode_register_map_version(value: int) -> RegisterMapVersion:
-    if value == 0xFFFF_FFFF:
-        return RegisterMapVersion(0, 1)
-    return RegisterMapVersion.from_u32(value)
-
-
-def _decode_platform_id(value: int) -> str:
-    platform_bytes = value.to_bytes(4, "little").rstrip(b"\x00")
-    if not platform_bytes or any(byte < 0x20 or byte > 0x7E for byte in platform_bytes):
-        return ""
-    return platform_bytes.decode("ascii")
-
-
-def _operators_from_bitmap(operator_bitmap: int) -> tuple[OperatorCapability, ...]:
-    operators = []
-    for opcode in OperationCode:
-        if operator_bitmap & (1 << int(opcode)):
-            operators.append(
-                OperatorCapability(
-                    opcode=opcode,
-                    input_types=DEFAULT_INPUT_TYPES,
-                    output_type=_output_type(opcode),
-                    supports_group_by=False,
-                )
-            )
-    return tuple(operators)
-
-
-def _output_type(opcode: OperationCode) -> LogicalType:
-    if opcode == OperationCode.AVERAGE:
-        return LogicalType.FLOAT64
-    if opcode == OperationCode.COUNT:
-        return LogicalType.UINT64
-    return LogicalType.INT64
 
 
 def main(argv: Sequence[str] | None = None) -> int:

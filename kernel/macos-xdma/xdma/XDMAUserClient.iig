@@ -1,0 +1,30 @@
+/*
+ * XDMAUserClient.iig
+ * IOUserClient for XDMA driver - provides userspace interface
+ *
+ * This class allows userspace applications to communicate with the driver
+ * for BAR register access and DMA operations.
+ */
+
+#ifndef XDMAUserClient_h
+#define XDMAUserClient_h
+
+#include <Availability.h>
+#include <DriverKit/IOUserClient.iig>
+
+class XDMAUserClient: public IOUserClient
+{
+public:
+    virtual bool init() override;
+    virtual kern_return_t Start(IOService * provider) override;
+    virtual kern_return_t Stop(IOService * provider) override;
+    virtual void free() override;
+
+    virtual kern_return_t ExternalMethod(uint64_t selector,
+                                        IOUserClientMethodArguments *arguments,
+                                        const IOUserClientMethodDispatch *dispatch,
+                                        OSObject *target,
+                                        void *reference) override;
+};
+
+#endif /* XDMAUserClient_h */

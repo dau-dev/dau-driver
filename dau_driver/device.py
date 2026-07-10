@@ -10,6 +10,7 @@ from typing import Protocol
 from dau_core.capabilities import DeviceCapabilities
 from dau_core.registers import RegisterBlockSnapshot, RegisterMapVersion, RegisterOffset, StreamProtocolVersion
 
+from .capability_decode import DPV1_PLATFORM_ID, decode_platform_id
 from .errors import RegisterAccessError, UnhealthyBarError
 from .status import DeviceCounters, DeviceStatus
 from .transfer import DmaDirection, DmaTransfer, validate_transfer
@@ -66,6 +67,11 @@ class DauDevice:
     def read_register(self, offset: RegisterOffset) -> int:
         return self.resolved_transport.read_u32(self.register_window_offset + int(offset))
 
+    def write_register(self, offset: RegisterOffset | int, value: int) -> None:
+        if not 0 <= value <= 0xFFFF_FFFF:
+            raise RegisterAccessError(f"register value must fit in 32 bits, got {value!r}")
+        self.resolved_transport.write_u32(self.register_window_offset + int(offset), value)
+
     def check_bar_health(self, *, offsets: Sequence[RegisterOffset | int] = (RegisterOffset.MAGIC, RegisterOffset.STREAM_PROTOCOL_VERSION)) -> None:
         for offset in offsets:
             value = self.resolved_transport.read_u32(self.register_window_offset + int(offset))
@@ -82,7 +88,7 @@ class DauDevice:
         return RegisterBlockSnapshot(
             register_map_version=RegisterMapVersion.from_u32(self.read_register(RegisterOffset.REGISTER_MAP_VERSION)),
             stream_protocol_version=StreamProtocolVersion.from_u32(self.read_register(RegisterOffset.STREAM_PROTOCOL_VERSION)),
-            platform_id=_decode_platform_id(self.read_register(RegisterOffset.PLATFORM_ID)),
+            platform_id=decode_platform_id(self.read_register(RegisterOffset.PLATFORM_ID)) or DPV1_PLATFORM_ID,
             shell_version=self.read_register(RegisterOffset.SHELL_VERSION),
             build_id=self._read_u64(RegisterOffset.BUILD_ID_LOW),
             status=self.read_register(RegisterOffset.STATUS),
@@ -225,10 +231,3 @@ def _offset_name(offset: RegisterOffset | int) -> str:
     if isinstance(offset, RegisterOffset):
         return offset.name
     return f"0x{offset:x}"
-
-
-def _decode_platform_id(value: int) -> str:
-    platform_bytes = value.to_bytes(4, "little").rstrip(b"\x00")
-    if not platform_bytes or any(byte < 0x20 or byte > 0x7E for byte in platform_bytes):
-        return "NITE"
-    return platform_bytes.decode("ascii")
