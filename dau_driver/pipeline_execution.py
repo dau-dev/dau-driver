@@ -271,3 +271,71 @@ def execute_bar_ddr_job(
     Returns the decoded bar records."""
     raw, count = execute_bar_ddr_packed(device, pack_bar_rows(rows), len(rows), timeout_seconds=timeout_seconds)
     return decode_bar_records(raw, count)
+
+
+# broadcast-NoC bar shell (dau_mm_bar_noc_job): one scan, BAR_NOC_LANES
+# key-partitioned lanes, each with its own slice of the output region.
+# Rows per job are bounded by the worst case of every record landing in
+# one lane, so no partition can overrun its slice.
+BAR_NOC_LANES = 4
+BAR_NOC_LANE_OUTPUT_BYTES = BAR_DDR_OUTPUT_BYTES // BAR_NOC_LANES
+BAR_NOC_MAX_ROWS_PER_JOB = min(BAR_DDR_INPUT_BYTES // BAR_ROW_BYTES, BAR_NOC_LANE_OUTPUT_BYTES // BAR_RECORD_BYTES)
+
+
+def bar_noc_lane_output_address(lane: int) -> int:
+    return BAR_DDR_OUTPUT_ADDRESS + lane * BAR_NOC_LANE_OUTPUT_BYTES
+
+
+def configure_bar_noc_lanes(device, *, lanes: int = BAR_NOC_LANES) -> None:
+    """Point every lane's writer at its slice of the output region."""
+    from dau_core.registers import NocLaneRegisterOffset, noc_lane_register
+
+    for lane in range(lanes):
+        device.write_register(noc_lane_register(lane, NocLaneRegisterOffset.OUTPUT_ADDRESS_LOW), bar_noc_lane_output_address(lane))
+
+
+def execute_bar_noc_packed(
+    device,
+    payload: bytes,
+    row_count: int,
+    *,
+    lanes: int = BAR_NOC_LANES,
+    timeout_seconds: float = 60.0,
+) -> list[tuple[bytes, int]]:
+    """Run one pre-packed batch through the broadcast-NoC bar shell: one
+    scan computes every lane's partition concurrently. The lanes must
+    already be configured (``configure_bar_noc_lanes``). Returns raw
+    record bytes and count per lane."""
+    from dau_core.registers import NocLaneRegisterOffset, noc_lane_register
+
+    if row_count == 0:
+        return [(b"", 0)] * lanes
+    if row_count > BAR_NOC_MAX_ROWS_PER_JOB:
+        raise PipelineJobError(f"{row_count} rows exceed the NoC staging budget of {BAR_NOC_MAX_ROWS_PER_JOB}")
+    stage_bar_ddr_input(device, payload, row_count)
+    start_bar_ddr_job(device, row_count)
+
+    deadline = time.time() + timeout_seconds
+    while True:
+        status = device.read_register(RegisterOffset.JOB_STATUS)
+        if status & int(JobStatusFlag.DONE):
+            break
+        if time.time() > deadline:
+            raise PipelineJobError(f"bar NoC job timed out (status=0x{status:x})")
+    if status & int(JobStatusFlag.ERROR):
+        last_error = device.read_register(RegisterOffset.LAST_ERROR)
+        raise PipelineJobError(f"bar NoC job failed: status=0x{status:x} last_error={last_error}")
+
+    results = []
+    for lane in range(lanes):
+        result_length = device.read_register(noc_lane_register(lane, NocLaneRegisterOffset.RESULT_LENGTH_LOW))
+        count = device.read_register(noc_lane_register(lane, NocLaneRegisterOffset.RECORD_COUNT_LOW))
+        if result_length != count * BAR_RECORD_BYTES:
+            raise PipelineJobError(f"lane {lane}: result length {result_length} inconsistent with record count {count}")
+        if count == 0:
+            results.append((b"", 0))
+            continue
+        read_bytes = ((result_length + DMA_ALIGN_BYTES - 1) // DMA_ALIGN_BYTES) * DMA_ALIGN_BYTES
+        raw = device.read_dma(device_address=bar_noc_lane_output_address(lane), byte_count=read_bytes)
+        results.append((raw, count))
+    return results
