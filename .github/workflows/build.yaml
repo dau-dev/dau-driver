@@ -108,6 +108,7 @@ jobs:
       env:
         CIBW_BUILD: "${{ matrix.cibuildwheel }}-manylinux*"
         CIBW_BUILD_VERBOSITY: 3
+        GIT_AUTH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
       if: matrix.os == 'ubuntu-latest'
 
     - name: Make dist (Macos)
