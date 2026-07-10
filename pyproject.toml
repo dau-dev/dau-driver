@@ -30,7 +30,7 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
 ]
 
-dependencies = ["dau-core"]
+dependencies = ["dau-core @ git+https://github.com/dau-dev/dau-core.git"]
 
 [project.optional-dependencies]
 develop = [
