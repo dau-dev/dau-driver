@@ -181,45 +181,48 @@ def execute_bar_job(
 
 
 # DDR staging layout for the dau_mm_bar_ddr_job shell: rows in the low
-# 768 MiB, records in the high 256 MiB. Rows per job are bounded by the
-# worst case of one record per row so an overrun is impossible by
-# construction (an actual overflow would fault the job, not corrupt input).
+# 768 MiB (split into two ping-pong regions so the host can stage the next
+# batch while the current one computes), records in the high 256 MiB. Rows
+# per job are bounded by the worst case of one record per row so an
+# overrun is impossible by construction (an actual overflow would fault
+# the job, not corrupt input). Staging addresses stay 4 KiB-aligned so the
+# runner's bursts never cross a 4 KiB boundary.
 BAR_DDR_INPUT_ADDRESS = 0x0000_0000
-BAR_DDR_INPUT_BYTES = 0x3000_0000
+BAR_DDR_INPUT_ADDRESS_ALT = 0x1800_0000
+BAR_DDR_INPUT_BYTES = 0x1800_0000
 BAR_DDR_OUTPUT_ADDRESS = 0x3000_0000
 BAR_DDR_OUTPUT_BYTES = 0x1000_0000
+BAR_DDR_ADDRESS_ALIGN = 0x1000
 BAR_DDR_MAX_ROWS_PER_JOB = min(BAR_DDR_INPUT_BYTES // BAR_ROW_BYTES, BAR_DDR_OUTPUT_BYTES // BAR_RECORD_BYTES)
 
 
-def execute_bar_ddr_packed(
-    device,
-    payload: bytes,
-    row_count: int,
-    *,
-    timeout_seconds: float = 60.0,
-) -> tuple[bytes, int]:
-    """Run one pre-packed batch of bar rows through the DDR-staged fused
-    bar shell (dau_mm_bar_ddr_job): stage the rows in DDR with one large
-    DMA write, stream them through the tile from memory, and read the
-    records back from the output region. Returns the raw record bytes and
-    the bar count — decoding stays with the caller so hosts can use
-    vectorized decoders (per-row Python marshaling dominates job time
-    otherwise)."""
-    if row_count == 0:
-        return b"", 0
+def stage_bar_ddr_input(device, payload: bytes, row_count: int, *, input_address: int = BAR_DDR_INPUT_ADDRESS) -> None:
+    """DMA one pre-packed batch of bar rows into a DDR input region."""
     if row_count > BAR_DDR_MAX_ROWS_PER_JOB:
         raise PipelineJobError(f"{row_count} rows exceed the DDR staging budget of {BAR_DDR_MAX_ROWS_PER_JOB}")
     if len(payload) < row_count * BAR_ROW_BYTES:
         raise PipelineJobError(f"payload of {len(payload)} bytes is short for {row_count} rows")
+    if input_address % BAR_DDR_ADDRESS_ALIGN:
+        raise PipelineJobError(f"input address 0x{input_address:x} is not 4 KiB-aligned")
     if len(payload) % DMA_ALIGN_BYTES:
         payload = payload + b"\x00" * ((-len(payload)) % DMA_ALIGN_BYTES)
+    device.write_dma(device_address=input_address, data=payload)
 
-    device.write_dma(device_address=BAR_DDR_INPUT_ADDRESS, data=payload)
-    device.write_register(RegisterOffset.INPUT_ADDRESS_LOW, BAR_DDR_INPUT_ADDRESS)
-    device.write_register(RegisterOffset.OUTPUT_ADDRESS_LOW, BAR_DDR_OUTPUT_ADDRESS)
+
+def start_bar_ddr_job(device, row_count: int, *, input_address: int = BAR_DDR_INPUT_ADDRESS, output_address: int = BAR_DDR_OUTPUT_ADDRESS) -> None:
+    """Kick a job over rows already staged in DDR."""
+    if input_address % BAR_DDR_ADDRESS_ALIGN or output_address % BAR_DDR_ADDRESS_ALIGN:
+        raise PipelineJobError(f"job addresses 0x{input_address:x}/0x{output_address:x} must be 4 KiB-aligned")
+    device.write_register(RegisterOffset.INPUT_ADDRESS_LOW, input_address)
+    device.write_register(RegisterOffset.OUTPUT_ADDRESS_LOW, output_address)
     device.write_register(RegisterOffset.INPUT_LENGTH_LOW, row_count * BAR_ROW_BYTES)
     device.write_register(RegisterOffset.JOB_CONTROL, int(JobControlFlag.START))
 
+
+def finish_bar_ddr_job(device, *, output_address: int = BAR_DDR_OUTPUT_ADDRESS, timeout_seconds: float = 60.0) -> tuple[bytes, int]:
+    """Wait for the running job and read its records back. Returns the raw
+    record bytes and the bar count — decoding stays with the caller so
+    hosts can use vectorized decoders."""
     deadline = time.time() + timeout_seconds
     while True:
         status = device.read_register(RegisterOffset.JOB_STATUS)
@@ -238,8 +241,24 @@ def execute_bar_ddr_packed(
     if count == 0:
         return b"", 0
     read_bytes = ((result_length + DMA_ALIGN_BYTES - 1) // DMA_ALIGN_BYTES) * DMA_ALIGN_BYTES
-    raw = device.read_dma(device_address=BAR_DDR_OUTPUT_ADDRESS, byte_count=read_bytes)
+    raw = device.read_dma(device_address=output_address, byte_count=read_bytes)
     return raw, count
+
+
+def execute_bar_ddr_packed(
+    device,
+    payload: bytes,
+    row_count: int,
+    *,
+    timeout_seconds: float = 60.0,
+) -> tuple[bytes, int]:
+    """Run one pre-packed batch of bar rows through the DDR-staged fused
+    bar shell (dau_mm_bar_ddr_job): stage, start, finish."""
+    if row_count == 0:
+        return b"", 0
+    stage_bar_ddr_input(device, payload, row_count)
+    start_bar_ddr_job(device, row_count)
+    return finish_bar_ddr_job(device, timeout_seconds=timeout_seconds)
 
 
 def execute_bar_ddr_job(
