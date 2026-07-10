@@ -1,0 +1,375 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		B93D869D2F47BCC000922B8A /* PCIDriverKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B93D869C2F47BCC000922B8A /* PCIDriverKit.framework */; };
+		B93D869F2F47BCC600922B8A /* DriverKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B93D869E2F47BCC600922B8A /* DriverKit.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		B92DBEB92FBA4663008C0336 /* xdma.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = xdma.xcodeproj; sourceTree = "<group>"; };
+		B93D86792F47BA7C00922B8A /* com.dau-dev.xdma.dext */ = {isa = PBXFileReference; explicitFileType = "wrapper.driver-extension"; includeInIndex = 0; path = "com.dau-dev.xdma.dext"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B93D869B2F47BC0500922B8A /* XDMADriver.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = XDMADriver.entitlements; sourceTree = "<group>"; };
+		B93D869C2F47BCC000922B8A /* PCIDriverKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PCIDriverKit.framework; path = System/DriverKit/System/Library/Frameworks/PCIDriverKit.framework; sourceTree = SDKROOT; };
+		B93D869E2F47BCC600922B8A /* DriverKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DriverKit.framework; path = System/DriverKit/System/Library/Frameworks/DriverKit.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		B93D86842F47BA7C00922B8A /* Exceptions for "xdma" folder in "XDMADriver" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Entitlements.plist,
+				Info.plist,
+				output,
+			);
+			target = B93D86782F47BA7C00922B8A /* XDMADriver */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		B93D867E2F47BA7C00922B8A /* xdma */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				B93D86842F47BA7C00922B8A /* Exceptions for "xdma" folder in "XDMADriver" target */,
+			);
+			path = xdma;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		B93D86762F47BA7C00922B8A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B93D869D2F47BCC000922B8A /* PCIDriverKit.framework in Frameworks */,
+				B93D869F2F47BCC600922B8A /* DriverKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		B92DBEC02FBA4663008C0336 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B93D866F2F47BA7C00922B8A = {
+			isa = PBXGroup;
+			children = (
+				B93D869B2F47BC0500922B8A /* XDMADriver.entitlements */,
+				B93D867E2F47BA7C00922B8A /* xdma */,
+				B93D867B2F47BA7C00922B8A /* Frameworks */,
+				B93D867A2F47BA7C00922B8A /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		B93D867A2F47BA7C00922B8A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B93D86792F47BA7C00922B8A /* com.dau-dev.xdma.dext */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B93D867B2F47BA7C00922B8A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				B93D869E2F47BCC600922B8A /* DriverKit.framework */,
+				B93D869C2F47BCC000922B8A /* PCIDriverKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		B93D86742F47BA7C00922B8A /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		B93D86782F47BA7C00922B8A /* XDMADriver */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B93D86852F47BA7C00922B8A /* Build configuration list for PBXNativeTarget "XDMADriver" */;
+			buildPhases = (
+				B93D86742F47BA7C00922B8A /* Headers */,
+				B93D86752F47BA7C00922B8A /* Sources */,
+				B93D86762F47BA7C00922B8A /* Frameworks */,
+				B93D86772F47BA7C00922B8A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				B93D867E2F47BA7C00922B8A /* xdma */,
+			);
+			name = XDMADriver;
+			packageProductDependencies = (
+			);
+			productName = xdma;
+			productReference = B93D86792F47BA7C00922B8A /* com.dau-dev.xdma.dext */;
+			productType = "com.apple.product-type.driver-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		B93D86702F47BA7C00922B8A /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 2620;
+				TargetAttributes = {
+					B93D86782F47BA7C00922B8A = {
+						CreatedOnToolsVersion = 26.2;
+					};
+				};
+			};
+			buildConfigurationList = B93D86732F47BA7C00922B8A /* Build configuration list for PBXProject "xdma" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = B93D866F2F47BA7C00922B8A;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = B93D867A2F47BA7C00922B8A /* Products */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = B92DBEC02FBA4663008C0336 /* Products */;
+					ProjectRef = B92DBEB92FBA4663008C0336 /* xdma.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				B93D86782F47BA7C00922B8A /* XDMADriver */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		B93D86772F47BA7C00922B8A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		B93D86752F47BA7C00922B8A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		B93D86862F47BA7C00922B8A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = XDMADriver.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = UNJ796QUWT;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SDKROOT)/System/DriverKit/System/Library/Frameworks",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = xdma/Info.plist;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.dau-dev.xdma";
+				PRODUCT_NAME = "$(inherited)";
+				RUN_CLANG_STATIC_ANALYZER = YES;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+			};
+			name = Debug;
+		};
+		B93D86872F47BA7C00922B8A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = XDMADriver.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = UNJ796QUWT;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SDKROOT)/System/DriverKit/System/Library/Frameworks",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = xdma/Info.plist;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.dau-dev.xdma";
+				PRODUCT_NAME = "$(inherited)";
+				RUN_CLANG_STATIC_ANALYZER = YES;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+			};
+			name = Release;
+		};
+		B93D86882F47BA7C00922B8A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				DRIVERKIT_DEPLOYMENT_TARGET = 25.2;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = driverkit;
+			};
+			name = Debug;
+		};
+		B93D86892F47BA7C00922B8A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				DRIVERKIT_DEPLOYMENT_TARGET = 25.2;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = driverkit;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		B93D86732F47BA7C00922B8A /* Build configuration list for PBXProject "xdma" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B93D86882F47BA7C00922B8A /* Debug */,
+				B93D86892F47BA7C00922B8A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B93D86852F47BA7C00922B8A /* Build configuration list for PBXNativeTarget "XDMADriver" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B93D86862F47BA7C00922B8A /* Debug */,
+				B93D86872F47BA7C00922B8A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = B93D86702F47BA7C00922B8A /* Project object */;
+}

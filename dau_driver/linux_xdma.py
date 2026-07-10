@@ -2,18 +2,15 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from dau_core.capabilities import DeviceCapabilities, DmaConstraints, OperatorCapability
-from dau_core.registers import DAU_MAGIC_WORD, RegisterBlockSnapshot, RegisterMapVersion, RegisterOffset, StreamProtocolVersion
-from dau_core.stream import LogicalType, OperationCode
+from dau_core.capabilities import DPV1_DEVICE_ID, XILINX_VENDOR_ID, DeviceCapabilities, DmaConstraints
+from dau_core.registers import DAU_MAGIC_WORD, RegisterBlockSnapshot, RegisterOffset
 
+from .capability_decode import REGISTER_WINDOW_OFFSETS, operators_from_bitmap, read_register_block_snapshot
 from .device import DauDevice, read_u32
 from .errors import RegisterAccessError, UnhealthyBarError, WrongBitstreamError
 
 DEFAULT_DEV_ROOT = Path("/dev")
 DEFAULT_BACKEND = "linux-xdma"
-NITEFURY_PLATFORM_ID = "NITE"
-XILINX_VENDOR_ID = 0x10EE
-NITEFURY_DEVICE_ID = 0x7011
 DEFAULT_DMA_CONSTRAINTS = DmaConstraints(
     alignment_bytes=64,
     descriptor_bytes=32,
@@ -21,14 +18,6 @@ DEFAULT_DMA_CONSTRAINTS = DmaConstraints(
     read_channels=1,
     write_channels=1,
 )
-DEFAULT_INPUT_TYPES = (
-    LogicalType.INT8,
-    LogicalType.INT16,
-    LogicalType.INT32,
-    LogicalType.INT64,
-    LogicalType.FLOAT32,
-)
-REGISTER_WINDOW_OFFSETS = (0x0, 0x1000)
 LINUX_XDMA_C2H_READ_CHUNK_BYTES = 64
 
 
@@ -65,11 +54,11 @@ def identify_device(user_path: str | Path, *, h2c_path: str | Path | None = None
     capabilities = DeviceCapabilities(
         platform_id=snapshot.platform_id,
         pci_vendor_id=XILINX_VENDOR_ID,
-        pci_device_id=NITEFURY_DEVICE_ID,
+        pci_device_id=DPV1_DEVICE_ID,
         register_map_version=snapshot.register_map_version,
         stream_protocol_version=snapshot.stream_protocol_version,
         dma=DEFAULT_DMA_CONSTRAINTS,
-        operators=_operators_from_bitmap(snapshot.operator_bitmap),
+        operators=operators_from_bitmap(snapshot.operator_bitmap),
     )
 
     return DauDevice(
@@ -103,14 +92,7 @@ def _read_register(user_path: Path, register_window_offset: int, offset: Registe
 
 
 def _read_register_block_snapshot(user_path: Path, register_window_offset: int) -> RegisterBlockSnapshot:
-    return RegisterBlockSnapshot(
-        register_map_version=_decode_register_map_version(_read_register(user_path, register_window_offset, RegisterOffset.REGISTER_MAP_VERSION)),
-        stream_protocol_version=StreamProtocolVersion.from_u32(
-            _read_register(user_path, register_window_offset, RegisterOffset.STREAM_PROTOCOL_VERSION)
-        ),
-        platform_id=_decode_platform_id(_read_register(user_path, register_window_offset, RegisterOffset.PLATFORM_ID)) or NITEFURY_PLATFORM_ID,
-        operator_bitmap=_read_register(user_path, register_window_offset, RegisterOffset.OPERATOR_BITMAP),
-    )
+    return read_register_block_snapshot(lambda offset: _read_register(user_path, register_window_offset, offset))
 
 
 def _channel_paths(user_path: Path) -> tuple[Path, Path]:
@@ -120,39 +102,3 @@ def _channel_paths(user_path: Path) -> tuple[Path, Path]:
 
 def _device_name(user_path: Path) -> str:
     return user_path.name.removesuffix("_user")
-
-
-def _decode_platform_id(value: int) -> str:
-    platform_bytes = value.to_bytes(4, "little").rstrip(b"\x00")
-    if not platform_bytes or any(byte < 0x20 or byte > 0x7E for byte in platform_bytes):
-        return ""
-    return platform_bytes.decode("ascii")
-
-
-def _decode_register_map_version(value: int) -> RegisterMapVersion:
-    if value == 0xFFFF_FFFF:
-        return RegisterMapVersion(0, 1)
-    return RegisterMapVersion.from_u32(value)
-
-
-def _operators_from_bitmap(operator_bitmap: int) -> tuple[OperatorCapability, ...]:
-    operators = []
-    for opcode in OperationCode:
-        if operator_bitmap & (1 << int(opcode)):
-            operators.append(
-                OperatorCapability(
-                    opcode=opcode,
-                    input_types=DEFAULT_INPUT_TYPES,
-                    output_type=_output_type(opcode),
-                    supports_group_by=False,
-                )
-            )
-    return tuple(operators)
-
-
-def _output_type(opcode: OperationCode) -> LogicalType:
-    if opcode == OperationCode.AVERAGE:
-        return LogicalType.FLOAT64
-    if opcode == OperationCode.COUNT:
-        return LogicalType.UINT64
-    return LogicalType.INT64
