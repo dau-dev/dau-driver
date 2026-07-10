@@ -108,6 +108,10 @@ exclude_also = [
 ignore_errors = true
 fail_under = 50
 
+[tool.hatch.metadata]
+# private dau packages install from GitHub (no PyPI releases)
+allow-direct-references = true
+
 [tool.hatch.build]
 artifacts = [
     "dau_driver/*.dll",
