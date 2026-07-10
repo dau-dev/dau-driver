@@ -15,7 +15,7 @@ description = "PCIe Driver for dau"
 readme = "README.md"
 license = { text = "Apache-2.0" }
 version = "0.1.0"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 keywords = []
 
 classifiers = [
@@ -24,7 +24,6 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
@@ -77,7 +76,8 @@ search = 'version = "{current_version}"'
 replace = 'version = "{new_version}"'
 
 [tool.cibuildwheel]
-build = "cp310-* cp311-* cp312-* cp313-*"
+# one abi3 wheel per OS/arch: the extension targets the stable ABI from 3.12
+build = "cp312-*"
 test-command = "echo 'TODO'"
 test-extras = "develop"
 
@@ -129,7 +129,7 @@ src = "/"
 [tool.hatch.build.hooks.hatch-cpp]
 verbose = true
 libraries = [
-    {name = "dau_driver/extension", sources = ["cpp/dau-driver/extension.cpp"], include-dirs = ["cpp"], binding="nanobind"}
+    {name = "dau_driver/extension", sources = ["cpp/dau-driver/extension.cpp"], include-dirs = ["cpp"], binding="nanobind", py-limited-api="cp312"}
 ]
 
 [tool.hatch.build.targets.sdist]
