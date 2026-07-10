@@ -47,7 +47,7 @@ jobs:
             cibuildwheel: "cp312"
 
     steps:
-    - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+    - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
     - uses: actions-ext/python/setup@main
       with:
@@ -62,7 +62,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+        for /f "usebackq tokens=*" %%i in (`vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do call "%%i\VC\Auxiliary\Build\vcvars64.bat"
         make develop
       shell: cmd
       if: matrix.os == 'windows-latest'
@@ -86,13 +86,13 @@ jobs:
       if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
 
     - name: Publish Unit Test Results
-      uses: EnricoMi/publish-unit-test-result-action@c950f6fb443cb5af20a377fd0dfaa78838901040 # v2
+      uses: EnricoMi/publish-unit-test-result-action@d0a4676d0e0b938bc201470d88276b7c74c712b3 # v2.24.0
       with:
         files: '**/junit.xml'
       if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
 
     - name: Upload coverage
-      uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+      uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
 
@@ -123,12 +123,12 @@ jobs:
     - name: Make dist (Windows)
       run: |
         if exist dist rmdir /s /q dist
-        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+        for /f "usebackq tokens=*" %%i in (`vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do call "%%i\VC\Auxiliary\Build\vcvars64.bat"
         make dist-py-wheel
       shell: cmd
       env:
         CIBW_BUILD: "${{ matrix.cibuildwheel }}-win_amd64"
-        CIBW_BEFORE_ALL: call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+        CIBW_BEFORE_ALL: for /f "usebackq tokens=*" %i in (`vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do call "%i\VC\Auxiliary\Build\vcvars64.bat"
       if: matrix.os == 'windows-latest'
 
     - uses: actions-ext/python/test-wheel@main
