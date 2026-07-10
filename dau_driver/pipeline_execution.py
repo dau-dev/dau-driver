@@ -191,26 +191,33 @@ BAR_DDR_OUTPUT_BYTES = 0x1000_0000
 BAR_DDR_MAX_ROWS_PER_JOB = min(BAR_DDR_INPUT_BYTES // BAR_ROW_BYTES, BAR_DDR_OUTPUT_BYTES // BAR_RECORD_BYTES)
 
 
-def execute_bar_ddr_job(
+def execute_bar_ddr_packed(
     device,
-    rows: list[tuple[int, int, int, int]],
+    payload: bytes,
+    row_count: int,
     *,
     timeout_seconds: float = 60.0,
-):
-    """Run one batch of (key, price, shares, frac) rows through the
-    DDR-staged fused bar shell (dau_mm_bar_ddr_job): stage the rows in DDR
-    with one large DMA write, stream them through the tile from memory, and
-    read the records back from the output region. Returns the decoded bar
-    records."""
-    if not rows:
-        return []
-    if len(rows) > BAR_DDR_MAX_ROWS_PER_JOB:
-        raise PipelineJobError(f"{len(rows)} rows exceed the DDR staging budget of {BAR_DDR_MAX_ROWS_PER_JOB}")
+) -> tuple[bytes, int]:
+    """Run one pre-packed batch of bar rows through the DDR-staged fused
+    bar shell (dau_mm_bar_ddr_job): stage the rows in DDR with one large
+    DMA write, stream them through the tile from memory, and read the
+    records back from the output region. Returns the raw record bytes and
+    the bar count — decoding stays with the caller so hosts can use
+    vectorized decoders (per-row Python marshaling dominates job time
+    otherwise)."""
+    if row_count == 0:
+        return b"", 0
+    if row_count > BAR_DDR_MAX_ROWS_PER_JOB:
+        raise PipelineJobError(f"{row_count} rows exceed the DDR staging budget of {BAR_DDR_MAX_ROWS_PER_JOB}")
+    if len(payload) < row_count * BAR_ROW_BYTES:
+        raise PipelineJobError(f"payload of {len(payload)} bytes is short for {row_count} rows")
+    if len(payload) % DMA_ALIGN_BYTES:
+        payload = payload + b"\x00" * ((-len(payload)) % DMA_ALIGN_BYTES)
 
-    device.write_dma(device_address=BAR_DDR_INPUT_ADDRESS, data=pack_bar_rows(rows))
+    device.write_dma(device_address=BAR_DDR_INPUT_ADDRESS, data=payload)
     device.write_register(RegisterOffset.INPUT_ADDRESS_LOW, BAR_DDR_INPUT_ADDRESS)
     device.write_register(RegisterOffset.OUTPUT_ADDRESS_LOW, BAR_DDR_OUTPUT_ADDRESS)
-    device.write_register(RegisterOffset.INPUT_LENGTH_LOW, len(rows) * BAR_ROW_BYTES)
+    device.write_register(RegisterOffset.INPUT_LENGTH_LOW, row_count * BAR_ROW_BYTES)
     device.write_register(RegisterOffset.JOB_CONTROL, int(JobControlFlag.START))
 
     deadline = time.time() + timeout_seconds
@@ -229,7 +236,19 @@ def execute_bar_ddr_job(
     if result_length != count * BAR_RECORD_BYTES:
         raise PipelineJobError(f"result length {result_length} inconsistent with bar count {count}")
     if count == 0:
-        return []
+        return b"", 0
     read_bytes = ((result_length + DMA_ALIGN_BYTES - 1) // DMA_ALIGN_BYTES) * DMA_ALIGN_BYTES
     raw = device.read_dma(device_address=BAR_DDR_OUTPUT_ADDRESS, byte_count=read_bytes)
+    return raw, count
+
+
+def execute_bar_ddr_job(
+    device,
+    rows: list[tuple[int, int, int, int]],
+    *,
+    timeout_seconds: float = 60.0,
+):
+    """Tuple-row convenience wrapper over ``execute_bar_ddr_packed``.
+    Returns the decoded bar records."""
+    raw, count = execute_bar_ddr_packed(device, pack_bar_rows(rows), len(rows), timeout_seconds=timeout_seconds)
     return decode_bar_records(raw, count)
