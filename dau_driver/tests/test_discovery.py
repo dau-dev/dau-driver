@@ -73,7 +73,8 @@ def test_discover_devices_reports_one_matching_fake_device(tmp_path: Path) -> No
     assert device.capabilities.register_map_version == RegisterMapVersion(0, 1)
     assert device.capabilities.stream_protocol_version == StreamProtocolVersion(0, 1)
     assert device.capabilities.dma.is_aligned(128)
-    assert device.read_chunk_bytes == 64
+    # whole-transfer reads: the chunk quirk belonged to the retired shell
+    assert device.read_chunk_bytes is None
     assert device.capabilities.supports(OperationCode.AVERAGE, LogicalType.INT32)
     assert device.capabilities.supports(OperationCode.AVERAGE, LogicalType.FLOAT32)
 

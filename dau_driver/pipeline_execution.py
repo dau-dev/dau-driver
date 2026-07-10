@@ -114,3 +114,122 @@ def execute_keyed_pipeline_job(
     read_bytes = ((result_length + DMA_ALIGN_BYTES - 1) // DMA_ALIGN_BYTES) * DMA_ALIGN_BYTES
     raw = device.read_dma(device_address=resolved.output_buffer_address, byte_count=read_bytes)
     return decode_group_records(raw, group_count), selected
+
+
+BAR_ROW_BYTES = 16
+BAR_RECORD_BYTES = 48
+BAR_MAX_ROWS_PER_JOB = (1 << 17) // BAR_ROW_BYTES  # input BRAM: 8192 rows
+BAR_MAX_RECORDS_PER_JOB = (1 << 12) * 8 // BAR_RECORD_BYTES  # output BRAM: 682 records
+
+
+def pack_bar_rows(rows: list[tuple[int, int, int, int]]) -> bytes:
+    """(key, price, shares, frac) rows for the fused bar tile, on the DMA
+    grid; the logical length stays ``len(rows) * 16``."""
+    payload = b"".join(struct.pack("<iiii", key, price, shares, frac) for key, price, shares, frac in rows)
+    return payload + b"\x00" * ((-len(payload)) % DMA_ALIGN_BYTES)
+
+
+def decode_bar_records(data: bytes, count: int):
+    from dau_core.operators import BarAggregate
+
+    bars = []
+    for offset in range(0, count * BAR_RECORD_BYTES, BAR_RECORD_BYTES):
+        key, price_open, price_close, low, high, _pad, shares, frac, rows = struct.unpack_from("<iiiiiiqqQ", data, offset)
+        bars.append(BarAggregate(key=key, open=price_open, close=price_close, low=low, high=high, shares=shares, frac=frac, count=rows))
+    return bars
+
+
+def execute_bar_job(
+    device,
+    rows: list[tuple[int, int, int, int]],
+    *,
+    timeout_seconds: float = 5.0,
+    contract: StreamJobRegisterContract | None = None,
+):
+    """Run one batch of (key, price, shares, frac) rows through the fused
+    bar shell. Returns the decoded bar records."""
+    if not rows:
+        return []
+    if len(rows) > BAR_MAX_ROWS_PER_JOB:
+        raise PipelineJobError(f"{len(rows)} rows exceed the bar staging budget of {BAR_MAX_ROWS_PER_JOB}")
+    resolved = contract or StreamJobRegisterContract()
+
+    device.write_dma(device_address=resolved.input_buffer_address, data=pack_bar_rows(rows))
+    device.write_register(RegisterOffset.INPUT_LENGTH_LOW, len(rows) * BAR_ROW_BYTES)
+    device.write_register(RegisterOffset.JOB_CONTROL, int(JobControlFlag.START))
+
+    deadline = time.time() + timeout_seconds
+    while True:
+        status = device.read_register(RegisterOffset.JOB_STATUS)
+        if status & int(JobStatusFlag.DONE):
+            break
+        if time.time() > deadline:
+            raise PipelineJobError(f"bar job timed out (status=0x{status:x})")
+    if status & int(JobStatusFlag.ERROR):
+        last_error = device.read_register(RegisterOffset.LAST_ERROR)
+        raise PipelineJobError(f"bar job failed: status=0x{status:x} last_error={last_error}")
+
+    result_length = device.read_register(RegisterOffset.RESULT_LENGTH_LOW)
+    count = device.read_register(RegisterOffset.PIPELINE_GROUP_COUNT_LOW)
+    if result_length != count * BAR_RECORD_BYTES:
+        raise PipelineJobError(f"result length {result_length} inconsistent with bar count {count}")
+    if count == 0:
+        return []
+    read_bytes = ((result_length + DMA_ALIGN_BYTES - 1) // DMA_ALIGN_BYTES) * DMA_ALIGN_BYTES
+    raw = device.read_dma(device_address=resolved.output_buffer_address, byte_count=read_bytes)
+    return decode_bar_records(raw, count)
+
+
+# DDR staging layout for the dau_mm_bar_ddr_job shell: rows in the low
+# 768 MiB, records in the high 256 MiB. Rows per job are bounded by the
+# worst case of one record per row so an overrun is impossible by
+# construction (an actual overflow would fault the job, not corrupt input).
+BAR_DDR_INPUT_ADDRESS = 0x0000_0000
+BAR_DDR_INPUT_BYTES = 0x3000_0000
+BAR_DDR_OUTPUT_ADDRESS = 0x3000_0000
+BAR_DDR_OUTPUT_BYTES = 0x1000_0000
+BAR_DDR_MAX_ROWS_PER_JOB = min(BAR_DDR_INPUT_BYTES // BAR_ROW_BYTES, BAR_DDR_OUTPUT_BYTES // BAR_RECORD_BYTES)
+
+
+def execute_bar_ddr_job(
+    device,
+    rows: list[tuple[int, int, int, int]],
+    *,
+    timeout_seconds: float = 60.0,
+):
+    """Run one batch of (key, price, shares, frac) rows through the
+    DDR-staged fused bar shell (dau_mm_bar_ddr_job): stage the rows in DDR
+    with one large DMA write, stream them through the tile from memory, and
+    read the records back from the output region. Returns the decoded bar
+    records."""
+    if not rows:
+        return []
+    if len(rows) > BAR_DDR_MAX_ROWS_PER_JOB:
+        raise PipelineJobError(f"{len(rows)} rows exceed the DDR staging budget of {BAR_DDR_MAX_ROWS_PER_JOB}")
+
+    device.write_dma(device_address=BAR_DDR_INPUT_ADDRESS, data=pack_bar_rows(rows))
+    device.write_register(RegisterOffset.INPUT_ADDRESS_LOW, BAR_DDR_INPUT_ADDRESS)
+    device.write_register(RegisterOffset.OUTPUT_ADDRESS_LOW, BAR_DDR_OUTPUT_ADDRESS)
+    device.write_register(RegisterOffset.INPUT_LENGTH_LOW, len(rows) * BAR_ROW_BYTES)
+    device.write_register(RegisterOffset.JOB_CONTROL, int(JobControlFlag.START))
+
+    deadline = time.time() + timeout_seconds
+    while True:
+        status = device.read_register(RegisterOffset.JOB_STATUS)
+        if status & int(JobStatusFlag.DONE):
+            break
+        if time.time() > deadline:
+            raise PipelineJobError(f"bar DDR job timed out (status=0x{status:x})")
+    if status & int(JobStatusFlag.ERROR):
+        last_error = device.read_register(RegisterOffset.LAST_ERROR)
+        raise PipelineJobError(f"bar DDR job failed: status=0x{status:x} last_error={last_error}")
+
+    result_length = device.read_register(RegisterOffset.RESULT_LENGTH_LOW)
+    count = device.read_register(RegisterOffset.PIPELINE_GROUP_COUNT_LOW)
+    if result_length != count * BAR_RECORD_BYTES:
+        raise PipelineJobError(f"result length {result_length} inconsistent with bar count {count}")
+    if count == 0:
+        return []
+    read_bytes = ((result_length + DMA_ALIGN_BYTES - 1) // DMA_ALIGN_BYTES) * DMA_ALIGN_BYTES
+    raw = device.read_dma(device_address=BAR_DDR_OUTPUT_ADDRESS, byte_count=read_bytes)
+    return decode_bar_records(raw, count)

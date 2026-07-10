@@ -18,7 +18,12 @@ DEFAULT_DMA_CONSTRAINTS = DmaConstraints(
     read_channels=1,
     write_channels=1,
 )
-LINUX_XDMA_C2H_READ_CHUNK_BYTES = 64
+# Whole-transfer C2H reads: the 64-byte chunk quirk was an artifact of the
+# retired hand-built bring-up shell's AXI path — generated DAU shells read
+# clean at full speed (verified 2026-07-10: 128 KiB single reads at
+# ~367 MB/s with byte-exact integrity). Pass a value here only for legacy
+# images.
+LINUX_XDMA_C2H_READ_CHUNK_BYTES: int | None = None
 
 
 def discover_devices(root: str | Path = DEFAULT_DEV_ROOT) -> list[DauDevice]:
