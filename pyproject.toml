@@ -76,12 +76,7 @@ search = 'version = "{current_version}"'
 replace = 'version = "{new_version}"'
 
 [tool.cibuildwheel]
-<<<<<<< before updating
-# one abi3 wheel per OS/arch: the extension targets the stable ABI from 3.12
 build = "cp312-*"
-=======
-build = "cp311-* cp312-* cp313-*"
->>>>>>> after updating
 test-command = "echo 'TODO'"
 test-extras = "develop"
 
