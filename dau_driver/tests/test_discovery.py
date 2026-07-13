@@ -89,6 +89,31 @@ def test_identify_device_supports_register_window_offset(tmp_path: Path) -> None
     assert device.capabilities.platform_id == "NITE"
 
 
+def test_identify_device_retries_transient_zero_magic_read(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    # the first AXI-Lite reads after a PCIe rescan can transiently return 0
+    # before the link settles; the window probe must retry rather than raise
+    # WrongBitstreamError on a healthy shell
+    from dau_driver import linux_xdma
+
+    paths = write_fake_xdma_device(tmp_path, register_window_offset=0x1000)
+    real_read_u32 = linux_xdma.read_u32
+    reads = {"n": 0}
+
+    def flaky_read_u32(path: Path, offset: int) -> int:
+        reads["n"] += 1
+        # zero out the first full window sweep, then read for real
+        if reads["n"] <= len(linux_xdma.REGISTER_WINDOW_OFFSETS):
+            return 0
+        return real_read_u32(path, offset)
+
+    monkeypatch.setattr(linux_xdma, "read_u32", flaky_read_u32)
+
+    device = identify_device(paths.user)
+
+    assert device.register_window_offset == 0x1000
+    assert device.read_register(RegisterOffset.MAGIC) == DAU_MAGIC_WORD
+
+
 def test_identify_device_defaults_legacy_gpio_metadata(tmp_path: Path) -> None:
     user_path = tmp_path / "xdma0_user"
     h2c_path = tmp_path / "xdma0_h2c_0"
