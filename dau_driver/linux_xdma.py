@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import time
 from pathlib import Path
 
 from dau_core.capabilities import DPV1_DEVICE_ID, XILINX_VENDOR_ID, DeviceCapabilities, DmaConstraints
@@ -78,17 +79,28 @@ def identify_device(user_path: str | Path, *, h2c_path: str | Path | None = None
     )
 
 
+# The first AXI-Lite reads after a PCIe rescan can transiently return 0/stale
+# data before the link settles, so a single-shot magic probe can misread a
+# healthy DAU shell as the wrong bitstream. Re-probe a few times before giving
+# up so a transient does not masquerade as a real mismatch.
+_MAGIC_PROBE_ATTEMPTS = 5
+_MAGIC_PROBE_DELAY_S = 0.01
+
+
 def _find_register_window(user_path: Path) -> tuple[int, int]:
     first_magic: int | None = None
-    for register_window_offset in REGISTER_WINDOW_OFFSETS:
-        try:
-            magic = _read_register(user_path, register_window_offset, RegisterOffset.MAGIC)
-        except RegisterAccessError:
-            continue
-        if first_magic is None:
-            first_magic = magic
-        if magic == DAU_MAGIC_WORD:
-            return register_window_offset, magic
+    for attempt in range(_MAGIC_PROBE_ATTEMPTS):
+        for register_window_offset in REGISTER_WINDOW_OFFSETS:
+            try:
+                magic = _read_register(user_path, register_window_offset, RegisterOffset.MAGIC)
+            except RegisterAccessError:
+                continue
+            if first_magic is None:
+                first_magic = magic
+            if magic == DAU_MAGIC_WORD:
+                return register_window_offset, magic
+        if attempt + 1 < _MAGIC_PROBE_ATTEMPTS:
+            time.sleep(_MAGIC_PROBE_DELAY_S)
     return 0, 0 if first_magic is None else first_magic
 
 
