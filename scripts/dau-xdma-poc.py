@@ -17,11 +17,20 @@ def _add_repo_packages_to_path() -> None:
 
 _add_repo_packages_to_path()
 
+from dau_core.registers import RegisterOffset  # noqa: E402
+
 from dau_driver import DauDevice, identify_device  # noqa: E402
 
 DEFAULT_USER_PATH = "/dev/xdma0_user"
 DEFAULT_SIZES_MIB = "1,4,16,64,256"
-HEALTH_OFFSETS = (0x1000, 0x1008, 0x1028, 0x3200)
+# window-relative registers every stream-job top maps; composition tops
+# decode only addr[11:0] and return all-ones for anything unmapped, so the
+# health probe must stay on contract registers inside the 4 KiB window
+HEALTH_REGISTER_OFFSETS = (
+    RegisterOffset.MAGIC,
+    RegisterOffset.STREAM_PROTOCOL_VERSION,
+    RegisterOffset.OPERATOR_BITMAP,
+)
 
 
 def main() -> int:
@@ -111,7 +120,7 @@ def run_transfer(
     compare_start = time.perf_counter()
     mismatch = first_mismatch(payload, readback)
     compare_seconds = time.perf_counter() - compare_start
-    health = {} if skip_bar_check else bar_health(user_path)
+    health = {} if skip_bar_check else bar_health(user_path, device.register_window_offset)
 
     print(
         "POC_RESULT",
@@ -154,8 +163,8 @@ def first_mismatch(expected: bytes, actual: bytes) -> tuple[int, int | None, int
     return min(len(expected), len(actual)), None, None
 
 
-def bar_health(user_path: str) -> dict[int, int]:
-    return {offset: read_u32(user_path, offset) for offset in HEALTH_OFFSETS}
+def bar_health(user_path: str, register_window_offset: int) -> dict[int, int]:
+    return {register_window_offset + int(offset): read_u32(user_path, register_window_offset + int(offset)) for offset in HEALTH_REGISTER_OFFSETS}
 
 
 def read_u32(user_path: str, offset: int) -> int:
