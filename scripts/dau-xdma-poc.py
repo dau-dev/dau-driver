@@ -39,7 +39,7 @@ def main() -> int:
     parser.add_argument("--device-address", default=0, type=parse_int, help="DDR device address for the loopback")
     parser.add_argument("--sizes-mib", default=DEFAULT_SIZES_MIB, help="Comma-separated transfer sizes in MiB")
     parser.add_argument("--iterations", default=1, type=int, help="Number of full size sweeps to run")
-    parser.add_argument("--skip-bar-check", action="store_true", help="Do not check bounded DAU/XADC BAR health after each transfer")
+    parser.add_argument("--skip-bar-check", action="store_true", help="Do not check the DAU register-window BAR health after each transfer")
     args = parser.parse_args()
 
     if args.iterations <= 0:
