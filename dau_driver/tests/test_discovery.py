@@ -75,8 +75,37 @@ def test_discover_devices_reports_one_matching_fake_device(tmp_path: Path) -> No
     assert device.capabilities.dma.is_aligned(128)
     # whole-transfer reads: the chunk quirk belonged to the retired shell
     assert device.read_chunk_bytes is None
+    # legacy decode (register map 0.1, the proven resident dpv1 style): the
+    # advertised bit expands over the historical five-type set
     assert device.capabilities.supports(OperationCode.AVERAGE, LogicalType.INT32)
     assert device.capabilities.supports(OperationCode.AVERAGE, LogicalType.FLOAT32)
+    assert device.capabilities.host_operators == ()
+
+
+def test_discover_devices_decodes_the_concrete_contract_on_register_map_0_2(tmp_path: Path) -> None:
+    """Register map 0.2: OPERATOR_BITMAP is hardware truth (typed INT32 at
+    register level, no five-type expansion) and HOST_OPCODE_BITMAP carries
+    the host-computed opcodes (AVERAGE = SUM/COUNT divide) separately."""
+    write_fake_xdma_device(
+        tmp_path,
+        register_map_version=RegisterMapVersion(0, 2),
+        operator_bitmap=0x1E,
+        host_opcode_bitmap=0x20,
+        lane_count=4,
+        sort_capacity=16,
+    )
+
+    device = discover_devices(tmp_path)[0]
+
+    assert device.capabilities.register_map_version == RegisterMapVersion(0, 2)
+    assert device.capabilities.supports(OperationCode.SUM, LogicalType.INT32)
+    assert not device.capabilities.supports(OperationCode.SUM, LogicalType.FLOAT32)
+    assert not device.capabilities.supports(OperationCode.AVERAGE, LogicalType.INT32)
+    assert device.capabilities.supports_host_computed(OperationCode.AVERAGE, LogicalType.INT32)
+    snapshot = device.read_register_block_snapshot()
+    assert snapshot.lane_count == 4
+    assert snapshot.host_opcode_bitmap == 0x20
+    assert snapshot.sort_capacity == 16
 
 
 def test_identify_device_supports_register_window_offset(tmp_path: Path) -> None:
@@ -244,6 +273,9 @@ def write_fake_xdma_device(
     register_map_version: RegisterMapVersion = RegisterMapVersion(0, 1),
     stream_protocol_version: StreamProtocolVersion = StreamProtocolVersion(0, 1),
     operator_bitmap: int = 1 << OperationCode.AVERAGE,
+    lane_count: int = 0,
+    host_opcode_bitmap: int = 0,
+    sort_capacity: int = 0,
     status: int = 0,
     last_error: int = 0,
     h2c_bytes: int = 0,
@@ -264,6 +296,9 @@ def write_fake_xdma_device(
     write_u32(register_image, register_window_offset, RegisterOffset.PLATFORM_ID, int.from_bytes(platform_id.encode("ascii"), "little"))
     write_u32(register_image, register_window_offset, RegisterOffset.STATUS, status)
     write_u32(register_image, register_window_offset, RegisterOffset.OPERATOR_BITMAP, operator_bitmap)
+    write_u32(register_image, register_window_offset, RegisterOffset.LANE_COUNT, lane_count)
+    write_u32(register_image, register_window_offset, RegisterOffset.HOST_OPCODE_BITMAP, host_opcode_bitmap)
+    write_u32(register_image, register_window_offset, RegisterOffset.SORT_CAPACITY, sort_capacity)
     write_u32(register_image, register_window_offset, RegisterOffset.LAST_ERROR, last_error)
     write_u64(register_image, register_window_offset, RegisterOffset.H2C_BYTES_LOW, h2c_bytes)
     write_u64(register_image, register_window_offset, RegisterOffset.C2H_BYTES_LOW, c2h_bytes)

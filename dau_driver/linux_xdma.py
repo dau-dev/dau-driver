@@ -6,7 +6,7 @@ from pathlib import Path
 from dau_core.capabilities import DPV1_DEVICE_ID, XILINX_VENDOR_ID, DeviceCapabilities, DmaConstraints
 from dau_core.registers import DAU_MAGIC_WORD, RegisterBlockSnapshot, RegisterOffset
 
-from .capability_decode import REGISTER_WINDOW_OFFSETS, operators_from_bitmap, read_register_block_snapshot
+from .capability_decode import REGISTER_WINDOW_OFFSETS, operators_from_snapshot, read_register_block_snapshot
 from .device import DauDevice, read_u32
 from .errors import RegisterAccessError, UnhealthyBarError, WrongBitstreamError
 
@@ -56,6 +56,7 @@ def identify_device(user_path: str | Path, *, h2c_path: str | Path | None = None
         raise WrongBitstreamError(f"expected DAU magic 0x{DAU_MAGIC_WORD:08x}, found 0x{magic:08x} at {user}")
 
     snapshot = _read_register_block_snapshot(user, register_window_offset)
+    operators, host_operators = operators_from_snapshot(snapshot)
 
     capabilities = DeviceCapabilities(
         platform_id=snapshot.platform_id,
@@ -64,7 +65,8 @@ def identify_device(user_path: str | Path, *, h2c_path: str | Path | None = None
         register_map_version=snapshot.register_map_version,
         stream_protocol_version=snapshot.stream_protocol_version,
         dma=DEFAULT_DMA_CONSTRAINTS,
-        operators=operators_from_bitmap(snapshot.operator_bitmap),
+        operators=operators,
+        host_operators=host_operators,
     )
 
     return DauDevice(
