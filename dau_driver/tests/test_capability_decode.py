@@ -96,3 +96,17 @@ def test_contract_from_manifest_metadata_round_trips() -> None:
     metadata = {"capability_contract": json.dumps(contract.to_mapping(), sort_keys=True, separators=(",", ":"))}
     assert contract_from_manifest_metadata(metadata) == contract
     assert contract_from_manifest_metadata({}) is None
+
+
+def test_device_snapshot_normalizes_undecoded_capability_words(tmp_path) -> None:
+    from dau_driver.discovery import discover_devices
+    from dau_driver.tests.test_discovery import write_fake_xdma_device, write_u32
+
+    paths = write_fake_xdma_device(tmp_path, register_map_version=RegisterMapVersion(0, 2), lane_count=4)
+    image = bytearray(paths.user.read_bytes())
+    write_u32(image, 0, RegisterOffset.SORT_CAPACITY, 0xFFFF_FFFF)
+    paths.user.write_bytes(bytes(image))
+
+    snapshot = discover_devices(tmp_path)[0].read_register_block_snapshot()
+    assert snapshot.lane_count == 4
+    assert snapshot.sort_capacity == 0  # all-ones = not decoded = not advertised

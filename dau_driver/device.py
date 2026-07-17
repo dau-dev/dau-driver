@@ -85,15 +85,17 @@ class DauDevice:
         )
 
     def read_register_block_snapshot(self) -> RegisterBlockSnapshot:
-        from .capability_decode import CAPABILITY_WORDS_REGISTER_MAP_VERSION
+        from .capability_decode import CAPABILITY_WORDS_REGISTER_MAP_VERSION, _capability_word
 
         register_map_version = RegisterMapVersion.from_u32(self.read_register(RegisterOffset.REGISTER_MAP_VERSION))
         capability_words = {}
         if register_map_version >= CAPABILITY_WORDS_REGISTER_MAP_VERSION:
+            # all-ones = word not decoded -> not advertised, same
+            # normalization as the discovery-time snapshot
             capability_words = {
-                "lane_count": self.read_register(RegisterOffset.LANE_COUNT),
-                "host_opcode_bitmap": self.read_register(RegisterOffset.HOST_OPCODE_BITMAP),
-                "sort_capacity": self.read_register(RegisterOffset.SORT_CAPACITY),
+                "lane_count": _capability_word(self.read_register, RegisterOffset.LANE_COUNT),
+                "host_opcode_bitmap": _capability_word(self.read_register, RegisterOffset.HOST_OPCODE_BITMAP),
+                "sort_capacity": _capability_word(self.read_register, RegisterOffset.SORT_CAPACITY),
             }
         return RegisterBlockSnapshot(
             register_map_version=register_map_version,
