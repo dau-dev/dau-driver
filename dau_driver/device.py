@@ -85,8 +85,18 @@ class DauDevice:
         )
 
     def read_register_block_snapshot(self) -> RegisterBlockSnapshot:
+        from .capability_decode import CAPABILITY_WORDS_REGISTER_MAP_VERSION
+
+        register_map_version = RegisterMapVersion.from_u32(self.read_register(RegisterOffset.REGISTER_MAP_VERSION))
+        capability_words = {}
+        if register_map_version >= CAPABILITY_WORDS_REGISTER_MAP_VERSION:
+            capability_words = {
+                "lane_count": self.read_register(RegisterOffset.LANE_COUNT),
+                "host_opcode_bitmap": self.read_register(RegisterOffset.HOST_OPCODE_BITMAP),
+                "sort_capacity": self.read_register(RegisterOffset.SORT_CAPACITY),
+            }
         return RegisterBlockSnapshot(
-            register_map_version=RegisterMapVersion.from_u32(self.read_register(RegisterOffset.REGISTER_MAP_VERSION)),
+            register_map_version=register_map_version,
             stream_protocol_version=StreamProtocolVersion.from_u32(self.read_register(RegisterOffset.STREAM_PROTOCOL_VERSION)),
             platform_id=decode_platform_id(self.read_register(RegisterOffset.PLATFORM_ID)) or DPV1_PLATFORM_ID,
             shell_version=self.read_register(RegisterOffset.SHELL_VERSION),
@@ -100,6 +110,7 @@ class DauDevice:
             rows=self._read_u64(RegisterOffset.ROWS_LOW),
             batches=self.read_register(RegisterOffset.BATCHES),
             stalls=self.read_register(RegisterOffset.STALLS),
+            **capability_words,
         )
 
     def read_counters(self) -> DeviceCounters:

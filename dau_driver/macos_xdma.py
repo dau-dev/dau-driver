@@ -11,7 +11,7 @@ from typing import Protocol
 from dau_core.capabilities import DeviceCapabilities, DmaConstraints
 from dau_core.registers import DAU_MAGIC_WORD, RegisterBlockSnapshot, RegisterOffset
 
-from .capability_decode import REGISTER_WINDOW_OFFSETS, operators_from_bitmap, read_register_block_snapshot
+from .capability_decode import REGISTER_WINDOW_OFFSETS, operators_from_snapshot, read_register_block_snapshot
 from .device import DauDevice
 from .errors import DeviceNotFoundError, RegisterAccessError, TransferIoError, UnhealthyBarError, WrongBitstreamError
 
@@ -456,6 +456,7 @@ def identify_device(client: MacOSXDMAClientProtocol, *, index: int = 0) -> DauDe
 
     info = client.get_info()
     snapshot = _read_register_block_snapshot(client, bar_index, register_window_offset)
+    operators, host_operators = operators_from_snapshot(snapshot)
     capabilities = DeviceCapabilities(
         platform_id=snapshot.platform_id,
         pci_vendor_id=info.vendor_id,
@@ -463,7 +464,8 @@ def identify_device(client: MacOSXDMAClientProtocol, *, index: int = 0) -> DauDe
         register_map_version=snapshot.register_map_version,
         stream_protocol_version=snapshot.stream_protocol_version,
         dma=MACOS_XDMA_DMA_CONSTRAINTS,
-        operators=operators_from_bitmap(snapshot.operator_bitmap),
+        operators=operators,
+        host_operators=host_operators,
     )
 
     return DauDevice(
