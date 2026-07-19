@@ -26,8 +26,10 @@ class FakeTransport:
         self.c2h_reads: list[tuple[int, int]] = []
         self.c2h_payloads: dict[int, bytes] = {}
         self.registers: dict[int, int] = {}
+        self.register_reads: list[int] = []
 
     def read_u32(self, offset: int) -> int:
+        self.register_reads.append(offset)
         return self.registers.get(offset, 0)
 
     def write_u32(self, offset: int, value: int) -> None:

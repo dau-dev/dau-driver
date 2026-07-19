@@ -72,6 +72,52 @@ def configure_pipeline(device, config: KeyedPipelineConfig) -> None:
     device.write_register(RegisterOffset.PIPELINE_MAP_CONSTANT, config.map_constant_word())
 
 
+def _wait_for_job_done(device, *, timeout_seconds: float, label: str) -> None:
+    """Poll JOB_STATUS until DONE, raising on timeout or a hardware error
+    flag. Shared by every register-polled job runner so the wait/error
+    semantics stay identical across shells."""
+    deadline = time.time() + timeout_seconds
+    while True:
+        status = device.read_register(RegisterOffset.JOB_STATUS)
+        if status & int(JobStatusFlag.DONE):
+            break
+        if time.time() > deadline:
+            raise PipelineJobError(f"{label} timed out (status=0x{status:x})")
+    if status & int(JobStatusFlag.ERROR):
+        last_error = device.read_register(RegisterOffset.LAST_ERROR)
+        raise PipelineJobError(f"{label} failed: status=0x{status:x} last_error={last_error}")
+
+
+def _read_aligned_records(
+    device,
+    *,
+    address: int,
+    result_length: int,
+    record_bytes: int,
+    count: int,
+    count_label: str,
+    prefix: str = "",
+    validate_record_count: bool = True,
+) -> bytes:
+    """Read the 64-byte-aligned record block that RESULT_LENGTH describes.
+    Returns ``b""`` (and issues no C2H read) when the lane produced no
+    output.
+
+    When ``validate_record_count`` is set (bar/q1: the count register is an
+    output-record count), the ``result_length == count * record_bytes``
+    invariant is enforced. q6-style aggregate lanes latch an input row
+    count in the count register and emit one fixed-width record, so they
+    pass ``validate_record_count=False`` and trust RESULT_LENGTH alone. The
+    empty test keys off RESULT_LENGTH, which is equivalent to ``count == 0``
+    whenever the invariant holds."""
+    if validate_record_count and result_length != count * record_bytes:
+        raise PipelineJobError(f"{prefix}result length {result_length} inconsistent with {count_label} {count}")
+    if result_length == 0:
+        return b""
+    read_bytes = ((result_length + DMA_ALIGN_BYTES - 1) // DMA_ALIGN_BYTES) * DMA_ALIGN_BYTES
+    return device.read_dma(device_address=address, byte_count=read_bytes)
+
+
 def execute_keyed_pipeline_job(
     device,
     rows: list[tuple[int, int]],
@@ -92,27 +138,21 @@ def execute_keyed_pipeline_job(
     device.write_register(RegisterOffset.INPUT_LENGTH_LOW, len(rows) * 8)
     device.write_register(RegisterOffset.JOB_CONTROL, int(JobControlFlag.START))
 
-    deadline = time.time() + timeout_seconds
-    while True:
-        status = device.read_register(RegisterOffset.JOB_STATUS)
-        if status & int(JobStatusFlag.DONE):
-            break
-        if time.time() > deadline:
-            raise PipelineJobError(f"pipeline job timed out (status=0x{status:x})")
-    if status & int(JobStatusFlag.ERROR):
-        last_error = device.read_register(RegisterOffset.LAST_ERROR)
-        raise PipelineJobError(f"pipeline job failed: status=0x{status:x} last_error={last_error}")
+    _wait_for_job_done(device, timeout_seconds=timeout_seconds, label="pipeline job")
 
     result_length = device.read_register(RegisterOffset.RESULT_LENGTH_LOW)
     selected = device.read_register(RegisterOffset.PIPELINE_SELECTED_COUNT_LOW)
     group_count = device.read_register(RegisterOffset.PIPELINE_GROUP_COUNT_LOW)
-    if result_length != group_count * GROUP_RECORD_BYTES:
-        raise PipelineJobError(f"result length {result_length} inconsistent with group count {group_count}")
+    raw = _read_aligned_records(
+        device,
+        address=resolved.output_buffer_address,
+        result_length=result_length,
+        record_bytes=GROUP_RECORD_BYTES,
+        count=group_count,
+        count_label="group count",
+    )
     if group_count == 0:
         return [], selected
-
-    read_bytes = ((result_length + DMA_ALIGN_BYTES - 1) // DMA_ALIGN_BYTES) * DMA_ALIGN_BYTES
-    raw = device.read_dma(device_address=resolved.output_buffer_address, byte_count=read_bytes)
     return decode_group_records(raw, group_count), selected
 
 
@@ -158,25 +198,20 @@ def execute_bar_job(
     device.write_register(RegisterOffset.INPUT_LENGTH_LOW, len(rows) * BAR_ROW_BYTES)
     device.write_register(RegisterOffset.JOB_CONTROL, int(JobControlFlag.START))
 
-    deadline = time.time() + timeout_seconds
-    while True:
-        status = device.read_register(RegisterOffset.JOB_STATUS)
-        if status & int(JobStatusFlag.DONE):
-            break
-        if time.time() > deadline:
-            raise PipelineJobError(f"bar job timed out (status=0x{status:x})")
-    if status & int(JobStatusFlag.ERROR):
-        last_error = device.read_register(RegisterOffset.LAST_ERROR)
-        raise PipelineJobError(f"bar job failed: status=0x{status:x} last_error={last_error}")
+    _wait_for_job_done(device, timeout_seconds=timeout_seconds, label="bar job")
 
     result_length = device.read_register(RegisterOffset.RESULT_LENGTH_LOW)
     count = device.read_register(RegisterOffset.PIPELINE_GROUP_COUNT_LOW)
-    if result_length != count * BAR_RECORD_BYTES:
-        raise PipelineJobError(f"result length {result_length} inconsistent with bar count {count}")
+    raw = _read_aligned_records(
+        device,
+        address=resolved.output_buffer_address,
+        result_length=result_length,
+        record_bytes=BAR_RECORD_BYTES,
+        count=count,
+        count_label="bar count",
+    )
     if count == 0:
         return []
-    read_bytes = ((result_length + DMA_ALIGN_BYTES - 1) // DMA_ALIGN_BYTES) * DMA_ALIGN_BYTES
-    raw = device.read_dma(device_address=resolved.output_buffer_address, byte_count=read_bytes)
     return decode_bar_records(raw, count)
 
 
@@ -223,25 +258,18 @@ def finish_bar_ddr_job(device, *, output_address: int = BAR_DDR_OUTPUT_ADDRESS, 
     """Wait for the running job and read its records back. Returns the raw
     record bytes and the bar count — decoding stays with the caller so
     hosts can use vectorized decoders."""
-    deadline = time.time() + timeout_seconds
-    while True:
-        status = device.read_register(RegisterOffset.JOB_STATUS)
-        if status & int(JobStatusFlag.DONE):
-            break
-        if time.time() > deadline:
-            raise PipelineJobError(f"bar DDR job timed out (status=0x{status:x})")
-    if status & int(JobStatusFlag.ERROR):
-        last_error = device.read_register(RegisterOffset.LAST_ERROR)
-        raise PipelineJobError(f"bar DDR job failed: status=0x{status:x} last_error={last_error}")
+    _wait_for_job_done(device, timeout_seconds=timeout_seconds, label="bar DDR job")
 
     result_length = device.read_register(RegisterOffset.RESULT_LENGTH_LOW)
     count = device.read_register(RegisterOffset.PIPELINE_GROUP_COUNT_LOW)
-    if result_length != count * BAR_RECORD_BYTES:
-        raise PipelineJobError(f"result length {result_length} inconsistent with bar count {count}")
-    if count == 0:
-        return b"", 0
-    read_bytes = ((result_length + DMA_ALIGN_BYTES - 1) // DMA_ALIGN_BYTES) * DMA_ALIGN_BYTES
-    raw = device.read_dma(device_address=output_address, byte_count=read_bytes)
+    raw = _read_aligned_records(
+        device,
+        address=output_address,
+        result_length=result_length,
+        record_bytes=BAR_RECORD_BYTES,
+        count=count,
+        count_label="bar count",
+    )
     return raw, count
 
 
@@ -300,12 +328,22 @@ def execute_bar_noc_packed(
     row_count: int,
     *,
     lanes: int = BAR_NOC_LANES,
+    record_bytes: int = BAR_RECORD_BYTES,
+    validate_record_count: bool = True,
     timeout_seconds: float = 60.0,
 ) -> list[tuple[bytes, int]]:
-    """Run one pre-packed batch through the broadcast-NoC bar shell: one
-    scan computes every lane's partition concurrently. The lanes must
-    already be configured (``configure_bar_noc_lanes``). Returns raw
-    record bytes and count per lane."""
+    """Run one pre-packed batch through a broadcast-NoC shell: one scan
+    computes every lane's partition concurrently. The lanes must already
+    be configured (``configure_bar_noc_lanes``). Returns raw record bytes
+    and each lane's RECORD_COUNT_LOW value.
+
+    ``lanes`` and ``record_bytes`` default to the fused bar shell; the
+    key-partitioned scan shells reuse this runner by passing their own lane
+    count and per-record width. q1's grouped shell keeps the default
+    ``validate_record_count`` (its count register is an output group-record
+    count). q6's aggregate shell latches an input row count and emits one
+    fixed-width [sum, count] record per lane, so it passes
+    ``validate_record_count=False`` and relies on RESULT_LENGTH."""
     from dau_core.registers import NocLaneRegisterOffset, noc_lane_register
 
     if row_count == 0:
@@ -315,27 +353,21 @@ def execute_bar_noc_packed(
     stage_bar_ddr_input(device, payload, row_count)
     start_bar_ddr_job(device, row_count)
 
-    deadline = time.time() + timeout_seconds
-    while True:
-        status = device.read_register(RegisterOffset.JOB_STATUS)
-        if status & int(JobStatusFlag.DONE):
-            break
-        if time.time() > deadline:
-            raise PipelineJobError(f"bar NoC job timed out (status=0x{status:x})")
-    if status & int(JobStatusFlag.ERROR):
-        last_error = device.read_register(RegisterOffset.LAST_ERROR)
-        raise PipelineJobError(f"bar NoC job failed: status=0x{status:x} last_error={last_error}")
+    _wait_for_job_done(device, timeout_seconds=timeout_seconds, label="bar NoC job")
 
     results = []
     for lane in range(lanes):
         result_length = device.read_register(noc_lane_register(lane, NocLaneRegisterOffset.RESULT_LENGTH_LOW))
         count = device.read_register(noc_lane_register(lane, NocLaneRegisterOffset.RECORD_COUNT_LOW))
-        if result_length != count * BAR_RECORD_BYTES:
-            raise PipelineJobError(f"lane {lane}: result length {result_length} inconsistent with record count {count}")
-        if count == 0:
-            results.append((b"", 0))
-            continue
-        read_bytes = ((result_length + DMA_ALIGN_BYTES - 1) // DMA_ALIGN_BYTES) * DMA_ALIGN_BYTES
-        raw = device.read_dma(device_address=bar_noc_lane_output_address(lane), byte_count=read_bytes)
+        raw = _read_aligned_records(
+            device,
+            address=bar_noc_lane_output_address(lane),
+            result_length=result_length,
+            record_bytes=record_bytes,
+            count=count,
+            count_label="record count",
+            prefix=f"lane {lane}: ",
+            validate_record_count=validate_record_count,
+        )
         results.append((raw, count))
     return results

@@ -131,19 +131,26 @@ def _capability_word(read_register: Callable[[RegisterOffset], int], offset: Reg
     return 0 if value == 0xFFFF_FFFF else value
 
 
+def _capability_words(read_register: Callable[[RegisterOffset], int], register_map_version: RegisterMapVersion) -> dict[str, int]:
+    """The composed-capability words, read only on register map >= 0.2 —
+    older shells do not decode those offsets. Shared by every snapshot
+    reader so the version gate and all-ones normalization cannot diverge."""
+    if register_map_version < CAPABILITY_WORDS_REGISTER_MAP_VERSION:
+        return {}
+    return {
+        "lane_count": _capability_word(read_register, RegisterOffset.LANE_COUNT),
+        "host_opcode_bitmap": _capability_word(read_register, RegisterOffset.HOST_OPCODE_BITMAP),
+        "sort_capacity": _capability_word(read_register, RegisterOffset.SORT_CAPACITY),
+    }
+
+
 def read_register_block_snapshot(read_register: Callable[[RegisterOffset], int]) -> RegisterBlockSnapshot:
     """Discovery-time identity snapshot; ``read_register`` abstracts the
     backend-specific window access (dev-node pread vs DriverKit BAR read).
     The composed-capability words are only read on register map >= 0.2 —
     older shells do not decode those offsets."""
     register_map_version = decode_register_map_version(read_register(RegisterOffset.REGISTER_MAP_VERSION))
-    capability_words = {}
-    if register_map_version >= CAPABILITY_WORDS_REGISTER_MAP_VERSION:
-        capability_words = {
-            "lane_count": _capability_word(read_register, RegisterOffset.LANE_COUNT),
-            "host_opcode_bitmap": _capability_word(read_register, RegisterOffset.HOST_OPCODE_BITMAP),
-            "sort_capacity": _capability_word(read_register, RegisterOffset.SORT_CAPACITY),
-        }
+    capability_words = _capability_words(read_register, register_map_version)
     return RegisterBlockSnapshot(
         register_map_version=register_map_version,
         stream_protocol_version=StreamProtocolVersion.from_u32(read_register(RegisterOffset.STREAM_PROTOCOL_VERSION)),
