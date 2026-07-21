@@ -1,0 +1,119 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+		A1000001 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		A1000002 /* XDMAActivator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = XDMAActivator.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1000003 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A1000004 /* Activator.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Activator.entitlements; sourceTree = "<group>"; };
+		A2000001 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001; };
+		A3000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A2000001,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A4000001 /* Main group */ = {
+			isa = PBXGroup;
+			children = (
+				A1000001,
+				A1000003,
+				A1000004,
+				A4000002,
+			);
+			sourceTree = "<group>";
+		};
+		A4000002 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A1000002,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A5000001 /* XDMAActivator */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A7000002;
+			buildPhases = (
+				A3000001,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = XDMAActivator;
+			productName = XDMAActivator;
+			productReference = A1000002;
+			productType = "com.apple.product-type.application";
+		};
+		A6000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					A5000001 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = A7000001;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A4000001;
+			productRefGroup = A4000002;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A5000001,
+			);
+		};
+		A8000001 /* Debug (project) */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		A8000002 /* Debug (target) */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Activator.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = UNJ796QUWT;
+				INFOPLIST_FILE = Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.dau-dev.xdma-activator";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		A7000001 /* project configs */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A8000001,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		A7000002 /* target configs */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A8000002,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+	};
+	rootObject = A6000001;
+}
