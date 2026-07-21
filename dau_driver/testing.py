@@ -91,7 +91,7 @@ def golden_aggregation_trigger(transport: FakeTransport, output_address: int):
     encoded input batch, compute the golden scalar, stage the result stream
     at ``output_address`` for the subsequent C2H read."""
 
-    def trigger(device: DauDevice, encoded_input: bytes) -> None:
+    def trigger(device: DauDevice, encoded_input: bytes) -> None:  # noqa: ARG001 (StreamTrigger interface)
         decoded = StreamDecoder.decode_column(encoded_input)
         values = list(struct.unpack(f"<{decoded.column.row_count}i", decoded.payload))
         operation = decoded.operations[0]

@@ -188,10 +188,10 @@ class MacOSXDMAClient:
             subsystem_device_id=subsystem_device_id,
         )
 
-    def dma_read(self, device_offset: int, length: int) -> bytes:
+    def dma_read(self, device_offset: int, length: int) -> bytes:  # noqa: ARG002 (transfer interface; DriverKit path carries no buffers yet)
         raise TransferIoError("macOS XDMA DriverKit DMA methods do not carry data buffers yet")
 
-    def dma_write(self, device_offset: int, data: bytes | bytearray | memoryview) -> int:
+    def dma_write(self, device_offset: int, data: bytes | bytearray | memoryview) -> int:  # noqa: ARG002 (transfer interface; DriverKit path carries no buffers yet)
         raise TransferIoError("macOS XDMA DriverKit DMA methods do not carry data buffers yet")
 
     def close(self) -> None:
