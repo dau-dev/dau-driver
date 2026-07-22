@@ -7,6 +7,8 @@
 #include <DriverKit/IOLib.h>
 #include <DriverKit/IOUserServer.h>
 #include <DriverKit/IOBufferMemoryDescriptor.h>
+#include <DriverKit/IOMemoryDescriptor.h>
+#include <DriverKit/OSData.h>
 
 #include "XDMAUserClient.h"
 #include "XDMADriver.h"
@@ -58,8 +60,8 @@ static const IOUserClientMethodDispatch sMethodDispatch[kNumMethods] = {
     /* kMethodDMAWrite */ {
         .function = StaticDMAWrite,
         .checkCompletionExists = false,
-        .checkScalarInputCount = 2,
-        .checkStructureInputSize = 0,
+        .checkScalarInputCount = 1,
+        .checkStructureInputSize = kIOUserClientVariableStructureSize,
         .checkScalarOutputCount = 0,
         .checkStructureOutputSize = 0,
     },
@@ -69,7 +71,7 @@ static const IOUserClientMethodDispatch sMethodDispatch[kNumMethods] = {
         .checkScalarInputCount = 2,
         .checkStructureInputSize = 0,
         .checkScalarOutputCount = 0,
-        .checkStructureOutputSize = 0,
+        .checkStructureOutputSize = kIOUserClientVariableStructureSize,
     },
     /* kMethodGetInfo */ {
         .function = StaticGetInfo,
@@ -193,9 +195,16 @@ static kern_return_t StaticDMAWrite(OSObject *target, void *reference,
     }
 
     uint64_t device_offset = arguments->scalarInput[0];
-    uint64_t length = arguments->scalarInput[1];
+    uint64_t length = 0;
+    if (arguments->structureInput != nullptr) {
+        length = arguments->structureInput->getLength();
+    } else if (arguments->structureInputDescriptor != nullptr) {
+        arguments->structureInputDescriptor->GetLength(&length);
+    } else {
+        return kIOReturnBadArgument;
+    }
 
-    return me->ivars->driver->DMAWrite(device_offset, length);
+    return me->ivars->driver->DMATransfer(true, device_offset, length, arguments);
 }
 
 static kern_return_t StaticDMARead(OSObject *target, void *reference,
@@ -209,7 +218,7 @@ static kern_return_t StaticDMARead(OSObject *target, void *reference,
     uint64_t device_offset = arguments->scalarInput[0];
     uint64_t length = arguments->scalarInput[1];
 
-    return me->ivars->driver->DMARead(device_offset, length);
+    return me->ivars->driver->DMATransfer(false, device_offset, length, arguments);
 }
 
 static kern_return_t StaticGetInfo(OSObject *target, void *reference,

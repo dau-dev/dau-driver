@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import pytest
 from dau_core.registers import DAU_MAGIC_WORD, RegisterMapVersion, RegisterOffset, StreamProtocolVersion
 from dau_core.stream import LogicalType, OperationCode
 
-from dau_driver.errors import DeviceNotFoundError, TransferIoError, TransferValidationError, WrongBitstreamError
+from dau_driver.errors import DeviceNotFoundError, WrongBitstreamError
 from dau_driver.macos_xdma import (
     DEFAULT_SERVICE_NAMES,
     MacOSXDMAClient,
@@ -16,7 +16,6 @@ from dau_driver.macos_xdma import (
     identify_device,
     probe_devices,
 )
-from dau_driver.transfer import DmaDirection
 
 
 @dataclass
@@ -24,6 +23,7 @@ class FakeMacOSXDMAClient:
     values: dict[tuple[int, int], int]
     info: MacOSXDMADeviceInfo = MacOSXDMADeviceInfo(vendor_id=0x10EE, device_id=0x7011, subsystem_vendor_id=0, subsystem_device_id=0)
     closed: bool = False
+    memory: bytearray = field(default_factory=bytearray)
 
     def read_bar_u32(self, bar_index: int, offset: int) -> int:
         return self.values.get((bar_index, offset), 0)
@@ -34,11 +34,19 @@ class FakeMacOSXDMAClient:
     def get_info(self) -> MacOSXDMADeviceInfo:
         return self.info
 
+    def _ensure_memory(self, end: int) -> None:
+        if len(self.memory) < end:
+            self.memory.extend(b"\x00" * (end - len(self.memory)))
+
     def dma_read(self, device_offset: int, length: int) -> bytes:
-        raise TransferIoError("macOS XDMA DMA reads are not implemented")
+        self._ensure_memory(device_offset + length)
+        return bytes(self.memory[device_offset : device_offset + length])
 
     def dma_write(self, device_offset: int, data: bytes | bytearray | memoryview) -> int:
-        raise TransferIoError("macOS XDMA DMA writes are not implemented")
+        payload = bytes(data)
+        self._ensure_memory(device_offset + len(payload))
+        self.memory[device_offset : device_offset + len(payload)] = payload
+        return len(payload)
 
     def close(self) -> None:
         self.closed = True
@@ -103,8 +111,8 @@ def test_identify_macos_xdma_device_finds_dau_register_window() -> None:
     assert device.capabilities.register_map_version == RegisterMapVersion(0, 1)
     assert device.capabilities.stream_protocol_version == StreamProtocolVersion(0, 1)
     assert device.capabilities.supports(OperationCode.AVERAGE, LogicalType.INT32)
-    assert device.capabilities.dma.read_channels == 0
-    assert device.capabilities.dma.write_channels == 0
+    assert device.capabilities.dma.read_channels == 1
+    assert device.capabilities.dma.write_channels == 1
 
 
 def test_identify_macos_xdma_device_rejects_non_dau_bitstream() -> None:
@@ -168,11 +176,14 @@ def test_probe_macos_xdma_reports_visible_service_with_wrong_bitstream() -> None
     assert "DAU magic" in result.message
 
 
-def test_macos_xdma_dma_fails_clearly_until_driverkit_methods_carry_buffers() -> None:
-    device = identify_device(FakeMacOSXDMAClient({(0, int(RegisterOffset.MAGIC)): DAU_MAGIC_WORD}))
+def test_macos_xdma_dma_roundtrip_carries_buffers() -> None:
+    client = FakeMacOSXDMAClient({(0, int(RegisterOffset.MAGIC)): DAU_MAGIC_WORD})
+    device = identify_device(client)
 
-    with pytest.raises(TransferValidationError, match="H2C channel is not available"):
-        device.prepare_transfer(DmaDirection.H2C, device_address=0x1000, byte_count=64)
+    payload = bytes(range(256)) * 16
+    transfer = device.write_dma(device_address=0x2000, data=payload)
+    assert transfer.byte_count == len(payload)
+    assert device.read_dma(device_address=0x2000, byte_count=len(payload)) == payload
 
 
 def test_macos_xdma_device_close_releases_user_client() -> None:

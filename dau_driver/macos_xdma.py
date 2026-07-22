@@ -26,12 +26,13 @@ K_METHOD_WRITE_BAR = 1
 K_METHOD_DMA_WRITE = 2
 K_METHOD_DMA_READ = 3
 K_METHOD_GET_INFO = 4
+DMA_CHUNK_BYTES = 8 << 20
 MACOS_XDMA_DMA_CONSTRAINTS = DmaConstraints(
     alignment_bytes=64,
     descriptor_bytes=32,
     max_transfer_bytes=(1 << 28) - 1,
-    read_channels=0,
-    write_channels=0,
+    read_channels=1,
+    write_channels=1,
 )
 
 
@@ -188,11 +189,25 @@ class MacOSXDMAClient:
             subsystem_device_id=subsystem_device_id,
         )
 
-    def dma_read(self, device_offset: int, length: int) -> bytes:  # noqa: ARG002 (transfer interface; DriverKit path carries no buffers yet)
-        raise TransferIoError("macOS XDMA DriverKit DMA methods do not carry data buffers yet")
+    def dma_read(self, device_offset: int, length: int) -> bytes:
+        if length < 0:
+            raise TransferIoError(f"negative DMA read length {length}")
+        chunks: list[bytes] = []
+        done = 0
+        while done < length:
+            chunk = min(length - done, DMA_CHUNK_BYTES)
+            chunks.append(self.bindings.call_struct_out(self.connection, K_METHOD_DMA_READ, (device_offset + done, chunk), chunk))
+            done += chunk
+        return b"".join(chunks)
 
-    def dma_write(self, device_offset: int, data: bytes | bytearray | memoryview) -> int:  # noqa: ARG002 (transfer interface; DriverKit path carries no buffers yet)
-        raise TransferIoError("macOS XDMA DriverKit DMA methods do not carry data buffers yet")
+    def dma_write(self, device_offset: int, data: bytes | bytearray | memoryview) -> int:
+        view = memoryview(data).cast("B")
+        done = 0
+        while done < len(view):
+            chunk = min(len(view) - done, DMA_CHUNK_BYTES)
+            self.bindings.call_struct_in(self.connection, K_METHOD_DMA_WRITE, (device_offset + done,), view[done : done + chunk])
+            done += chunk
+        return done
 
     def close(self) -> None:
         self.bindings.close(self.connection)
@@ -238,6 +253,59 @@ class _IOKitBindings:
             ctypes.POINTER(ctypes.c_uint32),
         ]
         self.iokit.IOConnectCallScalarMethod.restype = ctypes.c_int32
+        self.iokit.IOConnectCallMethod.argtypes = [
+            ctypes.c_uint32,
+            ctypes.c_uint32,
+            ctypes.POINTER(ctypes.c_uint64),
+            ctypes.c_uint32,
+            ctypes.c_void_p,
+            ctypes.c_size_t,
+            ctypes.POINTER(ctypes.c_uint64),
+            ctypes.POINTER(ctypes.c_uint32),
+            ctypes.c_void_p,
+            ctypes.POINTER(ctypes.c_size_t),
+        ]
+        self.iokit.IOConnectCallMethod.restype = ctypes.c_int32
+
+    def call_struct_in(self, connection: int, selector: int, scalars: Sequence[int], data: bytes | bytearray | memoryview) -> None:
+        scalar_array = (ctypes.c_uint64 * len(scalars))(*scalars) if scalars else None
+        buffer = (ctypes.c_char * len(data)).from_buffer_copy(data)
+        result = self.iokit.IOConnectCallMethod(
+            connection,
+            selector,
+            scalar_array,
+            len(scalars),
+            buffer,
+            len(data),
+            None,
+            None,
+            None,
+            None,
+        )
+        if result != 0:
+            raise TransferIoError(f"IOConnectCallMethod({selector}) struct-in failed: 0x{result:x}")
+
+    def call_struct_out(self, connection: int, selector: int, scalars: Sequence[int], output_size: int) -> bytes:
+        scalar_array = (ctypes.c_uint64 * len(scalars))(*scalars) if scalars else None
+        buffer = (ctypes.c_char * output_size)()
+        out_size = ctypes.c_size_t(output_size)
+        result = self.iokit.IOConnectCallMethod(
+            connection,
+            selector,
+            scalar_array,
+            len(scalars),
+            None,
+            0,
+            None,
+            None,
+            buffer,
+            ctypes.byref(out_size),
+        )
+        if result != 0:
+            raise TransferIoError(f"IOConnectCallMethod({selector}) struct-out failed: 0x{result:x}")
+        if out_size.value != output_size:
+            raise TransferIoError(f"IOConnectCallMethod({selector}) returned {out_size.value} bytes, expected {output_size}")
+        return bytes(buffer)
 
     def matching_services(self, service_name: str) -> int:
         iterators = self.matching_iterators(service_name)
