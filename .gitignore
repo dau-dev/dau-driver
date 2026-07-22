@@ -155,3 +155,5 @@ ROADMAP.md
 AGENTS.md
 .github/hooks/sdlc.json
 .superpowers
+kernel/macos-xdma/activator/build/
+kernel/macos-xdma/activator/full-entitlements.plist
