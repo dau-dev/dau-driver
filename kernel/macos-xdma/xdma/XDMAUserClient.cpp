@@ -218,6 +218,18 @@ static kern_return_t StaticDMARead(OSObject *target, void *reference,
     uint64_t device_offset = arguments->scalarInput[0];
     uint64_t length = arguments->scalarInput[1];
 
+    // The requested length must fit the caller's output buffer, or the
+    // copy-out would overrun the mapping.
+    if (arguments->structureOutputDescriptor != nullptr) {
+        uint64_t outLen = 0;
+        arguments->structureOutputDescriptor->GetLength(&outLen);
+        if (outLen < length) {
+            return kIOReturnBadArgument;
+        }
+    } else if (arguments->structureOutputMaximumSize < length) {
+        return kIOReturnBadArgument;
+    }
+
     return me->ivars->driver->DMATransfer(false, device_offset, length, arguments);
 }
 

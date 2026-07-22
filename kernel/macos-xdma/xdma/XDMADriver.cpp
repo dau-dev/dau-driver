@@ -49,6 +49,7 @@ struct XDMADriver_IVars {
     IOPCIDevice *pciDevice;
     IOBufferMemoryDescriptor *dmaDescriptorRing;
     IODMACommand *ringDMACommand;
+    IOLock *dmaLock;              // serializes ring build + engine program/poll
     uint64_t ringDeviceAddress;   // ring IOVA as seen by the device
     uint64_t ringCPUAddress;      // ring address in the dext's address space
     uint8_t configBarIndex;       // memoryIndex of the XDMA config BAR
@@ -63,6 +64,11 @@ bool XDMADriver::init()
 
     ivars = IONewZero(XDMADriver_IVars, 1);
     if (ivars == nullptr) {
+        return false;
+    }
+
+    ivars->dmaLock = IOLockAlloc();
+    if (ivars->dmaLock == nullptr) {
         return false;
     }
 
@@ -223,6 +229,10 @@ kern_return_t IMPL(XDMADriver, Stop)
 void XDMADriver::free()
 {
     os_log(OS_LOG_DEFAULT, "XDMADriver::free()");
+    if (ivars != nullptr && ivars->dmaLock != nullptr) {
+        IOLockFree(ivars->dmaLock);
+        ivars->dmaLock = nullptr;
+    }
     IOSafeDeleteNULL(ivars, XDMADriver_IVars, 1);
     super::free();
 }
@@ -344,7 +354,8 @@ kern_return_t XDMADriver::DMATransfer(bool hostToCard, uint64_t device_offset, u
         return kIOReturnDMAError;
     }
 
-    // Build the descriptor chain
+    // Build the descriptor chain (ring and engine are shared: serialize)
+    IOLockLock(ivars->dmaLock);
     XDMADescriptor *ring = (XDMADescriptor *)ivars->ringCPUAddress;
     uint64_t dev = device_offset;
     for (uint32_t i = 0; i < segCount; i++) {
@@ -392,7 +403,8 @@ kern_return_t XDMADriver::DMATransfer(bool hostToCard, uint64_t device_offset, u
 
     uint32_t completed = 0;
     ivars->pciDevice->MemoryRead32(bar, chBase + XDMA_ENGINE_COMPLETED_DESC, &completed);
-    bool ok = !(status & XDMA_STAT_BUSY) && !(status & XDMA_STAT_ERROR_MASK);
+    IOLockUnlock(ivars->dmaLock);
+    bool ok = !(status & XDMA_STAT_BUSY) && !(status & XDMA_STAT_ERROR_MASK) && completed == segCount;
     if (!ok) {
         os_log(OS_LOG_DEFAULT, "XDMADriver: DMA %s failed status=0x%x completed=%u/%u len=%llu",
                hostToCard ? "H2C" : "C2H", status, completed, segCount, length);

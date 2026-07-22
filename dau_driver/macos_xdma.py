@@ -97,6 +97,11 @@ class MacOSXDMATransport:
         self.client.close()
 
 
+def _validate_dma_range(device_offset: int, length: int) -> None:
+    if device_offset < 0 or device_offset + length > 1 << 64:
+        raise TransferIoError(f"DMA range [{device_offset:#x}, +{length}) does not fit a 64-bit device address space")
+
+
 @dataclass(frozen=True)
 class MacOSXDMAClient:
     connection: int
@@ -192,6 +197,7 @@ class MacOSXDMAClient:
     def dma_read(self, device_offset: int, length: int) -> bytes:
         if length < 0:
             raise TransferIoError(f"negative DMA read length {length}")
+        _validate_dma_range(device_offset, length)
         chunks: list[bytes] = []
         done = 0
         while done < length:
@@ -202,6 +208,7 @@ class MacOSXDMAClient:
 
     def dma_write(self, device_offset: int, data: bytes | bytearray | memoryview) -> int:
         view = memoryview(data).cast("B")
+        _validate_dma_range(device_offset, len(view))
         done = 0
         while done < len(view):
             chunk = min(len(view) - done, DMA_CHUNK_BYTES)
