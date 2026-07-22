@@ -91,7 +91,6 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Activator.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = UNJ796QUWT;
 				INFOPLIST_FILE = Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.dau-dev.xdma-activator";
 				PRODUCT_NAME = "$(TARGET_NAME)";
