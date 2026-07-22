@@ -63,6 +63,8 @@ def run_scan_batches(
             batch = next(iterator)
         except StopIteration:
             return None
+        if batch.row_count <= 0:
+            raise ValueError(f"batch {index}: zero rows; a scan job needs a non-empty batch")
         if len(batch.payload) != batch.row_count * row_bytes:
             raise ValueError(f"batch {index}: payload of {len(batch.payload)} bytes is not row_count {batch.row_count} * row_bytes {row_bytes}")
         payload = batch.payload
@@ -85,7 +87,12 @@ def run_scan_batches(
             device.write_register(RegisterOffset.INPUT_LENGTH_LOW, row_count * row_bytes)
             device.write_register(RegisterOffset.JOB_CONTROL, int(JobControlFlag.START))
             pending = pool.submit(stage, index + 1)
-            _wait_for_job_done(device, timeout_seconds=timeout_seconds, label=f"scan job {index}")
+
+            def surface_staging_failure(future=pending):
+                if future.done() and future.exception() is not None:
+                    raise future.exception()
+
+            _wait_for_job_done(device, timeout_seconds=timeout_seconds, label=f"scan job {index}", poll=surface_staging_failure)
             results.append(collect(device))
             if progress is not None:
                 progress(index + 1)

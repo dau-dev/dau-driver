@@ -72,12 +72,16 @@ def configure_pipeline(device, config: KeyedPipelineConfig) -> None:
     device.write_register(RegisterOffset.PIPELINE_MAP_CONSTANT, config.map_constant_word())
 
 
-def _wait_for_job_done(device, *, timeout_seconds: float, label: str) -> None:
+def _wait_for_job_done(device, *, timeout_seconds: float, label: str, poll=None) -> None:
     """Poll JOB_STATUS until DONE, raising on timeout or a hardware error
     flag. Shared by every register-polled job runner so the wait/error
-    semantics stay identical across shells."""
+    semantics stay identical across shells. ``poll``, when given, runs
+    each iteration so concurrent work (e.g. overlap staging) can surface
+    its failure instead of hiding behind this wait's timeout."""
     deadline = time.time() + timeout_seconds
     while True:
+        if poll is not None:
+            poll()
         status = device.read_register(RegisterOffset.JOB_STATUS)
         if status & int(JobStatusFlag.DONE):
             break

@@ -131,3 +131,37 @@ def test_run_scan_batches_validates_configuration_and_empty(tmp_path):
         run_scan_batches(device, [], input_regions=(REGION_A, REGION_B), row_bytes=0, collect=lambda dev: None)
     assert run_scan_batches(device, [], input_regions=(REGION_A, REGION_B), row_bytes=16, collect=lambda dev: None) == []
     assert transport.h2c_writes == []
+
+
+def test_run_scan_batches_surfaces_staging_failures_promptly(tmp_path):
+    # job 0 can never complete (its fake requires batch 1 staged), and
+    # batch 1 is invalid: the staging error must surface instead of the
+    # job-timeout PipelineJobError
+    transport = OverlapTransport(total_batches=2)
+    device = fake_device(tmp_path, transport)
+    batches = [ScanBatch(payload=bytes(2 * 16), row_count=2), ScanBatch(payload=bytes(8), row_count=2)]
+
+    with pytest.raises(ValueError, match="batch 1: payload of 8 bytes"):
+        run_scan_batches(
+            device,
+            batches,
+            input_regions=(REGION_A, REGION_B),
+            row_bytes=16,
+            collect=lambda dev: None,
+            timeout_seconds=5.0,
+        )
+
+
+def test_run_scan_batches_rejects_zero_row_batches(tmp_path):
+    transport = FakeTransport()
+    transport.registers[int(RegisterOffset.JOB_STATUS)] = int(JobStatusFlag.DONE)
+    device = fake_device(tmp_path, transport)
+
+    with pytest.raises(ValueError, match="batch 0: zero rows"):
+        run_scan_batches(
+            device,
+            [ScanBatch(payload=b"", row_count=0)],
+            input_regions=(REGION_A, REGION_B),
+            row_bytes=16,
+            collect=lambda dev: None,
+        )
