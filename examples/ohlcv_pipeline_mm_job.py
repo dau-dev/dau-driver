@@ -38,7 +38,7 @@ OUTPUT_ADDRESS = 0x0010_0000
 GROUP_RECORD_BYTES = 40
 DMA_ALIGN = 64
 
-PREDICATE = FilterPredicate(PredicateOp.GT, 0)
+PREDICATE = FilterPredicate(op0=PredicateOp.GT, constant0=0)
 BUCKET = MapConfig(op=MapOp.MULSHR, constant=139811, shift=23)  # seconds -> minute
 
 
