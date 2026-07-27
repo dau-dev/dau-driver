@@ -270,8 +270,8 @@ def write_fake_xdma_device(
     index: int = 0,
     magic: int = DAU_MAGIC_WORD,
     platform_id: str = "NITE",
-    register_map_version: RegisterMapVersion = RegisterMapVersion(0, 1),
-    stream_protocol_version: StreamProtocolVersion = StreamProtocolVersion(0, 1),
+    register_map_version: RegisterMapVersion | None = None,
+    stream_protocol_version: StreamProtocolVersion | None = None,
     operator_bitmap: int = 1 << OperationCode.AVERAGE,
     lane_count: int = 0,
     host_opcode_bitmap: int = 0,
@@ -285,6 +285,11 @@ def write_fake_xdma_device(
     stalls: int = 0,
     register_window_offset: int = 0,
 ) -> FakeXdmaPaths:
+    if register_map_version is None:
+        register_map_version = RegisterMapVersion(0, 1)
+    if stream_protocol_version is None:
+        stream_protocol_version = StreamProtocolVersion(0, 1)
+
     user_path = root / f"xdma{index}_user"
     h2c_path = root / f"xdma{index}_h2c_0"
     c2h_path = root / f"xdma{index}_c2h_0"

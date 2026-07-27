@@ -17,9 +17,9 @@ def _add_repo_packages_to_path() -> None:
 
 _add_repo_packages_to_path()
 
-from dau_core.registers import RegisterOffset  # noqa: E402
+from dau_core.registers import RegisterOffset
 
-from dau_driver import DauDevice, identify_device  # noqa: E402
+from dau_driver import DauDevice, identify_device
 
 DEFAULT_USER_PATH = "/dev/xdma0_user"
 DEFAULT_SIZES_MIB = "1,4,16,64,256"
