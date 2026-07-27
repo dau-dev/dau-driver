@@ -21,7 +21,9 @@ from dau_driver.macos_xdma import (
 @dataclass
 class FakeMacOSXDMAClient:
     values: dict[tuple[int, int], int]
-    info: MacOSXDMADeviceInfo = MacOSXDMADeviceInfo(vendor_id=0x10EE, device_id=0x7011, subsystem_vendor_id=0, subsystem_device_id=0)
+    info: MacOSXDMADeviceInfo = field(
+        default_factory=lambda: MacOSXDMADeviceInfo(vendor_id=0x10EE, device_id=0x7011, subsystem_vendor_id=0, subsystem_device_id=0)
+    )
     closed: bool = False
     memory: bytearray = field(default_factory=bytearray)
 

@@ -15,9 +15,10 @@ headroom — the silicon A/B decides the batch split, not this module.
 
 from __future__ import annotations
 
+from collections.abc import Callable, Iterable
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
-from typing import Any, Callable, Iterable
+from typing import Any
 
 from dau_core.registers import JobControlFlag, RegisterOffset
 
