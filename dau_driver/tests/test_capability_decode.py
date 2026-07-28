@@ -42,7 +42,7 @@ def test_snapshot_reader_gates_capability_words_by_register_map() -> None:
     image_0_1 = {
         RegisterOffset.REGISTER_MAP_VERSION: 0x1,
         RegisterOffset.STREAM_PROTOCOL_VERSION: 0x1,
-        RegisterOffset.PLATFORM_ID: int.from_bytes(b"NITE", "little"),
+        RegisterOffset.PLATFORM_ID: int.from_bytes(b"DPV1", "little"),
         RegisterOffset.OPERATOR_BITMAP: 0x1E,
     }
     reads: list[RegisterOffset] = []

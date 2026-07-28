@@ -18,7 +18,7 @@ def test_transfer_validation_rejects_zero_length_and_unavailable_direction(tmp_p
         h2c_path=tmp_path / "xdma0_h2c_0",
         c2h_path=tmp_path / "xdma0_c2h_0",
         capabilities=DeviceCapabilities(
-            platform_id="NITE",
+            platform_id="DPV1",
             pci_vendor_id=0x10EE,
             pci_device_id=0x7011,
             register_map_version=RegisterMapVersion(0, 1),
@@ -114,7 +114,7 @@ def make_fake_device(tmp_path: Path, *, read_chunk_bytes: int | None = None) -> 
         h2c_path=tmp_path / "xdma0_h2c_0",
         c2h_path=tmp_path / "xdma0_c2h_0",
         capabilities=DeviceCapabilities(
-            platform_id="NITE",
+            platform_id="DPV1",
             pci_vendor_id=0x10EE,
             pci_device_id=0x7011,
             register_map_version=RegisterMapVersion(0, 1),
