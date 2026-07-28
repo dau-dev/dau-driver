@@ -67,7 +67,7 @@ def test_discover_devices_reports_one_matching_fake_device(tmp_path: Path) -> No
     assert device.user_path == tmp_path / "xdma0_user"
     assert device.h2c_path == tmp_path / "xdma0_h2c_0"
     assert device.c2h_path == tmp_path / "xdma0_c2h_0"
-    assert device.capabilities.platform_id == "NITE"
+    assert device.capabilities.platform_id == "DPV1"
     assert device.capabilities.pci_vendor_id == 0x10EE
     assert device.capabilities.pci_device_id == 0x7011
     assert device.capabilities.register_map_version == RegisterMapVersion(0, 1)
@@ -115,7 +115,7 @@ def test_identify_device_supports_register_window_offset(tmp_path: Path) -> None
 
     assert device.register_window_offset == 0x1000
     assert device.read_register(RegisterOffset.MAGIC) == DAU_MAGIC_WORD
-    assert device.capabilities.platform_id == "NITE"
+    assert device.capabilities.platform_id == "DPV1"
 
 
 def test_identify_device_retries_transient_zero_magic_read(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -160,7 +160,7 @@ def test_identify_device_defaults_legacy_gpio_metadata(tmp_path: Path) -> None:
     device = identify_device(user_path)
 
     assert device.register_window_offset == 0x1000
-    assert device.capabilities.platform_id == "NITE"
+    assert device.capabilities.platform_id == "DPV1"
     assert device.capabilities.register_map_version == RegisterMapVersion(0, 1)
 
 
@@ -195,7 +195,7 @@ def test_device_decodes_status_and_counters_from_register_block(tmp_path: Path) 
 def test_device_reads_register_block_snapshot_from_dau_core_contract(tmp_path: Path) -> None:
     write_fake_xdma_device(
         tmp_path,
-        platform_id="NITE",
+        platform_id="DPV1",
         status=0b0011,
         last_error=0x24,
         h2c_bytes=0x1000_0040,
@@ -207,7 +207,7 @@ def test_device_reads_register_block_snapshot_from_dau_core_contract(tmp_path: P
     device = discover_devices(tmp_path)[0]
 
     assert device.read_register_block_snapshot() == RegisterBlockSnapshot(
-        platform_id="NITE",
+        platform_id="DPV1",
         register_map_version=RegisterMapVersion(0, 1),
         stream_protocol_version=StreamProtocolVersion(0, 1),
         status=0b0011,
@@ -269,7 +269,7 @@ def write_fake_xdma_device(
     *,
     index: int = 0,
     magic: int = DAU_MAGIC_WORD,
-    platform_id: str = "NITE",
+    platform_id: str = "DPV1",
     register_map_version: RegisterMapVersion | None = None,
     stream_protocol_version: StreamProtocolVersion | None = None,
     operator_bitmap: int = 1 << OperationCode.AVERAGE,

@@ -63,7 +63,7 @@ def default_int32_capabilities(
             OperatorCapability(OperationCode.COUNT, (LogicalType.INT32,), LogicalType.UINT64, supports_group_by=False),
         )
     return DeviceCapabilities(
-        platform_id="NITE",
+        platform_id="DPV1",
         pci_vendor_id=0x10EE,
         pci_device_id=0x7011,
         register_map_version=RegisterMapVersion(0, 1),

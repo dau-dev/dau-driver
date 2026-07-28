@@ -96,7 +96,7 @@ def test_identify_macos_xdma_device_finds_dau_register_window() -> None:
             (2, 0x1000 + int(RegisterOffset.MAGIC)): DAU_MAGIC_WORD,
             (2, 0x1000 + int(RegisterOffset.REGISTER_MAP_VERSION)): RegisterMapVersion(0, 1).to_u32(),
             (2, 0x1000 + int(RegisterOffset.STREAM_PROTOCOL_VERSION)): StreamProtocolVersion(0, 1).to_u32(),
-            (2, 0x1000 + int(RegisterOffset.PLATFORM_ID)): int.from_bytes(b"NITE", "little"),
+            (2, 0x1000 + int(RegisterOffset.PLATFORM_ID)): int.from_bytes(b"DPV1", "little"),
             (2, 0x1000 + int(RegisterOffset.OPERATOR_BITMAP)): 1 << int(OperationCode.AVERAGE),
         }
     )
@@ -107,7 +107,7 @@ def test_identify_macos_xdma_device_finds_dau_register_window() -> None:
     assert device.backend == "macos-xdma"
     assert device.register_window_offset == 0x1000
     assert device.read_register(RegisterOffset.MAGIC) == DAU_MAGIC_WORD
-    assert device.capabilities.platform_id == "NITE"
+    assert device.capabilities.platform_id == "DPV1"
     assert device.capabilities.pci_vendor_id == 0x10EE
     assert device.capabilities.pci_device_id == 0x7011
     assert device.capabilities.register_map_version == RegisterMapVersion(0, 1)
