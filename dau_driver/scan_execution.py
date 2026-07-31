@@ -168,7 +168,7 @@ def run_scan_batches(
             def surface_staging_failure(future=pending):
                 if future.done() and future.exception() is not None:
                     raise future.exception()
-                if poll_yield_seconds:
+                if poll_yield_seconds is not None:
                     time.sleep(poll_yield_seconds)
 
             _wait_for_job_done(device, timeout_seconds=timeout_seconds, label=f"scan job {index}", poll=surface_staging_failure)

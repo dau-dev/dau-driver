@@ -4,10 +4,12 @@ import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
+from unittest import mock
 
 import pytest
 from dau_core.registers import JobControlFlag, JobStatusFlag, RegisterOffset
 
+from dau_driver import scan_execution
 from dau_driver.fleet import FleetScanError, run_scan_batches_fleet
 from dau_driver.scan_execution import ScanBatch, run_scan_batches
 from dau_driver.testing import FakeTransport, fake_device
@@ -164,49 +166,42 @@ def test_fleet_defines_empty_inputs(tmp_path):
         run_scan_batches_fleet([], [], input_regions=REGIONS, row_bytes=ROW_BYTES, collect=_collect)
 
 
-def test_concurrent_pipelines_yield_the_gil_so_demand_tracks_device_speed() -> None:
-    """The fleet's self-balancing promise is only real if co-running
-    pipelines actually interleave: a pure Python spin on JOB_STATUS holds
-    the GIL, so a fast device cannot claim work while a slow one polls.
-    With the yield, batch shares track device speed."""
-    import time as _time
+def test_poll_yield_reaches_every_pipeline_status_wait(tmp_path) -> None:
+    """``poll_yield_seconds`` exists for pure-Python transports, whose
+    register read would otherwise hold the GIL and serialize co-running
+    pipelines. The real transports release it (``os.pread`` / ``ctypes``),
+    so the default is to spin — assert the plumbing deterministically
+    rather than a wall-clock split, which is not a reliable signal."""
+    sleeps: list[float] = []
+    real_sleep = time.sleep
 
-    from dau_core.registers import JobStatusFlag, RegisterOffset
+    def recording_sleep(seconds: float) -> None:
+        sleeps.append(seconds)
+        real_sleep(0)
 
-    class _TimedDevice:
-        def __init__(self, job_seconds: float) -> None:
-            self.job_seconds = job_seconds
-            self.jobs = 0
-            self._started = None
+    devices = [_device(tmp_path, "a", TimedTransport()), _device(tmp_path, "b", TimedTransport())]
+    batches = _batches(4)
+    with mock.patch.object(scan_execution.time, "sleep", recording_sleep):
+        run_scan_batches_fleet(
+            devices,
+            batches,
+            input_regions=(0x0, 0x1000),
+            row_bytes=ROW_BYTES,
+            collect=_collect,
+            poll_yield_seconds=0.0,
+        )
+    # 0.0 must be honoured (a plain truthiness check would drop it) and it
+    # must reach the wait inside every pipeline
+    assert sleeps, "poll_yield_seconds=0.0 never reached the status wait"
+    assert set(sleeps) == {0.0}
 
-        def write_dma(self, *, device_address, data):
-            return None
-
-        def write_register(self, offset, value):
-            if int(offset) == int(RegisterOffset.JOB_CONTROL) and value & 1:
-                self._started = _time.perf_counter()
-                self.jobs += 1
-
-        def read_register(self, offset):
-            if int(offset) == int(RegisterOffset.JOB_STATUS):
-                elapsed = _time.perf_counter() - self._started
-                return int(JobStatusFlag.DONE) if elapsed >= self.job_seconds else 0
-            return 0
-
-        def read_dma(self, **kwargs):
-            return b"\x00" * 64
-
-    fast, slow = _TimedDevice(0.002), _TimedDevice(0.030)
-    batches = [ScanBatch(payload=b"\x00" * 16, row_count=1) for _ in range(20)]
-    results = run_scan_batches_fleet(
-        [fast, slow],
-        batches,
-        input_regions=(0x0, 0x1000),
-        row_bytes=16,
-        collect=lambda device: device,
-    )
-    assert [result.batch_index for result in results] == list(range(20))
-    assert fast.jobs + slow.jobs == 20
-    # the 15x faster device must take a clear majority; an even split is the
-    # GIL-serialized signature this default exists to prevent
-    assert fast.jobs >= 2 * slow.jobs, f"fast={fast.jobs} slow={slow.jobs}: pipelines are not interleaving"
+    sleeps.clear()
+    with mock.patch.object(scan_execution.time, "sleep", recording_sleep):
+        run_scan_batches_fleet(
+            devices,
+            batches,
+            input_regions=(0x0, 0x1000),
+            row_bytes=ROW_BYTES,
+            collect=_collect,
+        )
+    assert not sleeps, "the default must spin: the real transports already release the GIL"

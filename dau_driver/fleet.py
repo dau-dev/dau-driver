@@ -198,7 +198,7 @@ def run_scan_batches_fleet(
     timeout_seconds: float = 60.0,
     progress=None,
     weights: Sequence[float] | None = None,
-    poll_yield_seconds: float | None = 50e-6,
+    poll_yield_seconds: float | None = None,
 ) -> list[FleetScanResult]:
     """Run one independent scan pipeline per device over a shared lazy input.
 
@@ -213,14 +213,20 @@ def run_scan_batches_fleet(
     object so the caller can recover which card produced its collect value.
     ``input_regions`` is reused as device-local addresses, never shared memory.
 
-    ``poll_yield_seconds`` (default 50 us) sleeps between JOB_STATUS reads
-    inside each pipeline. Concurrent pipelines are Python threads, so a
-    pure spin would hold the GIL and serialize them — self-balancing then
-    degrades toward an even split regardless of device speed. Measured on
-    fakes with a 15x device speed gap over 20 batches: spinning gives a
-    13/7 split in 210 ms, yielding gives 17/3 in 90 ms. Pass ``None`` to
-    restore the tight spin (a single-device fleet, or a device whose
-    register read already releases the GIL).
+    ``poll_yield_seconds`` is passed through to each pipeline's
+    JOB_STATUS poll and defaults to None (spin). The real transports
+    release the GIL in their register read (``os.pread`` on Linux,
+    ``ctypes`` on macOS), so concurrent pipelines interleave without it
+    and a sleep would only add latency per poll. It exists for a
+    pure-Python transport — a fake in a concurrent test — where the spin
+    WOULD hold the GIL and flatten self-balancing toward an even split
+    regardless of device speed (measured on such fakes with a 15x speed
+    gap: 13/7 in 210 ms spinning, 17/3 in 90 ms yielding).
+
+    Known limitation: cancelling on a device failure wakes pipelines
+    blocked pulling a batch, but one already inside its JOB_STATUS wait
+    runs to its own completion or timeout first, so an early failure can
+    surface only after its peers finish.
 
     An empty batch iterable returns ``[]``. An empty device sequence raises
     ``ValueError`` because no pipeline can consume even a potentially lazy
