@@ -15,6 +15,7 @@ headroom — the silicon A/B decides the batch split, not this module.
 
 from __future__ import annotations
 
+import time
 from collections.abc import Callable, Hashable, Iterable, Iterator
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
@@ -114,6 +115,7 @@ def run_scan_batches(
     collect: Callable[[Any], Any],
     timeout_seconds: float = 60.0,
     progress=None,
+    poll_yield_seconds: float | None = None,
 ) -> list[Any]:
     """Run scan jobs over ``batches`` with ping-pong input staging: batch
     ``i + 1`` DMAs into the alternate region (and, for a lazy iterable,
@@ -166,6 +168,8 @@ def run_scan_batches(
             def surface_staging_failure(future=pending):
                 if future.done() and future.exception() is not None:
                     raise future.exception()
+                if poll_yield_seconds:
+                    time.sleep(poll_yield_seconds)
 
             _wait_for_job_done(device, timeout_seconds=timeout_seconds, label=f"scan job {index}", poll=surface_staging_failure)
             results.append(collect(device))
