@@ -15,9 +15,10 @@ headroom — the silicon A/B decides the batch split, not this module.
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Hashable, Iterable, Iterator
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
+from itertools import groupby
 from typing import Any
 
 from dau_core.registers import JobControlFlag, RegisterOffset
@@ -35,10 +36,78 @@ class ScanBatch:
     row_count: int
 
 
+class _KeyPartitionedScanBatches[Record](Iterator[ScanBatch]):
+    def __init__(
+        self,
+        records: Iterable[Record],
+        *,
+        batch_count: int,
+        key: Callable[[Record], Hashable],
+        encode: Callable[[Iterable[Record]], bytes],
+    ) -> None:
+        self._records = records
+        self._batch_count = batch_count
+        self._key = key
+        self._encode = encode
+        self._batches = self._build_batches()
+
+    def __next__(self) -> ScanBatch:
+        return next(self._batches)
+
+    def _build_batches(self) -> Iterator[ScanBatch]:
+        groups: list[tuple[int, tuple[Record, ...]]] = []
+        seen: set[Hashable] = set()
+        for group_index, (group_key, records) in enumerate(groupby(self._records, key=self._key)):
+            if group_key in seen:
+                raise ValueError(f"records must be ordered by key; key {group_key!r} appears in more than one group")
+            seen.add(group_key)
+            groups.append((group_index, tuple(records)))
+
+        if not groups:
+            return
+
+        assignments: list[list[tuple[int, tuple[Record, ...]]]] = [[] for _ in range(min(self._batch_count, len(groups)))]
+        loads = [0] * len(assignments)
+        for group in sorted(groups, key=lambda item: len(item[1]), reverse=True):
+            batch_index = min(range(len(assignments)), key=loads.__getitem__)
+            assignments[batch_index].append(group)
+            loads[batch_index] += len(group[1])
+
+        for assignment in assignments:
+            assignment.sort(key=lambda item: item[0])
+            batch_records = tuple(record for _, records in assignment for record in records)
+            yield ScanBatch(payload=self._encode(batch_records), row_count=len(batch_records))
+
+
+def key_partitioned_scan_batches[Record](
+    records: Iterable[Record],
+    *,
+    batch_count: int,
+    key: Callable[[Record], Hashable],
+    encode: Callable[[Iterable[Record]], bytes],
+) -> Iterator[ScanBatch]:
+    """Build key-confined batches using longest-processing-time-first
+    greedy assignment: largest key group goes into the currently-smallest
+    batch. Records must be ordered by key, and record order within each key
+    is preserved.
+
+    LPT requires every key-group size before assignment, so first iteration
+    consumes one complete grouping pass. Creating this iterable consumes
+    nothing, and each batch's flattened records and encoded payload are
+    constructed only when that batch is requested. Since key groups are
+    indivisible, the largest group bounds the difference between batch
+    sizes; one hot key can therefore dominate a batch.
+    """
+    if batch_count <= 0:
+        raise ValueError(f"batch_count must be positive, got {batch_count}")
+    return _KeyPartitionedScanBatches(records, batch_count=batch_count, key=key, encode=encode)
+
+
 def run_scan_batches(
     device,
     batches: Iterable[ScanBatch],
     *,
+    per_key_state: bool,
     input_regions: tuple[int, int],
     row_bytes: int,
     collect: Callable[[Any], Any],
@@ -49,12 +118,16 @@ def run_scan_batches(
     ``i + 1`` DMAs into the alternate region (and, for a lazy iterable,
     is produced) while job ``i`` computes. Returns ``collect(device)``
     results in batch order. ``batches`` may be lazy — encoding work in
-    the iterator overlaps compute too."""
+    the iterator overlaps compute too. ``per_key_state`` is required so a
+    stateful composition cannot silently run position-sliced batches; such
+    jobs accept only the result of :func:`key_partitioned_scan_batches`."""
     region_a, region_b = input_regions
     if region_a == region_b:
         raise ValueError("input_regions must be two distinct device addresses")
     if row_bytes <= 0:
         raise ValueError(f"row_bytes must be positive, got {row_bytes}")
+    if per_key_state and not isinstance(batches, _KeyPartitionedScanBatches):
+        raise ValueError("scan composition has cross-batch per-key state; batches must be key-partitioned with key_partitioned_scan_batches")
 
     iterator = iter(batches)
     regions = (region_a, region_b)
