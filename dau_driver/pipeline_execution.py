@@ -160,6 +160,39 @@ def execute_keyed_pipeline_job(
     return decode_group_records(raw, group_count), selected
 
 
+# THE BAR WIRE LAYOUT — one declaration, two consumers.
+#
+# The driver marshals these with `struct` and dau-polars builds numpy dtypes
+# over the same bytes for its vectorized DDR path. Declaring the layout twice
+# meant a padding, signedness or field-order change could make the two halves
+# read one bitstream differently, so the shapes live here and both sides
+# derive from them.
+_STRUCT_CODE = {"i4": "i", "i8": "q", "u8": "Q"}
+
+BAR_ROW_FIELDS: tuple[tuple[str, str], ...] = (("key", "i4"), ("price", "i4"), ("shares", "i4"), ("frac", "i4"))
+BAR_RECORD_FIELDS: tuple[tuple[str, str], ...] = (
+    ("key", "i4"),
+    ("open", "i4"),
+    ("close", "i4"),
+    ("low", "i4"),
+    ("high", "i4"),
+    ("pad", "i4"),
+    ("shares", "i8"),
+    ("frac", "i8"),
+    ("count", "u8"),
+)
+
+
+def struct_format(fields: tuple[tuple[str, str], ...]) -> str:
+    """The little-endian ``struct`` format for a declared field layout."""
+    return "<" + "".join(_STRUCT_CODE[kind] for _name, kind in fields)
+
+
+def numpy_dtype_fields(fields: tuple[tuple[str, str], ...]) -> list[tuple[str, str]]:
+    """The same layout as numpy dtype pairs, for vectorized consumers."""
+    return [(name, "<" + kind) for name, kind in fields]
+
+
 BAR_ROW_BYTES = 16
 BAR_RECORD_BYTES = 48
 BAR_MAX_ROWS_PER_JOB = (1 << 17) // BAR_ROW_BYTES  # input BRAM: 8192 rows
@@ -169,7 +202,7 @@ BAR_MAX_RECORDS_PER_JOB = (1 << 12) * 8 // BAR_RECORD_BYTES  # output BRAM: 682 
 def pack_bar_rows(rows: list[tuple[int, int, int, int]]) -> bytes:
     """(key, price, shares, frac) rows for the fused bar tile, on the DMA
     grid; the logical length stays ``len(rows) * 16``."""
-    payload = b"".join(struct.pack("<iiii", key, price, shares, frac) for key, price, shares, frac in rows)
+    payload = b"".join(struct.pack(struct_format(BAR_ROW_FIELDS), key, price, shares, frac) for key, price, shares, frac in rows)
     return payload + b"\x00" * ((-len(payload)) % DMA_ALIGN_BYTES)
 
 
@@ -178,7 +211,7 @@ def decode_bar_records(data: bytes, count: int):
 
     bars = []
     for offset in range(0, count * BAR_RECORD_BYTES, BAR_RECORD_BYTES):
-        key, price_open, price_close, low, high, _pad, shares, frac, rows = struct.unpack_from("<iiiiiiqqQ", data, offset)
+        key, price_open, price_close, low, high, _pad, shares, frac, rows = struct.unpack_from(struct_format(BAR_RECORD_FIELDS), data, offset)
         bars.append(BarAggregate(key=key, open=price_open, close=price_close, low=low, high=high, shares=shares, frac=frac, count=rows))
     return bars
 
