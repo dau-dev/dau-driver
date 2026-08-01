@@ -343,3 +343,32 @@ def test_execute_bar_noc_packed_error(tmp_path):
     with pytest.raises(PipelineJobError) as exc:
         execute_bar_noc_packed(device, pack_bar_rows([(1, 2, 3, 4)]), 1)
     assert str(exc.value) == "bar NoC job failed: status=0xc last_error=1"
+
+
+def test_the_bar_layout_has_one_declaration() -> None:
+    """dau-polars builds numpy dtypes over these same bytes. When the layout
+    was declared in both places, a padding or field-order change could make
+    the two halves read one bitstream differently — so the derived formats
+    must reproduce the wire shapes exactly, and the byte sizes the job
+    contract advertises must follow from the fields rather than sit beside
+    them."""
+    import struct as _struct
+
+    from dau_driver.pipeline_execution import (
+        BAR_RECORD_BYTES,
+        BAR_RECORD_FIELDS,
+        BAR_ROW_BYTES,
+        BAR_ROW_FIELDS,
+        numpy_dtype_fields,
+        struct_format,
+    )
+
+    assert struct_format(BAR_ROW_FIELDS) == "<iiii"
+    assert struct_format(BAR_RECORD_FIELDS) == "<iiiiiiqqQ"
+    assert _struct.calcsize(struct_format(BAR_ROW_FIELDS)) == BAR_ROW_BYTES
+    assert _struct.calcsize(struct_format(BAR_RECORD_FIELDS)) == BAR_RECORD_BYTES
+
+    # the vectorized view must describe the identical bytes
+    numpy = pytest.importorskip("numpy")
+    assert numpy.dtype(numpy_dtype_fields(BAR_RECORD_FIELDS)).itemsize == BAR_RECORD_BYTES
+    assert [name for name, _ in BAR_RECORD_FIELDS] == ["key", "open", "close", "low", "high", "pad", "shares", "frac", "count"]
