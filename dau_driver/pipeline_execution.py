@@ -285,8 +285,8 @@ def start_bar_ddr_job(device, row_count: int, *, input_address: int = BAR_DDR_IN
     """Kick a job over rows already staged in DDR."""
     if input_address % BAR_DDR_ADDRESS_ALIGN or output_address % BAR_DDR_ADDRESS_ALIGN:
         raise PipelineJobError(f"job addresses 0x{input_address:x}/0x{output_address:x} must be 4 KiB-aligned")
-    device.write_register(RegisterOffset.INPUT_ADDRESS_LOW, input_address)
-    device.write_register(RegisterOffset.OUTPUT_ADDRESS_LOW, output_address)
+    device.write_address_register(RegisterOffset.INPUT_ADDRESS_LOW, RegisterOffset.INPUT_ADDRESS_HIGH, input_address)
+    device.write_address_register(RegisterOffset.OUTPUT_ADDRESS_LOW, RegisterOffset.OUTPUT_ADDRESS_HIGH, output_address)
     device.write_register(RegisterOffset.INPUT_LENGTH_LOW, row_count * BAR_ROW_BYTES)
     device.write_register(RegisterOffset.JOB_CONTROL, int(JobControlFlag.START))
 
@@ -356,7 +356,11 @@ def configure_bar_noc_lanes(device, *, lanes: int = BAR_NOC_LANES) -> None:
     from dau_core.registers import NocLaneRegisterOffset, noc_lane_register
 
     for lane in range(lanes):
-        device.write_register(noc_lane_register(lane, NocLaneRegisterOffset.OUTPUT_ADDRESS_LOW), bar_noc_lane_output_address(lane))
+        device.write_address_register(
+            noc_lane_register(lane, NocLaneRegisterOffset.OUTPUT_ADDRESS_LOW),
+            noc_lane_register(lane, NocLaneRegisterOffset.OUTPUT_ADDRESS_HIGH),
+            bar_noc_lane_output_address(lane),
+        )
 
 
 def execute_bar_noc_packed(
