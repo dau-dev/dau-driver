@@ -411,3 +411,34 @@ def test_addresses_are_programmed_across_both_halves() -> None:
 
     with pytest.raises(RegisterAccessError):
         DauDevice.write_address_register(device, RegisterOffset.INPUT_ADDRESS_LOW, RegisterOffset.INPUT_ADDRESS_HIGH, 1 << 64)
+
+
+def test_an_address_past_the_end_of_memory_is_refused() -> None:
+    """The reader and writer advance modulo the master's width, so a
+    transfer starting near the end of the mapped region WRAPS to the bottom
+    and silently reads or overwrites unrelated memory. Hardware does not
+    bound it — the length check only tests alignment — so the host is the
+    only place this can be caught."""
+    from dau_core.registers import RegisterOffset
+
+    from dau_driver.device import DauDevice
+    from dau_driver.errors import RegisterAccessError
+
+    class _Recorder(DauDevice):
+        def write_register(self, offset, value):  # type: ignore[override]
+            pass
+
+    bounded = _Recorder.__new__(_Recorder)
+    object.__setattr__(bounded, "memory_bytes", 8 * 2**30)
+
+    # inside the region, including above 4 GiB, is fine
+    DauDevice.write_address_register(bounded, RegisterOffset.INPUT_ADDRESS_LOW, RegisterOffset.INPUT_ADDRESS_HIGH, 6 * 2**30)
+
+    with pytest.raises(RegisterAccessError, match="past the device"):
+        DauDevice.write_address_register(bounded, RegisterOffset.INPUT_ADDRESS_LOW, RegisterOffset.INPUT_ADDRESS_HIGH, 9 * 2**30)
+
+    # a device that does not know its size keeps the previous behaviour
+    # rather than inventing a bound that would refuse valid addresses
+    unbounded = _Recorder.__new__(_Recorder)
+    object.__setattr__(unbounded, "memory_bytes", None)
+    DauDevice.write_address_register(unbounded, RegisterOffset.INPUT_ADDRESS_LOW, RegisterOffset.INPUT_ADDRESS_HIGH, 9 * 2**30)

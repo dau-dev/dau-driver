@@ -57,6 +57,12 @@ class DauDevice:
     register_window_offset: int = 0
     read_chunk_bytes: int | None = None
     transport: DeviceTransport | None = None
+    # the addressable size of the device's memory, when the caller knows it
+    # (the platform's `memory.size_bytes`). None keeps the previous
+    # behaviour of trusting the caller — the guard is only as good as the
+    # fact, and inventing a default would either refuse valid addresses or
+    # give false confidence.
+    memory_bytes: int | None = None
 
     @property
     def resolved_transport(self) -> DeviceTransport:
@@ -89,6 +95,18 @@ class DauDevice:
         """
         if not 0 <= address <= 0xFFFF_FFFF_FFFF_FFFF:
             raise RegisterAccessError(f"address must fit in 64 bits, got {address!r}")
+        # The reader and writer advance their address modulo the master's
+        # width, so a transfer starting near the end of the mapped region
+        # WRAPS to the bottom and silently reads or overwrites unrelated
+        # memory rather than failing. Nothing in hardware bounds it — the
+        # length check only tests alignment — so the host is the only place
+        # this can be caught, and it can only be caught if the caller says
+        # how big the region is.
+        if self.memory_bytes is not None and address >= self.memory_bytes:
+            raise RegisterAccessError(
+                f"address 0x{address:X} is past the device's {self.memory_bytes} byte memory; "
+                "a transfer from here wraps to the bottom of memory instead of failing"
+            )
         self.write_register(low_offset, address & 0xFFFF_FFFF)
         self.write_register(high_offset, (address >> 32) & 0xFFFF_FFFF)
 
