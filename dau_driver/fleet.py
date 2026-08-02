@@ -192,6 +192,7 @@ def run_scan_batches_fleet(
     devices,
     batches: Iterable[ScanBatch],
     *,
+    per_key_state: bool,
     input_regions: tuple[int, int],
     row_bytes: int,
     collect: Callable[[Any], Any],
@@ -213,6 +214,16 @@ def run_scan_batches_fleet(
     object so the caller can recover which card produced its collect value.
     ``input_regions`` is reused as device-local addresses, never shared memory.
 
+    ``per_key_state`` is required and must be False. A stateful composition
+    cannot run on a fleet at all: batches are pulled from ONE shared source
+    by whichever device is free, so a given key's rows land on whichever
+    cards happen to be idle and per-key state is split across devices that
+    never see each other's rows. Key-partitioning the input does not help —
+    the affinity would have to be device-wide, and demand-driven scheduling
+    is what makes the fleet self-balancing in the first place. Refusing is
+    the same guard `run_scan_batches` applies to position-sliced batches,
+    one level up.
+
     ``poll_yield_seconds`` is passed through to each pipeline's
     JOB_STATUS poll and defaults to None (spin). The real transports
     release the GIL in their register read (``os.pread`` on Linux,
@@ -233,6 +244,12 @@ def run_scan_batches_fleet(
     iterable. A single device invokes the same ``run_scan_batches`` pipeline as
     the multi-device workers and adds only ordered provenance records.
     """
+    if per_key_state:
+        raise ValueError(
+            "a composition with cross-batch per-key state cannot run on a fleet: batches are pulled from one "
+            "shared source by whichever device is free, so a key's rows split across cards that never see each "
+            "other's state; run it on a single device with key_partitioned_scan_batches"
+        )
     resolved_devices = list(devices)
     if not resolved_devices:
         raise ValueError("devices must contain at least one device")
@@ -265,6 +282,7 @@ def run_scan_batches_fleet(
             values = run_scan_batches(
                 tracked_device,
                 _DeviceBatches(source, device_index, tracker),
+                per_key_state=per_key_state,
                 input_regions=input_regions,
                 row_bytes=row_bytes,
                 collect=tracked_collect,

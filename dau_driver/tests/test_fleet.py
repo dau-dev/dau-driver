@@ -76,7 +76,7 @@ def test_fleet_preserves_order_and_fast_device_takes_more_batches(tmp_path):
     slow = _device(tmp_path, "slow", TimedTransport(0.02))
     fast = _device(tmp_path, "fast", TimedTransport(0.001))
 
-    results = run_scan_batches_fleet([slow, fast], _batches(12), input_regions=REGIONS, row_bytes=ROW_BYTES, collect=_collect)
+    results = run_scan_batches_fleet([slow, fast], _batches(12), per_key_state=False, input_regions=REGIONS, row_bytes=ROW_BYTES, collect=_collect)
 
     assert [result.batch_index for result in results] == list(range(12))
     assert [result.value for result in results] == list(range(12))
@@ -87,8 +87,8 @@ def test_single_device_matches_scan_runner(tmp_path):
     direct_device = _device(tmp_path, "direct", TimedTransport())
     fleet_device = _device(tmp_path, "fleet", TimedTransport())
 
-    direct = run_scan_batches(direct_device, _batches(4), input_regions=REGIONS, row_bytes=ROW_BYTES, collect=_collect)
-    fleet = run_scan_batches_fleet([fleet_device], _batches(4), input_regions=REGIONS, row_bytes=ROW_BYTES, collect=_collect)
+    direct = run_scan_batches(direct_device, _batches(4), per_key_state=False, input_regions=REGIONS, row_bytes=ROW_BYTES, collect=_collect)
+    fleet = run_scan_batches_fleet([fleet_device], _batches(4), per_key_state=False, input_regions=REGIONS, row_bytes=ROW_BYTES, collect=_collect)
 
     assert [result.value for result in fleet] == direct
     assert [result.batch_index for result in fleet] == list(range(4))
@@ -115,6 +115,7 @@ def test_fleet_consumes_batches_only_as_device_pipelines_demand_them(tmp_path):
             run_scan_batches_fleet,
             devices,
             lazy_batches(),
+            per_key_state=False,
             input_regions=REGIONS,
             row_bytes=ROW_BYTES,
             collect=_collect,
@@ -133,7 +134,7 @@ def test_fleet_failure_includes_global_batch_and_device(tmp_path):
     healthy = _device(tmp_path, "healthy", TimedTransport(0.001))
 
     with pytest.raises(FleetScanError) as raised:
-        run_scan_batches_fleet([failed, healthy], _batches(8), input_regions=REGIONS, row_bytes=ROW_BYTES, collect=_collect)
+        run_scan_batches_fleet([failed, healthy], _batches(8), per_key_state=False, input_regions=REGIONS, row_bytes=ROW_BYTES, collect=_collect)
 
     error = raised.value
     assert error.device is failed
@@ -149,6 +150,7 @@ def test_weights_pre_bias_batch_assignment(tmp_path):
     results = run_scan_batches_fleet(
         [dpv1, dpv2],
         _batches(12),
+        per_key_state=False,
         input_regions=REGIONS,
         row_bytes=ROW_BYTES,
         collect=_collect,
@@ -161,9 +163,9 @@ def test_weights_pre_bias_batch_assignment(tmp_path):
 def test_fleet_defines_empty_inputs(tmp_path):
     device = _device(tmp_path, "card", TimedTransport())
 
-    assert run_scan_batches_fleet([device], [], input_regions=REGIONS, row_bytes=ROW_BYTES, collect=_collect) == []
+    assert run_scan_batches_fleet([device], [], per_key_state=False, input_regions=REGIONS, row_bytes=ROW_BYTES, collect=_collect) == []
     with pytest.raises(ValueError, match="devices"):
-        run_scan_batches_fleet([], [], input_regions=REGIONS, row_bytes=ROW_BYTES, collect=_collect)
+        run_scan_batches_fleet([], [], per_key_state=False, input_regions=REGIONS, row_bytes=ROW_BYTES, collect=_collect)
 
 
 def test_poll_yield_reaches_every_pipeline_status_wait(tmp_path) -> None:
@@ -185,6 +187,7 @@ def test_poll_yield_reaches_every_pipeline_status_wait(tmp_path) -> None:
         run_scan_batches_fleet(
             devices,
             batches,
+            per_key_state=False,
             input_regions=(0x0, 0x1000),
             row_bytes=ROW_BYTES,
             collect=_collect,
@@ -200,8 +203,28 @@ def test_poll_yield_reaches_every_pipeline_status_wait(tmp_path) -> None:
         run_scan_batches_fleet(
             devices,
             batches,
+            per_key_state=False,
             input_regions=(0x0, 0x1000),
             row_bytes=ROW_BYTES,
             collect=_collect,
         )
     assert not sleeps, "the default must spin: the real transports already release the GIL"
+
+
+def test_a_stateful_composition_cannot_run_on_a_fleet(tmp_path) -> None:
+    """Batches are pulled from ONE shared source by whichever device is free,
+    so a key's rows land on whichever cards happen to be idle and per-key
+    state splits across devices that never see each other's rows.
+    Key-partitioning the input does not save it — the affinity would have to
+    be device-wide, and demand-driven scheduling is what makes the fleet
+    self-balancing. This is the same guard `run_scan_batches` applies to
+    position-sliced batches, one level up."""
+    with pytest.raises(ValueError, match="cannot run on a fleet"):
+        run_scan_batches_fleet(
+            [],
+            iter(()),
+            per_key_state=True,
+            input_regions=(0x0, 0x1000),
+            row_bytes=16,
+            collect=lambda device: None,
+        )
