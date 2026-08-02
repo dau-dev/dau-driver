@@ -72,6 +72,26 @@ class DauDevice:
             raise RegisterAccessError(f"register value must fit in 32 bits, got {value!r}")
         self.resolved_transport.write_u32(self.register_window_offset + int(offset), value)
 
+    def write_address_register(self, low_offset: RegisterOffset | int, high_offset: RegisterOffset | int, address: int) -> None:
+        """Program an address across its LOW/HIGH register pair.
+
+        BOTH halves are always written, including a zero high half. A design
+        whose master is wider than 32 bits keeps the high half across a LOW
+        write, so a host that wrote only LOW would inherit whatever high half
+        the previous job left and quietly address the wrong region. Writing
+        both every time makes the address absolute rather than relative to
+        history.
+
+        The two offsets are passed explicitly rather than derived: the job
+        pair is adjacent (0x058/0x05C) but a LANE's pair is NOT — its high
+        half sits at 0x14 because 0x04 is the result length — so assuming
+        `low + 4` would program a lane's length register with address bits.
+        """
+        if not 0 <= address <= 0xFFFF_FFFF_FFFF_FFFF:
+            raise RegisterAccessError(f"address must fit in 64 bits, got {address!r}")
+        self.write_register(low_offset, address & 0xFFFF_FFFF)
+        self.write_register(high_offset, (address >> 32) & 0xFFFF_FFFF)
+
     def check_bar_health(self, *, offsets: Sequence[RegisterOffset | int] = (RegisterOffset.MAGIC, RegisterOffset.STREAM_PROTOCOL_VERSION)) -> None:
         for offset in offsets:
             value = self.resolved_transport.read_u32(self.register_window_offset + int(offset))

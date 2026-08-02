@@ -372,3 +372,42 @@ def test_the_bar_layout_has_one_declaration() -> None:
     numpy = pytest.importorskip("numpy")
     assert numpy.dtype(numpy_dtype_fields(BAR_RECORD_FIELDS)).itemsize == BAR_RECORD_BYTES
     assert [name for name, _ in BAR_RECORD_FIELDS] == ["key", "open", "close", "low", "high", "pad", "shares", "frac", "count"]
+
+
+def test_addresses_are_programmed_across_both_halves() -> None:
+    """A wide design keeps the high half across a LOW write, so a host that
+    wrote only LOW would inherit whatever the previous job left there and
+    address the wrong region. Both halves go every time, zero included."""
+    from dau_core.registers import NocLaneRegisterOffset, RegisterOffset, noc_lane_register
+
+    from dau_driver.device import DauDevice
+    from dau_driver.errors import RegisterAccessError
+
+    writes: list[tuple[int, int]] = []
+
+    class _Recorder(DauDevice):
+        def write_register(self, offset, value):  # type: ignore[override]
+            writes.append((int(offset), value))
+
+    device = _Recorder.__new__(_Recorder)
+
+    # a low address still writes an explicit ZERO high half
+    DauDevice.write_address_register(device, RegisterOffset.INPUT_ADDRESS_LOW, RegisterOffset.INPUT_ADDRESS_HIGH, 0x1000)
+    assert writes == [(int(RegisterOffset.INPUT_ADDRESS_LOW), 0x1000), (int(RegisterOffset.INPUT_ADDRESS_HIGH), 0)]
+
+    # an address above 4 GiB splits correctly
+    writes.clear()
+    DauDevice.write_address_register(device, RegisterOffset.INPUT_ADDRESS_LOW, RegisterOffset.INPUT_ADDRESS_HIGH, 0x1_2345_6789)
+    assert writes == [(int(RegisterOffset.INPUT_ADDRESS_LOW), 0x2345_6789), (int(RegisterOffset.INPUT_ADDRESS_HIGH), 0x1)]
+
+    # a LANE's halves are NOT adjacent — 0x04 is its result length, so a
+    # low+4 assumption would program a length register with address bits
+    writes.clear()
+    low = noc_lane_register(2, NocLaneRegisterOffset.OUTPUT_ADDRESS_LOW)
+    high = noc_lane_register(2, NocLaneRegisterOffset.OUTPUT_ADDRESS_HIGH)
+    assert high != low + 4
+    DauDevice.write_address_register(device, low, high, 0x2_0000_0000)
+    assert writes == [(low, 0), (high, 2)]
+
+    with pytest.raises(RegisterAccessError):
+        DauDevice.write_address_register(device, RegisterOffset.INPUT_ADDRESS_LOW, RegisterOffset.INPUT_ADDRESS_HIGH, 1 << 64)
