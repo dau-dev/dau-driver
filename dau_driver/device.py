@@ -79,36 +79,8 @@ class DauDevice:
         self.resolved_transport.write_u32(self.register_window_offset + int(offset), value)
 
     def write_address_register(self, low_offset: RegisterOffset | int, high_offset: RegisterOffset | int, address: int) -> None:
-        """Program an address across its LOW/HIGH register pair.
-
-        BOTH halves are always written, including a zero high half. A design
-        whose master is wider than 32 bits keeps the high half across a LOW
-        write, so a host that wrote only LOW would inherit whatever high half
-        the previous job left and quietly address the wrong region. Writing
-        both every time makes the address absolute rather than relative to
-        history.
-
-        The two offsets are passed explicitly rather than derived: the job
-        pair is adjacent (0x058/0x05C) but a LANE's pair is NOT — its high
-        half sits at 0x14 because 0x04 is the result length — so assuming
-        `low + 4` would program a lane's length register with address bits.
-        """
-        if not 0 <= address <= 0xFFFF_FFFF_FFFF_FFFF:
-            raise RegisterAccessError(f"address must fit in 64 bits, got {address!r}")
-        # The reader and writer advance their address modulo the master's
-        # width, so a transfer starting near the end of the mapped region
-        # WRAPS to the bottom and silently reads or overwrites unrelated
-        # memory rather than failing. Nothing in hardware bounds it — the
-        # length check only tests alignment — so the host is the only place
-        # this can be caught, and it can only be caught if the caller says
-        # how big the region is.
-        if self.memory_bytes is not None and address >= self.memory_bytes:
-            raise RegisterAccessError(
-                f"address 0x{address:X} is past the device's {self.memory_bytes} byte memory; "
-                "a transfer from here wraps to the bottom of memory instead of failing"
-            )
-        self.write_register(low_offset, address & 0xFFFF_FFFF)
-        self.write_register(high_offset, (address >> 32) & 0xFFFF_FFFF)
+        """Method form of :func:`write_address`, kept for direct callers."""
+        write_address(self, low_offset, high_offset, address, memory_bytes=self.memory_bytes)
 
     def check_bar_health(self, *, offsets: Sequence[RegisterOffset | int] = (RegisterOffset.MAGIC, RegisterOffset.STREAM_PROTOCOL_VERSION)) -> None:
         for offset in offsets:
@@ -276,3 +248,31 @@ def _offset_name(offset: RegisterOffset | int) -> str:
     if isinstance(offset, RegisterOffset):
         return offset.name
     return f"0x{offset:x}"
+
+
+def write_address(device, low_offset, high_offset, address: int, *, memory_bytes: int | None = None) -> None:
+    """Program an address across its LOW/HIGH register pair on any device.
+
+    A FUNCTION, not a method, because devices here are duck-typed: test
+    fakes and alternative transports implement `write_register` without
+    subclassing `DauDevice`, and making this a method silently broke every
+    one of them.
+
+    BOTH halves are always written, including a zero high half. A design
+    whose master is wider than 32 bits keeps the high half across a LOW
+    write, so writing only LOW inherits whatever the previous job left and
+    quietly addresses the wrong region.
+
+    The offsets are passed explicitly rather than derived as `low + 4`: the
+    job pair is adjacent but a LANE's is not — its high half is at 0x14
+    because 0x04 is the result length.
+    """
+    if not 0 <= address <= 0xFFFF_FFFF_FFFF_FFFF:
+        raise RegisterAccessError(f"address must fit in 64 bits, got {address!r}")
+    if memory_bytes is not None and address >= memory_bytes:
+        raise RegisterAccessError(
+            f"address 0x{address:X} is past the device's {memory_bytes} byte memory; "
+            "a transfer from here wraps to the bottom of memory instead of failing"
+        )
+    device.write_register(low_offset, address & 0xFFFF_FFFF)
+    device.write_register(high_offset, (address >> 32) & 0xFFFF_FFFF)

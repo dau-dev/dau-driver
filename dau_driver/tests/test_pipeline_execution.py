@@ -442,3 +442,25 @@ def test_an_address_past_the_end_of_memory_is_refused() -> None:
     unbounded = _Recorder.__new__(_Recorder)
     object.__setattr__(unbounded, "memory_bytes", None)
     DauDevice.write_address_register(unbounded, RegisterOffset.INPUT_ADDRESS_LOW, RegisterOffset.INPUT_ADDRESS_HIGH, 9 * 2**30)
+
+
+def test_a_duck_typed_device_can_program_addresses() -> None:
+    """Devices here are DUCK-TYPED: test fakes and alternative transports
+    implement `write_register` without subclassing DauDevice. Making the
+    paired address write a method silently broke every one of them — the
+    dau-polars emulated devices among them — so the callable path must need
+    nothing but `write_register`."""
+    from dau_core.registers import RegisterOffset
+
+    from dau_driver.device import write_address
+
+    class _Fake:  # no DauDevice inheritance, exactly like the emulated shells
+        def __init__(self):
+            self.writes = []
+
+        def write_register(self, offset, value):
+            self.writes.append((int(offset), value))
+
+    fake = _Fake()
+    write_address(fake, RegisterOffset.INPUT_ADDRESS_LOW, RegisterOffset.INPUT_ADDRESS_HIGH, 0x1_0000_0000)
+    assert fake.writes == [(int(RegisterOffset.INPUT_ADDRESS_LOW), 0), (int(RegisterOffset.INPUT_ADDRESS_HIGH), 1)]

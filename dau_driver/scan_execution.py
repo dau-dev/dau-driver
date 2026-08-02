@@ -23,6 +23,7 @@ from typing import Any
 
 from dau_core.registers import JobControlFlag, RegisterOffset
 
+from .device import write_address
 from .pipeline_execution import DMA_ALIGN_BYTES, _wait_for_job_done
 
 
@@ -157,7 +158,7 @@ def run_scan_batches(
             if staged is None:
                 break
             address, row_count = staged
-            device.write_address_register(RegisterOffset.INPUT_ADDRESS_LOW, RegisterOffset.INPUT_ADDRESS_HIGH, address)
+            write_address(device, RegisterOffset.INPUT_ADDRESS_LOW, RegisterOffset.INPUT_ADDRESS_HIGH, address)
             device.write_register(RegisterOffset.INPUT_LENGTH_LOW, row_count * row_bytes)
             device.write_register(RegisterOffset.JOB_CONTROL, int(JobControlFlag.START))
             pending = pool.submit(stage, index + 1)
