@@ -96,3 +96,18 @@ def test_reserved_regions_must_be_positive_and_inside_the_tier() -> None:
         StorageAllocator(tier="t", capacity_bytes=100, reserved=((50, -10),))
     with pytest.raises(ValueError, match="outside the tier"):
         StorageAllocator(tier="t", capacity_bytes=100, reserved=((90, 20),))
+
+
+def test_recycled_ids_carry_bumped_generations() -> None:
+    # the generation guard must be LIVE, not decorative: a freed id is
+    # recycled (as a fixed-slot hardware handle table would) and the old
+    # handle's generation no longer matches
+    alloc = StorageAllocator(tier="ddr-onboard", capacity_bytes=1 << 20)
+    h1 = alloc.allocate(64)
+    alloc.free(h1)
+    h2 = alloc.allocate(64)
+    assert h2.id == h1.id  # the slot is reused...
+    assert h2.generation == h1.generation + 1  # ...at the next generation
+    with pytest.raises(StaleHandleError):
+        alloc.resolve(h1)
+    assert alloc.resolve(h2) == h2.base

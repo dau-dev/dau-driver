@@ -84,6 +84,7 @@ class StorageAllocator:
         self._free: list[tuple[int, int]] = spans
         self._live: dict[int, StorageHandle] = {}
         self._generations: dict[int, int] = {}
+        self._free_ids: list[int] = []  # recycled ids: generations are LIVE, not decorative
         self._next_id = 0
 
     def allocate(self, nbytes: int) -> StorageHandle:
@@ -100,8 +101,14 @@ class StorageAllocator:
             if aligned + nbytes < end:
                 remainder.append((aligned + nbytes, end))
             self._free[index : index + 1] = remainder
-            handle_id = self._next_id
-            self._next_id += 1
+            # recycle freed ids: a fixed-slot hardware handle table reuses
+            # slots, and the generation is what makes that safe -- keeping the
+            # software allocator on the same discipline keeps the seam honest
+            if self._free_ids:
+                handle_id = self._free_ids.pop()
+            else:
+                handle_id = self._next_id
+                self._next_id += 1
             generation = self._generations.get(handle_id, 0) + 1
             self._generations[handle_id] = generation
             handle = StorageHandle(id=handle_id, generation=generation, base=aligned, capacity=nbytes, tier=self.tier, allocator=self._token)
@@ -112,7 +119,8 @@ class StorageAllocator:
     def free(self, handle: StorageHandle) -> None:
         self.resolve(handle)  # generation- and identity-checked: double-free faults
         live = self._live.pop(handle.id)
-        self._generations[handle.id] = live.generation  # freed; next use of the id bumps past it
+        self._generations[handle.id] = live.generation  # freed; the id recycles at generation+1
+        self._free_ids.append(handle.id)
         self._insert_free(live.base, live.base + live.capacity)  # the LIVE span, never the caller's copy
 
     def resolve(self, handle: StorageHandle) -> int:
