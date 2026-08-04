@@ -10,7 +10,7 @@ The XDMA driver provides:
 - **DMA Transfers**: Planned Host-to-Card (H2C) and Card-to-Host (C2H) operations; currently not implemented by the dext
 - **Device Information**: Query vendor, device, and subsystem IDs
 
-The DriverKit service is registered as `com.dau-dev.xdma`. User-space tools should match that service name first; `XDMADriver` is only a compatibility fallback.
+The DriverKit service is registered as `com.dau-dev.xdma` — the one name user-space tools match. (`XDMADriver` survives only as the dext C++ class name.)
 
 ## Architecture
 
