@@ -61,7 +61,7 @@ class FakeIOKitBindings:
 
     def matching_iterators(self, service_name: str) -> tuple[int, ...]:
         self.requests.append(service_name)
-        return (10,) if service_name == "XDMADriver" else ()
+        return (10,) if service_name == "com.dau-dev.xdma" else ()
 
     def next_service(self, iterator: int) -> int:
         if iterator == 10 and not self._iterated:
@@ -79,13 +79,15 @@ class FakeIOKitBindings:
         pass
 
 
-def test_macos_xdma_client_open_all_tries_canonical_service_then_legacy_fallback(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_macos_xdma_client_open_all_probes_only_the_canonical_service(monkeypatch: pytest.MonkeyPatch) -> None:
+    # the obsolete XDMADriver fallback is CUT: one dext, one name. A caller
+    # with a differently named service passes service_names explicitly.
     bindings = FakeIOKitBindings()
     monkeypatch.setattr("dau_driver.macos_xdma._IOKitBindings.load", lambda: bindings)
 
     clients = MacOSXDMAClient.open_all()
 
-    assert bindings.requests == list(DEFAULT_SERVICE_NAMES)
+    assert bindings.requests == ["com.dau-dev.xdma"]
     assert len(clients) == 1
     assert clients[0].connection == 30
 
