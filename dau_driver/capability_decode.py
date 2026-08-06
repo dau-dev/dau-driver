@@ -121,6 +121,7 @@ def operators_from_contract(contract: CapabilityContract) -> tuple[tuple[Operato
 def _capability_word(read_register: Callable[[RegisterOffset], int], offset: RegisterOffset) -> int:
     # all-ones means the word is not decoded (should not happen on a 0.2
     # shell); treat it as not-advertised rather than a 4-billion lane count
+    # or a device claiming every opcode it has a bit for
     value = read_register(offset)
     return 0 if value == 0xFFFF_FFFF else value
 
@@ -149,6 +150,9 @@ def read_register_block_snapshot(read_register: Callable[[RegisterOffset], int])
         register_map_version=register_map_version,
         stream_protocol_version=StreamProtocolVersion.from_u32(read_register(RegisterOffset.STREAM_PROTOCOL_VERSION)),
         platform_id=decode_platform_id(read_register(RegisterOffset.PLATFORM_ID)) or DPV1_PLATFORM_ID,
-        operator_bitmap=read_register(RegisterOffset.OPERATOR_BITMAP),
+        # an all-ones operator word is a word nobody decoded, NOT a device
+        # that implements every opcode. Read raw it advertises AVERAGE as
+        # hardware, which this module states must never be submitted.
+        operator_bitmap=_capability_word(read_register, RegisterOffset.OPERATOR_BITMAP),
         **capability_words,
     )

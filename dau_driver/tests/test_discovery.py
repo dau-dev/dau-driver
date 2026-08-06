@@ -170,6 +170,31 @@ def test_identify_device_reports_unadvertised_metadata_honestly(tmp_path: Path) 
     assert device.capabilities.register_map_version == RegisterMapVersion(0, 0)
 
 
+def test_an_undecoded_operator_word_advertises_nothing(tmp_path: Path) -> None:
+    """MAGIC reads, so the path is healthy, but the operator word is
+    all-ones. Read literally that word claims every opcode the encoding has
+    a bit for — including AVERAGE, which is host-computed and must never be
+    submitted to a device. Silence is the only honest decode."""
+    user_path = tmp_path / "xdma0_user"
+    (tmp_path / "xdma0_h2c_0").write_bytes(b"")
+    (tmp_path / "xdma0_c2h_0").write_bytes(b"")
+    register_image = bytearray(0x1100)
+    struct.pack_into("<I", register_image, 0x1000 + int(RegisterOffset.MAGIC), DAU_MAGIC_WORD)
+    for offset in (
+        RegisterOffset.REGISTER_MAP_VERSION,
+        RegisterOffset.STREAM_PROTOCOL_VERSION,
+        RegisterOffset.PLATFORM_ID,
+        RegisterOffset.OPERATOR_BITMAP,
+    ):
+        struct.pack_into("<I", register_image, 0x1000 + int(offset), 0xFFFF_FFFF)
+    user_path.write_bytes(register_image)
+
+    device = identify_device(user_path)
+
+    assert device.capabilities.operators == ()
+    assert OperationCode.AVERAGE not in {operator.opcode for operator in device.capabilities.operators}
+
+
 def test_device_decodes_status_and_counters_from_register_block(tmp_path: Path) -> None:
     write_fake_xdma_device(
         tmp_path,
