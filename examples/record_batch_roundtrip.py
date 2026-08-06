@@ -42,7 +42,7 @@ def main() -> None:
     if not devices:
         raise SystemExit("no DAU/XDMA device found; program the FPGA and bind XDMA first")
     device = devices[0]
-    print(f"device: {device.name} backend={device.backend} read_chunk_bytes={device.read_chunk_bytes}")
+    print(f"device: {device.name} backend={device.backend}")
     device.check_bar_health()
     print("BAR health: ok")
 

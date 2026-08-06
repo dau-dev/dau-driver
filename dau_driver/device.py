@@ -55,7 +55,6 @@ class DauDevice:
     c2h_path: Path
     capabilities: DeviceCapabilities
     register_window_offset: int = 0
-    read_chunk_bytes: int | None = None
     transport: DeviceTransport | None = None
     # the addressable size of the device's memory, when the caller knows it
     # (the platform's `memory.size_bytes`). None keeps the previous
@@ -166,8 +165,6 @@ class DauDevice:
             byte_count=byte_count,
             timeout_seconds=timeout_seconds,
         )
-        if self.read_chunk_bytes is not None and transfer.byte_count > self.read_chunk_bytes:
-            return _read_transfer_chunks(transfer, self.read_chunk_bytes, self.resolved_transport)
         return self.resolved_transport.read_dma(transfer.device_address, transfer.byte_count)
 
     def write_dma(
@@ -191,18 +188,6 @@ def read_u32(path: Path, offset: RegisterOffset | int) -> int:
     offset_name = _offset_name(offset)
     register_bytes = _read_register_bytes(path, int(offset), 4, offset_name)
     return struct.unpack("<I", register_bytes)[0]
-
-
-def _read_transfer_chunks(transfer: DmaTransfer, chunk_bytes: int, transport: DeviceTransport) -> bytes:
-    if chunk_bytes <= 0:
-        raise ValueError("chunk_bytes must be positive")
-    chunks: list[bytes] = []
-    bytes_read = 0
-    while bytes_read < transfer.byte_count:
-        current_chunk_bytes = min(chunk_bytes, transfer.byte_count - bytes_read)
-        chunks.append(transport.read_dma(transfer.device_address + bytes_read, current_chunk_bytes))
-        bytes_read += current_chunk_bytes
-    return b"".join(chunks)
 
 
 def read_u64(path: Path, offset: RegisterOffset | int) -> int:

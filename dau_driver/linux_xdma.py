@@ -24,7 +24,6 @@ DEFAULT_DMA_CONSTRAINTS = DmaConstraints(
 # clean at full speed (verified 2026-07-10: 128 KiB single reads at
 # ~367 MB/s with byte-exact integrity). Pass a value here only for legacy
 # images.
-LINUX_XDMA_C2H_READ_CHUNK_BYTES: int | None = None
 
 
 def discover_devices(root: str | Path = DEFAULT_DEV_ROOT) -> list[DauDevice]:
@@ -77,7 +76,6 @@ def identify_device(user_path: str | Path, *, h2c_path: str | Path | None = None
         c2h_path=resolved_c2h,
         capabilities=capabilities,
         register_window_offset=register_window_offset,
-        read_chunk_bytes=LINUX_XDMA_C2H_READ_CHUNK_BYTES,
     )
 
 

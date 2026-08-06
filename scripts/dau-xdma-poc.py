@@ -52,8 +52,7 @@ def main() -> int:
         device.backend,
         "window",
         hex(device.register_window_offset),
-        "read_chunk",
-        device.read_chunk_bytes,
+
         flush=True,
     )
 

@@ -57,27 +57,6 @@ def test_blocking_dma_read_uses_c2h_channel_at_device_address(tmp_path: Path) ->
     assert device.read_dma(device_address=0x1000, byte_count=len(payload)) == payload
 
 
-def test_blocking_dma_read_chunks_c2h_when_chunk_size_is_configured(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    device = make_fake_device(tmp_path, read_chunk_bytes=128)
-    payload = bytes(index % 256 for index in range(512))
-    calls: list[tuple[Path, int, int]] = []
-
-    def fake_read_exact_at(path: Path, offset: int, byte_count: int) -> bytes:
-        calls.append((path, offset, byte_count))
-        start = offset - 0x1000
-        return payload[start : start + byte_count]
-
-    monkeypatch.setattr(device_module, "read_exact_at", fake_read_exact_at)
-
-    assert device.read_dma(device_address=0x1000, byte_count=len(payload)) == payload
-    assert calls == [
-        (device.c2h_path, 0x1000, 128),
-        (device.c2h_path, 0x1080, 128),
-        (device.c2h_path, 0x1100, 128),
-        (device.c2h_path, 0x1180, 128),
-    ]
-
-
 def test_blocking_dma_io_wraps_missing_channel_as_transfer_error(tmp_path: Path) -> None:
     device = make_fake_device(tmp_path)
 
@@ -106,7 +85,7 @@ def test_dma_short_write_error_includes_offset_expected_and_actual_bytes(tmp_pat
         write_all_at(h2c_path, 0x1000, bytes(64))
 
 
-def make_fake_device(tmp_path: Path, *, read_chunk_bytes: int | None = None) -> DauDevice:
+def make_fake_device(tmp_path: Path) -> DauDevice:
     return DauDevice(
         name="xdma0",
         backend="linux-xdma",
@@ -122,5 +101,4 @@ def make_fake_device(tmp_path: Path, *, read_chunk_bytes: int | None = None) -> 
             dma=DmaConstraints(alignment_bytes=64, descriptor_bytes=32, max_transfer_bytes=4096, read_channels=1, write_channels=1),
             operators=(),
         ),
-        read_chunk_bytes=read_chunk_bytes,
     )

@@ -82,7 +82,7 @@ def main() -> int:
         print("no DAU device found", file=sys.stderr)
         return 1
     device = devices[0]
-    print(f"device: {device.name} window=0x{device.register_window_offset:x} read_chunk={device.read_chunk_bytes}")
+    print(f"device: {device.name} window=0x{device.register_window_offset:x}")
 
     trades = _synthetic_trades(rows)
     golden = _golden(trades)
