@@ -250,7 +250,10 @@ def _offset_name(offset: RegisterOffset | int) -> str:
     return f"0x{offset:x}"
 
 
-def write_address(device, low_offset, high_offset, address: int, *, memory_bytes: int | None = None) -> None:
+_DEVICE_MEMORY = object()  # sentinel: take the bound from the device
+
+
+def write_address(device, low_offset, high_offset, address: int, *, memory_bytes: int | None | object = _DEVICE_MEMORY) -> None:
     """Program an address across its LOW/HIGH register pair on any device.
 
     A FUNCTION, not a method, because devices here are duck-typed: test
@@ -266,7 +269,18 @@ def write_address(device, low_offset, high_offset, address: int, *, memory_bytes
     The offsets are passed explicitly rather than derived as `low + 4`: the
     job pair is adjacent but a LANE's is not — its high half is at 0x14
     because 0x04 is the result length.
+
+    `memory_bytes` bounds the address. It DEFAULTS to the device's own
+    declared memory rather than to None, because a guard that is off
+    unless every call site remembers to switch it on is not a guard: the
+    execution paths that program job addresses all used the plain function
+    and so ran unbounded. Reading it off the device is a duck-typed probe
+    on purpose — devices here are not required to subclass `DauDevice`, and
+    one that does not declare its memory simply goes unbounded, as before.
+    Pass an explicit value to override, or `None` to disable the check.
     """
+    if memory_bytes is _DEVICE_MEMORY:
+        memory_bytes = getattr(device, "memory_bytes", None)
     if not 0 <= address <= 0xFFFF_FFFF_FFFF_FFFF:
         raise RegisterAccessError(f"address must fit in 64 bits, got {address!r}")
     if memory_bytes is not None and address >= memory_bytes:
