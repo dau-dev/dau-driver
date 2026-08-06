@@ -211,3 +211,18 @@ def test_a_dead_aperture_reads_back_as_unstamped_not_as_an_identity() -> None:
 
     snapshot = read_register_block_snapshot(lambda offset: 0xFFFFFFFF)
     assert snapshot.build_id == 0
+
+
+def test_a_json_boolean_is_not_a_capability_word() -> None:
+    """int(True) == 1 would quietly satisfy a device advertising one lane."""
+    device = _Snapshot(lane_count=1, operator_bitmap=0, host_opcode_bitmap=0, sort_capacity=0)
+    (mismatch,) = advertisement_mismatches(device, {"lane_count": True, "operator_bitmap": 0, "host_opcode_bitmap": 0, "sort_capacity": 0})
+    assert "not a capability word" in mismatch
+
+
+def test_an_unreadable_only_contract_reports_the_reason_not_the_all_zero_guard() -> None:
+    """Guard ordering: the all-zero refusal must not swallow an unreadable
+    word and raise, which loses the specific reason a caller needs."""
+    device = _Snapshot(lane_count=1, operator_bitmap=0, host_opcode_bitmap=0, sort_capacity=0)
+    (mismatch,) = advertisement_mismatches(device, {"lane_count": 4.0, "operator_bitmap": 0, "host_opcode_bitmap": 0, "sort_capacity": 0})
+    assert "4.0" in mismatch and "not a capability word" in mismatch

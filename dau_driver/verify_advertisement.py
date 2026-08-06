@@ -71,7 +71,9 @@ def _as_int(value: Any) -> Any:
     if value is None:
         return _ABSENT
     if isinstance(value, bool):
-        return int(value)
+        # a JSON true is not a capability word, and int(True) == 1 would
+        # quietly satisfy a device advertising one lane
+        return _UNREADABLE
     if isinstance(value, int):
         return value
     if isinstance(value, str):
@@ -149,7 +151,12 @@ def advertisement_mismatches(snapshot, contract: Mapping[str, Any]) -> tuple[str
     prevent.
     """
     recorded = {key: _as_int(contract.get(key)) for _, key in ADVERTISED_WORDS}
-    if not any(value for value in recorded.values() if isinstance(value, int)):
+    # an unreadable word is reported as a mismatch below; it must not first
+    # be swallowed by the all-zero guard, which would raise instead and lose
+    # the specific reason
+    if not any(value is _UNREADABLE for value in recorded.values()) and not any(
+        value for value in recorded.values() if isinstance(value, int)
+    ):
         raise ValueError(
             "capability contract advertises no non-zero word "
             f"({', '.join(f'{key}={contract.get(key)!r}' for key in recorded)}); "
