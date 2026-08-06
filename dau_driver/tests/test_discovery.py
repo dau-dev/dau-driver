@@ -5,7 +5,14 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import pytest
-from dau_core.registers import DAU_MAGIC_WORD, RegisterBlockSnapshot, RegisterMapVersion, RegisterOffset, StreamProtocolVersion
+from dau_core.registers import (
+    CURRENT_REGISTER_MAP_VERSION,
+    DAU_MAGIC_WORD,
+    RegisterBlockSnapshot,
+    RegisterMapVersion,
+    RegisterOffset,
+    StreamProtocolVersion,
+)
 from dau_core.stream import LogicalType, OperationCode
 
 import dau_driver.discovery as discovery_module
@@ -70,16 +77,15 @@ def test_discover_devices_reports_one_matching_fake_device(tmp_path: Path) -> No
     assert device.capabilities.platform_id == "DPV1"
     assert device.capabilities.pci_vendor_id == 0x10EE
     assert device.capabilities.pci_device_id == 0x7011
-    assert device.capabilities.register_map_version == RegisterMapVersion(0, 1)
+    assert device.capabilities.register_map_version == CURRENT_REGISTER_MAP_VERSION
     assert device.capabilities.stream_protocol_version == StreamProtocolVersion(0, 1)
     assert device.capabilities.dma.is_aligned(128)
     # whole-transfer reads: the chunk quirk belonged to the retired shell
     assert device.read_chunk_bytes is None
-    # legacy decode (register map 0.1, the proven resident dpv1 style): the
-    # advertised bit expands over the historical five-type set
+    # the bitmap words make a concrete INT32 claim; per-tile types travel
+    # in the manifest capability contract, not in registers
     assert device.capabilities.supports(OperationCode.AVERAGE, LogicalType.INT32)
-    assert device.capabilities.supports(OperationCode.AVERAGE, LogicalType.FLOAT32)
-    assert device.capabilities.host_operators == ()
+    assert not device.capabilities.supports(OperationCode.AVERAGE, LogicalType.FLOAT32)
 
 
 def test_discover_devices_decodes_the_concrete_contract_on_register_map_0_2(tmp_path: Path) -> None:
@@ -143,7 +149,7 @@ def test_identify_device_retries_transient_zero_magic_read(tmp_path: Path, monke
     assert device.read_register(RegisterOffset.MAGIC) == DAU_MAGIC_WORD
 
 
-def test_identify_device_defaults_legacy_gpio_metadata(tmp_path: Path) -> None:
+def test_identify_device_reports_unadvertised_metadata_honestly(tmp_path: Path) -> None:
     user_path = tmp_path / "xdma0_user"
     h2c_path = tmp_path / "xdma0_h2c_0"
     c2h_path = tmp_path / "xdma0_c2h_0"
@@ -161,7 +167,9 @@ def test_identify_device_defaults_legacy_gpio_metadata(tmp_path: Path) -> None:
 
     assert device.register_window_offset == 0x1000
     assert device.capabilities.platform_id == "DPV1"
-    assert device.capabilities.register_map_version == RegisterMapVersion(0, 1)
+    # the shell decodes MAGIC (so the path is healthy) but not this offset:
+    # report that it said nothing rather than inventing a version for it
+    assert device.capabilities.register_map_version == RegisterMapVersion(0, 0)
 
 
 def test_device_decodes_status_and_counters_from_register_block(tmp_path: Path) -> None:
@@ -208,7 +216,7 @@ def test_device_reads_register_block_snapshot_from_dau_core_contract(tmp_path: P
 
     assert device.read_register_block_snapshot() == RegisterBlockSnapshot(
         platform_id="DPV1",
-        register_map_version=RegisterMapVersion(0, 1),
+        register_map_version=CURRENT_REGISTER_MAP_VERSION,
         stream_protocol_version=StreamProtocolVersion(0, 1),
         status=0b0011,
         operator_bitmap=1 << OperationCode.AVERAGE,
@@ -286,7 +294,7 @@ def write_fake_xdma_device(
     register_window_offset: int = 0,
 ) -> FakeXdmaPaths:
     if register_map_version is None:
-        register_map_version = RegisterMapVersion(0, 1)
+        register_map_version = CURRENT_REGISTER_MAP_VERSION
     if stream_protocol_version is None:
         stream_protocol_version = StreamProtocolVersion(0, 1)
 

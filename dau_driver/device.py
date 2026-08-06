@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Protocol
 
 from dau_core.capabilities import DeviceCapabilities
-from dau_core.registers import RegisterBlockSnapshot, RegisterMapVersion, RegisterOffset, StreamProtocolVersion
+from dau_core.registers import RegisterBlockSnapshot, RegisterOffset, StreamProtocolVersion
 
 from .capability_decode import DPV1_PLATFORM_ID, decode_platform_id
 from .errors import RegisterAccessError, UnhealthyBarError
@@ -95,9 +95,11 @@ class DauDevice:
         )
 
     def read_register_block_snapshot(self) -> RegisterBlockSnapshot:
-        from .capability_decode import _capability_words
+        from .capability_decode import _capability_words, decode_register_map_version
 
-        register_map_version = RegisterMapVersion.from_u32(self.read_register(RegisterOffset.REGISTER_MAP_VERSION))
+        # the SHARED decoder: reading this word two ways is how the two
+        # readers came to disagree on an all-ones result
+        register_map_version = decode_register_map_version(self.read_register(RegisterOffset.REGISTER_MAP_VERSION))
         # all-ones = word not decoded -> not advertised, same normalization
         # as the discovery-time snapshot
         capability_words = _capability_words(self.read_register, register_map_version)

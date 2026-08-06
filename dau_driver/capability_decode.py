@@ -14,18 +14,7 @@ from dau_core.capability_contract import CapabilityContract
 from dau_core.registers import DEFAULT_STREAM_JOB_REGISTER_CONTRACT, RegisterBlockSnapshot, RegisterMapVersion, RegisterOffset, StreamProtocolVersion
 from dau_core.stream import LogicalType, OperationCode, output_type_for
 
-# LEGACY (register map 0.1 only): the historical bitmap expansion
-# over-advertised every operator bit across these five logical types. Kept
-# verbatim for the proven resident dpv1 bitstream; register map 0.2 decodes
-# the concrete contract instead.
-DEFAULT_INPUT_TYPES = (
-    LogicalType.INT8,
-    LogicalType.INT16,
-    LogicalType.INT32,
-    LogicalType.INT64,
-    LogicalType.FLOAT32,
-)
-# register map 0.2: the register-level type claim of the bitmap words — every
+# the register-level type claim of the bitmap words — every
 # opcode-driven tile in the palette is INT32 (per-tile types travel in the
 # manifest capability contract, not in registers)
 REGISTER_BITMAP_INPUT_TYPES = (LogicalType.INT32,)
@@ -41,9 +30,25 @@ def decode_platform_id(value: int) -> str:
     return platform_bytes.decode("ascii")
 
 
+# all-ones on an identity offset means the shell does not decode it. MAGIC
+# reading correctly is what proves the path healthy; see check_bar_health.
+NOT_ADVERTISED_REGISTER_MAP_VERSION = RegisterMapVersion(0, 0)
+
+
 def decode_register_map_version(value: int) -> RegisterMapVersion:
+    """Decode the register-map version word.
+
+    An all-ones read means NOT ADVERTISED — the same normalization the
+    capability words use — not a version. Two readers used to disagree on
+    exactly this word: one mapped it to (0, 1), a plausible-looking old
+    shell, while the other ran it through ``from_u32`` and got
+    (65535, 65535), which compares GREATER than the capability-word
+    version and so read words the shell never decoded. A sentinel below
+    every real version makes both readers agree and keeps those offsets
+    unread.
+    """
     if value == 0xFFFF_FFFF:
-        return RegisterMapVersion(0, 1)
+        return NOT_ADVERTISED_REGISTER_MAP_VERSION
     return RegisterMapVersion.from_u32(value)
 
 
@@ -60,31 +65,20 @@ def _typed_operators_from_bitmap(bitmap: int, input_types: tuple[LogicalType, ..
     )
 
 
-def operators_from_bitmap(operator_bitmap: int) -> tuple[OperatorCapability, ...]:
-    """LEGACY decode, register map 0.1 only: expand every advertised
-    operator bit across the five historical logical types. This is the
-    compatibility path for the proven resident dpv1 bitstream (which
-    reports 0.1 with the static 0x1E word) — never used once a shell
-    advertises register map 0.2."""
-    return _typed_operators_from_bitmap(operator_bitmap, DEFAULT_INPUT_TYPES)
-
-
 def operators_from_snapshot(snapshot: RegisterBlockSnapshot) -> tuple[tuple[OperatorCapability, ...], tuple[OperatorCapability, ...]]:
     """(hardware operators, host-computed operators) from the identity
     registers, decoded by register map version.
 
-    Register map >= 0.2 advertises the composed truth: OPERATOR_BITMAP
-    carries only HDL-executed opcodes (typed INT32 at register level) and
-    HOST_OPCODE_BITMAP carries protocol-level opcodes the host derives
-    from hardware results (AVERAGE = SUM/COUNT divide) — those must never
-    be submitted to the device. Older maps take the legacy bitmap
-    expansion and advertise no host operators."""
-    if snapshot.register_map_version >= CAPABILITY_WORDS_REGISTER_MAP_VERSION:
-        return (
-            _typed_operators_from_bitmap(snapshot.operator_bitmap, REGISTER_BITMAP_INPUT_TYPES),
-            _typed_operators_from_bitmap(snapshot.host_opcode_bitmap, REGISTER_BITMAP_INPUT_TYPES),
-        )
-    return operators_from_bitmap(snapshot.operator_bitmap), ()
+    OPERATOR_BITMAP carries only HDL-executed opcodes (typed INT32 at
+    register level) and HOST_OPCODE_BITMAP carries protocol-level opcodes
+    the host derives from hardware results (AVERAGE = SUM/COUNT divide) —
+    those must never be submitted to the device. A shell that advertises
+    neither word reports nothing here, and its manifest capability
+    contract is the authority."""
+    return (
+        _typed_operators_from_bitmap(snapshot.operator_bitmap, REGISTER_BITMAP_INPUT_TYPES),
+        _typed_operators_from_bitmap(snapshot.host_opcode_bitmap, REGISTER_BITMAP_INPUT_TYPES),
+    )
 
 
 def contract_from_manifest_metadata(metadata: Mapping[str, str]) -> CapabilityContract | None:
@@ -132,9 +126,9 @@ def _capability_word(read_register: Callable[[RegisterOffset], int], offset: Reg
 
 
 def _capability_words(read_register: Callable[[RegisterOffset], int], register_map_version: RegisterMapVersion) -> dict[str, int]:
-    """The composed-capability words, read only on register map >= 0.2 —
-    older shells do not decode those offsets. Shared by every snapshot
-    reader so the version gate and all-ones normalization cannot diverge."""
+    """The composed-capability words, read only from a shell that
+    advertises them. Shared by every snapshot reader so the gate and the
+    all-ones normalization cannot diverge between them."""
     if register_map_version < CAPABILITY_WORDS_REGISTER_MAP_VERSION:
         return {}
     return {
