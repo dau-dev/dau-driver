@@ -98,3 +98,89 @@ def test_a_dead_aperture_fails_against_a_real_contract() -> None:
     dead = _Snapshot(lane_count=0, operator_bitmap=0, host_opcode_bitmap=0, sort_capacity=0)
     mismatches = advertisement_mismatches(dead, _CONTRACT)
     assert {"lane_count", "operator_bitmap", "host_opcode_bitmap"} == {m.split(":")[0] for m in mismatches}
+
+
+@pytest.mark.parametrize("bad", [1.0, [1], "", "018", {"a": 1}])
+def test_an_unreadable_word_is_a_mismatch_not_a_skip_and_never_raises(bad) -> None:
+    """Fail CLOSED. A word the manifest records in a form this cannot read
+    is not the same as one it does not record: reading it as absent is how a
+    check silently stops checking. Raising is worse still -- this runs
+    before the deadman disarm, so an uncaught exception reboots the host."""
+    snapshot = _Snapshot(lane_count=1, operator_bitmap=0x18, host_opcode_bitmap=0x20, sort_capacity=0)
+    (mismatch,) = advertisement_mismatches(snapshot, {**_CONTRACT, "lane_count": bad})
+    assert mismatch.startswith("lane_count:") and "not a capability word" in mismatch
+
+
+def test_a_float_lane_count_does_not_pass_a_mismatched_device() -> None:
+    """The concrete fail-open case: 4.0 parsed as 'absent' let a device
+    advertising 1 pass a manifest expecting 4."""
+    snapshot = _Snapshot(lane_count=1, operator_bitmap=0x18, host_opcode_bitmap=0x20, sort_capacity=0)
+    assert advertisement_mismatches(snapshot, {**_CONTRACT, "lane_count": 4.0}) != ()
+
+
+def test_device_name_for_endpoint_resolves_through_sysfs(tmp_path) -> None:
+    from dau_driver.verify_advertisement import device_name_for_endpoint
+
+    xdma = tmp_path / "0000:04:00.0" / "xdma"
+    xdma.mkdir(parents=True)
+    for node in ("xdma0_user", "xdma0_h2c_0", "xdma0_c2h_0"):
+        (xdma / node).touch()
+    assert device_name_for_endpoint("0000:04:00.0", sysfs_root=tmp_path) == "xdma0"
+
+
+def test_an_endpoint_that_did_not_re_enumerate_refuses(tmp_path) -> None:
+    from dau_driver.verify_advertisement import device_name_for_endpoint
+
+    with pytest.raises(ValueError, match="owns no xdma devnodes"):
+        device_name_for_endpoint("0000:04:00.0", sysfs_root=tmp_path)
+
+
+@dataclass
+class _StampedSnapshot:
+    lane_count: int
+    operator_bitmap: int
+    host_opcode_bitmap: int
+    sort_capacity: int
+    build_id: int
+
+
+_SPEC_HASH = "5:cbbe0c39ca6857cf1854804711d7abac7c301b620d4a478185ca0686dedd5575"
+
+
+def _stamped(build_id: int) -> _StampedSnapshot:
+    return _StampedSnapshot(lane_count=1, operator_bitmap=0x18, host_opcode_bitmap=0x20, sort_capacity=0, build_id=build_id)
+
+
+def test_a_matching_build_id_is_the_exact_check() -> None:
+    from dau_core.composition import build_id_from_spec_hash
+
+    from dau_driver.verify_advertisement import build_id_mismatch
+
+    assert build_id_mismatch(_stamped(build_id_from_spec_hash(_SPEC_HASH)), _SPEC_HASH) is None
+
+
+def test_build_id_catches_what_the_capability_words_cannot() -> None:
+    """The incident's own pair: q19-scan and q19-packed-wide advertise
+    identical lane count, operator bitmap, host-opcode bitmap and sort
+    capacity, so a word-level check passes when the board is running the
+    other one. BUILD_ID does not."""
+    from dau_driver.verify_advertisement import build_id_mismatch
+
+    other_design = _stamped(0xDEADBEEFCAFEF00D)
+    assert advertisement_mismatches(other_design, _CONTRACT) == ()  # words agree
+    mismatch = build_id_mismatch(other_design, _SPEC_HASH)  # identity does not
+    assert mismatch is not None and "build_id" in mismatch
+
+
+def test_an_unstamped_shell_does_not_fail_the_exact_check() -> None:
+    """Every shell built before stamping existed advertises 0. That is a
+    weaker verification, not a failing one -- main() says so on stderr."""
+    from dau_driver.verify_advertisement import build_id_mismatch
+
+    assert build_id_mismatch(_stamped(0), _SPEC_HASH) is None
+
+
+def test_a_manifest_without_a_spec_hash_does_not_fail_the_exact_check() -> None:
+    from dau_driver.verify_advertisement import build_id_mismatch
+
+    assert build_id_mismatch(_stamped(0x1234), None) is None

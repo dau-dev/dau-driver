@@ -9,11 +9,19 @@ reason: the programmer exited zero without writing, the plan saw an
 endpoint, disarmed its deadman, and reported success while the board kept
 running the previous design.
 
-What distinguishes them is the COMPOSED ADVERTISEMENT — the lane count,
-operator bitmap, host-opcode bitmap and sort capacity the shell publishes in
-its identity registers. A build manifest carries the same four values in its
-capability contract. Comparing them answers the question the endpoint check
-cannot: is the silicon running THIS build?
+Two things distinguish them, and they are not equally strong.
+
+BUILD_ID is exact. A shell stamps the leading 64 bits of its composition's
+spec hash into its identity block, the manifest carries the same hash, and
+they either agree or the board is running something else.
+
+The composed capability words — lane count, operator bitmap, host-opcode
+bitmap, sort capacity — are a coarse projection and must not be mistaken
+for an identity. Most designs share a word tuple with several others:
+q19-scan and q19-packed-wide are identical across all four, which is the
+incident's own pair. They are still worth comparing, because a shell built
+before stamping existed advertises BUILD_ID 0 and the words are then all
+there is — but a pass on words alone is reported as the weaker result it is.
 
 This is a verification, not a decode: it deliberately reports every
 mismatch rather than the first, because "lane count differs" and "operator
@@ -30,7 +38,7 @@ from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
-__all__ = ("ADVERTISED_WORDS", "advertisement_mismatches", "contract_from_manifest_path", "main")
+__all__ = ("ADVERTISED_WORDS", "advertisement_mismatches", "build_id_mismatch", "contract_from_manifest_path", "device_name_for_endpoint", "main")
 
 # the identity-register words a shell advertises, mapped to the key the
 # capability contract records them under. Both sides must agree on all of
@@ -43,21 +51,40 @@ ADVERTISED_WORDS: tuple[tuple[str, str], ...] = (
 )
 
 
-def _as_int(value: Any) -> int | None:
-    """Contract words are serialized as ints or as hex strings."""
+# a word the contract does not record at all, versus one it records in a
+# form this cannot read. They must not be conflated: the first is fine to
+# skip, the second is a mismatch. Reading an unparseable word as "absent"
+# is how a check silently stops checking.
+_ABSENT = object()
+_UNREADABLE = object()
+
+
+def _as_int(value: Any) -> Any:
+    """A contract word as an int, or ``_ABSENT`` / ``_UNREADABLE``.
+
+    Words are serialized as ints or as strings that ``int(base=0)`` accepts.
+    Anything else — a float, a list, an empty string, a leading-zero decimal
+    — is UNREADABLE rather than absent, and never raises: this runs inside a
+    plan step that sits before the deadman disarm, so an uncaught exception
+    here reboots the host.
+    """
     if value is None:
-        return None
+        return _ABSENT
     if isinstance(value, bool):
         return int(value)
     if isinstance(value, int):
         return value
     if isinstance(value, str):
-        return int(value, 0)
-    return None
+        try:
+            return int(value.strip(), 0)
+        except ValueError:
+            return _UNREADABLE
+    return _UNREADABLE
 
 
-def contract_from_manifest_path(path: Path) -> Mapping[str, Any]:
-    """The capability contract a shell-build manifest carries, as plain data.
+def contract_from_manifest_path(path: Path, *, with_spec_hash: bool = False) -> Any:
+    """The capability contract a shell-build manifest carries, as plain data,
+    and optionally the spec hash beside it.
 
     Reads the manifest as text and pulls the embedded JSON rather than
     importing the build package: this runs on a bench host where only the
@@ -70,7 +97,39 @@ def contract_from_manifest_path(path: Path) -> Mapping[str, Any]:
     serialized = metadata.get("capability_contract")
     if not serialized:
         raise ValueError(f"{path} carries no capability_contract; nothing to verify against")
-    return json.loads(serialized)
+    contract = json.loads(serialized)
+    if with_spec_hash:
+        return contract, metadata.get("spec_hash")
+    return contract
+
+
+def build_id_mismatch(snapshot, spec_hash: str | None) -> str | None:
+    """The EXACT check, when both sides carry it: does the shell's BUILD_ID
+    match the spec hash of the design the manifest describes?
+
+    This is what the advertised capability words cannot do. They are a
+    coarse projection — most designs share a word tuple with several others,
+    and q19-scan and q19-packed-wide are identical across all four — so a
+    word-level match is consistent with the board running a different
+    design. A BUILD_ID match is not.
+
+    Returns None when the check does not apply: no spec hash in the
+    manifest, or a shell that advertises BUILD_ID 0 (unstamped, which every
+    shell built before stamping existed does). Absence is reported by the
+    caller rather than treated as agreement — an unstamped shell is a weaker
+    verification, not a passing one.
+    """
+    if not spec_hash:
+        return None
+    from dau_core.composition import build_id_from_spec_hash
+
+    advertised = getattr(snapshot, "build_id", None)
+    if not advertised:  # 0 or absent: not stamped
+        return None
+    expected = build_id_from_spec_hash(spec_hash)
+    if advertised != expected:
+        return f"build_id: device advertises 0x{advertised:016x}, manifest's spec hash gives 0x{expected:016x}"
+    return None
 
 
 def advertisement_mismatches(snapshot, contract: Mapping[str, Any]) -> tuple[str, ...]:
@@ -90,16 +149,19 @@ def advertisement_mismatches(snapshot, contract: Mapping[str, Any]) -> tuple[str
     prevent.
     """
     recorded = {key: _as_int(contract.get(key)) for _, key in ADVERTISED_WORDS}
-    if not any(value for value in recorded.values()):
+    if not any(value for value in recorded.values() if isinstance(value, int)):
         raise ValueError(
             "capability contract advertises no non-zero word "
-            f"({', '.join(f'{key}={value!r}' for key, value in recorded.items())}); "
+            f"({', '.join(f'{key}={contract.get(key)!r}' for key in recorded)}); "
             "it cannot identify a design, and a dead register aperture reads back as all zeros"
         )
     mismatches = []
     for register_field, contract_key in ADVERTISED_WORDS:
-        expected = _as_int(contract.get(contract_key))
-        if expected is None:
+        expected = recorded[contract_key]
+        if expected is _ABSENT:
+            continue
+        if expected is _UNREADABLE:
+            mismatches.append(f"{register_field}: manifest records {contract.get(contract_key)!r}, which is not a capability word")
             continue
         actual = getattr(snapshot, register_field, None)
         if actual is None:
@@ -109,31 +171,75 @@ def advertisement_mismatches(snapshot, contract: Mapping[str, Any]) -> tuple[str
     return tuple(mismatches)
 
 
+def device_name_for_endpoint(bdf: str, *, sysfs_root: Path = Path("/sys/bus/pci/devices")) -> str:
+    """The xdma instance an endpoint owns, e.g. ``0000:04:00.0`` ->
+    ``xdma0``. The devnodes hang off the PCI device in sysfs, which is the
+    only link between the BDF a programming plan knows and the device the
+    driver enumerates."""
+    xdma_root = sysfs_root / bdf / "xdma"
+    if not xdma_root.is_dir():
+        raise ValueError(f"{bdf} owns no xdma devnodes ({xdma_root} is not a directory); it may not have re-enumerated")
+    names = {entry.name.split("_", 1)[0] for entry in xdma_root.iterdir() if "_" in entry.name}
+    if len(names) != 1:
+        raise ValueError(f"expected exactly one xdma instance under {xdma_root}, found {sorted(names) or 'none'}")
+    return names.pop()
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Verify a device is running the design a build manifest describes")
     parser.add_argument("--manifest", required=True, type=Path, help="shell-build artifacts manifest for the programmed design")
     parser.add_argument("--device-root", default=None, help="devnode search root passed to discovery")
+    parser.add_argument("--endpoint-bdf", default=None, help="verify the device this PCI endpoint owns, e.g. 0000:04:00.0")
     args = parser.parse_args(argv)
 
     from dau_driver.discovery import discover_devices
 
-    contract = contract_from_manifest_path(args.manifest)
+    contract, spec_hash = contract_from_manifest_path(args.manifest, with_spec_hash=True)
     devices = discover_devices() if args.device_root is None else discover_devices(args.device_root)
     if not devices:
         print("no DAU device found to verify", file=sys.stderr)
         return 1
-    device = devices[0]
+
+    if args.endpoint_bdf is not None:
+        wanted = device_name_for_endpoint(args.endpoint_bdf)
+        matched = [device for device in devices if device.name == wanted]
+        if not matched:
+            print(f"endpoint {args.endpoint_bdf} owns {wanted}, which is not among the discovered devices {[d.name for d in devices]}", file=sys.stderr)
+            return 1
+        device = matched[0]
+    elif len(devices) > 1:
+        # never pick one: verifying the wrong board is the same failure this
+        # tool exists to catch, one level up
+        print(f"{len(devices)} devices found ({[d.name for d in devices]}); pass --endpoint-bdf to say which one was programmed", file=sys.stderr)
+        return 1
+    else:
+        device = devices[0]
     snapshot = device.read_register_block_snapshot()
 
-    mismatches = advertisement_mismatches(snapshot, contract)
+    mismatches = list(advertisement_mismatches(snapshot, contract))
+    exact = build_id_mismatch(snapshot, spec_hash)
+    if exact is not None:
+        mismatches.append(exact)
+    mismatches = tuple(mismatches)
     if mismatches:
         print(f"device is NOT running {args.manifest}:", file=sys.stderr)
         for mismatch in mismatches:
             print(f"  {mismatch}", file=sys.stderr)
         print("the endpoint enumerating does not mean the program took: an FPGA falls back to its flash-resident design", file=sys.stderr)
         return 1
-    checked = ", ".join(field for field, key in ADVERTISED_WORDS if _as_int(contract.get(key)) is not None)
-    print(f"device advertisement matches {args.manifest} ({checked})")
+    checked = [field for field, key in ADVERTISED_WORDS if isinstance(_as_int(contract.get(key)), int)]
+    stamped = bool(spec_hash) and bool(getattr(snapshot, "build_id", 0))
+    if stamped:
+        checked.append("build_id")
+    print(f"device advertisement matches {args.manifest} ({', '.join(checked)})")
+    if not stamped:
+        # say it out loud: the words alone do not identify a design, so this
+        # pass is weaker than it looks
+        print(
+            "note: this shell advertises no BUILD_ID, so the check compared only capability words -- "
+            "distinct designs can share all of them",
+            file=sys.stderr,
+        )
     return 0
 
 
