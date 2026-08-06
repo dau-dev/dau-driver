@@ -126,6 +126,23 @@ def _capability_word(read_register: Callable[[RegisterOffset], int], offset: Reg
     return 0 if value == 0xFFFF_FFFF else value
 
 
+def _build_id(read_register: Callable[[RegisterOffset], int]) -> int:
+    """The shell's 64-bit build identity, as TWO 32-bit reads.
+
+    Deliberately not one 8-byte access: the XDMA user BAR can short-read
+    those. Low half at BUILD_ID_LOW, high at BUILD_ID_HIGH, matching the
+    identity block's split.
+
+    All-ones normalizes to 0 like every other capability word — a word
+    nobody decoded advertises nothing, and 0 is the reserved "not stamped"
+    value a consumer already has to handle for shells built before stamping
+    existed.
+    """
+    low = _capability_word(read_register, RegisterOffset.BUILD_ID_LOW)
+    high = _capability_word(read_register, RegisterOffset.BUILD_ID_HIGH)
+    return (high << 32) | low
+
+
 def _capability_words(read_register: Callable[[RegisterOffset], int], register_map_version: RegisterMapVersion) -> dict[str, int]:
     """The composed-capability words, read only from a shell that
     advertises them. Shared by every snapshot reader so the gate and the
@@ -154,5 +171,6 @@ def read_register_block_snapshot(read_register: Callable[[RegisterOffset], int])
         # that implements every opcode. Read raw it advertises AVERAGE as
         # hardware, which this module states must never be submitted.
         operator_bitmap=_capability_word(read_register, RegisterOffset.OPERATOR_BITMAP),
+        build_id=_build_id(read_register),
         **capability_words,
     )

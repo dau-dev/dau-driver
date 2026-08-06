@@ -184,3 +184,30 @@ def test_a_manifest_without_a_spec_hash_does_not_fail_the_exact_check() -> None:
     from dau_driver.verify_advertisement import build_id_mismatch
 
     assert build_id_mismatch(_stamped(0x1234), None) is None
+
+
+def test_the_snapshot_actually_reads_build_id_back_from_the_registers() -> None:
+    """Without this the exact check is decorative: `build_id` would sit at
+    its dataclass default of 0 forever, every verification would silently
+    fall back to the capability words, and the fallback note would be the
+    only hint. The word ORDER matters as much -- low at 0x0014, high at
+    0x0018, per the identity block -- because a swap makes the check fail on
+    a correctly flashed board."""
+    from dau_core.registers import RegisterOffset
+    from dau_driver.capability_decode import read_register_block_snapshot
+
+    stamped = 0xCBBE0C39CA6857CF
+    words = {
+        RegisterOffset.REGISTER_MAP_VERSION: 0x0002,
+        RegisterOffset.BUILD_ID_LOW: stamped & 0xFFFFFFFF,
+        RegisterOffset.BUILD_ID_HIGH: stamped >> 32,
+    }
+    snapshot = read_register_block_snapshot(lambda offset: words.get(offset, 0))
+    assert snapshot.build_id == stamped
+
+
+def test_a_dead_aperture_reads_back_as_unstamped_not_as_an_identity() -> None:
+    from dau_driver.capability_decode import read_register_block_snapshot
+
+    snapshot = read_register_block_snapshot(lambda offset: 0xFFFFFFFF)
+    assert snapshot.build_id == 0
