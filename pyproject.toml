@@ -29,7 +29,12 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
 ]
 
-dependencies = ["dau-core @ git+https://github.com/dau-dev/dau-core.git"]
+dependencies = [
+    "dau-core @ git+https://github.com/dau-dev/dau-core.git",
+    # read directly by verify_advertisement; it arrives transitively through
+    # ccflow today, but a package should declare what it imports
+    "pyyaml",
+]
 
 [project.optional-dependencies]
 develop = [
@@ -54,6 +59,7 @@ develop = [
 
 [project.scripts]
 dau-xdma-macos-probe = "dau_driver.macos_xdma:main"
+dau-driver-verify-advertisement = "dau_driver.verify_advertisement:main"
 
 [project.urls]
 Repository = "https://github.com/dau-dev/dau-driver"
