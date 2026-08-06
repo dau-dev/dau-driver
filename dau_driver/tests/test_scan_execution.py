@@ -315,3 +315,80 @@ def test_batch_balance_is_bounded_by_the_largest_key() -> None:
     assert max(sizes) >= 500
     # every other batch is far smaller — the skew is structural, not a bug
     assert sorted(sizes)[-2] < 100
+
+
+def _encode_pairs(records) -> bytes:
+    return b"".join(int(key).to_bytes(4, "little") + int(value).to_bytes(4, "little", signed=True) for key, value in records)
+
+
+def test_key_range_batches_bound_the_distinct_keys_per_batch() -> None:
+    from dau_driver.scan_execution import key_range_scan_batches
+
+    # keys deliberately UNSORTED on arrival: the hash-mode tile needs no
+    # key ordering, so neither may this splitter
+    records = [((seed * 7) % 10, seed) for seed in range(40)]
+    batches = list(key_range_scan_batches(records, key_capacity=3, key=lambda record: record[0], encode=_encode_pairs))
+    assert len(batches) == 4  # 10 distinct keys / 3 per batch
+    assert sum(batch.row_count for batch in batches) == len(records)
+
+
+def test_key_range_batches_put_each_key_in_exactly_one_batch() -> None:
+    """The property that makes combining per-batch group records a
+    concatenation rather than a summation."""
+    from dau_driver.scan_execution import key_range_scan_batches
+
+    records = [((seed * 7) % 10, seed) for seed in range(40)]
+    seen: list[set[int]] = []
+    for batch in key_range_scan_batches(records, key_capacity=3, key=lambda record: record[0], encode=_encode_pairs):
+        keys = {int.from_bytes(batch.payload[offset : offset + 4], "little") for offset in range(0, len(batch.payload), 8)}
+        assert len(keys) <= 3
+        seen.append(keys)
+    for index, keys in enumerate(seen):
+        for other in seen[index + 1 :]:
+            assert not (keys & other), "a key appeared in two batches"
+    assert set().union(*seen) == {record[0] for record in records}
+
+
+def test_key_range_batches_preserve_arrival_order_within_a_batch() -> None:
+    from dau_driver.scan_execution import key_range_scan_batches
+
+    records = [(9, 0), (1, 1), (9, 2), (1, 3), (5, 4)]
+    batches = list(key_range_scan_batches(records, key_capacity=3, key=lambda record: record[0], encode=_encode_pairs))
+    assert len(batches) == 1
+    values = [int.from_bytes(batches[0].payload[offset + 4 : offset + 8], "little", signed=True) for offset in range(0, len(batches[0].payload), 8)]
+    assert values == [0, 1, 2, 3, 4]  # not re-ordered by key
+
+
+def test_key_range_batches_handle_the_boundaries() -> None:
+    from dau_driver.scan_execution import key_range_scan_batches
+
+    encode = _encode_pairs
+    assert list(key_range_scan_batches([], key_capacity=4, key=lambda record: record[0], encode=encode)) == []
+    exact = [(key, 0) for key in range(8)]
+    assert len(list(key_range_scan_batches(exact, key_capacity=4, key=lambda record: record[0], encode=encode))) == 2
+    assert len(list(key_range_scan_batches(exact, key_capacity=8, key=lambda record: record[0], encode=encode))) == 1
+    with pytest.raises(ValueError, match="key_capacity must be positive"):
+        list(key_range_scan_batches(exact, key_capacity=0, key=lambda record: record[0], encode=encode))
+
+
+def test_key_range_batches_merge_back_to_the_one_shot_answer() -> None:
+    """End to end against the tile golden: capacity-bounded batches run
+    through the hash-mode model and merge to what one unbounded pass
+    would have produced."""
+    from dau_core.operators import HashGroupedErrorCode, hash_grouped_field_sum_rows, merge_hash_grouped
+
+    from dau_driver.scan_execution import key_range_scan_batches
+
+    rows = [((seed * 7) % 30, (seed * 13) % 97 - 40, 0, 0) for seed in range(300)]
+    one_shot, error = hash_grouped_field_sum_rows(rows, field_mask=0b0010, capacity=64)
+    assert error is HashGroupedErrorCode.OK
+    # a table too small for the batch: the split is what makes it fit
+    assert hash_grouped_field_sum_rows(rows, field_mask=0b0010, capacity=8)[1] is HashGroupedErrorCode.GROUP_CAPACITY_EXCEEDED
+
+    partials = []
+    for batch in key_range_scan_batches(rows, key_capacity=8, key=lambda row: row[0], encode=lambda records: tuple(records)):
+        groups, code = hash_grouped_field_sum_rows(batch.payload, field_mask=0b0010, capacity=8)
+        assert code is HashGroupedErrorCode.OK, "capacity-bounded batches must not overflow"
+        partials.append(groups)
+    merged = merge_hash_grouped(partials)
+    assert [(g.key, g.sums, g.count) for g in merged] == [(g.key, g.sums, g.count) for g in one_shot]
