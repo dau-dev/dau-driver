@@ -105,6 +105,76 @@ def key_partitioned_scan_batches[Record](
     return _KeyPartitionedScanBatches(records, batch_count=batch_count, key=key, encode=encode)
 
 
+class _KeyRangeScanBatches[Record]:
+    """Lazily materialized capacity-bounded batches (see
+    :func:`key_range_scan_batches`)."""
+
+    def __init__(
+        self,
+        records: Iterable[Record],
+        *,
+        key_capacity: int,
+        key: Callable[[Record], Hashable],
+        encode: Callable[[Iterable[Record]], bytes],
+    ) -> None:
+        self._records = tuple(records)
+        self._key_capacity = key_capacity
+        self._key = key
+        self._encode = encode
+
+    def __iter__(self) -> Iterator[ScanBatch]:
+        keys = {self._key(record) for record in self._records}
+        if not keys:
+            return
+        ordered = sorted(keys)
+        # each key lands in exactly ONE range, so per-key state never
+        # spans batches and merging the partials is a concatenation
+        batch_of_key = {key: index // self._key_capacity for index, key in enumerate(ordered)}
+        batch_count = (len(ordered) + self._key_capacity - 1) // self._key_capacity
+        for batch_index in range(batch_count):
+            # arrival order is preserved WITHIN the batch: the hash-mode
+            # table needs no key ordering, so this splits by key without
+            # imposing one
+            batch_records = tuple(record for record in self._records if batch_of_key[self._key(record)] == batch_index)
+            yield ScanBatch(payload=self._encode(batch_records), row_count=len(batch_records))
+
+
+def key_range_scan_batches[Record](
+    records: Iterable[Record],
+    *,
+    key_capacity: int,
+    key: Callable[[Record], Hashable],
+    encode: Callable[[Iterable[Record]], bytes],
+) -> Iterator[ScanBatch]:
+    """Split records into batches each holding at most ``key_capacity``
+    DISTINCT keys — the host half of the hash-mode grouped tile's overflow
+    contract.
+
+    The tile's table is a hardware fact: a batch presenting more distinct
+    keys than it holds closes out ``GROUP_CAPACITY_EXCEEDED`` and is
+    invalidated. Rather than react to that, size the batches so it cannot
+    happen: partition the key space into ranges of ``key_capacity`` keys
+    and emit one batch per range. Each key therefore lands in exactly ONE
+    batch, so no per-key state spans a batch boundary and combining the
+    per-batch group records is a concatenation — a stronger property than
+    the general additive merge
+    (``dau_core.operators.merge_hash_grouped``), which remains correct and
+    is what a caller should use when batches were produced some other way.
+
+    Unlike :func:`key_partitioned_scan_batches`, records need NOT arrive in
+    key order and arrival order is preserved within each batch: the
+    hash-mode table needs no key ordering, and imposing one here would give
+    back the staging freedom the tile exists to provide. The trade is a
+    counting pass over every key before the first batch is produced, and
+    batches whose ROW counts may be uneven — key ranges are equal in keys,
+    not in rows. The device's error close-out remains the safety net for a
+    caller whose ``key_capacity`` does not match the built design.
+    """
+    if key_capacity <= 0:
+        raise ValueError(f"key_capacity must be positive, got {key_capacity}")
+    return _KeyRangeScanBatches(records, key_capacity=key_capacity, key=key, encode=encode)
+
+
 def run_scan_batches(
     device,
     batches: Iterable[ScanBatch],
