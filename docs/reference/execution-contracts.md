@@ -168,8 +168,8 @@ throughput. Results are returned in global batch order.
 memory.
 
 `per_key_state` must be `False`; True raises `ValueError`. A stateful composition
-cannot run on a fleet, because a key's rows split across cards that never see
-each other's state.
+has no fleet form: a key's rows split across cards that never see each other's
+state.
 
 `weights` takes one positive, finite value per device and pre-biases each shared
 pull by weighted round-robin; batches remain lazy and are never partitioned or
@@ -204,8 +204,7 @@ in the output region.
 
 ### `KeyedPipelineConfig`
 
-A host-side mirror of the `PIPELINE_*` configuration registers. A dataclass, not a
-ccflow model, because it is register-word packing.
+A host-side mirror of the `PIPELINE_*` configuration registers, as a dataclass.
 
 | Field | Type | Default |
 | --- | --- | --- |

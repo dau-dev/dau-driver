@@ -107,9 +107,8 @@ Program a 64-bit address across its LOW/HIGH register pair on any object with a
 half. Raises `RegisterAccessError` when the address does not fit 64 bits, or when
 `memory_bytes` is given and the address is at or past it.
 
-A module-level function rather than a method, because devices here are
-duck-typed. Offsets are passed explicitly because register pairs are not always
-adjacent — a NoC lane's high half is at `0x14`, since `0x04` is the result length.
+Offsets are passed explicitly; register pairs are not always adjacent. The job
+pair is, but a NoC lane's high half is at `0x14` — `0x04` is its result length.
 
 Module-level helpers `read_u32(path, offset)` and `read_u64(path, offset)` read
 registers directly from a node path.
