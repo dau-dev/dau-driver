@@ -80,7 +80,22 @@ def advertisement_mismatches(snapshot, contract: Mapping[str, Any]) -> tuple[str
     zero: an older manifest that predates a word should not fail a device
     that advertises it. A word the contract records and the device does not
     match is a mismatch, which is the case that matters.
+
+    Raises when the contract records no NON-ZERO word. All-zero is what a
+    dead or undecoded register aperture reads back as — the driver
+    normalizes all-ones to zero precisely so a dead word advertises nothing
+    — so a contract of all zeros would match a board that is not answering
+    at all. Such a contract cannot identify a design, and saying so is the
+    only safe answer; silently passing is the failure this module exists to
+    prevent.
     """
+    recorded = {key: _as_int(contract.get(key)) for _, key in ADVERTISED_WORDS}
+    if not any(value for value in recorded.values()):
+        raise ValueError(
+            "capability contract advertises no non-zero word "
+            f"({', '.join(f'{key}={value!r}' for key, value in recorded.items())}); "
+            "it cannot identify a design, and a dead register aperture reads back as all zeros"
+        )
     mismatches = []
     for register_field, contract_key in ADVERTISED_WORDS:
         expected = _as_int(contract.get(contract_key))

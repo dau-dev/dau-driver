@@ -82,3 +82,19 @@ def test_a_manifest_without_a_contract_refuses(tmp_path: Path) -> None:
     path.write_text(yaml.safe_dump({"name": "s", "metadata": {}}), encoding="utf-8")
     with pytest.raises(ValueError, match="no capability_contract"):
         contract_from_manifest_path(path)
+
+
+def test_a_contract_that_advertises_nothing_is_refused() -> None:
+    """All-zero is exactly what a dead or undecoded aperture reads back as,
+    because the driver normalizes all-ones to zero. A contract of all zeros
+    would therefore MATCH a board that is not answering, which is the
+    failure this module exists to prevent."""
+    dead = _Snapshot(lane_count=0, operator_bitmap=0, host_opcode_bitmap=0, sort_capacity=0)
+    with pytest.raises(ValueError, match="cannot identify a design"):
+        advertisement_mismatches(dead, {"lane_count": 0, "operator_bitmap": 0, "host_opcode_bitmap": 0, "sort_capacity": 0})
+
+
+def test_a_dead_aperture_fails_against_a_real_contract() -> None:
+    dead = _Snapshot(lane_count=0, operator_bitmap=0, host_opcode_bitmap=0, sort_capacity=0)
+    mismatches = advertisement_mismatches(dead, _CONTRACT)
+    assert {"lane_count", "operator_bitmap", "host_opcode_bitmap"} == {m.split(":")[0] for m in mismatches}
