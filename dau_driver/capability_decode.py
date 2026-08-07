@@ -33,6 +33,11 @@ def decode_platform_id(value: int) -> str:
 # all-ones on an identity offset means the shell does not decode it. MAGIC
 # reading correctly is what proves the path healthy; see check_bar_health.
 NOT_ADVERTISED_REGISTER_MAP_VERSION = RegisterMapVersion(0, 0)
+# A board that advertises no platform is UNKNOWN, not dpv1. Substituting a
+# default here reported a dead aperture -- all-ones on every word -- as a
+# working Artix, and the platform identity is what selects a part, prices a
+# design and picks constraints downstream.
+NOT_ADVERTISED_PLATFORM_ID = ""
 
 
 def decode_register_map_version(value: int) -> RegisterMapVersion:
@@ -166,7 +171,7 @@ def read_register_block_snapshot(read_register: Callable[[RegisterOffset], int])
     return RegisterBlockSnapshot(
         register_map_version=register_map_version,
         stream_protocol_version=StreamProtocolVersion.from_u32(read_register(RegisterOffset.STREAM_PROTOCOL_VERSION)),
-        platform_id=decode_platform_id(read_register(RegisterOffset.PLATFORM_ID)) or DPV1_PLATFORM_ID,
+        platform_id=decode_platform_id(read_register(RegisterOffset.PLATFORM_ID)),
         # an all-ones operator word is a word nobody decoded, NOT a device
         # that implements every opcode. Read raw it advertises AVERAGE as
         # hardware, which this module states must never be submitted.

@@ -105,7 +105,7 @@ class DauDevice:
         return RegisterBlockSnapshot(
             register_map_version=register_map_version,
             stream_protocol_version=StreamProtocolVersion.from_u32(self.read_register(RegisterOffset.STREAM_PROTOCOL_VERSION)),
-            platform_id=decode_platform_id(self.read_register(RegisterOffset.PLATFORM_ID)) or DPV1_PLATFORM_ID,
+            platform_id=decode_platform_id(self.read_register(RegisterOffset.PLATFORM_ID)),
             build_id=self._read_u64(RegisterOffset.BUILD_ID_LOW),
             status=self.read_register(RegisterOffset.STATUS),
             operator_bitmap=self.read_register(RegisterOffset.OPERATOR_BITMAP),
