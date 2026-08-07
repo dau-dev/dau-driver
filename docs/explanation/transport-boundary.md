@@ -22,10 +22,11 @@ simulator, and the golden models all need the same offsets.
 So `dau-core` owns the semantics and dau-driver imports them. The concrete
 consequence is that a hardware quirk gets fixed in the backend layer and stays
 there. When one bitstream's AXI path corrupted whole-transfer C2H reads above a
-threshold, the fix was a `read_chunk_bytes` field on the device handle, applied
-inside `read_dma`. It did not become a rule in the protocol contract, because it
-was never true of the protocol — only of that image. Later bitstreams read clean
-and the field defaults to unset.
+threshold, the fix was a chunking field on the device handle, applied inside
+`read_dma`. It did not become a rule in the protocol contract, because it was
+never true of the protocol — only of that image. That is also why the field
+could simply be DELETED once no such image remained: a quirk confined to the
+layer it belonged to leaves nothing behind when it stops being true.
 
 ## `DeviceTransport` is four methods
 

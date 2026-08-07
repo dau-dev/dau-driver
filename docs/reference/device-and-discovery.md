@@ -47,7 +47,6 @@ transport.
 | `c2h_path` | `Path` | — | Card-to-host channel. |
 | `capabilities` | `DeviceCapabilities` | — | The decoded advertisement. |
 | `register_window_offset` | `int` | `0` | Added to every register offset. |
-| `read_chunk_bytes` | `int \| None` | `None` | Splits C2H reads into chunks of this size; for legacy images only. |
 | `transport` | `DeviceTransport \| None` | `None` | Overrides the path-based transport. |
 | `memory_bytes` | `int \| None` | `None` | The addressable size of device memory, when known. Enables the wrap guard in `write_address_register`. |
 
@@ -75,7 +74,8 @@ short-read 8-byte accesses.
 | Method | Behaviour |
 | --- | --- |
 | `prepare_transfer(direction, *, device_address, byte_count, timeout_seconds=5.0)` | Validate and return a `DmaTransfer` without performing it. |
-| `read_dma(*, device_address, byte_count, timeout_seconds=5.0) -> bytes` | Validate, then read. Split into `read_chunk_bytes` chunks when set and exceeded. |
+| `read_register_block_snapshot() -> RegisterBlockSnapshot` | The identity/capability words the resident shell advertises, including `lane_count` and `build_id`. |
+| `read_dma(*, device_address, byte_count, timeout_seconds=5.0) -> bytes` | Validate, then read. |
 | `write_dma(*, device_address, data, timeout_seconds=5.0) -> DmaTransfer` | Validate, then write. |
 
 DMA device addresses are device memory addresses, not AXI-lite register offsets.

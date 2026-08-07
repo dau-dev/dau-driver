@@ -196,21 +196,6 @@ job between the H2C write and the C2H read; supply the register sequence your
 shell expects, or use `dau_driver.testing.golden_aggregation_trigger` against a
 fake.
 
-## Chunk reads for a legacy image
-
-Some older bitstreams corrupt whole-transfer C2H reads above a threshold. Set
-`read_chunk_bytes` on the handle and `read_dma` splits automatically:
-
-```python
-import dataclasses
-
-device = dataclasses.replace(device, read_chunk_bytes=64)
-```
-
-Generated DAU shells read clean at full speed, so Linux discovery leaves this
-unset. Use it only for a legacy image, and always go through `read_dma` rather
-than reading the C2H node directly, so the chunking is applied.
-
 ## Next
 
 - [Run scan jobs](run-scan-jobs.md) — many batches, with staging overlapped
