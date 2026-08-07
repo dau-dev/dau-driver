@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Protocol
 
 from dau_core.capabilities import DeviceCapabilities
-from dau_core.registers import RegisterBlockSnapshot, RegisterMapVersion, RegisterOffset, StreamProtocolVersion
+from dau_core.registers import RegisterBlockSnapshot, RegisterOffset, StreamProtocolVersion
 
 from .capability_decode import DPV1_PLATFORM_ID, decode_platform_id
 from .errors import RegisterAccessError, UnhealthyBarError
@@ -55,7 +55,6 @@ class DauDevice:
     c2h_path: Path
     capabilities: DeviceCapabilities
     register_window_offset: int = 0
-    read_chunk_bytes: int | None = None
     transport: DeviceTransport | None = None
     # the addressable size of the device's memory, when the caller knows it
     # (the platform's `memory.size_bytes`). None keeps the previous
@@ -95,20 +94,20 @@ class DauDevice:
         )
 
     def read_register_block_snapshot(self) -> RegisterBlockSnapshot:
-        from .capability_decode import _capability_words
+        from .capability_decode import _capability_words, decode_register_map_version
 
-        register_map_version = RegisterMapVersion.from_u32(self.read_register(RegisterOffset.REGISTER_MAP_VERSION))
+        # the SHARED decoder: reading this word two ways is how the two
+        # readers came to disagree on an all-ones result
+        register_map_version = decode_register_map_version(self.read_register(RegisterOffset.REGISTER_MAP_VERSION))
         # all-ones = word not decoded -> not advertised, same normalization
         # as the discovery-time snapshot
         capability_words = _capability_words(self.read_register, register_map_version)
         return RegisterBlockSnapshot(
             register_map_version=register_map_version,
             stream_protocol_version=StreamProtocolVersion.from_u32(self.read_register(RegisterOffset.STREAM_PROTOCOL_VERSION)),
-            platform_id=decode_platform_id(self.read_register(RegisterOffset.PLATFORM_ID)) or DPV1_PLATFORM_ID,
-            shell_version=self.read_register(RegisterOffset.SHELL_VERSION),
+            platform_id=decode_platform_id(self.read_register(RegisterOffset.PLATFORM_ID)),
             build_id=self._read_u64(RegisterOffset.BUILD_ID_LOW),
             status=self.read_register(RegisterOffset.STATUS),
-            dma_constraints=self.read_register(RegisterOffset.DMA_CONSTRAINTS),
             operator_bitmap=self.read_register(RegisterOffset.OPERATOR_BITMAP),
             last_error=self.read_register(RegisterOffset.LAST_ERROR),
             h2c_bytes=self._read_u64(RegisterOffset.H2C_BYTES_LOW),
@@ -164,8 +163,6 @@ class DauDevice:
             byte_count=byte_count,
             timeout_seconds=timeout_seconds,
         )
-        if self.read_chunk_bytes is not None and transfer.byte_count > self.read_chunk_bytes:
-            return _read_transfer_chunks(transfer, self.read_chunk_bytes, self.resolved_transport)
         return self.resolved_transport.read_dma(transfer.device_address, transfer.byte_count)
 
     def write_dma(
@@ -189,18 +186,6 @@ def read_u32(path: Path, offset: RegisterOffset | int) -> int:
     offset_name = _offset_name(offset)
     register_bytes = _read_register_bytes(path, int(offset), 4, offset_name)
     return struct.unpack("<I", register_bytes)[0]
-
-
-def _read_transfer_chunks(transfer: DmaTransfer, chunk_bytes: int, transport: DeviceTransport) -> bytes:
-    if chunk_bytes <= 0:
-        raise ValueError("chunk_bytes must be positive")
-    chunks: list[bytes] = []
-    bytes_read = 0
-    while bytes_read < transfer.byte_count:
-        current_chunk_bytes = min(chunk_bytes, transfer.byte_count - bytes_read)
-        chunks.append(transport.read_dma(transfer.device_address + bytes_read, current_chunk_bytes))
-        bytes_read += current_chunk_bytes
-    return b"".join(chunks)
 
 
 def read_u64(path: Path, offset: RegisterOffset | int) -> int:
@@ -250,7 +235,10 @@ def _offset_name(offset: RegisterOffset | int) -> str:
     return f"0x{offset:x}"
 
 
-def write_address(device, low_offset, high_offset, address: int, *, memory_bytes: int | None = None) -> None:
+_DEVICE_MEMORY = object()  # sentinel: take the bound from the device
+
+
+def write_address(device, low_offset, high_offset, address: int, *, memory_bytes: int | None | object = _DEVICE_MEMORY) -> None:
     """Program an address across its LOW/HIGH register pair on any device.
 
     A FUNCTION, not a method, because devices here are duck-typed: test
@@ -266,7 +254,18 @@ def write_address(device, low_offset, high_offset, address: int, *, memory_bytes
     The offsets are passed explicitly rather than derived as `low + 4`: the
     job pair is adjacent but a LANE's is not — its high half is at 0x14
     because 0x04 is the result length.
+
+    `memory_bytes` bounds the address. It DEFAULTS to the device's own
+    declared memory rather than to None, because a guard that is off
+    unless every call site remembers to switch it on is not a guard: the
+    execution paths that program job addresses all used the plain function
+    and so ran unbounded. Reading it off the device is a duck-typed probe
+    on purpose — devices here are not required to subclass `DauDevice`, and
+    one that does not declare its memory simply goes unbounded, as before.
+    Pass an explicit value to override, or `None` to disable the check.
     """
+    if memory_bytes is _DEVICE_MEMORY:
+        memory_bytes = getattr(device, "memory_bytes", None)
     if not 0 <= address <= 0xFFFF_FFFF_FFFF_FFFF:
         raise RegisterAccessError(f"address must fit in 64 bits, got {address!r}")
     if memory_bytes is not None and address >= memory_bytes:

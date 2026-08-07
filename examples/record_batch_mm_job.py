@@ -91,7 +91,7 @@ def main() -> None:
     if not devices:
         raise SystemExit("no DAU/XDMA device found")
     device = devices[0]
-    print(f"device: {device.name} window=0x{device.register_window_offset:x} read_chunk={device.read_chunk_bytes}")
+    print(f"device: {device.name} window=0x{device.register_window_offset:x}")
     device.check_bar_health()
 
     for opcode in (OperationCode.SUM, OperationCode.MIN, OperationCode.MAX, OperationCode.COUNT):

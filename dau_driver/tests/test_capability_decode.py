@@ -7,27 +7,28 @@ from dau_core.registers import RegisterBlockSnapshot, RegisterMapVersion, Regist
 from dau_core.stream import LogicalType, OperationCode
 
 from dau_driver.capability_decode import (
-    DEFAULT_INPUT_TYPES,
     contract_from_manifest_metadata,
-    operators_from_bitmap,
+    decode_register_map_version,
     operators_from_contract,
     operators_from_snapshot,
     read_register_block_snapshot,
 )
 
 
-def test_legacy_bitmap_expansion_is_kept_for_register_map_0_1() -> None:
-    """The proven resident dpv1 bitstream reports 0.1/0x1E; its decode
-    stays byte-for-byte the historical five-type expansion."""
-    snapshot = RegisterBlockSnapshot(register_map_version=RegisterMapVersion(0, 1), operator_bitmap=0x1E)
-    operators, host_operators = operators_from_snapshot(snapshot)
-    assert operators == operators_from_bitmap(0x1E)
-    assert host_operators == ()
-    assert {operator.opcode for operator in operators} == {OperationCode.MIN, OperationCode.MAX, OperationCode.SUM, OperationCode.COUNT}
-    assert all(operator.input_types == DEFAULT_INPUT_TYPES for operator in operators)
+def test_an_all_ones_version_word_decodes_as_not_advertised() -> None:
+    """Two readers used to disagree on this exact word: one mapped it to
+    (0, 1) — a plausible-looking old shell — while the other ran it
+    through from_u32 and got (65535, 65535), which compares GREATER than
+    the capability-word version and so read words the shell never
+    decoded. A sentinel below every real version makes them agree."""
+    from dau_driver.capability_decode import NOT_ADVERTISED_REGISTER_MAP_VERSION
+
+    assert decode_register_map_version(0xFFFF_FFFF) == NOT_ADVERTISED_REGISTER_MAP_VERSION
+    assert NOT_ADVERTISED_REGISTER_MAP_VERSION < RegisterMapVersion(0, 2)
+    assert decode_register_map_version(0x2) == RegisterMapVersion(0, 2)
 
 
-def test_register_map_0_2_decodes_hardware_and_host_words_concretely() -> None:
+def test_the_bitmap_words_decode_concretely() -> None:
     snapshot = RegisterBlockSnapshot(register_map_version=RegisterMapVersion(0, 2), operator_bitmap=0x1E, host_opcode_bitmap=0x20)
     operators, host_operators = operators_from_snapshot(snapshot)
     assert {operator.opcode for operator in operators} == {OperationCode.MIN, OperationCode.MAX, OperationCode.SUM, OperationCode.COUNT}
@@ -38,27 +39,13 @@ def test_register_map_0_2_decodes_hardware_and_host_words_concretely() -> None:
     assert empty == () and empty_host == ()
 
 
-def test_snapshot_reader_gates_capability_words_by_register_map() -> None:
-    image_0_1 = {
-        RegisterOffset.REGISTER_MAP_VERSION: 0x1,
+def test_snapshot_reader_normalizes_undecoded_capability_words() -> None:
+    image_0_2 = {
+        RegisterOffset.REGISTER_MAP_VERSION: 0x2,
         RegisterOffset.STREAM_PROTOCOL_VERSION: 0x1,
         RegisterOffset.PLATFORM_ID: int.from_bytes(b"DPV1", "little"),
         RegisterOffset.OPERATOR_BITMAP: 0x1E,
     }
-    reads: list[RegisterOffset] = []
-
-    def read_0_1(offset: RegisterOffset) -> int:
-        reads.append(offset)
-        return image_0_1.get(offset, 0xFFFF_FFFF)
-
-    snapshot = read_register_block_snapshot(read_0_1)
-    assert snapshot.register_map_version == RegisterMapVersion(0, 1)
-    assert snapshot.lane_count == 0 and snapshot.host_opcode_bitmap == 0 and snapshot.sort_capacity == 0
-    # a 0.1 shell does not decode the capability offsets, so they are never read
-    assert RegisterOffset.LANE_COUNT not in reads
-
-    image_0_2 = dict(image_0_1)
-    image_0_2[RegisterOffset.REGISTER_MAP_VERSION] = 0x2
     image_0_2[RegisterOffset.LANE_COUNT] = 4
     image_0_2[RegisterOffset.HOST_OPCODE_BITMAP] = 0x20
     image_0_2[RegisterOffset.SORT_CAPACITY] = 16

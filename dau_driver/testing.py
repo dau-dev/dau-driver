@@ -66,7 +66,7 @@ def default_int32_capabilities(
         platform_id="DPV1",
         pci_vendor_id=0x10EE,
         pci_device_id=0x7011,
-        register_map_version=RegisterMapVersion(0, 1),
+        register_map_version=RegisterMapVersion(0, 2),
         stream_protocol_version=StreamProtocolVersion(0, 1),
         dma=DmaConstraints(alignment_bytes=64, descriptor_bytes=32, max_transfer_bytes=max_transfer_bytes, read_channels=1, write_channels=1),
         operators=operators,
