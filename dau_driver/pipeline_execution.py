@@ -356,11 +356,13 @@ def execute_bar_ddr_job(
     return decode_bar_records(raw, count)
 
 
-# broadcast-NoC bar shell (dau_mm_bar_noc_job): one scan, BAR_NOC_LANES
-# key-partitioned lanes, each with its own slice of the output region.
-# Rows per job are bounded by the worst case of every record landing in
-# one lane, so no partition can overrun its slice.
-BAR_NOC_LANES = 4
+# The broadcast-NoC bar shell (dau_mm_bar_noc_job) runs one scan across
+# key-partitioned lanes, each with its own slice of the result region. The
+# lane count is whatever the resident shell advertises -- there is no
+# constant here, because a host-side number for a fact the device publishes
+# is how a wider composition gets its results silently truncated.
+
+
 def bar_noc_lane_output_bytes(staging, lanes: int) -> int:
     """Each lane gets an equal slice of the board's result region."""
     return staging.output_bytes // lanes
