@@ -105,7 +105,7 @@ def contract_from_manifest_path(path: Path, *, with_spec_hash: bool = False) -> 
     return contract
 
 
-def build_id_mismatch(snapshot, spec_hash: str | None) -> str | None:
+def build_id_mismatch(snapshot, spec_hash: str | None, *, required: bool = False) -> str | None:
     """The EXACT check, when both sides carry it: does the shell's BUILD_ID
     match the spec hash of the design the manifest describes?
 
@@ -127,6 +127,13 @@ def build_id_mismatch(snapshot, spec_hash: str | None) -> str | None:
 
     advertised = getattr(snapshot, "build_id", None)
     if not advertised:  # 0 or absent: not stamped
+        if required:
+            # The caller knows what it just programmed, and everything built
+            # since stamping exists carries an identity. An unstamped read
+            # therefore means the program did not take, the board is not
+            # answering, or it is running something older -- none of which
+            # should pass. All-zero is also what a dead aperture reads.
+            return "build_id: device advertises none, but the manifest's design stamps one; the program did not take or the board is not answering"
         return None
     expected = build_id_from_spec_hash(spec_hash)
     if advertised != expected:
@@ -171,9 +178,20 @@ def advertisement_mismatches(snapshot, contract: Mapping[str, Any]) -> tuple[str
             mismatches.append(f"{register_field}: manifest records {contract.get(contract_key)!r}, which is not a capability word")
             continue
         actual = getattr(snapshot, register_field, None)
-        if actual is None:
-            mismatches.append(f"{register_field}: device does not advertise it, manifest expects {expected}")
-        elif int(actual) != expected:
+        if not actual:
+            # A device word of 0 means NOT ADVERTISED, not "zero". Fixed
+            # binding tops place no NoC lane block and leave LANE_COUNT at
+            # 0 while their manifest records 1, and dau's build_tasks states
+            # the merge rule outright: let the manifest win over a 0 word,
+            # never the reverse. Treating this as a mismatch failed a
+            # correctly programmed board, and because the verify step runs
+            # before the deadman disarm, that rebooted the host.
+            #
+            # This is safe ONLY because a board that answers nothing at all
+            # is caught by the build identity instead -- see
+            # build_id_mismatch(required=True), which the flash path uses.
+            continue
+        if int(actual) != expected:
             mismatches.append(f"{register_field}: device advertises {actual} (0x{int(actual):x}), manifest expects {expected} (0x{expected:x})")
     return tuple(mismatches)
 
@@ -197,6 +215,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--manifest", required=True, type=Path, help="shell-build artifacts manifest for the programmed design")
     parser.add_argument("--device-root", default=None, help="devnode search root passed to discovery")
     parser.add_argument("--endpoint-bdf", default=None, help="verify the device this PCI endpoint owns, e.g. 0000:04:00.0")
+    parser.add_argument(
+        "--require-build-id",
+        action="store_true",
+        help="fail when the device advertises no build identity (use after programming a design that stamps one)",
+    )
     args = parser.parse_args(argv)
 
     from dau_driver.discovery import discover_devices
@@ -224,7 +247,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     snapshot = device.read_register_block_snapshot()
 
     mismatches = list(advertisement_mismatches(snapshot, contract))
-    exact = build_id_mismatch(snapshot, spec_hash)
+    exact = build_id_mismatch(snapshot, spec_hash, required=args.require_build_id)
     if exact is not None:
         mismatches.append(exact)
     mismatches = tuple(mismatches)

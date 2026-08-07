@@ -94,10 +94,28 @@ def test_a_contract_that_advertises_nothing_is_refused() -> None:
         advertisement_mismatches(dead, {"lane_count": 0, "operator_bitmap": 0, "host_opcode_bitmap": 0, "sort_capacity": 0})
 
 
-def test_a_dead_aperture_fails_against_a_real_contract() -> None:
-    dead = _Snapshot(lane_count=0, operator_bitmap=0, host_opcode_bitmap=0, sort_capacity=0)
-    mismatches = advertisement_mismatches(dead, _CONTRACT)
-    assert {"lane_count", "operator_bitmap", "host_opcode_bitmap"} == {m.split(":")[0] for m in mismatches}
+def test_a_zero_device_word_means_not_advertised_not_zero() -> None:
+    """Fixed binding tops place no NoC lane block, so they advertise
+    LANE_COUNT 0 while their manifest records 1. dau's build_tasks states
+    the merge rule: let the manifest win over a 0 word, never the reverse.
+    Treating it as a mismatch failed a correctly programmed board, and
+    because the verify runs before the deadman disarm, that rebooted the
+    host."""
+    fixed_top = _Snapshot(lane_count=0, operator_bitmap=0x18, host_opcode_bitmap=0x20, sort_capacity=0)
+    assert advertisement_mismatches(fixed_top, _CONTRACT) == ()
+
+
+def test_a_dead_board_is_caught_by_the_required_identity_not_by_the_words() -> None:
+    """The consequence of the rule above: a board answering nothing at all
+    now looks the same as a top that advertises nothing, so the WORDS can no
+    longer catch it. The build identity is what does -- which is why the
+    flash path requires one."""
+    from dau_driver.verify_advertisement import build_id_mismatch
+
+    dead = _StampedSnapshot(lane_count=0, operator_bitmap=0, host_opcode_bitmap=0, sort_capacity=0, build_id=0)
+    assert advertisement_mismatches(dead, _CONTRACT) == ()  # words are blind to it
+    assert build_id_mismatch(dead, _SPEC_HASH, required=True) is not None  # identity is not
+    assert build_id_mismatch(dead, _SPEC_HASH) is None  # and only when required
 
 
 @pytest.mark.parametrize("bad", [1.0, [1], "", "018", {"a": 1}])
