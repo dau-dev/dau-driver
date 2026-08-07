@@ -260,31 +260,45 @@ def execute_bar_job(
 # overrun is impossible by construction (an actual overflow would fault
 # the job, not corrupt input). Staging addresses stay 4 KiB-aligned so the
 # runner's bursts never cross a 4 KiB boundary.
-BAR_DDR_INPUT_ADDRESS = 0x0000_0000
-BAR_DDR_INPUT_ADDRESS_ALT = 0x1800_0000
-BAR_DDR_INPUT_BYTES = 0x1800_0000
-BAR_DDR_OUTPUT_ADDRESS = 0x3000_0000
-BAR_DDR_OUTPUT_BYTES = 0x1000_0000
-BAR_DDR_ADDRESS_ALIGN = 0x1000
-BAR_DDR_MAX_ROWS_PER_JOB = min(BAR_DDR_INPUT_BYTES // BAR_ROW_BYTES, BAR_DDR_OUTPUT_BYTES // BAR_RECORD_BYTES)
+# The regions themselves are BOARD configuration and live on the platform
+# (dau_build.platforms.DdrStaging), not here: a driver constant would be a
+# second source of truth for a fact the board already states, and the two
+# would drift the first time a board differed. These functions take that
+# object and read its attributes, so the driver needs no build-package
+# import and no copy of the model.
 
 
-def stage_bar_ddr_input(device, payload: bytes, row_count: int, *, input_address: int = BAR_DDR_INPUT_ADDRESS) -> None:
+def bar_ddr_max_rows_per_job(staging) -> int:
+    """Rows per job, bounded by the worst case of one record per row so an
+    overrun is impossible by construction. An actual overflow would fault
+    the job rather than corrupt input, but refusing early says which budget
+    was exceeded."""
+    return min(staging.input_bytes // BAR_ROW_BYTES, staging.output_bytes // BAR_RECORD_BYTES)
+
+
+def stage_bar_ddr_input(device, payload: bytes, row_count: int, *, staging, input_address: int | None = None) -> None:
     """DMA one pre-packed batch of bar rows into a DDR input region."""
-    if row_count > BAR_DDR_MAX_ROWS_PER_JOB:
-        raise PipelineJobError(f"{row_count} rows exceed the DDR staging budget of {BAR_DDR_MAX_ROWS_PER_JOB}")
+    if input_address is None:
+        input_address = staging.input_addresses[0]
+    budget = bar_ddr_max_rows_per_job(staging)
+    if row_count > budget:
+        raise PipelineJobError(f"{row_count} rows exceed the DDR staging budget of {budget}")
     if len(payload) < row_count * BAR_ROW_BYTES:
         raise PipelineJobError(f"payload of {len(payload)} bytes is short for {row_count} rows")
-    if input_address % BAR_DDR_ADDRESS_ALIGN:
+    if input_address % staging.address_align:
         raise PipelineJobError(f"input address 0x{input_address:x} is not 4 KiB-aligned")
     if len(payload) % DMA_ALIGN_BYTES:
         payload = payload + b"\x00" * ((-len(payload)) % DMA_ALIGN_BYTES)
     device.write_dma(device_address=input_address, data=payload)
 
 
-def start_bar_ddr_job(device, row_count: int, *, input_address: int = BAR_DDR_INPUT_ADDRESS, output_address: int = BAR_DDR_OUTPUT_ADDRESS) -> None:
+def start_bar_ddr_job(device, row_count: int, *, staging, input_address: int | None = None, output_address: int | None = None) -> None:
     """Kick a job over rows already staged in DDR."""
-    if input_address % BAR_DDR_ADDRESS_ALIGN or output_address % BAR_DDR_ADDRESS_ALIGN:
+    if input_address is None:
+        input_address = staging.input_addresses[0]
+    if output_address is None:
+        output_address = staging.output_address
+    if input_address % staging.address_align or output_address % staging.address_align:
         raise PipelineJobError(f"job addresses 0x{input_address:x}/0x{output_address:x} must be 4 KiB-aligned")
     write_address(device, RegisterOffset.INPUT_ADDRESS_LOW, RegisterOffset.INPUT_ADDRESS_HIGH, input_address)
     write_address(device, RegisterOffset.OUTPUT_ADDRESS_LOW, RegisterOffset.OUTPUT_ADDRESS_HIGH, output_address)
@@ -292,10 +306,12 @@ def start_bar_ddr_job(device, row_count: int, *, input_address: int = BAR_DDR_IN
     device.write_register(RegisterOffset.JOB_CONTROL, int(JobControlFlag.START))
 
 
-def finish_bar_ddr_job(device, *, output_address: int = BAR_DDR_OUTPUT_ADDRESS, timeout_seconds: float = 60.0) -> tuple[bytes, int]:
+def finish_bar_ddr_job(device, *, staging, output_address: int | None = None, timeout_seconds: float = 60.0) -> tuple[bytes, int]:
     """Wait for the running job and read its records back. Returns the raw
     record bytes and the bar count — decoding stays with the caller so
     hosts can use vectorized decoders."""
+    if output_address is None:
+        output_address = staging.output_address
     _wait_for_job_done(device, timeout_seconds=timeout_seconds, label="bar DDR job")
 
     result_length = device.read_register(RegisterOffset.RESULT_LENGTH_LOW)
@@ -316,15 +332,16 @@ def execute_bar_ddr_packed(
     payload: bytes,
     row_count: int,
     *,
+    staging,
     timeout_seconds: float = 60.0,
 ) -> tuple[bytes, int]:
     """Run one pre-packed batch of bar rows through the DDR-staged fused
     bar shell (dau_mm_bar_ddr_job): stage, start, finish."""
     if row_count == 0:
         return b"", 0
-    stage_bar_ddr_input(device, payload, row_count)
-    start_bar_ddr_job(device, row_count)
-    return finish_bar_ddr_job(device, timeout_seconds=timeout_seconds)
+    stage_bar_ddr_input(device, payload, row_count, staging=staging)
+    start_bar_ddr_job(device, row_count, staging=staging)
+    return finish_bar_ddr_job(device, staging=staging, timeout_seconds=timeout_seconds)
 
 
 def execute_bar_ddr_job(
@@ -344,8 +361,15 @@ def execute_bar_ddr_job(
 # Rows per job are bounded by the worst case of every record landing in
 # one lane, so no partition can overrun its slice.
 BAR_NOC_LANES = 4
-BAR_NOC_LANE_OUTPUT_BYTES = BAR_DDR_OUTPUT_BYTES // BAR_NOC_LANES
-BAR_NOC_MAX_ROWS_PER_JOB = min(BAR_DDR_INPUT_BYTES // BAR_ROW_BYTES, BAR_NOC_LANE_OUTPUT_BYTES // BAR_RECORD_BYTES)
+def bar_noc_lane_output_bytes(staging, lanes: int) -> int:
+    """Each lane gets an equal slice of the board's result region."""
+    return staging.output_bytes // lanes
+
+
+def bar_noc_max_rows_per_job(staging, lanes: int) -> int:
+    """Bounded by the worst case of every record landing in ONE lane, so no
+    partition can overrun its slice however skewed the keys are."""
+    return min(staging.input_bytes // BAR_ROW_BYTES, bar_noc_lane_output_bytes(staging, lanes) // BAR_RECORD_BYTES)
 
 
 def device_lane_count(device) -> int:
@@ -370,11 +394,11 @@ def device_lane_count(device) -> int:
     return lanes
 
 
-def bar_noc_lane_output_address(lane: int) -> int:
-    return BAR_DDR_OUTPUT_ADDRESS + lane * BAR_NOC_LANE_OUTPUT_BYTES
+def bar_noc_lane_output_address(staging, lane: int, lanes: int) -> int:
+    return staging.output_address + lane * bar_noc_lane_output_bytes(staging, lanes)
 
 
-def configure_bar_noc_lanes(device, *, lanes: int | None = None) -> None:
+def configure_bar_noc_lanes(device, *, staging, lanes: int | None = None) -> None:
     """Point every lane's writer at its slice of the output region.
 
     ``lanes`` defaults to what the DEVICE advertises, not to a constant: the
@@ -389,7 +413,7 @@ def configure_bar_noc_lanes(device, *, lanes: int | None = None) -> None:
             device,
             noc_lane_register(lane, NocLaneRegisterOffset.OUTPUT_ADDRESS_LOW),
             noc_lane_register(lane, NocLaneRegisterOffset.OUTPUT_ADDRESS_HIGH),
-            bar_noc_lane_output_address(lane),
+            bar_noc_lane_output_address(staging, lane, lanes),
         )
 
 
@@ -398,6 +422,7 @@ def execute_bar_noc_packed(
     payload: bytes,
     row_count: int,
     *,
+    staging,
     lanes: int | None = None,
     record_bytes: int = BAR_RECORD_BYTES,
     validate_record_count: bool = True,
@@ -424,10 +449,11 @@ def execute_bar_noc_packed(
 
     if row_count == 0:
         return [(b"", 0)] * lanes
-    if row_count > BAR_NOC_MAX_ROWS_PER_JOB:
-        raise PipelineJobError(f"{row_count} rows exceed the NoC staging budget of {BAR_NOC_MAX_ROWS_PER_JOB}")
-    stage_bar_ddr_input(device, payload, row_count)
-    start_bar_ddr_job(device, row_count)
+    budget = bar_noc_max_rows_per_job(staging, lanes)
+    if row_count > budget:
+        raise PipelineJobError(f"{row_count} rows exceed the NoC staging budget of {budget}")
+    stage_bar_ddr_input(device, payload, row_count, staging=staging)
+    start_bar_ddr_job(device, row_count, staging=staging)
 
     _wait_for_job_done(device, timeout_seconds=timeout_seconds, label="bar NoC job")
 
@@ -437,7 +463,7 @@ def execute_bar_noc_packed(
         count = device.read_register(noc_lane_register(lane, NocLaneRegisterOffset.RECORD_COUNT_LOW))
         raw = _read_aligned_records(
             device,
-            address=bar_noc_lane_output_address(lane),
+            address=bar_noc_lane_output_address(staging, lane, lanes),
             result_length=result_length,
             record_bytes=record_bytes,
             count=count,
