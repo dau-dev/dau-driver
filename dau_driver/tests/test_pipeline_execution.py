@@ -171,8 +171,14 @@ def test_execute_keyed_pipeline_job_done(tmp_path):
     assert groups == GROUPS
     assert selected == 42
     assert transport.h2c_writes == [(contract.input_buffer_address, pack_keyed_rows(rows))]
-    # register-read order: poll JOB_STATUS, then result length, selected, group count
+    # register-read order: capacity, then poll JOB_STATUS, then result
+    # length, selected, group count
     assert transport.register_reads == [
+        # the staging budget comes from the shell, not a constant: version
+        # gate then the two capacity words, three reads and no full snapshot
+        int(RegisterOffset.REGISTER_MAP_VERSION),
+        int(RegisterOffset.INPUT_ROW_CAPACITY),
+        int(RegisterOffset.OUTPUT_RECORD_CAPACITY),
         int(RegisterOffset.JOB_STATUS),
         int(RegisterOffset.RESULT_LENGTH_LOW),
         int(RegisterOffset.PIPELINE_SELECTED_COUNT_LOW),
@@ -204,8 +210,17 @@ def test_execute_keyed_pipeline_job_error(tmp_path):
     with pytest.raises(PipelineJobError) as exc:
         execute_keyed_pipeline_job(device, [(1, 10)])
     assert str(exc.value) == "pipeline job failed: status=0xc last_error=3"
-    # error path reads JOB_STATUS then LAST_ERROR, and no result registers
-    assert transport.register_reads == [int(RegisterOffset.JOB_STATUS), int(RegisterOffset.LAST_ERROR)]
+    # error path reads the capacity, then JOB_STATUS and LAST_ERROR, and no
+    # result registers
+    assert transport.register_reads == [
+        # the staging budget comes from the shell, not a constant: version
+        # gate then the two capacity words, three reads and no full snapshot
+        int(RegisterOffset.REGISTER_MAP_VERSION),
+        int(RegisterOffset.INPUT_ROW_CAPACITY),
+        int(RegisterOffset.OUTPUT_RECORD_CAPACITY),
+        int(RegisterOffset.JOB_STATUS),
+        int(RegisterOffset.LAST_ERROR),
+    ]
 
 
 def test_execute_keyed_pipeline_job_result_length_mismatch(tmp_path):
@@ -490,3 +505,38 @@ def test_a_duck_typed_device_can_program_addresses() -> None:
     fake = _Fake()
     write_address(fake, RegisterOffset.INPUT_ADDRESS_LOW, RegisterOffset.INPUT_ADDRESS_HIGH, 0x1_0000_0000)
     assert fake.writes == [(int(RegisterOffset.INPUT_ADDRESS_LOW), 0), (int(RegisterOffset.INPUT_ADDRESS_HIGH), 1)]
+
+
+def test_a_shell_that_does_not_advertise_capacity_is_refused(tmp_path):
+    """The whole point of moving the depths onto the shell: a host facing a
+    shell that cannot state its capacity must stop, not fall back on the
+    numbers that used to be compiled in. Both the pre-0.3 case and the
+    advertises-zero case."""
+    from dau_driver.pipeline_execution import device_job_capacity
+
+    old_shell = FakeTransport()
+    old_shell.registers[int(RegisterOffset.REGISTER_MAP_VERSION)] = RegisterMapVersion(0, 2).to_u32()
+    with pytest.raises(ValueError, match="predates the job capacity words"):
+        device_job_capacity(fake_device(tmp_path, old_shell))
+
+    silent = FakeTransport()
+    silent.registers[int(RegisterOffset.INPUT_ROW_CAPACITY)] = 0
+    with pytest.raises(ValueError, match="advertises no job capacity"):
+        device_job_capacity(fake_device(tmp_path, silent))
+
+    # all-ones is a word nobody decoded, not a four-billion-row shell
+    undecoded = FakeTransport()
+    undecoded.registers[int(RegisterOffset.OUTPUT_RECORD_CAPACITY)] = 0xFFFF_FFFF
+    with pytest.raises(ValueError, match="advertises no job capacity"):
+        device_job_capacity(fake_device(tmp_path, undecoded))
+
+
+def test_the_job_runners_batch_against_what_the_shell_advertises(tmp_path):
+    """A shell with a smaller staging depth must reject a batch the previous
+    shell's constant would have accepted."""
+    transport = FakeTransport()
+    transport.registers[int(RegisterOffset.INPUT_ROW_CAPACITY)] = 4
+    device = fake_device(tmp_path, transport)
+
+    with pytest.raises(PipelineJobError, match="exceed the input staging budget of 4"):
+        execute_keyed_pipeline_job(device, [(1, 1)] * 5)

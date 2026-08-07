@@ -11,7 +11,7 @@ from pathlib import Path
 
 from dau_core.capabilities import DeviceCapabilities, DmaConstraints, OperatorCapability
 from dau_core.operators import aggregate_values
-from dau_core.registers import RegisterMapVersion, StreamProtocolVersion
+from dau_core.registers import CURRENT_REGISTER_MAP_VERSION, RegisterMapVersion, RegisterOffset, StreamProtocolVersion
 from dau_core.stream import InvalidStreamError, LogicalType, OperationCode
 
 from .device import DauDevice
@@ -19,13 +19,28 @@ from .stream_codec import StreamDecoder, StreamEncoder
 
 
 class FakeTransport:
-    """In-memory DeviceTransport: records DMA traffic and register writes."""
+    """In-memory DeviceTransport: records DMA traffic and register writes.
+
+    Advertises a current (register map 0.3) shell by default, including the
+    job capacity a host batches against — an all-zero register file models a
+    shell nobody builds any more, and every job test would be exercising the
+    not-advertised refusal instead of the path it means to test. Tests that
+    want an older shell clear or lower these.
+    """
+
+    #: what the default fake shell claims it can stage in one job
+    DEFAULT_INPUT_ROW_CAPACITY = 1 << 14
+    DEFAULT_OUTPUT_RECORD_CAPACITY = 819
 
     def __init__(self) -> None:
         self.h2c_writes: list[tuple[int, bytes]] = []
         self.c2h_reads: list[tuple[int, int]] = []
         self.c2h_payloads: dict[int, bytes] = {}
-        self.registers: dict[int, int] = {}
+        self.registers: dict[int, int] = {
+            int(RegisterOffset.REGISTER_MAP_VERSION): CURRENT_REGISTER_MAP_VERSION.to_u32(),
+            int(RegisterOffset.INPUT_ROW_CAPACITY): self.DEFAULT_INPUT_ROW_CAPACITY,
+            int(RegisterOffset.OUTPUT_RECORD_CAPACITY): self.DEFAULT_OUTPUT_RECORD_CAPACITY,
+        }
         self.register_reads: list[int] = []
 
     def read_u32(self, offset: int) -> int:

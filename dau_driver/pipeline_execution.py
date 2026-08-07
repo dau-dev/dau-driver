@@ -20,8 +20,6 @@ from .errors import RegisterAccessError
 
 GROUP_RECORD_BYTES = 40
 DMA_ALIGN_BYTES = 64
-MAX_ROWS_PER_JOB = 1 << 14  # input BRAM: 16384 pair rows (128 KiB)
-MAX_GROUPS_PER_JOB = (1 << 12) * 8 // GROUP_RECORD_BYTES  # output BRAM: 819 records
 
 
 class PipelineJobError(RegisterAccessError):
@@ -129,14 +127,20 @@ def execute_keyed_pipeline_job(
     *,
     timeout_seconds: float = 5.0,
     contract: StreamJobRegisterContract | None = None,
+    max_rows: int | None = None,
 ) -> tuple[list[GroupAggregate], int]:
     """Run one batch of (key, value) rows; the pipeline must already be
     configured (``configure_pipeline``). Returns (group records, selected
-    row count)."""
+    row count).
+
+    ``max_rows`` defaults to what the DEVICE advertises, not to a constant:
+    the staging budget is the resident shell's BRAM depth, and only the
+    shell knows it."""
     if not rows:
         return [], 0
-    if len(rows) > MAX_ROWS_PER_JOB:
-        raise PipelineJobError(f"{len(rows)} rows exceed the input staging budget of {MAX_ROWS_PER_JOB}")
+    budget = max_rows if max_rows is not None else device_job_capacity(device)[0]
+    if len(rows) > budget:
+        raise PipelineJobError(f"{len(rows)} rows exceed the input staging budget of {budget}")
     resolved = contract or StreamJobRegisterContract()
 
     device.write_dma(device_address=resolved.input_buffer_address, data=pack_keyed_rows(rows))
@@ -196,8 +200,6 @@ def numpy_dtype_fields(fields: tuple[tuple[str, str], ...]) -> list[tuple[str, s
 
 BAR_ROW_BYTES = 16
 BAR_RECORD_BYTES = 48
-BAR_MAX_ROWS_PER_JOB = (1 << 17) // BAR_ROW_BYTES  # input BRAM: 8192 rows
-BAR_MAX_RECORDS_PER_JOB = (1 << 12) * 8 // BAR_RECORD_BYTES  # output BRAM: 682 records
 
 
 def pack_bar_rows(rows: list[tuple[int, int, int, int]]) -> bytes:
@@ -223,13 +225,18 @@ def execute_bar_job(
     *,
     timeout_seconds: float = 5.0,
     contract: StreamJobRegisterContract | None = None,
+    max_rows: int | None = None,
 ):
     """Run one batch of (key, price, shares, frac) rows through the fused
-    bar shell. Returns the decoded bar records."""
+    bar shell. Returns the decoded bar records.
+
+    ``max_rows`` defaults to what the DEVICE advertises; the bar shell's
+    staging depth is its own, not the grouped shell's."""
     if not rows:
         return []
-    if len(rows) > BAR_MAX_ROWS_PER_JOB:
-        raise PipelineJobError(f"{len(rows)} rows exceed the bar staging budget of {BAR_MAX_ROWS_PER_JOB}")
+    budget = max_rows if max_rows is not None else device_job_capacity(device)[0]
+    if len(rows) > budget:
+        raise PipelineJobError(f"{len(rows)} rows exceed the bar staging budget of {budget}")
     resolved = contract or StreamJobRegisterContract()
 
     device.write_dma(device_address=resolved.input_buffer_address, data=pack_bar_rows(rows))
@@ -394,6 +401,51 @@ def device_lane_count(device) -> int:
             "pass lanes=... explicitly for a shell that does not advertise"
         )
     return lanes
+
+
+def _advertised(value: int) -> int:
+    """All-ones is a word nobody decoded, not a four-billion-row capacity —
+    the same normalization every capability reader applies."""
+    return 0 if value == 0xFFFF_FFFF else value
+
+
+def device_job_capacity(device) -> tuple[int, int]:
+    """(input rows, output records) ONE job may stage on the RESIDENT shell.
+
+    These are the shell's BRAM depths, and the host used to carry them as
+    module constants -- one pair for the grouped shell and one for the bar
+    shell, both compiled in. Every shell was therefore batched against the
+    depths of whichever shell the constants were written for, and a shell
+    built with a different depth would have been sliced to the wrong size
+    with nothing to say so. The shell advertises them from register map 0.3.
+
+    Refuses when the shell advertises nothing, exactly like the lane count:
+    a 0.2 or earlier shell does not decode these offsets, and a host that
+    guessed here would be reintroducing the constants this replaced.
+
+    Reads the two capacity words directly rather than taking a whole
+    identity snapshot: this sits on the per-job path, and a snapshot is
+    ~25 MMIO reads where three will do. Not cached, because a device can be
+    reflashed inside one session -- the flywheel does exactly that -- and a
+    cached capacity would then describe the previous shell.
+    """
+    from .capability_decode import JOB_CAPACITY_REGISTER_MAP_VERSION, decode_register_map_version
+
+    version = decode_register_map_version(device.read_register(RegisterOffset.REGISTER_MAP_VERSION))
+    if version < JOB_CAPACITY_REGISTER_MAP_VERSION:
+        raise ValueError(
+            f"the resident shell reports register map {version.major}.{version.minor}, which predates the job "
+            "capacity words (0.3); rebuild and reflash it, or pass max_rows explicitly"
+        )
+    rows = _advertised(device.read_register(RegisterOffset.INPUT_ROW_CAPACITY))
+    records = _advertised(device.read_register(RegisterOffset.OUTPUT_RECORD_CAPACITY))
+    if not rows or not records:
+        raise ValueError(
+            f"the resident shell advertises no job capacity (INPUT_ROW_CAPACITY={rows}, "
+            f"OUTPUT_RECORD_CAPACITY={records}); it predates register map 0.3, so rebuild and reflash it, "
+            "or pass max_rows/max_records explicitly for a shell that does not advertise"
+        )
+    return rows, records
 
 
 def bar_noc_lane_output_address(staging, lane: int, lanes: int) -> int:

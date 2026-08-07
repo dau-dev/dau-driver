@@ -19,6 +19,10 @@ from dau_core.stream import LogicalType, OperationCode, output_type_for
 # manifest capability contract, not in registers)
 REGISTER_BITMAP_INPUT_TYPES = (LogicalType.INT32,)
 CAPABILITY_WORDS_REGISTER_MAP_VERSION = RegisterMapVersion(0, 2)
+# job capacity arrived in 0.3. A 0.2 shell does not decode those offsets, so
+# they are not read from one -- it reports no capacity and the host refuses
+# to batch rather than guessing at depths it cannot see.
+JOB_CAPACITY_REGISTER_MAP_VERSION = RegisterMapVersion(0, 3)
 # identity window candidates: shell base, then the stream-job contract window
 REGISTER_WINDOW_OFFSETS = (0x0, DEFAULT_STREAM_JOB_REGISTER_CONTRACT.register_window_offset)
 
@@ -154,11 +158,15 @@ def _capability_words(read_register: Callable[[RegisterOffset], int], register_m
     all-ones normalization cannot diverge between them."""
     if register_map_version < CAPABILITY_WORDS_REGISTER_MAP_VERSION:
         return {}
-    return {
+    words = {
         "lane_count": _capability_word(read_register, RegisterOffset.LANE_COUNT),
         "host_opcode_bitmap": _capability_word(read_register, RegisterOffset.HOST_OPCODE_BITMAP),
         "sort_capacity": _capability_word(read_register, RegisterOffset.SORT_CAPACITY),
     }
+    if register_map_version >= JOB_CAPACITY_REGISTER_MAP_VERSION:
+        words["input_row_capacity"] = _capability_word(read_register, RegisterOffset.INPUT_ROW_CAPACITY)
+        words["output_record_capacity"] = _capability_word(read_register, RegisterOffset.OUTPUT_RECORD_CAPACITY)
+    return words
 
 
 def read_register_block_snapshot(read_register: Callable[[RegisterOffset], int]) -> RegisterBlockSnapshot:
