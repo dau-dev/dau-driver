@@ -13,6 +13,7 @@ import struct
 import pytest
 from dau_core.operators import BarAggregate, GroupAggregate
 from dau_core.registers import (
+    RegisterMapVersion,
     JobStatusFlag,
     NocLaneRegisterOffset,
     RegisterOffset,
@@ -234,6 +235,13 @@ def test_finish_bar_ddr_job_result_length_mismatch(tmp_path):
     assert str(exc.value) == "result length 1 inconsistent with bar count 1"
 
 
+def _advertise_lane_count(transport: FakeTransport, lanes: int) -> None:
+    """A bar-NoC shell publishes its lane count; the host reads it rather
+    than assuming one, so a fake standing in for that shell must too."""
+    transport.registers[int(RegisterOffset.REGISTER_MAP_VERSION)] = RegisterMapVersion(0, 2).to_u32()
+    transport.registers[int(RegisterOffset.LANE_COUNT)] = lanes
+
+
 def _stage_noc_lane(transport: FakeTransport, lane: int, *, records: bytes, count: int, record_bytes: int) -> None:
     transport.registers[noc_lane_register(lane, NocLaneRegisterOffset.RESULT_LENGTH_LOW)] = count * record_bytes
     transport.registers[noc_lane_register(lane, NocLaneRegisterOffset.RECORD_COUNT_LOW)] = count
@@ -244,6 +252,7 @@ def _stage_noc_lane(transport: FakeTransport, lane: int, *, records: bytes, coun
 def test_execute_bar_noc_packed_done(tmp_path):
     transport = FakeTransport()
     device = fake_device(tmp_path, transport)
+    _advertise_lane_count(transport, 4)
     transport.registers[int(RegisterOffset.JOB_STATUS)] = int(JobStatusFlag.DONE)
     # lane 0 gets both bars, lanes 1-3 are empty partitions
     _stage_noc_lane(transport, 0, records=_pack_bar_records(BARS), count=len(BARS), record_bytes=BAR_RECORD_BYTES)
@@ -282,6 +291,7 @@ def test_execute_bar_noc_packed_q6_aggregate_lanes(tmp_path):
     runner reuses this shell with ``validate_record_count=False``."""
     transport = FakeTransport()
     device = fake_device(tmp_path, transport)
+    _advertise_lane_count(transport, 4)
     transport.registers[int(RegisterOffset.JOB_STATUS)] = int(JobStatusFlag.DONE)
     record0 = struct.pack("<qq", 123_456, 3)  # [sum, aggregated_count]
     record3 = struct.pack("<qq", -50, 5)
@@ -308,6 +318,7 @@ def test_execute_bar_noc_packed_q6_shape_rejected_by_default_validation(tmp_path
     shape, proving ``validate_record_count`` is load-bearing."""
     transport = FakeTransport()
     device = fake_device(tmp_path, transport)
+    _advertise_lane_count(transport, 4)
     transport.registers[int(RegisterOffset.JOB_STATUS)] = int(JobStatusFlag.DONE)
     transport.registers[noc_lane_register(0, NocLaneRegisterOffset.RESULT_LENGTH_LOW)] = 16
     transport.registers[noc_lane_register(0, NocLaneRegisterOffset.RECORD_COUNT_LOW)] = 3
@@ -319,6 +330,7 @@ def test_execute_bar_noc_packed_q6_shape_rejected_by_default_validation(tmp_path
 def test_execute_bar_noc_packed_empty(tmp_path):
     transport = FakeTransport()
     device = fake_device(tmp_path, transport)
+    _advertise_lane_count(transport, 4)
     assert execute_bar_noc_packed(device, b"", 0) == [(b"", 0)] * 4
     assert execute_bar_noc_packed(device, b"", 0, lanes=2) == [(b"", 0)] * 2
     assert transport.h2c_writes == []
@@ -327,6 +339,7 @@ def test_execute_bar_noc_packed_empty(tmp_path):
 def test_execute_bar_noc_packed_lane_mismatch(tmp_path):
     transport = FakeTransport()
     device = fake_device(tmp_path, transport)
+    _advertise_lane_count(transport, 4)
     transport.registers[int(RegisterOffset.JOB_STATUS)] = int(JobStatusFlag.DONE)
     transport.registers[noc_lane_register(0, NocLaneRegisterOffset.RESULT_LENGTH_LOW)] = BAR_RECORD_BYTES + 1
     transport.registers[noc_lane_register(0, NocLaneRegisterOffset.RECORD_COUNT_LOW)] = 1
@@ -338,6 +351,7 @@ def test_execute_bar_noc_packed_lane_mismatch(tmp_path):
 def test_execute_bar_noc_packed_error(tmp_path):
     transport = FakeTransport()
     device = fake_device(tmp_path, transport)
+    _advertise_lane_count(transport, 4)
     transport.registers[int(RegisterOffset.JOB_STATUS)] = int(JobStatusFlag.DONE | JobStatusFlag.ERROR)
     transport.registers[int(RegisterOffset.LAST_ERROR)] = 1
     with pytest.raises(PipelineJobError) as exc:

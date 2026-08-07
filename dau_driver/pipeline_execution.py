@@ -348,14 +348,42 @@ BAR_NOC_LANE_OUTPUT_BYTES = BAR_DDR_OUTPUT_BYTES // BAR_NOC_LANES
 BAR_NOC_MAX_ROWS_PER_JOB = min(BAR_DDR_INPUT_BYTES // BAR_ROW_BYTES, BAR_NOC_LANE_OUTPUT_BYTES // BAR_RECORD_BYTES)
 
 
+def device_lane_count(device) -> int:
+    """The number of NoC lanes the RESIDENT shell advertises.
+
+    The shell publishes its lane count in the identity registers, so the
+    host has no business assuming one. A composition built with eight lanes
+    driven by a host that assumes four writes four lane windows and silently
+    drops the rest of the result -- the kind of wrong answer that looks like
+    a correct short read.
+
+    Refuses when the shell advertises nothing (0, which fixed binding tops
+    and any pre-0.2 shell report) rather than falling back to a default:
+    a caller running such a shell knows its geometry and must say so.
+    """
+    lanes = device.read_register_block_snapshot().lane_count
+    if not lanes:
+        raise ValueError(
+            "the resident shell advertises no lane count (LANE_COUNT is 0), so the host cannot infer one; "
+            "pass lanes=... explicitly for a shell that does not advertise"
+        )
+    return lanes
+
+
 def bar_noc_lane_output_address(lane: int) -> int:
     return BAR_DDR_OUTPUT_ADDRESS + lane * BAR_NOC_LANE_OUTPUT_BYTES
 
 
-def configure_bar_noc_lanes(device, *, lanes: int = BAR_NOC_LANES) -> None:
-    """Point every lane's writer at its slice of the output region."""
+def configure_bar_noc_lanes(device, *, lanes: int | None = None) -> None:
+    """Point every lane's writer at its slice of the output region.
+
+    ``lanes`` defaults to what the DEVICE advertises, not to a constant: the
+    shell knows its own geometry and the host should ask.
+    """
     from dau_core.registers import NocLaneRegisterOffset, noc_lane_register
 
+    if lanes is None:
+        lanes = device_lane_count(device)
     for lane in range(lanes):
         write_address(
             device,
@@ -370,7 +398,7 @@ def execute_bar_noc_packed(
     payload: bytes,
     row_count: int,
     *,
-    lanes: int = BAR_NOC_LANES,
+    lanes: int | None = None,
     record_bytes: int = BAR_RECORD_BYTES,
     validate_record_count: bool = True,
     timeout_seconds: float = 60.0,
@@ -380,14 +408,19 @@ def execute_bar_noc_packed(
     be configured (``configure_bar_noc_lanes``). Returns raw record bytes
     and each lane's RECORD_COUNT_LOW value.
 
-    ``lanes`` and ``record_bytes`` default to the fused bar shell; the
+    ``lanes`` defaults to the count the DEVICE advertises; the
     key-partitioned scan shells reuse this runner by passing their own lane
-    count and per-record width. q1's grouped shell keeps the default
+    count and per-record width when they run a shell that advertises none.
+
+    q1's grouped shell keeps the default
     ``validate_record_count`` (its count register is an output group-record
     count). q6's aggregate shell latches an input row count and emits one
     fixed-width [sum, count] record per lane, so it passes
     ``validate_record_count=False`` and relies on RESULT_LENGTH."""
     from dau_core.registers import NocLaneRegisterOffset, noc_lane_register
+
+    if lanes is None:
+        lanes = device_lane_count(device)
 
     if row_count == 0:
         return [(b"", 0)] * lanes
