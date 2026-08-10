@@ -161,9 +161,7 @@ def advertisement_mismatches(snapshot, contract: Mapping[str, Any]) -> tuple[str
     # an unreadable word is reported as a mismatch below; it must not first
     # be swallowed by the all-zero guard, which would raise instead and lose
     # the specific reason
-    if not any(value is _UNREADABLE for value in recorded.values()) and not any(
-        value for value in recorded.values() if isinstance(value, int)
-    ):
+    if not any(value is _UNREADABLE for value in recorded.values()) and not any(value for value in recorded.values() if isinstance(value, int)):
         raise ValueError(
             "capability contract advertises no non-zero word "
             f"({', '.join(f'{key}={contract.get(key)!r}' for key in recorded)}); "
@@ -234,7 +232,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         wanted = device_name_for_endpoint(args.endpoint_bdf)
         matched = [device for device in devices if device.name == wanted]
         if not matched:
-            print(f"endpoint {args.endpoint_bdf} owns {wanted}, which is not among the discovered devices {[d.name for d in devices]}", file=sys.stderr)
+            print(
+                f"endpoint {args.endpoint_bdf} owns {wanted}, which is not among the discovered devices {[d.name for d in devices]}", file=sys.stderr
+            )
             return 1
         device = matched[0]
     elif len(devices) > 1:
@@ -266,8 +266,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         # say it out loud: the words alone do not identify a design, so this
         # pass is weaker than it looks
         print(
-            "note: this shell advertises no BUILD_ID, so the check compared only capability words -- "
-            "distinct designs can share all of them",
+            "note: this shell advertises no BUILD_ID, so the check compared only capability words -- distinct designs can share all of them",
             file=sys.stderr,
         )
     return 0

@@ -53,7 +53,7 @@ _MODULES = ("pipeline_execution",)
 
 def _module_constants(module_name: str) -> set[str]:
     source = (Path(dau_driver.__path__[0]) / f"{module_name}.py").read_text(encoding="utf-8")
-    return {match.group(1) for match in re.finditer(r"^([A-Z][A-Z0-9_]*) = ", source, re.M)}
+    return {match.group(1) for match in re.finditer(r"^([A-Z][A-Z0-9_]*) = ", source, re.MULTILINE)}
 
 
 def test_every_module_constant_is_a_wire_shape_or_a_declared_holdout() -> None:
@@ -84,7 +84,7 @@ def test_no_address_or_capacity_constant_survives_unlisted() -> None:
     shapes are small decimals."""
     for module_name in _MODULES:
         source = (Path(dau_driver.__path__[0]) / f"{module_name}.py").read_text(encoding="utf-8")
-        hex_constants = {match.group(1) for match in re.finditer(r"^([A-Z][A-Z0-9_]*) = 0x[0-9A-Fa-f_]+\s*$", source, re.M)}
+        hex_constants = {match.group(1) for match in re.finditer(r"^([A-Z][A-Z0-9_]*) = 0x[0-9A-Fa-f_]+\s*$", source, re.MULTILINE)}
         assert not hex_constants, (
             f"{module_name} binds hex literals to module names: {sorted(hex_constants)}. "
             "An address or region size is board configuration and belongs on the platform"

@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Mapping
 
-from dau_core.capabilities import DPV1_PLATFORM_ID, OperatorCapability
+from dau_core.capabilities import OperatorCapability
 from dau_core.capability_contract import CapabilityContract
 from dau_core.registers import DEFAULT_STREAM_JOB_REGISTER_CONTRACT, RegisterBlockSnapshot, RegisterMapVersion, RegisterOffset, StreamProtocolVersion
 from dau_core.stream import LogicalType, OperationCode, output_type_for

@@ -10,7 +10,7 @@ from typing import Protocol
 from dau_core.capabilities import DeviceCapabilities
 from dau_core.registers import RegisterBlockSnapshot, RegisterOffset, StreamProtocolVersion
 
-from .capability_decode import DPV1_PLATFORM_ID, decode_platform_id
+from .capability_decode import decode_platform_id
 from .errors import RegisterAccessError, UnhealthyBarError
 from .status import DeviceCounters, DeviceStatus
 from .transfer import DmaDirection, DmaTransfer, validate_transfer

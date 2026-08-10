@@ -212,6 +212,7 @@ def test_the_snapshot_actually_reads_build_id_back_from_the_registers() -> None:
     0x0018, per the identity block -- because a swap makes the check fail on
     a correctly flashed board."""
     from dau_core.registers import RegisterOffset
+
     from dau_driver.capability_decode import read_register_block_snapshot
 
     stamped = 0xCBBE0C39CA6857CF
