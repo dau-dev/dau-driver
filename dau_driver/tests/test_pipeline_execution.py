@@ -9,14 +9,14 @@ indirectly through the dau-polars/cocotb suites. No hardware.
 from __future__ import annotations
 
 import struct
+from types import SimpleNamespace
 
 import pytest
-from types import SimpleNamespace
 from dau_core.operators import BarAggregate, GroupAggregate
 from dau_core.registers import (
-    RegisterMapVersion,
     JobStatusFlag,
     NocLaneRegisterOffset,
+    RegisterMapVersion,
     RegisterOffset,
     StreamJobRegisterContract,
     noc_lane_register,
@@ -38,7 +38,6 @@ from dau_driver.pipeline_execution import (
 )
 from dau_driver.testing import FakeTransport, fake_device
 
-
 # The board's staging regions, which are platform configuration in
 # production (dau_build.platforms.DdrStaging). The driver reads attributes
 # rather than importing that model, so a test stands in with the same shape.
@@ -50,6 +49,7 @@ _STAGING = SimpleNamespace(
     address_align=0x1000,
 )
 BAR_DDR_OUTPUT_ADDRESS = _STAGING.output_address
+
 
 def _pad64(payload: bytes) -> bytes:
     return payload + b"\x00" * ((-len(payload)) % 64)
