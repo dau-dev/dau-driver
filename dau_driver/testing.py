@@ -28,7 +28,7 @@ class FakeTransport:
     want an older shell clear or lower these.
     """
 
-    #: what the default fake shell claims it can stage in one job
+    # what the default fake shell claims it can stage in one job
     DEFAULT_INPUT_ROW_CAPACITY = 1 << 14
     DEFAULT_OUTPUT_RECORD_CAPACITY = 819
 
