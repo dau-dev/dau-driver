@@ -37,13 +37,16 @@ WIRE_SHAPE_CONSTANTS = {
 
 # Constants that DO describe board or shell geometry and have not moved to
 # configuration yet. Each is a place a second board would be priced or
-# batched against this one's numbers. Expected to empty.
-UNMIGRATED_GEOMETRY_CONSTANTS = {
-    "MAX_ROWS_PER_JOB": "input BRAM depth of the stream job shell",
-    "MAX_GROUPS_PER_JOB": "output BRAM depth of the stream job shell",
-    "BAR_MAX_ROWS_PER_JOB": "input BRAM depth of the fused bar shell",
-    "BAR_MAX_RECORDS_PER_JOB": "output BRAM depth of the fused bar shell",
-}
+# batched against this one's numbers.
+#
+# EMPTY. The last four were the two shells' BRAM depths, which no
+# configuration could hold -- a depth belongs to the composed shell, and the
+# runtime host holds a device rather than a manifest. They moved into the
+# identity block as register map 0.3 (INPUT_ROW_CAPACITY /
+# OUTPUT_RECORD_CAPACITY), derived in the generator from the same BRAM depth
+# and record shape the top instantiates, so a shell cannot advertise a depth
+# it did not build. A shell that does not advertise is refused, not guessed.
+UNMIGRATED_GEOMETRY_CONSTANTS: dict[str, str] = {}
 
 _MODULES = ("pipeline_execution",)
 
