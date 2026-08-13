@@ -73,10 +73,3 @@ The [examples/](examples/) directory holds end-to-end host flows — record-batc
 round trip, stream aggregation, the OHLCV pipeline job — that run against real
 hardware.
 
-## Development
-
-```bash
-pip install -e .[develop]
-python -m pytest                 # fake-transport tests; no hardware needed
-python -m ruff check dau_driver
-```
