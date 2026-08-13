@@ -79,12 +79,12 @@ raises `InvalidStreamError` naming the column. Requires `pyarrow`.
 
 All methods are static.
 
-| Method | Returns |
-| --- | --- |
-| `decode_column(data)` | `DecodedStreamColumn` — a single-column batch. Requires `column_count == 1`. |
-| `decode_record_batch(data, *, limits=DEFAULT_RECORD_BATCH_LIMITS)` | `DecodedRecordBatch` — the N-column counterpart. |
-| `decode_record_batch_to_arrow(data, *, names=None, limits=DEFAULT_RECORD_BATCH_LIMITS)` | A PyArrow `RecordBatch`. Column names default to `f{field_id}`. |
-| `decode_scalar_result(data)` | `DecodedStreamResult` — a one-row batch with its `value` unpacked. |
+| Method                                                                                  | Returns                                                                      |
+| --------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `decode_column(data)`                                                                   | `DecodedStreamColumn` — a single-column batch. Requires `column_count == 1`. |
+| `decode_record_batch(data, *, limits=DEFAULT_RECORD_BATCH_LIMITS)`                      | `DecodedRecordBatch` — the N-column counterpart.                             |
+| `decode_record_batch_to_arrow(data, *, names=None, limits=DEFAULT_RECORD_BATCH_LIMITS)` | A PyArrow `RecordBatch`. Column names default to `f{field_id}`.              |
+| `decode_scalar_result(data)`                                                            | `DecodedStreamResult` — a one-row batch with its `value` unpacked.           |
 
 Decoding validates the stream version (0.1), the header length, 64-byte
 alignment of the descriptor and payload offsets, every payload window against the
@@ -101,38 +101,38 @@ and the column, and a payload length matching the result type's width.
 
 One fixed-width, null-free input column for record-batch encoding.
 
-| Field | Type |
-| --- | --- |
-| `field_id` | `int` |
+| Field          | Type          |
+| -------------- | ------------- |
+| `field_id`     | `int`         |
 | `logical_type` | `LogicalType` |
-| `payload` | `bytes` |
+| `payload`      | `bytes`       |
 
 ### `DecodedStreamColumn`
 
-| Field | Type | Default |
-| --- | --- | --- |
-| `header` | `BatchHeader` | — |
-| `column` | `ColumnDescriptor` | — |
-| `payload` | `bytes` | — |
-| `operations` | `tuple[OperationDescriptor, ...]` | `()` |
+| Field        | Type                              | Default |
+| ------------ | --------------------------------- | ------- |
+| `header`     | `BatchHeader`                     | —       |
+| `column`     | `ColumnDescriptor`                | —       |
+| `payload`    | `bytes`                           | —       |
+| `operations` | `tuple[OperationDescriptor, ...]` | `()`    |
 
 ### `DecodedRecordBatch`
 
-| Field | Type | Default |
-| --- | --- | --- |
-| `header` | `BatchHeader` | — |
-| `columns` | `tuple[ColumnDescriptor, ...]` | — |
-| `payloads` | `tuple[bytes, ...]` | — |
-| `operations` | `tuple[OperationDescriptor, ...]` | `()` |
+| Field        | Type                              | Default |
+| ------------ | --------------------------------- | ------- |
+| `header`     | `BatchHeader`                     | —       |
+| `columns`    | `tuple[ColumnDescriptor, ...]`    | —       |
+| `payloads`   | `tuple[bytes, ...]`               | —       |
+| `operations` | `tuple[OperationDescriptor, ...]` | `()`    |
 
 `column_payload(field_id)` returns the payload for one column by field id, not by
 position. Raises `InvalidStreamError` when no column carries that id.
 
 ### `DecodedStreamResult`
 
-| Field | Type |
-| --- | --- |
-| `header` | `BatchHeader` |
-| `column` | `ColumnDescriptor` |
-| `payload` | `bytes` |
-| `value` | `int \| float` |
+| Field     | Type               |
+| --------- | ------------------ |
+| `header`  | `BatchHeader`      |
+| `column`  | `ColumnDescriptor` |
+| `payload` | `bytes`            |
+| `value`   | `int \| float`     |

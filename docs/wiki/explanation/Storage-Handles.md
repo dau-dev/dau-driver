@@ -90,14 +90,14 @@ StorageExhaustedError: tier 'ddr' cannot hold 1073741824 bytes
 The one thing worth watching is that `stage` and `resolve` take any object with a
 `write_dma` method rather than a typed device. That is the duck-typed device
 convention used throughout the package, and it is what lets a fake stand in for a
-board — the same reason [the transport boundary](transport-boundary.md) is a
+board — the same reason [the transport boundary](Transport-Boundary) is a
 protocol rather than a base class.
 
 ## Related
 
-- [Allocate device storage](../how-to/allocate-device-storage.md) — the allocator
+- [Allocate device storage](Allocate-Device-Storage) — the allocator
   in practice.
-- [Device and discovery reference](../reference/device-and-discovery.md) — every
+- [Device and discovery reference](Device-and-Discovery) — every
   method and error.
-- [The transport boundary](transport-boundary.md) — the same duck-typing choice,
+- [The transport boundary](Transport-Boundary) — the same duck-typing choice,
   one layer down.

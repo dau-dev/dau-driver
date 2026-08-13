@@ -540,3 +540,20 @@ def test_the_job_runners_batch_against_what_the_shell_advertises(tmp_path):
 
     with pytest.raises(PipelineJobError, match="exceed the input staging budget of 4"):
         execute_keyed_pipeline_job(device, [(1, 1)] * 5)
+
+
+def test_the_tuple_row_wrapper_forwards_staging() -> None:
+    """This wrapper omitted `staging` entirely, so every call raised
+    TypeError. Nothing called it, which is exactly why it survived: an
+    unused export is not covered by the tests that cover its callee, and a
+    signature mismatch is invisible until someone uses it.
+    """
+    import inspect
+
+    from dau_driver.pipeline_execution import execute_bar_ddr_job, execute_bar_ddr_packed
+
+    wrapper = inspect.signature(execute_bar_ddr_job).parameters
+    callee = inspect.signature(execute_bar_ddr_packed).parameters
+    required = {name for name, p in callee.items() if p.default is inspect.Parameter.empty and p.kind is inspect.Parameter.KEYWORD_ONLY}
+    missing = required - set(wrapper)
+    assert not missing, f"wrapper cannot satisfy its callee; missing {sorted(missing)}"

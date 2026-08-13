@@ -22,13 +22,13 @@ allocator = StorageAllocator(
 )
 ```
 
-| Parameter | Meaning |
-| --- | --- |
-| `tier` | The tier's name; stamped onto every handle it issues. |
-| `capacity_bytes` | The tier's size. Must be positive. |
-| `base` | The tier's first address. Defaults to 0. |
-| `reserved` | `(base, size)` regions carved out before anything is allocated — lane output windows, fixed staging areas. |
-| `align` | Allocation alignment. Must be a positive power of two; defaults to 64, the DMA grid. |
+| Parameter        | Meaning                                                                                                    |
+| ---------------- | ---------------------------------------------------------------------------------------------------------- |
+| `tier`           | The tier's name; stamped onto every handle it issues.                                                      |
+| `capacity_bytes` | The tier's size. Must be positive.                                                                         |
+| `base`           | The tier's first address. Defaults to 0.                                                                   |
+| `reserved`       | `(base, size)` regions carved out before anything is allocated — lane output windows, fixed staging areas. |
+| `align`          | Allocation alignment. Must be a positive power of two; defaults to 64, the DMA grid.                       |
 
 A reserved region outside `[base, base + capacity_bytes)` or with a
 non-positive size raises `ValueError` at construction, so a wrong map fails
@@ -111,9 +111,9 @@ Resolve at the point of use.
 
 ## Next
 
-- [Run scan jobs](run-scan-jobs.md) — the input regions and output windows an
+- [Run scan jobs](Run-Scan-Jobs) — the input regions and output windows an
   allocator hands out.
-- [Move data to and from a device](move-data.md) — the transfers that consume
+- [Move data to and from a device](Move-Data) — the transfers that consume
   those addresses.
-- [Storage handles](../explanation/storage-handles.md) — why generations rather
+- [Storage handles](Storage-Handles) — why generations rather
   than plain pointers.

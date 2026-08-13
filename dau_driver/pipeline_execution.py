@@ -355,11 +355,18 @@ def execute_bar_ddr_job(
     device,
     rows: list[tuple[int, int, int, int]],
     *,
+    staging,
     timeout_seconds: float = 60.0,
 ):
     """Tuple-row convenience wrapper over ``execute_bar_ddr_packed``.
-    Returns the decoded bar records."""
-    raw, count = execute_bar_ddr_packed(device, pack_bar_rows(rows), len(rows), timeout_seconds=timeout_seconds)
+    Returns the decoded bar records.
+
+    ``staging`` is forwarded, not defaulted: it was omitted here entirely, so
+    every call raised TypeError. Nothing called this wrapper, which is why a
+    function that could never work survived -- an unused export is not
+    covered by the tests that cover its callee.
+    """
+    raw, count = execute_bar_ddr_packed(device, pack_bar_rows(rows), len(rows), staging=staging, timeout_seconds=timeout_seconds)
     return decode_bar_records(raw, count)
 
 

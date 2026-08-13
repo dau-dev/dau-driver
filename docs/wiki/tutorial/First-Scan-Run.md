@@ -5,7 +5,7 @@ the streaming runner, and watch it ping-pong between two device regions so each
 batch's DMA overlaps the previous batch's compute. Then we will meet the guard
 that stops a stateful composition from being fed the wrong kind of batch.
 
-As in [Talk to a device without any hardware](first-device.md), everything runs
+As in [Talk to a device without any hardware](First-Device), everything runs
 against the fake transport — no board required. Work in a Python session with
 `dau-driver` installed.
 
@@ -226,8 +226,8 @@ From here:
 
 - For choosing between these batching strategies on real work, and for spreading
   batches across several cards, see
-  [Run scan jobs](../how-to/run-scan-jobs.md).
+  [Run scan jobs](Run-Scan-Jobs).
 - For the full signature of every runner, see the
-  [execution contracts reference](../reference/execution-contracts.md).
+  [execution contracts reference](Execution-Contracts).
 - For why the overlap is shaped this way, read
-  [Overlapped staging](../explanation/overlapped-staging.md).
+  [Overlapped staging](Overlapped-Staging).

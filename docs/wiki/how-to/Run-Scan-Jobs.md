@@ -55,11 +55,11 @@ behind its timeout.
 
 ## Choose a batching strategy
 
-| Strategy | Use when | Guarantee |
-| --- | --- | --- |
-| Position slicing (build `ScanBatch` yourself) | The composition is stateless per batch. | None beyond batch size. |
-| `key_partitioned_scan_batches` | The composition carries per-key state across a batch. | Each key lands in exactly one batch. |
-| `key_range_scan_batches` | The composition uses a hash-mode grouped tile with a fixed key capacity. | Each batch holds at most `key_capacity` distinct keys, and each key lands in exactly one batch. |
+| Strategy                                      | Use when                                                                 | Guarantee                                                                                       |
+| --------------------------------------------- | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
+| Position slicing (build `ScanBatch` yourself) | The composition is stateless per batch.                                  | None beyond batch size.                                                                         |
+| `key_partitioned_scan_batches`                | The composition carries per-key state across a batch.                    | Each key lands in exactly one batch.                                                            |
+| `key_range_scan_batches`                      | The composition uses a hash-mode grouped tile with a fixed key capacity. | Each batch holds at most `key_capacity` distinct keys, and each key lands in exactly one batch. |
 
 ### Key-confined batches
 
@@ -191,9 +191,9 @@ GIL and flatten self-balancing toward an even split regardless of device speed.
 
 ## Next
 
-- [Allocate device storage](allocate-device-storage.md) — where the input regions
+- [Allocate device storage](Allocate-Device-Storage) — where the input regions
   and output windows come from.
-- [Execution contracts reference](../reference/execution-contracts.md) — every
+- [Execution contracts reference](Execution-Contracts) — every
   runner's full signature.
-- [Overlapped staging](../explanation/overlapped-staging.md) — why the ping-pong
+- [Overlapped staging](Overlapped-Staging) — why the ping-pong
   and the `per_key_state` guard are shaped this way.
