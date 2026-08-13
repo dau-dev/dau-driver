@@ -366,9 +366,7 @@ def execute_bar_ddr_job(
     function that could never work survived -- an unused export is not
     covered by the tests that cover its callee.
     """
-    raw, count = execute_bar_ddr_packed(
-        device, pack_bar_rows(rows), len(rows), staging=staging, timeout_seconds=timeout_seconds
-    )
+    raw, count = execute_bar_ddr_packed(device, pack_bar_rows(rows), len(rows), staging=staging, timeout_seconds=timeout_seconds)
     return decode_bar_records(raw, count)
 
 
