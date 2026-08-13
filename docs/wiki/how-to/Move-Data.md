@@ -66,9 +66,10 @@ device.write_address_register(RegisterOffset.INPUT_ADDRESS_LOW, RegisterOffset.I
 `None`, the caller is trusted — the guard is only as good as the fact, and
 inventing a default would either refuse valid addresses or give false confidence.
 
-The module-level `write_address` function takes `memory_bytes=` as an explicit
-keyword and does not read it off the device, so the guard only applies where you
-supply it.
+The module-level `write_address` function reads `memory_bytes` off the device by
+default. Pass an integer to override the limit, or `None` to disable the check
+entirely — but disable it deliberately, because the default is what makes the
+guard apply to callers who never thought about it.
 
 ## Program a 64-bit address into a register pair
 
@@ -127,8 +128,7 @@ operation = OperationDescriptor(
 encoded = StreamEncoder.encode_record_batch(columns, row_count=len(prices), operations=(operation,))
 ```
 
-For a single column, `StreamEncoder.encode_column(logical_type, payload,
-row_count=..., operations=...)` is the one-column form.
+For a single column, `StreamEncoder.encode_column(logical_type, payload, row_count=..., operations=...)` is the one-column form.
 
 Nulls are rejected: the format has no validity bitmap, so `null_count` must be
 zero. Drop or fill upstream.
@@ -198,9 +198,9 @@ fake.
 
 ## Next
 
-- [Run scan jobs](run-scan-jobs.md) — many batches, with staging overlapped
+- [Run scan jobs](Run-Scan-Jobs) — many batches, with staging overlapped
   against compute.
-- [Stream codec reference](../reference/stream-codec.md) — every encoder and
+- [Stream codec reference](Stream-Codec) — every encoder and
   decoder entry point.
-- [Allocate device storage](allocate-device-storage.md) — handing out device
+- [Allocate device storage](Allocate-Device-Storage) — handing out device
   addresses safely.

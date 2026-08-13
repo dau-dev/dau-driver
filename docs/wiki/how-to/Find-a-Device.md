@@ -45,10 +45,10 @@ device = identify_device("/dev/xdma0_user")
 This does raise, which is the point: you named this device, so a bad answer is
 an error rather than an omission.
 
-| Exception | Meaning |
-| --- | --- |
-| `UnhealthyBarError` | The magic word read all ones. The endpoint or its AXI-lite BAR is not responding. |
-| `WrongBitstreamError` | The window responded, but with something other than the DAU magic word. |
+| Exception             | Meaning                                                                                              |
+| --------------------- | ---------------------------------------------------------------------------------------------------- |
+| `UnhealthyBarError`   | The magic word read all ones. The endpoint or its AXI-lite BAR is not responding.                    |
+| `WrongBitstreamError` | The window responded, but with something other than the DAU magic word.                              |
 | `RegisterAccessError` | A register read failed after the window was located — a short read, or the node could not be opened. |
 
 A path that does not exist reads back as zero rather than the magic word, so it
@@ -132,15 +132,15 @@ dau-xdma-macos-probe --verbose
 macos-xdma	status=no-service devices=0 message=No macOS XDMA DriverKit service found for com.dau-dev.xdma...
 ```
 
-| `status` | What to check |
-| --- | --- |
-| `found` | Devices were identified; nothing to fix. |
-| `no-service` | No IOKit DriverKit service matched. Is the PCI endpoint visible, and is the `com.dau-dev.xdma` dext signed, installed, and approved? |
-| `no-user-client` | The service matched but `IOServiceOpen` created no user client. Check the user-client entitlements. |
-| `no-compatible-bitstream` | The user client opened, but no device passed identification. |
-| `wrong-bitstream` | BAR scanning did not find the DAU magic word. |
-| `unhealthy-bar` | BAR reads returned all ones; the endpoint or AXI-lite BAR is not responding. |
-| `register-access-failed` | A register read failed outright. |
+| `status`                  | What to check                                                                                                                        |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `found`                   | Devices were identified; nothing to fix.                                                                                             |
+| `no-service`              | No IOKit DriverKit service matched. Is the PCI endpoint visible, and is the `com.dau-dev.xdma` dext signed, installed, and approved? |
+| `no-user-client`          | The service matched but `IOServiceOpen` created no user client. Check the user-client entitlements.                                  |
+| `no-compatible-bitstream` | The user client opened, but no device passed identification.                                                                         |
+| `wrong-bitstream`         | BAR scanning did not find the DAU magic word.                                                                                        |
+| `unhealthy-bar`           | BAR reads returned all ones; the endpoint or AXI-lite BAR is not responding.                                                         |
+| `register-access-failed`  | A register read failed outright.                                                                                                     |
 
 Add `--service-name` (repeatable) to probe a service name other than the
 default.
@@ -163,8 +163,8 @@ hot paths are slower.
 
 ## Next
 
-- [Move data to and from a device](move-data.md) — DMA and the stream codec.
-- [Device and discovery reference](../reference/device-and-discovery.md) — every
+- [Move data to and from a device](Move-Data) — DMA and the stream codec.
+- [Device and discovery reference](Device-and-Discovery) — every
   field and signature.
-- [The transport boundary](../explanation/transport-boundary.md) — why discovery
+- [The transport boundary](Transport-Boundary) — why discovery
   refuses so much.

@@ -125,9 +125,9 @@ composed follows the model patterns.
 
 ## Related
 
-- [Find and check a device](../how-to/find-a-device.md) — discovery and health in
+- [Find and check a device](Find-a-Device) — discovery and health in
   practice.
-- [Talk to a device without any hardware](../tutorial/first-device.md) — the fake
+- [Talk to a device without any hardware](First-Device) — the fake
   transport as a working tool.
-- [Device and discovery reference](../reference/device-and-discovery.md) — the
+- [Device and discovery reference](Device-and-Discovery) — the
   protocol and every implementation of it.

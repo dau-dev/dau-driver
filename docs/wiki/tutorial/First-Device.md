@@ -296,8 +296,8 @@ behaviour stays behind the `DeviceTransport` boundary.
 From here:
 
 - To run many batches with staging overlapped against compute, see
-  [Run a scan over many batches](first-scan-run.md).
+  [Run a scan over many batches](First-Scan-Run).
 - To find real devices on a real host, see
-  [Find and check a device](../how-to/find-a-device.md).
+  [Find and check a device](Find-a-Device).
 - For why the fake exists at all, read
-  [The transport boundary](../explanation/transport-boundary.md).
+  [The transport boundary](Transport-Boundary).

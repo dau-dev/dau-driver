@@ -34,36 +34,40 @@ surface can be exercised — and is tested — with no hardware present.
 
 ## Documentation
 
-The documentation is in four parts, each answering a different need.
+The documentation lives in [the wiki](https://github.com/dau-dev/dau-driver/wiki),
+authored under [`docs/wiki`](docs/wiki) and published from there. It is in four
+parts, each answering a different need.
 
-**[Tutorial](docs/tutorial/first-device.md)** — start here if dau-driver is new to
+**[Tutorial](https://github.com/dau-dev/dau-driver/wiki/First-Device)** — start here if dau-driver is new to
 you. Two guided lessons drive a device end to end against the fake transport, no
 board required:
-[Talk to a device without any hardware](docs/tutorial/first-device.md) and
-[Run a scan over many batches](docs/tutorial/first-scan-run.md).
+[Talk to a device without any hardware](https://github.com/dau-dev/dau-driver/wiki/First-Device) and
+[Run a scan over many batches](https://github.com/dau-dev/dau-driver/wiki/First-Scan-Run).
 
-**[How-to guides](docs/how-to/find-a-device.md)** — directions for the jobs you
+**[How-to guides](https://github.com/dau-dev/dau-driver/wiki/Find-a-Device)** — directions for the jobs you
 will actually have. How to
-[find and check a device](docs/how-to/find-a-device.md),
-[move data to and from it](docs/how-to/move-data.md),
-[run scan jobs](docs/how-to/run-scan-jobs.md) across batches and cards, and
-[allocate device storage](docs/how-to/allocate-device-storage.md).
+[find and check a device](https://github.com/dau-dev/dau-driver/wiki/Find-a-Device),
+[move data to and from it](https://github.com/dau-dev/dau-driver/wiki/Move-Data),
+[run scan jobs](https://github.com/dau-dev/dau-driver/wiki/Run-Scan-Jobs) across batches and cards,
+[allocate device storage](https://github.com/dau-dev/dau-driver/wiki/Allocate-Device-Storage), and
+[fence a PCIe operation with the deadman](https://github.com/dau-dev/dau-driver/wiki/Arm-the-Deadman)
+before touching the bus.
 
-**[Reference](docs/reference/device-and-discovery.md)** — the technical
+**[Reference](https://github.com/dau-dev/dau-driver/wiki/Device-and-Discovery)** — the technical
 description, laid out to mirror the code: the
-[device and discovery](docs/reference/device-and-discovery.md) surface including
+[device and discovery](https://github.com/dau-dev/dau-driver/wiki/Device-and-Discovery) surface including
 transfers, storage and errors; the
-[execution contracts](docs/reference/execution-contracts.md) for stream, scan,
+[execution contracts](https://github.com/dau-dev/dau-driver/wiki/Execution-Contracts) for stream, scan,
 pipeline and fleet jobs; and the
-[stream codec](docs/reference/stream-codec.md).
+[stream codec](https://github.com/dau-dev/dau-driver/wiki/Stream-Codec).
 
-**[Explanation](docs/explanation/transport-boundary.md)** — the reasoning behind
+**[Explanation](https://github.com/dau-dev/dau-driver/wiki/Transport-Boundary)** — the reasoning behind
 the design. Why [the driver owns almost
-nothing](docs/explanation/transport-boundary.md) and where the `dau-core`
+nothing](https://github.com/dau-dev/dau-driver/wiki/Transport-Boundary) and where the `dau-core`
 boundary sits, why [staging overlaps compute and when the runner
-refuses](docs/explanation/overlapped-staging.md), and why storage is handed out as
+refuses](https://github.com/dau-dev/dau-driver/wiki/Overlapped-Staging), and why storage is handed out as
 [generation-checked handles rather than
-pointers](docs/explanation/storage-handles.md).
+pointers](https://github.com/dau-dev/dau-driver/wiki/Storage-Handles).
 
 The [examples/](examples/) directory holds end-to-end host flows — record-batch
 round trip, stream aggregation, the OHLCV pipeline job — that run against real

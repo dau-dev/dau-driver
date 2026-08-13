@@ -139,8 +139,8 @@ assumption that does not hold.
 
 ## Related
 
-- [Run a scan over many batches](../tutorial/first-scan-run.md) — the runner and
+- [Run a scan over many batches](First-Scan-Run) — the runner and
   its guards, hands on.
-- [Run scan jobs](../how-to/run-scan-jobs.md) — choosing a strategy for real work.
-- [Execution contracts reference](../reference/execution-contracts.md) — every
+- [Run scan jobs](Run-Scan-Jobs) — choosing a strategy for real work.
+- [Execution contracts reference](Execution-Contracts) — every
   signature and constant.
