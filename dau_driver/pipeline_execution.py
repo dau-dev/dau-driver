@@ -23,7 +23,17 @@ DMA_ALIGN_BYTES = 64
 
 
 class PipelineJobError(RegisterAccessError):
-    pass
+    """A job that timed out or closed out with an error.
+
+    ``last_error`` carries the shell's error code when the job closed out with
+    one, and ``None`` when there was none to read (a timeout). Carried on the
+    exception rather than left for the caller to read back, because the
+    register only holds the LAST job's code: a caller that re-reads it after
+    catching this is racing the next job for the reason this one failed."""
+
+    def __init__(self, message: str, *, last_error: int | None = None) -> None:
+        super().__init__(message)
+        self.last_error = last_error
 
 
 @dataclass(frozen=True)
@@ -88,7 +98,7 @@ def _wait_for_job_done(device, *, timeout_seconds: float, label: str, poll=None)
             raise PipelineJobError(f"{label} timed out (status=0x{status:x})")
     if status & int(JobStatusFlag.ERROR):
         last_error = device.read_register(RegisterOffset.LAST_ERROR)
-        raise PipelineJobError(f"{label} failed: status=0x{status:x} last_error={last_error}")
+        raise PipelineJobError(f"{label} failed: status=0x{status:x} last_error={last_error}", last_error=last_error)
 
 
 def _read_aligned_records(
