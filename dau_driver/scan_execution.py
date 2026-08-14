@@ -247,3 +247,53 @@ def run_scan_batches(
                 progress(index + 1)
             index += 1
     return results
+
+
+def run_resident_scan(
+    device,
+    *,
+    address: int,
+    row_count: int,
+    row_bytes: int,
+    collect: Callable[[Any], Any],
+    repeats: int = 1,
+    timeout_seconds: float = 60.0,
+) -> list[Any]:
+    """Run the job over rows ALREADY on the device, uploading nothing.
+
+    :func:`run_scan_batches` re-stages every batch, which is right when the
+    host owns the data and wrong when the device already holds it. A resident
+    dataset is staged once and queried many times, so the DMA belongs outside
+    the loop -- and on the measured platform that DMA is the larger term: the
+    q6 device path is 40.0 ms of which the feed is most of it, against a job
+    of about 10.4 ms.
+
+    This is deliberately the smallest thing that proves the idea, and it
+    proves it WITHOUT the shell handle table: the caller uploads once and
+    passes the address it uploaded to. What the handle table adds later is
+    safety (a generation-checked identity instead of a raw address a caller
+    can get wrong) and the ability for the DEVICE to name its own allocations
+    -- not speed. Keeping those separable is what lets the amortization be
+    measured before any bitstream changes.
+
+    Returns one ``collect(device)`` per repeat, so a caller can assert every
+    run is bit-identical rather than trusting that a rerun of the same bytes
+    must be.
+    """
+    if row_count <= 0:
+        raise ValueError(f"row_count must be positive, got {row_count}")
+    if row_bytes <= 0:
+        raise ValueError(f"row_bytes must be positive, got {row_bytes}")
+    if repeats <= 0:
+        raise ValueError(f"repeats must be positive, got {repeats}")
+    if address % DMA_ALIGN_BYTES:
+        raise ValueError(f"resident address {address:#x} is not {DMA_ALIGN_BYTES}-byte aligned")
+
+    results = []
+    for index in range(repeats):
+        write_address(device, RegisterOffset.INPUT_ADDRESS_LOW, RegisterOffset.INPUT_ADDRESS_HIGH, address)
+        device.write_register(RegisterOffset.INPUT_LENGTH_LOW, row_count * row_bytes)
+        device.write_register(RegisterOffset.JOB_CONTROL, int(JobControlFlag.START))
+        _wait_for_job_done(device, timeout_seconds=timeout_seconds, label=f"resident scan job {index}")
+        results.append(collect(device))
+    return results

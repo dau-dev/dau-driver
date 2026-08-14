@@ -392,3 +392,63 @@ def test_key_range_batches_merge_back_to_the_one_shot_answer() -> None:
         partials.append(groups)
     merged = merge_hash_grouped(partials)
     assert [(g.key, g.sums, g.count) for g in merged] == [(g.key, g.sums, g.count) for g in one_shot]
+
+
+class ResidentTransport(FakeTransport):
+    """DONE as soon as a job starts; records what was written."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.starts = 0
+
+    def write_u32(self, offset: int, value: int) -> None:
+        super().write_u32(offset, value)
+        if offset == int(RegisterOffset.JOB_CONTROL) and value & int(JobControlFlag.START):
+            self.starts += 1
+
+    def read_u32(self, offset: int) -> int:
+        if offset == int(RegisterOffset.JOB_STATUS):
+            return int(JobStatusFlag.DONE) if self.starts else 0
+        return super().read_u32(offset)
+
+
+def test_a_resident_run_uploads_nothing(tmp_path) -> None:
+    """The whole point: rows already on the device are queried without a DMA.
+    On the measured platform the feed is the larger term of the device path
+    (40.0 ms total against a ~10.4 ms job), so removing it from the loop is
+    what amortization means."""
+    from dau_driver.scan_execution import run_resident_scan
+
+    transport = ResidentTransport()
+    device = fake_device(tmp_path, transport)
+    results = run_resident_scan(device, address=REGION_A, row_count=6_001_215, row_bytes=8, collect=lambda _d: transport.starts, repeats=3)
+    assert transport.h2c_writes == [], "a resident run must not stage anything"
+    assert transport.starts == 3, "each repeat runs the job again"
+    assert results == [1, 2, 3]
+
+
+def test_a_resident_run_still_programs_the_exact_input_length(tmp_path) -> None:
+    """Address and length are the contract; getting either wrong reads the
+    wrong bytes and would be indistinguishable from a bad answer."""
+    from dau_driver.scan_execution import run_resident_scan
+
+    transport = ResidentTransport()
+    run_resident_scan(fake_device(tmp_path, transport), address=REGION_B, row_count=1000, row_bytes=16, collect=lambda _d: None)
+    assert transport.read_u32(int(RegisterOffset.INPUT_LENGTH_LOW)) == 16_000
+    assert transport.read_u32(int(RegisterOffset.INPUT_ADDRESS_LOW)) == REGION_B & 0xFFFF_FFFF
+
+
+def test_a_misaligned_resident_address_is_refused(tmp_path) -> None:
+    """An unaligned DMA region is a silent-wrong-bytes failure on silicon,
+    so it is refused where the mistake is still cheap."""
+    from dau_driver.pipeline_execution import DMA_ALIGN_BYTES
+    from dau_driver.scan_execution import run_resident_scan
+
+    with pytest.raises(ValueError, match="aligned"):
+        run_resident_scan(
+            fake_device(tmp_path, ResidentTransport()),
+            address=DMA_ALIGN_BYTES + 1,
+            row_count=8,
+            row_bytes=8,
+            collect=lambda _d: None,
+        )
