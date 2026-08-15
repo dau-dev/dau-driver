@@ -164,7 +164,11 @@ def test_identify_device_reports_unadvertised_metadata_honestly(tmp_path: Path) 
     device = identify_device(user_path)
 
     assert device.register_window_offset == 0x1000
-    assert device.capabilities.platform_id == "DPV1"
+    # the platform word is all-ones, so the device identifies as NOTHING.
+    # This asserted "DPV1" -- in a test named for reporting unadvertised
+    # metadata honestly -- which is how a dead aperture came to be reported
+    # as a working Artix.
+    assert device.capabilities.platform_id == ""
     # the shell decodes MAGIC (so the path is healthy) but not this offset:
     # report that it said nothing rather than inventing a version for it
     assert device.capabilities.register_map_version == RegisterMapVersion(0, 0)

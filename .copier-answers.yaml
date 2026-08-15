@@ -1,10 +1,10 @@
 # Changes here will be overwritten by Copier
-_commit: b2cdb6d
+_commit: 84508d6
 _src_path: https://github.com/python-project-templates/base.git
 add_docs: false
 add_extension: cpp
 add_vcpkg: false
-add_wiki: false
+add_wiki: true
 email: dev@dau.dev
 github: dau-dev
 project_description: PCIe Driver for dau

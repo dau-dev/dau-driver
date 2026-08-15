@@ -9,19 +9,20 @@ indirectly through the dau-polars/cocotb suites. No hardware.
 from __future__ import annotations
 
 import struct
+from types import SimpleNamespace
 
 import pytest
 from dau_core.operators import BarAggregate, GroupAggregate
 from dau_core.registers import (
     JobStatusFlag,
     NocLaneRegisterOffset,
+    RegisterMapVersion,
     RegisterOffset,
     StreamJobRegisterContract,
     noc_lane_register,
 )
 
 from dau_driver.pipeline_execution import (
-    BAR_DDR_OUTPUT_ADDRESS,
     BAR_RECORD_BYTES,
     GROUP_RECORD_BYTES,
     PipelineJobError,
@@ -36,6 +37,18 @@ from dau_driver.pipeline_execution import (
     pack_keyed_rows,
 )
 from dau_driver.testing import FakeTransport, fake_device
+
+# The board's staging regions, which are platform configuration in
+# production (dau_build.platforms.DdrStaging). The driver reads attributes
+# rather than importing that model, so a test stands in with the same shape.
+_STAGING = SimpleNamespace(
+    input_addresses=(0x0000_0000, 0x1800_0000),
+    input_bytes=0x1800_0000,
+    output_address=0x3000_0000,
+    output_bytes=0x1000_0000,
+    address_align=0x1000,
+)
+BAR_DDR_OUTPUT_ADDRESS = _STAGING.output_address
 
 
 def _pad64(payload: bytes) -> bytes:
@@ -158,8 +171,14 @@ def test_execute_keyed_pipeline_job_done(tmp_path):
     assert groups == GROUPS
     assert selected == 42
     assert transport.h2c_writes == [(contract.input_buffer_address, pack_keyed_rows(rows))]
-    # register-read order: poll JOB_STATUS, then result length, selected, group count
+    # register-read order: capacity, then poll JOB_STATUS, then result
+    # length, selected, group count
     assert transport.register_reads == [
+        # the staging budget comes from the shell, not a constant: version
+        # gate then the two capacity words, three reads and no full snapshot
+        int(RegisterOffset.REGISTER_MAP_VERSION),
+        int(RegisterOffset.INPUT_ROW_CAPACITY),
+        int(RegisterOffset.OUTPUT_RECORD_CAPACITY),
         int(RegisterOffset.JOB_STATUS),
         int(RegisterOffset.RESULT_LENGTH_LOW),
         int(RegisterOffset.PIPELINE_SELECTED_COUNT_LOW),
@@ -191,8 +210,17 @@ def test_execute_keyed_pipeline_job_error(tmp_path):
     with pytest.raises(PipelineJobError) as exc:
         execute_keyed_pipeline_job(device, [(1, 10)])
     assert str(exc.value) == "pipeline job failed: status=0xc last_error=3"
-    # error path reads JOB_STATUS then LAST_ERROR, and no result registers
-    assert transport.register_reads == [int(RegisterOffset.JOB_STATUS), int(RegisterOffset.LAST_ERROR)]
+    # error path reads the capacity, then JOB_STATUS and LAST_ERROR, and no
+    # result registers
+    assert transport.register_reads == [
+        # the staging budget comes from the shell, not a constant: version
+        # gate then the two capacity words, three reads and no full snapshot
+        int(RegisterOffset.REGISTER_MAP_VERSION),
+        int(RegisterOffset.INPUT_ROW_CAPACITY),
+        int(RegisterOffset.OUTPUT_RECORD_CAPACITY),
+        int(RegisterOffset.JOB_STATUS),
+        int(RegisterOffset.LAST_ERROR),
+    ]
 
 
 def test_execute_keyed_pipeline_job_result_length_mismatch(tmp_path):
@@ -210,7 +238,7 @@ def test_finish_bar_ddr_job_done(tmp_path):
     transport.c2h_payloads[BAR_DDR_OUTPUT_ADDRESS] = _pad64(_pack_bar_records(BARS))
     _stage_done(transport, result_length=len(BARS) * BAR_RECORD_BYTES, count=len(BARS))
 
-    raw, count = finish_bar_ddr_job(device)
+    raw, count = finish_bar_ddr_job(device, staging=_STAGING)
 
     assert count == len(BARS)
     assert decode_bar_records(raw, count) == BARS
@@ -221,7 +249,7 @@ def test_finish_bar_ddr_job_empty(tmp_path):
     transport = FakeTransport()
     device = fake_device(tmp_path, transport)
     _stage_done(transport, result_length=0, count=0)
-    assert finish_bar_ddr_job(device) == (b"", 0)
+    assert finish_bar_ddr_job(device, staging=_STAGING) == (b"", 0)
     assert transport.c2h_reads == []
 
 
@@ -230,20 +258,28 @@ def test_finish_bar_ddr_job_result_length_mismatch(tmp_path):
     device = fake_device(tmp_path, transport)
     _stage_done(transport, result_length=1, count=1)
     with pytest.raises(PipelineJobError) as exc:
-        finish_bar_ddr_job(device)
+        finish_bar_ddr_job(device, staging=_STAGING)
     assert str(exc.value) == "result length 1 inconsistent with bar count 1"
 
 
-def _stage_noc_lane(transport: FakeTransport, lane: int, *, records: bytes, count: int, record_bytes: int) -> None:
+def _advertise_lane_count(transport: FakeTransport, lanes: int) -> None:
+    """A bar-NoC shell publishes its lane count; the host reads it rather
+    than assuming one, so a fake standing in for that shell must too."""
+    transport.registers[int(RegisterOffset.REGISTER_MAP_VERSION)] = RegisterMapVersion(0, 2).to_u32()
+    transport.registers[int(RegisterOffset.LANE_COUNT)] = lanes
+
+
+def _stage_noc_lane(transport: FakeTransport, lane: int, *, records: bytes, count: int, record_bytes: int, lanes: int = 4) -> None:
     transport.registers[noc_lane_register(lane, NocLaneRegisterOffset.RESULT_LENGTH_LOW)] = count * record_bytes
     transport.registers[noc_lane_register(lane, NocLaneRegisterOffset.RECORD_COUNT_LOW)] = count
     if count:
-        transport.c2h_payloads[bar_noc_lane_output_address(lane)] = _pad64(records)
+        transport.c2h_payloads[bar_noc_lane_output_address(_STAGING, lane, lanes)] = _pad64(records)
 
 
 def test_execute_bar_noc_packed_done(tmp_path):
     transport = FakeTransport()
     device = fake_device(tmp_path, transport)
+    _advertise_lane_count(transport, 4)
     transport.registers[int(RegisterOffset.JOB_STATUS)] = int(JobStatusFlag.DONE)
     # lane 0 gets both bars, lanes 1-3 are empty partitions
     _stage_noc_lane(transport, 0, records=_pack_bar_records(BARS), count=len(BARS), record_bytes=BAR_RECORD_BYTES)
@@ -251,7 +287,7 @@ def test_execute_bar_noc_packed_done(tmp_path):
         _stage_noc_lane(transport, lane, records=b"", count=0, record_bytes=BAR_RECORD_BYTES)
 
     rows = [(1, 10, 100, 250), (-2, 7, 3, 0)]
-    results = execute_bar_noc_packed(device, pack_bar_rows(rows), len(rows))
+    results = execute_bar_noc_packed(device, pack_bar_rows(rows), len(rows), staging=_STAGING)
 
     assert len(results) == 4
     assert decode_bar_records(results[0][0], results[0][1]) == BARS
@@ -264,11 +300,11 @@ def test_execute_bar_noc_packed_scan_shell_reuse(tmp_path):
     transport = FakeTransport()
     device = fake_device(tmp_path, transport)
     transport.registers[int(RegisterOffset.JOB_STATUS)] = int(JobStatusFlag.DONE)
-    _stage_noc_lane(transport, 0, records=_pack_group_records(GROUPS[:1]), count=1, record_bytes=GROUP_RECORD_BYTES)
-    _stage_noc_lane(transport, 1, records=_pack_group_records(GROUPS[1:]), count=1, record_bytes=GROUP_RECORD_BYTES)
+    _stage_noc_lane(transport, 0, records=_pack_group_records(GROUPS[:1]), count=1, record_bytes=GROUP_RECORD_BYTES, lanes=2)
+    _stage_noc_lane(transport, 1, records=_pack_group_records(GROUPS[1:]), count=1, record_bytes=GROUP_RECORD_BYTES, lanes=2)
 
     rows = [(1, 10, 100, 250)]
-    results = execute_bar_noc_packed(device, pack_bar_rows(rows), len(rows), lanes=2, record_bytes=GROUP_RECORD_BYTES)
+    results = execute_bar_noc_packed(device, pack_bar_rows(rows), len(rows), staging=_STAGING, lanes=2, record_bytes=GROUP_RECORD_BYTES)
 
     assert len(results) == 2
     assert decode_group_records(results[0][0], results[0][1]) == GROUPS[:1]
@@ -282,18 +318,19 @@ def test_execute_bar_noc_packed_q6_aggregate_lanes(tmp_path):
     runner reuses this shell with ``validate_record_count=False``."""
     transport = FakeTransport()
     device = fake_device(tmp_path, transport)
+    _advertise_lane_count(transport, 4)
     transport.registers[int(RegisterOffset.JOB_STATUS)] = int(JobStatusFlag.DONE)
     record0 = struct.pack("<qq", 123_456, 3)  # [sum, aggregated_count]
     record3 = struct.pack("<qq", -50, 5)
     # lane 0 aggregated 3 rows, lane 3 aggregated 5, lanes 1-2 selected none
     transport.registers[noc_lane_register(0, NocLaneRegisterOffset.RESULT_LENGTH_LOW)] = 16
     transport.registers[noc_lane_register(0, NocLaneRegisterOffset.RECORD_COUNT_LOW)] = 3
-    transport.c2h_payloads[bar_noc_lane_output_address(0)] = _pad64(record0)
+    transport.c2h_payloads[bar_noc_lane_output_address(_STAGING, 0, 4)] = _pad64(record0)
     transport.registers[noc_lane_register(3, NocLaneRegisterOffset.RESULT_LENGTH_LOW)] = 16
     transport.registers[noc_lane_register(3, NocLaneRegisterOffset.RECORD_COUNT_LOW)] = 5
-    transport.c2h_payloads[bar_noc_lane_output_address(3)] = _pad64(record3)
+    transport.c2h_payloads[bar_noc_lane_output_address(_STAGING, 3, 4)] = _pad64(record3)
 
-    results = execute_bar_noc_packed(device, pack_bar_rows([(1, 2, 3, 4)]), 1, record_bytes=16, validate_record_count=False)
+    results = execute_bar_noc_packed(device, pack_bar_rows([(1, 2, 3, 4)]), 1, staging=_STAGING, record_bytes=16, validate_record_count=False)
 
     assert len(results) == 4
     assert results[0][0][:16] == record0
@@ -308,40 +345,44 @@ def test_execute_bar_noc_packed_q6_shape_rejected_by_default_validation(tmp_path
     shape, proving ``validate_record_count`` is load-bearing."""
     transport = FakeTransport()
     device = fake_device(tmp_path, transport)
+    _advertise_lane_count(transport, 4)
     transport.registers[int(RegisterOffset.JOB_STATUS)] = int(JobStatusFlag.DONE)
     transport.registers[noc_lane_register(0, NocLaneRegisterOffset.RESULT_LENGTH_LOW)] = 16
     transport.registers[noc_lane_register(0, NocLaneRegisterOffset.RECORD_COUNT_LOW)] = 3
     with pytest.raises(PipelineJobError) as exc:
-        execute_bar_noc_packed(device, pack_bar_rows([(1, 2, 3, 4)]), 1, record_bytes=16)
+        execute_bar_noc_packed(device, pack_bar_rows([(1, 2, 3, 4)]), 1, staging=_STAGING, record_bytes=16)
     assert str(exc.value) == "lane 0: result length 16 inconsistent with record count 3"
 
 
 def test_execute_bar_noc_packed_empty(tmp_path):
     transport = FakeTransport()
     device = fake_device(tmp_path, transport)
-    assert execute_bar_noc_packed(device, b"", 0) == [(b"", 0)] * 4
-    assert execute_bar_noc_packed(device, b"", 0, lanes=2) == [(b"", 0)] * 2
+    _advertise_lane_count(transport, 4)
+    assert execute_bar_noc_packed(device, b"", 0, staging=_STAGING) == [(b"", 0)] * 4
+    assert execute_bar_noc_packed(device, b"", 0, staging=_STAGING, lanes=2) == [(b"", 0)] * 2
     assert transport.h2c_writes == []
 
 
 def test_execute_bar_noc_packed_lane_mismatch(tmp_path):
     transport = FakeTransport()
     device = fake_device(tmp_path, transport)
+    _advertise_lane_count(transport, 4)
     transport.registers[int(RegisterOffset.JOB_STATUS)] = int(JobStatusFlag.DONE)
     transport.registers[noc_lane_register(0, NocLaneRegisterOffset.RESULT_LENGTH_LOW)] = BAR_RECORD_BYTES + 1
     transport.registers[noc_lane_register(0, NocLaneRegisterOffset.RECORD_COUNT_LOW)] = 1
     with pytest.raises(PipelineJobError) as exc:
-        execute_bar_noc_packed(device, pack_bar_rows([(1, 2, 3, 4)]), 1)
+        execute_bar_noc_packed(device, pack_bar_rows([(1, 2, 3, 4)]), 1, staging=_STAGING)
     assert str(exc.value) == "lane 0: result length 49 inconsistent with record count 1"
 
 
 def test_execute_bar_noc_packed_error(tmp_path):
     transport = FakeTransport()
     device = fake_device(tmp_path, transport)
+    _advertise_lane_count(transport, 4)
     transport.registers[int(RegisterOffset.JOB_STATUS)] = int(JobStatusFlag.DONE | JobStatusFlag.ERROR)
     transport.registers[int(RegisterOffset.LAST_ERROR)] = 1
     with pytest.raises(PipelineJobError) as exc:
-        execute_bar_noc_packed(device, pack_bar_rows([(1, 2, 3, 4)]), 1)
+        execute_bar_noc_packed(device, pack_bar_rows([(1, 2, 3, 4)]), 1, staging=_STAGING)
     assert str(exc.value) == "bar NoC job failed: status=0xc last_error=1"
 
 
@@ -464,3 +505,55 @@ def test_a_duck_typed_device_can_program_addresses() -> None:
     fake = _Fake()
     write_address(fake, RegisterOffset.INPUT_ADDRESS_LOW, RegisterOffset.INPUT_ADDRESS_HIGH, 0x1_0000_0000)
     assert fake.writes == [(int(RegisterOffset.INPUT_ADDRESS_LOW), 0), (int(RegisterOffset.INPUT_ADDRESS_HIGH), 1)]
+
+
+def test_a_shell_that_does_not_advertise_capacity_is_refused(tmp_path):
+    """The whole point of moving the depths onto the shell: a host facing a
+    shell that cannot state its capacity must stop, not fall back on the
+    numbers that used to be compiled in. Both the pre-0.3 case and the
+    advertises-zero case."""
+    from dau_driver.pipeline_execution import device_job_capacity
+
+    old_shell = FakeTransport()
+    old_shell.registers[int(RegisterOffset.REGISTER_MAP_VERSION)] = RegisterMapVersion(0, 2).to_u32()
+    with pytest.raises(ValueError, match="predates the job capacity words"):
+        device_job_capacity(fake_device(tmp_path, old_shell))
+
+    silent = FakeTransport()
+    silent.registers[int(RegisterOffset.INPUT_ROW_CAPACITY)] = 0
+    with pytest.raises(ValueError, match="advertises no job capacity"):
+        device_job_capacity(fake_device(tmp_path, silent))
+
+    # all-ones is a word nobody decoded, not a four-billion-row shell
+    undecoded = FakeTransport()
+    undecoded.registers[int(RegisterOffset.OUTPUT_RECORD_CAPACITY)] = 0xFFFF_FFFF
+    with pytest.raises(ValueError, match="advertises no job capacity"):
+        device_job_capacity(fake_device(tmp_path, undecoded))
+
+
+def test_the_job_runners_batch_against_what_the_shell_advertises(tmp_path):
+    """A shell with a smaller staging depth must reject a batch the previous
+    shell's constant would have accepted."""
+    transport = FakeTransport()
+    transport.registers[int(RegisterOffset.INPUT_ROW_CAPACITY)] = 4
+    device = fake_device(tmp_path, transport)
+
+    with pytest.raises(PipelineJobError, match="exceed the input staging budget of 4"):
+        execute_keyed_pipeline_job(device, [(1, 1)] * 5)
+
+
+def test_the_tuple_row_wrapper_forwards_staging() -> None:
+    """This wrapper omitted `staging` entirely, so every call raised
+    TypeError. Nothing called it, which is exactly why it survived: an
+    unused export is not covered by the tests that cover its callee, and a
+    signature mismatch is invisible until someone uses it.
+    """
+    import inspect
+
+    from dau_driver.pipeline_execution import execute_bar_ddr_job, execute_bar_ddr_packed
+
+    wrapper = inspect.signature(execute_bar_ddr_job).parameters
+    callee = inspect.signature(execute_bar_ddr_packed).parameters
+    required = {name for name, p in callee.items() if p.default is inspect.Parameter.empty and p.kind is inspect.Parameter.KEYWORD_ONLY}
+    missing = required - set(wrapper)
+    assert not missing, f"wrapper cannot satisfy its callee; missing {sorted(missing)}"

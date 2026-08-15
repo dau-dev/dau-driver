@@ -10,7 +10,7 @@ from typing import Protocol
 from dau_core.capabilities import DeviceCapabilities
 from dau_core.registers import RegisterBlockSnapshot, RegisterOffset, StreamProtocolVersion
 
-from .capability_decode import DPV1_PLATFORM_ID, decode_platform_id
+from .capability_decode import decode_platform_id
 from .errors import RegisterAccessError, UnhealthyBarError
 from .status import DeviceCounters, DeviceStatus
 from .transfer import DmaDirection, DmaTransfer, validate_transfer
@@ -105,11 +105,9 @@ class DauDevice:
         return RegisterBlockSnapshot(
             register_map_version=register_map_version,
             stream_protocol_version=StreamProtocolVersion.from_u32(self.read_register(RegisterOffset.STREAM_PROTOCOL_VERSION)),
-            platform_id=decode_platform_id(self.read_register(RegisterOffset.PLATFORM_ID)) or DPV1_PLATFORM_ID,
-            shell_version=self.read_register(RegisterOffset.SHELL_VERSION),
+            platform_id=decode_platform_id(self.read_register(RegisterOffset.PLATFORM_ID)),
             build_id=self._read_u64(RegisterOffset.BUILD_ID_LOW),
             status=self.read_register(RegisterOffset.STATUS),
-            dma_constraints=self.read_register(RegisterOffset.DMA_CONSTRAINTS),
             operator_bitmap=self.read_register(RegisterOffset.OPERATOR_BITMAP),
             last_error=self.read_register(RegisterOffset.LAST_ERROR),
             h2c_bytes=self._read_u64(RegisterOffset.H2C_BYTES_LOW),

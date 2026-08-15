@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Mapping
 
-from dau_core.capabilities import DPV1_PLATFORM_ID, OperatorCapability
+from dau_core.capabilities import OperatorCapability
 from dau_core.capability_contract import CapabilityContract
 from dau_core.registers import DEFAULT_STREAM_JOB_REGISTER_CONTRACT, RegisterBlockSnapshot, RegisterMapVersion, RegisterOffset, StreamProtocolVersion
 from dau_core.stream import LogicalType, OperationCode, output_type_for
@@ -19,6 +19,10 @@ from dau_core.stream import LogicalType, OperationCode, output_type_for
 # manifest capability contract, not in registers)
 REGISTER_BITMAP_INPUT_TYPES = (LogicalType.INT32,)
 CAPABILITY_WORDS_REGISTER_MAP_VERSION = RegisterMapVersion(0, 2)
+# job capacity arrived in 0.3. A 0.2 shell does not decode those offsets, so
+# they are not read from one -- it reports no capacity and the host refuses
+# to batch rather than guessing at depths it cannot see.
+JOB_CAPACITY_REGISTER_MAP_VERSION = RegisterMapVersion(0, 3)
 # identity window candidates: shell base, then the stream-job contract window
 REGISTER_WINDOW_OFFSETS = (0x0, DEFAULT_STREAM_JOB_REGISTER_CONTRACT.register_window_offset)
 
@@ -33,6 +37,11 @@ def decode_platform_id(value: int) -> str:
 # all-ones on an identity offset means the shell does not decode it. MAGIC
 # reading correctly is what proves the path healthy; see check_bar_health.
 NOT_ADVERTISED_REGISTER_MAP_VERSION = RegisterMapVersion(0, 0)
+# A board that advertises no platform is UNKNOWN, not dpv1. Substituting a
+# default here reported a dead aperture -- all-ones on every word -- as a
+# working Artix, and the platform identity is what selects a part, prices a
+# design and picks constraints downstream.
+NOT_ADVERTISED_PLATFORM_ID = ""
 
 
 def decode_register_map_version(value: int) -> RegisterMapVersion:
@@ -126,17 +135,38 @@ def _capability_word(read_register: Callable[[RegisterOffset], int], offset: Reg
     return 0 if value == 0xFFFF_FFFF else value
 
 
+def _build_id(read_register: Callable[[RegisterOffset], int]) -> int:
+    """The shell's 64-bit build identity, as TWO 32-bit reads.
+
+    Deliberately not one 8-byte access: the XDMA user BAR can short-read
+    those. Low half at BUILD_ID_LOW, high at BUILD_ID_HIGH, matching the
+    identity block's split.
+
+    All-ones normalizes to 0 like every other capability word — a word
+    nobody decoded advertises nothing, and 0 is the reserved "not stamped"
+    value a consumer already has to handle for shells built before stamping
+    existed.
+    """
+    low = _capability_word(read_register, RegisterOffset.BUILD_ID_LOW)
+    high = _capability_word(read_register, RegisterOffset.BUILD_ID_HIGH)
+    return (high << 32) | low
+
+
 def _capability_words(read_register: Callable[[RegisterOffset], int], register_map_version: RegisterMapVersion) -> dict[str, int]:
     """The composed-capability words, read only from a shell that
     advertises them. Shared by every snapshot reader so the gate and the
     all-ones normalization cannot diverge between them."""
     if register_map_version < CAPABILITY_WORDS_REGISTER_MAP_VERSION:
         return {}
-    return {
+    words = {
         "lane_count": _capability_word(read_register, RegisterOffset.LANE_COUNT),
         "host_opcode_bitmap": _capability_word(read_register, RegisterOffset.HOST_OPCODE_BITMAP),
         "sort_capacity": _capability_word(read_register, RegisterOffset.SORT_CAPACITY),
     }
+    if register_map_version >= JOB_CAPACITY_REGISTER_MAP_VERSION:
+        words["input_row_capacity"] = _capability_word(read_register, RegisterOffset.INPUT_ROW_CAPACITY)
+        words["output_record_capacity"] = _capability_word(read_register, RegisterOffset.OUTPUT_RECORD_CAPACITY)
+    return words
 
 
 def read_register_block_snapshot(read_register: Callable[[RegisterOffset], int]) -> RegisterBlockSnapshot:
@@ -149,10 +179,11 @@ def read_register_block_snapshot(read_register: Callable[[RegisterOffset], int])
     return RegisterBlockSnapshot(
         register_map_version=register_map_version,
         stream_protocol_version=StreamProtocolVersion.from_u32(read_register(RegisterOffset.STREAM_PROTOCOL_VERSION)),
-        platform_id=decode_platform_id(read_register(RegisterOffset.PLATFORM_ID)) or DPV1_PLATFORM_ID,
+        platform_id=decode_platform_id(read_register(RegisterOffset.PLATFORM_ID)),
         # an all-ones operator word is a word nobody decoded, NOT a device
         # that implements every opcode. Read raw it advertises AVERAGE as
         # hardware, which this module states must never be submitted.
         operator_bitmap=_capability_word(read_register, RegisterOffset.OPERATOR_BITMAP),
+        build_id=_build_id(read_register),
         **capability_words,
     )
