@@ -90,6 +90,37 @@ The caller owns everything shell-specific: lane output addresses and static
 configuration are written before the run, and `collect` reads the results. Output
 regions are disjoint from input staging, so collection overlaps the next DMA.
 
+### `run_resident_scan`
+
+```python
+run_resident_scan(
+    device,
+    *,
+    address: int,
+    row_count: int,
+    row_bytes: int,
+    collect: Callable[[Any], Any],
+    repeats: int = 1,
+    timeout_seconds: float = 60.0,
+) -> list[Any]
+```
+
+Run the job over rows already on the device, uploading nothing. Per repeat the
+runner writes `INPUT_ADDRESS_LOW`/`HIGH` and `INPUT_LENGTH_LOW`, sets
+`JOB_CONTROL` to `START`, waits for DONE, and calls `collect`. Returns one
+`collect(device)` per repeat rather than one merged answer, so a caller can
+assert every run is bit-identical instead of trusting that a rerun of the same
+bytes must be.
+
+`row_count`, `row_bytes`, and `repeats` must be positive, and `address` must be
+on the `DMA_ALIGN_BYTES` grid — an unaligned region is a silent-wrong-bytes
+failure on silicon. All four raise `ValueError`.
+
+`address` is raw, and a raw address outlives the allocation it came from.
+`HandleTable.run_resident_scan` is this same run with a generation-checked
+handle in its place; see
+[the handle table](Device-and-Discovery#handle-table).
+
 ### `key_partitioned_scan_batches`
 
 ```python
@@ -254,6 +285,7 @@ cannot make them read one bitstream differently.
 | `start_bar_ddr_job(device, row_count, *, staging, input_address=None, output_address=None)` | Program the addresses and length, then start.                                                                                 |
 | `finish_bar_ddr_job(device, *, staging, output_address=None, timeout_seconds=60.0)`         | Wait and read back. Returns `(raw record bytes, count)`; decoding stays with the caller so hosts can use vectorized decoders. |
 | `execute_bar_ddr_packed(device, payload, row_count, *, staging, timeout_seconds=60.0)`      | Stage, start, finish.                                                                                                         |
+| `execute_bar_ddr_job(device, rows, *, staging, timeout_seconds=60.0)`                       | The tuple-row convenience wrapper: pack, run, and decode the records.                                                         |
 | `bar_ddr_max_rows_per_job(staging)`                                                         | The row budget the given staging layout supports.                                                                             |
 
 Constants: `BAR_ROW_BYTES = 16`, `BAR_RECORD_BYTES = 48`. Both are wire shapes.
@@ -267,11 +299,6 @@ applied to another.
 Rows per job are bounded by the worst case of one record per row, so an output
 overrun is impossible by construction. Staging addresses must meet the layout's
 declared alignment or `PipelineJobError` is raised.
-
-> `execute_bar_ddr_job(device, rows, *, timeout_seconds=60.0)`, the tuple-row
-> convenience wrapper, does not forward `staging` to `execute_bar_ddr_packed`
-> and currently raises `TypeError`. Call `execute_bar_ddr_packed` with
-> `pack_bar_rows(rows)` and an explicit `staging` instead.
 
 ### Broadcast-NoC bar shell
 

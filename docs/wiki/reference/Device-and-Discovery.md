@@ -233,9 +233,54 @@ or lying outside the tier.
 Every operation trusts the allocator's live record, never the handle's own copy
 of `base` or `capacity`.
 
+### Handle table
+
+```python
+HandleTable(device, allocator: StorageAllocator, *, capacity: int)
+```
+
+One allocator's slots mirrored into one device's handle table, so a job can name
+`(id, generation)` where it would otherwise name an address. `capacity` is the
+built shell's `handle_table_capacity`: a table is hardware, planned into the
+design and priced with it, and no register advertises it, so it is passed in
+rather than discovered. A non-positive capacity raises `ValueError`.
+
+| Method                                                                                         | Behaviour                                                                                                                                                                                                                              |
+| ---------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `install(handle)`                                                                              | Program the handle's grant into slot `handle.id` from the allocator's **live** record. Raises `StaleHandleError` when the allocator will not resolve it, `HandleTableError` for a slot past `capacity` or a base off the 64-byte grid. |
+| `free(handle)`                                                                                 | Drop the slot out of liveness. Unconditional on the allocator — freeing can only make the table refuse more, so it is safe whether or not the host has released the span yet.                                                          |
+| `arm(handle)`                                                                                  | Name the handle the next job resolves, in place of an input address.                                                                                                                                                                   |
+| `run_resident_scan(handle, *, row_count, row_bytes, collect, repeats=1, timeout_seconds=60.0)` | `scan_execution.run_resident_scan` with the raw address replaced by the handle: arm once, then run the job `repeats` times. Returns one `collect(device)` per repeat.                                                                  |
+
+Two authorities, deliberately different. `install` trusts the host — the live
+record is what a slot is programmed from, and a handle the host no longer
+believes in must never become a grant the device does. `arm` trusts nothing: a
+stale handle has to reach the device, or the table is never the thing that
+refused it.
+
+### `HandleFaultError`
+
+The shell refused to start the job on the handle it was armed with. A
+`PipelineJobError`, so a caller catching every job failure still catches it,
+with its own type because the whole value of the table is that this case is
+distinguishable: the job did not run, nothing was read, nothing was written, and
+no result register moved. Results for repeats that did run are dropped with it.
+
+`code` is a `dau_core.registers.HandleFaultCode`:
+
+| Code            | Meaning                                                                                     |
+| --------------- | ------------------------------------------------------------------------------------------- |
+| `BAD_ID`        | The table has no such slot; capacity is planned at build time, not grown at run time.       |
+| `STALE`         | The slot is freed, or live at another generation — that region belongs to someone else now. |
+| `OUT_OF_BOUNDS` | The job asks for more bytes than the grant.                                                 |
+
+A code outside that set came from the datapath, and the datapath ran; it is
+raised as a plain `PipelineJobError`.
+
 ### Errors
 
-`StaleHandleError(RuntimeError)`, `StorageExhaustedError(RuntimeError)`.
+`StaleHandleError(RuntimeError)`, `StorageExhaustedError(RuntimeError)`,
+`HandleTableError(DauDriverError)`, `HandleFaultError(PipelineJobError)`.
 
 ## Native extension
 
