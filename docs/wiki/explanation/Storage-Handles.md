@@ -47,12 +47,12 @@ The allocator could simply never reuse an id: a monotonic counter, no recycling,
 and the generation becomes unnecessary. That would be simpler, and it is the wrong
 shape.
 
-The reason is what this allocator is a rehearsal for. A hardware allocator tile
-would maintain a handle table with a fixed number of slots, because that is what
+The reason is what this allocator was a rehearsal for, and the rehearsal is
+over. The shell's handle table has a fixed number of slots, because that is what
 fits in BRAM. Slots get reused; the generation is exactly what makes reuse safe.
-Keeping the software allocator on the same discipline keeps the seam honest — the
-API does not change when the table moves into hardware, and a caller that works
-against this allocator will work against that one.
+Keeping the software allocator on the same discipline is what let the API
+survive the table arriving in hardware — `HandleTable` programs a slot straight
+from the allocator's live record, and nothing above it changed.
 
 The general principle: the dumb half of a lifecycle should be shaped like the half
 that will eventually replace it, not like whatever is easiest in the language you
@@ -71,6 +71,24 @@ construction, so nothing can be allocated on top of them. A reserved region
 outside the tier, or with a non-positive size, raises immediately — a wrong
 memory map fails at construction rather than by handing out an address inside a
 lane's output window and corrupting a result three jobs later.
+
+## Why the device has to be the one that refuses
+
+A host-side check is enough right up until the device reads on its own. A job
+over rows already resident on the device names the region it should read, and a
+raw address survives its allocation: free the region, hand the space to someone
+else, and the old address still reads perfectly. It just reads the new tenant's
+bytes, and no layer above can tell that from an answer.
+
+`HandleTable` closes that by programming the grant into a slot and letting the
+job name `(id, generation)` instead of an address. A resolution the table
+disagrees with refuses the job — the reader never issues a beat — and the
+refusal arrives on the host as `HandleFaultError`, never as results, so a caller
+cannot mistake it for a job that ran and summed nothing.
+
+It is also why `arm` validates nothing. The stale handle has to reach the
+device, or the table is never what refused it, and the refusal is a host-side
+assertion wearing hardware's name.
 
 ## What it deliberately is not
 

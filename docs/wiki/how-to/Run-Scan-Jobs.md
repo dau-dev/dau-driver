@@ -116,6 +116,55 @@ Because each key lands in exactly one batch, combining the per-batch group recor
 is a plain concatenation. If your batches came from somewhere else, use
 `dau_core.operators.merge_hash_grouped` for the general additive merge instead.
 
+## Query rows that are already on the device
+
+When the device already holds the data — a resident table queried many times —
+re-staging every batch is the wrong shape. The feed is the larger term of the
+device path, so lift the DMA out of the loop:
+
+```python
+from dau_driver.scan_execution import run_resident_scan
+
+results = run_resident_scan(
+    device,
+    address=0x0000_0000,
+    row_count=1024,
+    row_bytes=8,
+    collect=collect_results,
+    repeats=3,
+)
+```
+
+Nothing is staged. Each repeat programs the address and length, starts the job,
+waits, and calls `collect`, so you get one result per repeat rather than one
+merged answer — enough to assert that a rerun is bit-identical instead of
+assuming it.
+
+The address must be on the 64-byte DMA grid, and it is raw: it outlives the
+allocation it came from. To name a grant instead, bind the allocator to the
+shell's handle table and run through that:
+
+```python
+from dau_driver.handle_table import HandleFaultError, HandleTable
+
+table = HandleTable(device, allocator, capacity=4)
+table.install(handle)
+
+try:
+    results = table.run_resident_scan(handle, row_count=1024, row_bytes=8, collect=collect_results)
+except HandleFaultError as exc:
+    print(exc.code, "- the job did not run")
+```
+
+`install` programs the grant from the allocator's live record, and `capacity` is
+the number of slots the shell was built with. The job then names
+`(id, generation)`: a resolution the device disagrees with refuses the job
+before the reader issues a beat, and that refusal reaches you as
+`HandleFaultError` rather than as results.
+
+Call `table.free(handle)` when the region is released, so nothing resolves
+through the slot until it is installed again.
+
 ## Spread batches across several devices
 
 ```python
