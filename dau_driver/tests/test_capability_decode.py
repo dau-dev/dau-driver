@@ -65,7 +65,7 @@ def test_operators_from_contract_uses_per_tile_truth_not_expansion() -> None:
         name="mixed",
         lanes=(
             LaneCapability(tile=tile_capability("int32-record-batch-aggregation")),
-            LaneCapability(tile=tile_capability("int32-bitonic-sorter")),
+            LaneCapability(tile=tile_capability("bitonic-sorter")),
         ),
     )
     operators, host_operators = operators_from_contract(contract)
