@@ -64,7 +64,7 @@ def test_operators_from_contract_uses_per_tile_truth_not_expansion() -> None:
     contract = CapabilityContract(
         name="mixed",
         lanes=(
-            LaneCapability(tile=tile_capability("int32-record-batch-aggregation")),
+            LaneCapability(tile=tile_capability("record-batch-aggregation")),
             LaneCapability(tile=tile_capability("bitonic-sorter")),
         ),
     )
@@ -74,12 +74,12 @@ def test_operators_from_contract_uses_per_tile_truth_not_expansion() -> None:
     assert [operator.opcode for operator in host_operators] == [OperationCode.AVERAGE]
     assert host_operators[0].output_type == LogicalType.FLOAT64
 
-    bar_only = CapabilityContract(name="bar", lanes=(LaneCapability(tile=tile_capability("int32-bar-aggregation")),))
+    bar_only = CapabilityContract(name="bar", lanes=(LaneCapability(tile=tile_capability("bar-aggregation")),))
     assert operators_from_contract(bar_only) == ((), ())
 
 
 def test_contract_from_manifest_metadata_round_trips() -> None:
-    contract = CapabilityContract(name="record-batch", lanes=(LaneCapability(tile=tile_capability("int32-record-batch-aggregation")),))
+    contract = CapabilityContract(name="record-batch", lanes=(LaneCapability(tile=tile_capability("record-batch-aggregation")),))
     metadata = {"capability_contract": json.dumps(contract.to_mapping(), sort_keys=True, separators=(",", ":"))}
     assert contract_from_manifest_metadata(metadata) == contract
     assert contract_from_manifest_metadata({}) is None
