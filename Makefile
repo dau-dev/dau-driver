@@ -86,6 +86,7 @@ coverage-py:  ## run python tests and collect test coverage
 
 .PHONY: test coverage tests
 test: test-py  ## run all tests
+
 coverage: coverage-py  ## run all tests and collect test coverage
 
 # alias
