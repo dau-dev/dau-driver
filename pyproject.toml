@@ -82,17 +82,27 @@ search = 'version = "{current_version}"'
 replace = 'version = "{new_version}"'
 
 [tool.cibuildwheel]
+<<<<<<< before updating
 build = "cp312-*"
 test-command = "echo 'TODO'"
+=======
+build = "cp312-* cp313-*"
+test-command = "pytest -vvv {project}/dau_driver/tests"
+>>>>>>> after updating
 test-extras = "develop"
 
 [tool.cibuildwheel.linux]
+manylinux-aarch64-image = "manylinux_2_28"
 manylinux-x86_64-image = "manylinux_2_28"
+<<<<<<< before updating
 skip = "*i686 musllinux*"
 # the container has no host git credentials; the test phase installs the
 # [develop] extra whose private deps clone from GitHub
 before-test = "sh -c 'if [ -n \"$GIT_AUTH_TOKEN\" ]; then git config --global url.\"https://x-access-token:$GIT_AUTH_TOKEN@github.com/dau-dev/\".insteadOf \"https://github.com/dau-dev/\"; fi'"
 environment-pass = ["GIT_AUTH_TOKEN"]
+=======
+skip = "*i686* *musllinux*"
+>>>>>>> after updating
 
 [tool.cibuildwheel.macos]
 environment = {MACOSX_DEPLOYMENT_TARGET="11.0"}
