@@ -9,7 +9,12 @@ from pathlib import Path
 
 
 def _add_repo_packages_to_path() -> None:
-    repo_root = Path(__file__).resolve().parents[3]
+    # sibling checkouts only exist in a development tree; a shallow checkout
+    # (the /project mount inside the wheel build container) has no such parent
+    parents = Path(__file__).resolve().parents
+    if len(parents) <= 3:
+        return
+    repo_root = parents[3]
     for package_dir in (repo_root / "dau-core", repo_root / "dau-driver"):
         if package_dir.exists():
             sys.path.insert(0, str(package_dir))
