@@ -190,6 +190,34 @@ def test_build_id_catches_what_the_capability_words_cannot() -> None:
     assert mismatch is not None and "build_id" in mismatch
 
 
+def test_a_board_built_under_a_superseded_palette_still_verifies(tmp_path: Path) -> None:
+    """Verification is registry-INDEPENDENT, and it has to stay that way.
+
+    A design flashed before a tile rename records a manifest naming tiles
+    the palette no longer carries, under a superseded canonical-form
+    version. The design cache refuses such an entry — it cannot re-express
+    that spec as one it could build today — but this check asks a different
+    question: is the board running the design THIS manifest describes. Both
+    sides of that comparison are recorded facts, so the answer does not
+    depend on which names the registry happens to carry now, and a resident
+    board must not become unidentifiable because the vocabulary moved on.
+
+    The manifest is a build's immutable record. Reading it here needs no
+    palette and must never acquire one.
+    """
+    from dau_driver.verify_advertisement import build_id_mismatch
+
+    pre_rename = {**_CONTRACT, "lanes": [{"tile": {"core": "int32-field-sum-aggregation", "module": "dau_int32_field_sum_aggregation"}}]}
+    contract, spec_hash = contract_from_manifest_path(_manifest(tmp_path, pre_rename), with_spec_hash=True)
+    assert contract["lanes"][0]["tile"]["core"] == "int32-field-sum-aggregation"  # read back verbatim
+    assert advertisement_mismatches(_stamped(0x1234), contract) == ()
+    assert spec_hash is None  # this fixture records none; the words are all there is
+
+    from dau_core.composition import build_id_from_spec_hash
+
+    assert build_id_mismatch(_stamped(build_id_from_spec_hash(_SPEC_HASH)), _SPEC_HASH) is None
+
+
 def test_an_unstamped_shell_does_not_fail_the_exact_check() -> None:
     """Every shell built before stamping existed advertises 0. That is a
     weaker verification, not a failing one -- main() says so on stderr."""
