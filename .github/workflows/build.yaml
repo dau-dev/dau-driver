@@ -64,7 +64,7 @@ jobs:
           version: ${{ matrix.python.version }}
 
       - name: Setup C++
-        uses: actions-ext/cpp/setup@c2b1e90366b3a1c628a1df0748135f5e345ab26f
+        uses: actions-ext/cpp/setup@22ebafc6f57971978e964f9977333ac98a7c49d9
 
       - name: Authenticate git for private dau dependencies
         run: git config --global url."https://x-access-token:${{ secrets.WORKFLOW_TOKEN }}@github.com/dau-dev/".insteadOf "https://github.com/dau-dev/"
