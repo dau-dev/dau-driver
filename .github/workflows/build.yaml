@@ -65,9 +65,12 @@ jobs:
 
       - name: Setup C++
         uses: actions-ext/cpp/setup@22ebafc6f57971978e964f9977333ac98a7c49d9
+<<<<<<< before updating
 
       - name: Authenticate git for private dau dependencies
         run: git config --global url."https://x-access-token:${{ secrets.WORKFLOW_TOKEN }}@github.com/dau-dev/".insteadOf "https://github.com/dau-dev/"
+=======
+>>>>>>> after updating
 
       - name: Install dependencies
         run: make develop
