@@ -35,18 +35,11 @@ jobs:
             os: ubuntu-24.04
           - name: ubuntu-24.04-arm
             os: ubuntu-24.04-arm
-<<<<<<< before updating
-          - name: macos-latest
-            os: macos-latest
-          # no Windows XDMA backend; the driver targets Linux and macOS only
-          # - name: windows-latest
-          #   os: windows-latest
-=======
           - name: macos-26
             os: macos-26
-          - name: windows-2025
-            os: windows-2025
->>>>>>> after updating
+          # no Windows XDMA backend; the driver targets Linux and macOS only
+          # - name: windows-2025
+          #   os: windows-2025
         python:
           - version: "3.12"
             cibuildwheel: "cp312"
@@ -57,7 +50,6 @@ jobs:
         include:
           - target: native
             dist_path: dist
-
 
     steps:
       - name: Checkout
@@ -129,12 +121,8 @@ jobs:
           CIBW_BUILD: "${{ matrix.python.cibuildwheel }}-manylinux*"
           CIBW_ARCHS_LINUX: native
           CIBW_BUILD_VERBOSITY: 3
-<<<<<<< before updating
           GIT_AUTH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
-        if: matrix.platform.name == 'ubuntu-latest'
-=======
         if: matrix.platform.name == 'ubuntu-24.04'
->>>>>>> after updating
 
       - name: Build distributions (Linux ARM64)
         run: |
@@ -155,12 +143,8 @@ jobs:
         env:
           CIBW_BUILD: "${{ matrix.python.cibuildwheel }}-macos*"
           CIBW_BUILD_VERBOSITY: 3
-<<<<<<< before updating
           GIT_AUTH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
-        if: matrix.platform.name == 'macos-latest'
-=======
         if: matrix.platform.name == 'macos-26'
->>>>>>> after updating
 
       - name: Build distributions (Windows)
         run: |
