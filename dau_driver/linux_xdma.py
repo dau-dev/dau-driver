@@ -11,6 +11,7 @@ from .device import DauDevice, read_u32
 from .errors import RegisterAccessError, UnhealthyBarError, WrongBitstreamError
 
 DEFAULT_DEV_ROOT = Path("/dev")
+DEFAULT_SYSFS_PCI_ROOT = Path("/sys/bus/pci/devices")
 DEFAULT_BACKEND = "linux-xdma"
 DEFAULT_DMA_CONSTRAINTS = DmaConstraints(
     alignment_bytes=64,
@@ -110,6 +111,25 @@ def _read_register(user_path: Path, register_window_offset: int, offset: Registe
 
 def _read_register_block_snapshot(user_path: Path, register_window_offset: int) -> RegisterBlockSnapshot:
     return read_register_block_snapshot(lambda offset: _read_register(user_path, register_window_offset, offset))
+
+
+def endpoint_for_devnode(user_path: Path, *, sysfs_root: Path | None = None) -> str | None:
+    """The PCI endpoint (``0000:04:00.0``) whose xdma instance owns this
+    ``_user`` devnode, or None when sysfs does not say.
+
+    The inverse of ``verify_advertisement.device_name_for_endpoint``, over
+    the same layout: the devnodes hang off the PCI device in sysfs as
+    ``<bdf>/xdma/<node>``. None rather than a raise on a missing sysfs, an
+    unowned node or (never seen, but not guessed at) two owners, so the
+    caller can fall back to a weaker name and say so.
+    """
+    root = DEFAULT_SYSFS_PCI_ROOT if sysfs_root is None else sysfs_root
+    if not root.is_dir():
+        return None
+    owners = sorted(entry.name for entry in root.iterdir() if (entry / "xdma" / user_path.name).exists())
+    if len(owners) != 1:
+        return None
+    return owners[0]
 
 
 def _channel_paths(user_path: Path) -> tuple[Path, Path]:
