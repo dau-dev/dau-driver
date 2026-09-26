@@ -24,6 +24,7 @@ from dau_core.registers import (
 
 from dau_driver.handle_table import HandleFaultError, HandleTable, HandleTableError
 from dau_driver.pipeline_execution import PipelineJobError
+from dau_driver.scan_execution import ScanBatch
 from dau_driver.storage import StaleHandleError, StorageAllocator
 from dau_driver.testing import FakeTransport, fake_device
 
@@ -313,3 +314,166 @@ def test_a_capacity_of_zero_is_not_a_table(tmp_path) -> None:
     _, allocator, transport = _table(tmp_path)
     with pytest.raises(ValueError, match="capacity must be positive"):
         HandleTable(fake_device(tmp_path, transport), allocator, capacity=0)
+
+
+class OverlappingHandleTransport(HandleTableTransport):
+    """JOB_STATUS reports DONE only once the NEXT batch's H2C write has
+    landed (the last job completes unconditionally), as the raw-address
+    runner's test does: a runner that staged only after the job finished
+    would time out here, so a green run proves the two grants ping-pong."""
+
+    def __init__(self, total_batches: int) -> None:
+        super().__init__()
+        self.total = total_batches
+        # set by a test whose staging fails: the running job then finishes
+        # on its own, as a real one would, and the runner's drain sees it
+        self.finish_current = False
+        self.status_polls = 0
+
+    def read_u32(self, offset: int) -> int:
+        if offset == int(RegisterOffset.JOB_STATUS):
+            self.status_polls += 1
+            if self.registers.get(int(RegisterOffset.LAST_ERROR)):
+                return int(JobStatusFlag.DONE) | int(JobStatusFlag.ERROR)
+            required = min(len(self.runs) + 1, self.total)
+            return int(JobStatusFlag.DONE) if self.finish_current or len(self.h2c_writes) >= required else 0
+        return super().read_u32(offset)
+
+
+def _batches(rows_per_batch, row_bytes=ROW_BYTES):
+    return [ScanBatch(payload=bytes(rows * row_bytes), row_count=rows) for rows in rows_per_batch]
+
+
+def _pair(table, allocator, grant_rows=64):
+    first, second = allocator.allocate(grant_rows * ROW_BYTES), allocator.allocate(grant_rows * ROW_BYTES)
+    table.install(first)
+    table.install(second)
+    return first, second
+
+
+def test_batches_ping_pong_between_two_grants_and_overlap_staging(tmp_path) -> None:
+    """Each batch is staged into its grant's region through the allocator,
+    the job names that grant (never an address), the next batch lands while
+    the job runs, and the results come back in batch order."""
+    table, allocator, transport = _table(tmp_path, OverlappingHandleTransport(total_batches=3))
+    first, second = _pair(table, allocator)
+    armed = []
+
+    def collect(_device):
+        armed.append(transport.registers[int(HandleTableRegisterOffset.JOB_HANDLE_ID)])
+        return len(armed) - 1
+
+    results = table.run_scan_batches(_batches([8, 16, 8]), (first, second), row_bytes=ROW_BYTES, collect=collect, timeout_seconds=5.0)
+
+    assert results == [0, 1, 2]
+    assert [address for address, _ in transport.h2c_writes] == [first.base, second.base, first.base]
+    assert transport.runs == [(first.base, 64), (second.base, 128), (first.base, 64)]
+    assert armed == [first.id, second.id, first.id]
+    assert int(RegisterOffset.INPUT_ADDRESS_LOW) not in transport.registers, "a handle job never names an address"
+
+
+def test_a_lazy_batch_iterator_is_consumed_one_ahead(tmp_path) -> None:
+    table, allocator, transport = _table(tmp_path, OverlappingHandleTransport(total_batches=2))
+    first, second = _pair(table, allocator)
+    produced = []
+
+    def lazy():
+        for rows in (8, 24):
+            produced.append(rows)
+            yield ScanBatch(payload=bytes(rows * ROW_BYTES), row_count=rows)
+
+    results = table.run_scan_batches(lazy(), (first, second), row_bytes=ROW_BYTES, collect=lambda _d: transport.runs[-1][1], timeout_seconds=5.0)
+    assert results == [64, 192] and produced == [8, 24]
+
+
+@pytest.mark.parametrize(
+    ("batches", "message"),
+    [
+        (_batches([3]), "DMA grid"),
+        ([ScanBatch(payload=bytes(8 * ROW_BYTES - 1), row_count=8)], "not row_count"),
+        ([ScanBatch(payload=b"", row_count=0)], "zero rows"),
+    ],
+)
+def test_a_batch_the_shell_would_refuse_is_refused_before_it_moves(tmp_path, batches, message) -> None:
+    table, allocator, transport = _table(tmp_path)
+    first, second = _pair(table, allocator)
+    with pytest.raises(ValueError, match=message):
+        table.run_scan_batches(batches, (first, second), row_bytes=ROW_BYTES, collect=lambda _d: None, timeout_seconds=5.0)
+    assert transport.h2c_writes == [] and transport.runs == []
+
+
+def test_one_grant_is_not_a_pair(tmp_path) -> None:
+    table, allocator, _ = _table(tmp_path)
+    handle = allocator.allocate(64)
+    with pytest.raises(ValueError, match="two slots"):
+        table.run_scan_batches(_batches([8]), (handle, handle), row_bytes=ROW_BYTES, collect=lambda _d: None)
+
+
+def test_a_batch_past_its_grant_is_refused_by_the_allocator_before_the_dma(tmp_path) -> None:
+    table, allocator, transport = _table(tmp_path)
+    first, second = _pair(table, allocator, grant_rows=8)
+    with pytest.raises(ValueError, match="exceeds the handle"):
+        table.run_scan_batches(_batches([16]), (first, second), row_bytes=ROW_BYTES, collect=lambda _d: None, timeout_seconds=5.0)
+    assert transport.h2c_writes == []
+
+
+def test_a_grant_released_mid_stream_stops_the_stream(tmp_path) -> None:
+    """The host frees the second grant while the first job runs. Staging
+    into it goes through the allocator, which no longer resolves the handle,
+    and the failure surfaces from the running job's wait rather than after a
+    timeout -- with nothing collected for the batches that did run."""
+    table, allocator, transport = _table(tmp_path, OverlappingHandleTransport(total_batches=3))
+    first, second = _pair(table, allocator)
+
+    def lazy():
+        yield ScanBatch(payload=bytes(8 * ROW_BYTES), row_count=8)
+        allocator.free(second)
+        transport.finish_current = True
+        yield ScanBatch(payload=bytes(8 * ROW_BYTES), row_count=8)
+        yield ScanBatch(payload=bytes(8 * ROW_BYTES), row_count=8)
+
+    with pytest.raises(StaleHandleError):
+        table.run_scan_batches(lazy(), (first, second), row_bytes=ROW_BYTES, collect=lambda _d: None, timeout_seconds=5.0)
+    assert [address for address, _ in transport.h2c_writes] == [first.base], "the freed grant received no bytes"
+
+
+def test_a_staging_failure_waits_for_the_running_job_before_it_escapes(tmp_path) -> None:
+    """The failure is raised from the running job's poll, but only once
+    that job is DONE: the caller frees the grants on the way out, and a job
+    still reading one would then read the next tenant's bytes."""
+    table, allocator, transport = _table(tmp_path, OverlappingHandleTransport(total_batches=2))
+    first, second = _pair(table, allocator)
+    polls_at_failure = []
+
+    def lazy():
+        yield ScanBatch(payload=bytes(8 * ROW_BYTES), row_count=8)
+        polls_at_failure.append(transport.status_polls)
+        # the job is NOT done yet; the fake finishes it only after a few polls
+        raise RuntimeError("encoder failed")
+
+    original = transport.read_u32
+
+    def finish_after_three_polls(offset):
+        if offset == int(RegisterOffset.JOB_STATUS) and polls_at_failure and transport.status_polls >= polls_at_failure[0] + 3:
+            transport.finish_current = True
+        return original(offset)
+
+    transport.read_u32 = finish_after_three_polls
+    with pytest.raises(RuntimeError, match="encoder failed"):
+        table.run_scan_batches(lazy(), (first, second), row_bytes=ROW_BYTES, collect=lambda _d: None, timeout_seconds=5.0)
+    assert transport.finish_current, "the runner kept polling until the job finished"
+    assert transport.status_polls >= polls_at_failure[0] + 3
+
+
+def test_a_slot_freed_on_the_device_refuses_its_batch(tmp_path) -> None:
+    """The device side of the same story: the slot is freed on the table but
+    the host still holds the handle, so the bytes land (the allocator still
+    believes in the grant) and the JOB is refused, as HandleFaultError."""
+    table, allocator, transport = _table(tmp_path)
+    first, second = _pair(table, allocator)
+    table.free(second)
+
+    with pytest.raises(HandleFaultError) as raised:
+        table.run_scan_batches(_batches([8, 8, 8]), (first, second), row_bytes=ROW_BYTES, collect=lambda _d: None, timeout_seconds=5.0)
+    assert raised.value.code is HandleFaultCode.STALE
+    assert transport.runs == [(first.base, 64)], "the first batch ran; the second was refused, not read"
