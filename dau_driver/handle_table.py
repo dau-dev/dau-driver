@@ -26,6 +26,7 @@ TWO AUTHORITIES, deliberately different:
 
 from __future__ import annotations
 
+import time
 from collections.abc import Callable, Iterable
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any
@@ -45,6 +46,14 @@ from .scan_execution import ScanBatch
 from .storage import StorageAllocator, StorageHandle
 
 __all__ = ["HandleFaultError", "HandleTable", "HandleTableError"]
+
+
+def _yielding(seconds: float | None) -> Callable[[], None] | None:
+    """The poll callback that sleeps ``seconds`` between status reads, or
+    None for the spinning default."""
+    if seconds is None:
+        return None
+    return lambda: time.sleep(seconds)
 
 
 class HandleTableError(DauDriverError):
@@ -160,10 +169,17 @@ class HandleTable:
         collect,
         repeats: int = 1,
         timeout_seconds: float = 60.0,
+        poll_yield_seconds: float | None = None,
     ) -> list:
         """:func:`~dau_driver.scan_execution.run_resident_scan` with the raw
         address replaced by a handle: arm once, then run the job ``repeats``
         times over rows already on the device, uploading nothing.
+
+        ``poll_yield_seconds`` sleeps that long between JOB_STATUS polls
+        instead of spinning: a spinning poll holds a core the host arm of a
+        split is using, and on a 16-thread host that inflated a device leg
+        by 2x while polars ran beside it (dpv1, 2026-09-27). The price is
+        up to one yield of extra latency on the DONE edge.
 
         Returns one ``collect(device)`` per repeat. Raises
         :class:`HandleFaultError` the moment the shell refuses -- results for
@@ -191,7 +207,7 @@ class HandleTable:
             self.device.write_register(RegisterOffset.JOB_CONTROL, int(JobControlFlag.START))
             label = f"handle scan job {index}"
             try:
-                _wait_for_job_done(self.device, timeout_seconds=timeout_seconds, label=label)
+                _wait_for_job_done(self.device, timeout_seconds=timeout_seconds, label=label, poll=_yielding(poll_yield_seconds))
             except PipelineJobError as exc:
                 if exc.last_error in _FAULT_REASONS:
                     raise HandleFaultError(exc.last_error, handle_id=handle.id, generation=handle.generation, label=label) from exc
@@ -208,6 +224,7 @@ class HandleTable:
         collect: Callable[[Any], Any],
         timeout_seconds: float = 60.0,
         progress: Callable[[int], None] | None = None,
+        poll_yield_seconds: float | None = None,
     ) -> list[Any]:
         """:func:`~dau_driver.scan_execution.run_scan_batches` with the two
         raw input regions replaced by two installed handles: batch ``i + 1``
@@ -270,6 +287,8 @@ class HandleTable:
                     failure = future.exception() if future.done() else None
                     if failure is not None:
                         raise failure
+                    if poll_yield_seconds is not None:
+                        time.sleep(poll_yield_seconds)
 
                 label = f"handle scan job {index}"
                 try:
