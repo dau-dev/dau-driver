@@ -176,10 +176,12 @@ class HandleTable:
         times over rows already on the device, uploading nothing.
 
         ``poll_yield_seconds`` sleeps that long between JOB_STATUS polls
-        instead of spinning: a spinning poll holds a core the host arm of a
-        split is using, and on a 16-thread host that inflated a device leg
-        by 2x while polars ran beside it (dpv1, 2026-09-27). The price is
-        up to one yield of extra latency on the DONE edge.
+        instead of spinning. Measured on dpv1 (2026-09-27) it is the wrong
+        default for a Python caller: any sleep, ``0`` included, hands the
+        GIL to another thread and the poll waits out a full switch interval
+        per iteration, about 5 ms a job; the contention it was meant to
+        relieve was elsewhere. It stays for a caller whose other threads do
+        not hold the GIL.
 
         Returns one ``collect(device)`` per repeat. Raises
         :class:`HandleFaultError` the moment the shell refuses -- results for
