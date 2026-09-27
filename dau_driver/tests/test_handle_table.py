@@ -477,3 +477,36 @@ def test_a_slot_freed_on_the_device_refuses_its_batch(tmp_path) -> None:
         table.run_scan_batches(_batches([8, 8, 8]), (first, second), row_bytes=ROW_BYTES, collect=lambda _d: None, timeout_seconds=5.0)
     assert raised.value.code is HandleFaultCode.STALE
     assert transport.runs == [(first.base, 64)], "the first batch ran; the second was refused, not read"
+
+
+def test_a_yielding_poll_sleeps_between_status_reads_instead_of_spinning(tmp_path, monkeypatch) -> None:
+    """A spinning poll holds a core the host arm of a split is using; with
+    ``poll_yield_seconds`` the runner sleeps between JOB_STATUS reads. Both
+    runners take it; the fake finishes the job after a few polls so the
+    sleeps are counted, not just possible."""
+    import dau_driver.handle_table as module
+
+    naps: list[float] = []
+    monkeypatch.setattr(module.time, "sleep", lambda seconds: naps.append(seconds))
+    transport = OverlappingHandleTransport(total_batches=1)
+    table, allocator, transport = _table(tmp_path, transport)
+    handle = allocator.allocate(ROWS * ROW_BYTES)
+    table.install(handle)
+    original = transport.read_u32
+
+    def finish_after_three_polls(offset):
+        if offset == int(RegisterOffset.JOB_STATUS) and transport.status_polls >= 3:
+            transport.finish_current = True
+        return original(offset)
+
+    transport.read_u32 = finish_after_three_polls
+    assert table.run_resident_scan(handle, row_count=ROWS, row_bytes=ROW_BYTES, collect=lambda _d: "ok", poll_yield_seconds=0.0002) == ["ok"]
+    assert naps and set(naps) == {0.0002}
+    naps.clear()
+    transport.finish_current = False
+    transport.status_polls = 0
+    first, second = _pair(table, allocator)
+    table.run_scan_batches(
+        _batches([8]), (first, second), row_bytes=ROW_BYTES, collect=lambda _d: None, timeout_seconds=5.0, poll_yield_seconds=0.0005
+    )
+    assert naps and set(naps) == {0.0005}
