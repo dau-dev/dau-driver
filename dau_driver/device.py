@@ -47,6 +47,24 @@ class PathDeviceTransport:
 
 
 @dataclass(frozen=True)
+class DeviceIdentity:
+    """What a device is called for keying purposes, and how stable that is.
+
+    ``kind`` is ``"bdf"`` when the value is the PCI endpoint the board sits
+    at (``0000:04:00.0``), which survives a reboot and tells two boards of
+    one platform apart; it is ``"node"`` when only the driver's devnode name
+    (``xdma0``) could be given, which a reboot can renumber. Callers that
+    persist anything keyed by this should read ``kind`` before trusting it.
+    """
+
+    kind: str
+    value: str
+
+    def __str__(self) -> str:
+        return f"{self.kind}:{self.value}"
+
+
+@dataclass(frozen=True)
 class DauDevice:
     name: str
     backend: str
@@ -62,6 +80,24 @@ class DauDevice:
     # fact, and inventing a default would either refuse valid addresses or
     # give false confidence.
     memory_bytes: int | None = None
+
+    @property
+    def identity(self) -> DeviceIdentity:
+        """The most stable name this backend can give the device.
+
+        On ``linux-xdma`` that is the PCI endpoint (BDF) sysfs says owns the
+        ``_user`` devnode, resolved through the node itself -- so a device
+        whose node is not present (a test fake) or whose backend has no
+        sysfs to ask (``macos-xdma`` reports no location) falls back to the
+        devnode name, and says so through ``kind``. Never raises.
+        """
+        if self.backend == "linux-xdma" and self.user_path.exists():
+            from .linux_xdma import endpoint_for_devnode
+
+            bdf = endpoint_for_devnode(self.user_path)
+            if bdf is not None:
+                return DeviceIdentity("bdf", bdf)
+        return DeviceIdentity("node", self.name)
 
     @property
     def resolved_transport(self) -> DeviceTransport:

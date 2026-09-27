@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import dataclasses
 import struct
 from dataclasses import dataclass
 from pathlib import Path
@@ -297,6 +298,54 @@ def test_device_validates_dma_transfer_shape_before_real_xdma_io(tmp_path: Path)
 
     with pytest.raises(TransferValidationError, match="max_transfer_bytes"):
         device.prepare_transfer(DmaDirection.C2H, device_address=0x1000, byte_count=device.capabilities.dma.max_transfer_bytes + 64)
+
+
+def _sysfs_owner(root: Path, bdf: str, node: str) -> None:
+    xdma = root / bdf / "xdma"
+    xdma.mkdir(parents=True)
+    (xdma / node).touch()
+
+
+def test_a_fake_device_is_identified_by_its_node_and_says_so(tmp_path: Path) -> None:
+    from dau_driver import DeviceIdentity
+    from dau_driver.testing import FakeTransport, fake_device
+
+    identity = fake_device(tmp_path, FakeTransport()).identity
+
+    assert identity == DeviceIdentity("node", "xdma0")
+    assert str(identity) == "node:xdma0"
+
+
+def test_endpoint_for_devnode_reads_the_owning_pci_device_from_sysfs(tmp_path: Path) -> None:
+    from dau_driver.linux_xdma import endpoint_for_devnode
+
+    _sysfs_owner(tmp_path, "0000:04:00.0", "xdma0_user")
+    _sysfs_owner(tmp_path, "0000:05:00.0", "xdma1_user")
+
+    assert endpoint_for_devnode(Path("/dev/xdma0_user"), sysfs_root=tmp_path) == "0000:04:00.0"
+    assert endpoint_for_devnode(Path("/dev/xdma1_user"), sysfs_root=tmp_path) == "0000:05:00.0"
+    assert endpoint_for_devnode(Path("/dev/xdma2_user"), sysfs_root=tmp_path) is None
+    assert endpoint_for_devnode(Path("/dev/xdma0_user"), sysfs_root=tmp_path / "absent") is None
+    # a node two endpoints claim is not resolved by picking one
+    _sysfs_owner(tmp_path, "0000:06:00.0", "xdma0_user")
+    assert endpoint_for_devnode(Path("/dev/xdma0_user"), sysfs_root=tmp_path) is None
+
+
+def test_a_discovered_linux_device_is_identified_by_its_pci_endpoint(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    from dau_driver import DeviceIdentity, linux_xdma
+
+    write_fake_xdma_device(tmp_path)
+    [device] = discover_devices(tmp_path)
+    sysfs = tmp_path / "sys"
+    monkeypatch.setattr(linux_xdma, "DEFAULT_SYSFS_PCI_ROOT", sysfs)
+
+    assert device.identity == DeviceIdentity("node", "xdma0"), "no sysfs: the node name, marked as such"
+    _sysfs_owner(sysfs, "0000:04:00.0", "xdma0_user")
+    assert device.identity == DeviceIdentity("bdf", "0000:04:00.0")
+    assert str(device.identity) == "bdf:0000:04:00.0"
+    # the macOS backend has no sysfs to ask; its devnode paths are not files
+    macos = dataclasses.replace(device, backend="macos-xdma", user_path=Path("macos-xdma0_bar0_user"))
+    assert macos.identity == DeviceIdentity("node", "xdma0")
 
 
 def write_fake_xdma_device(

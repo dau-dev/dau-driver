@@ -1,7 +1,7 @@
 import os
 import os.path
 
-from .device import DauDevice
+from .device import DauDevice, DeviceIdentity
 from .discovery import discover_devices, identify_device
 from .errors import (
     DauDriverError,
@@ -26,6 +26,7 @@ __all__ = [
     "DecodedStreamColumn",
     "DecodedStreamResult",
     "DeviceCounters",
+    "DeviceIdentity",
     "DeviceNotFoundError",
     "DeviceStatus",
     "DmaDirection",
