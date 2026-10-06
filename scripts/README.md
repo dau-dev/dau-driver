@@ -16,5 +16,6 @@ scripts here: they are steps of the composed dau-build hardware plans
 around the destructive span, take the host lock, carry the platform's
 host-access facts, and support a dry run — none of which a bare script
 does. A hand-run bus reset with no deadman is how the host wedges.
+
 - `dau-xdma-poc.py` — DMA write/read/compare bandwidth validation runner
   (H2C and C2H whole-transfer reads).
