@@ -1,11 +1,22 @@
-# Kernel Driver Sources
+# Kernel driver sources
 
-- `linux-xdma/` — patched Xilinx XDMA reference driver (`xdma v2020.2.2`),
-  builds and loads on Linux 6.8 (vector-I/O helpers removed for the DAU
-  transfer path). Build on the hardware host with `make` and load with
-  `insmod ./xdma.ko`; the module is host-built, never rsynced.
-- `macos-xdma/` — macOS DriverKit scaffolding (compiles; DMA deferred until
-  the Linux DPU path is done).
+- `linux-xdma/`: the Xilinx XDMA reference driver (`xdma v2020.2.2`),
+  patched to build and load on Linux 6.8 (the vector-I/O helpers were
+  removed for the DAU transfer path). Build it on the hardware host with
+  `make` and load it with `insmod ./xdma.ko`. The module is built on the
+  host it runs on, never copied between hosts.
+- `macos-xdma/`: the macOS DriverKit system extension and its activator,
+  written for this project.
 
-Moved here from the bring-up scratch tree (`projects/nite/sw`) when that tree
-was retired — dau-driver owns driver code per the package ethos.
+## Licensing
+
+`linux-xdma/` is Xilinx's code and keeps Xilinx's terms: the source files
+are GPL-2.0 and the module declares `Dual BSD/GPL`. The upstream
+`LICENSE` (BSD) and `COPYING` (GPL-2.0) files are included alongside the
+sources, exactly as they ship in
+[Xilinx/dma_ip_drivers](https://github.com/Xilinx/dma_ip_drivers/tree/master/XDMA/linux-kernel).
+The Apache-2.0 licence at the root of this repository does not apply to
+that directory.
+
+Everything else in this repository, including `macos-xdma/`, is
+Apache-2.0.

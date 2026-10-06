@@ -7,7 +7,7 @@ Rules" for the mandatory ordering):
   — cancellable auto-reboot guard; arm before ANY PCIe/JTAG-touching
   sequence, disarm only after the health ladder passes. Pairs with the
   systemd hardware watchdog (`RuntimeWatchdogSec=60` → `wdat_wdt` on the
-  NUC13 host).
+  bench host).
 
 Runtime-PM holds, endpoint removal, secondary-bus reset and rescan are NOT
 scripts here: they are steps of the composed dau-build hardware plans

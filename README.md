@@ -73,3 +73,8 @@ The [examples/](examples/) directory holds end-to-end host flows — record-batc
 round trip, stream aggregation, the OHLCV pipeline job — that run against real
 hardware.
 
+
+## License
+
+Apache-2.0, except `kernel/linux-xdma/`, which is Xilinx's XDMA reference
+driver under its own Dual BSD/GPL terms. See [kernel/README.md](kernel/README.md).
