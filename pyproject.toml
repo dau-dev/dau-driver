@@ -140,6 +140,7 @@ libraries = [
 ]
 
 [tool.hatch.build.targets.sdist]
+exclude = ["*.dll", "*.dylib", "*.so", "*.pyd"]
 packages = [
     "dau_driver",
     "cpp",
@@ -147,6 +148,11 @@ packages = [
 
 
 [tool.hatch.build.targets.wheel]
+artifacts = [
+    "dau_driver/*.dll",
+    "dau_driver/*.dylib",
+    "dau_driver/*.so",
+]
 packages = [
     "dau_driver",
 ]
