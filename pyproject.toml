@@ -119,6 +119,7 @@ exclude_also = [
 ignore_errors = true
 fail_under = 50
 
+<<<<<<< before updating
 [tool.hatch.metadata]
 # private dau packages install from GitHub (no PyPI releases)
 allow-direct-references = true
@@ -130,6 +131,8 @@ artifacts = [
     "dau_driver/*.so",
 ]
 
+=======
+>>>>>>> after updating
 [tool.hatch.build.sources]
 src = "/"
 
@@ -140,6 +143,7 @@ libraries = [
 ]
 
 [tool.hatch.build.targets.sdist]
+exclude = ["*.dll", "*.dylib", "*.so", "*.pyd"]
 packages = [
     "dau_driver",
     "cpp",
@@ -147,6 +151,11 @@ packages = [
 
 
 [tool.hatch.build.targets.wheel]
+artifacts = [
+    "dau_driver/*.dll",
+    "dau_driver/*.dylib",
+    "dau_driver/*.so",
+]
 packages = [
     "dau_driver",
 ]
