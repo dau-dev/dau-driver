@@ -28,6 +28,11 @@ REGISTER_WINDOW_OFFSETS = (0x0, DEFAULT_STREAM_JOB_REGISTER_CONTRACT.register_wi
 
 
 def decode_platform_id(value: int) -> str:
+    """The platform id as ASCII, or ``""`` when the word is not one. A board
+    that advertises no platform is unknown, not dpv1: substituting a default
+    here once reported a dead aperture (all-ones on every word) as a working
+    Artix, and the platform id selects the part, the pricing and the
+    constraints downstream."""
     platform_bytes = value.to_bytes(4, "little").rstrip(b"\x00")
     if not platform_bytes or any(byte < 0x20 or byte > 0x7E for byte in platform_bytes):
         return ""
@@ -37,11 +42,6 @@ def decode_platform_id(value: int) -> str:
 # all-ones on an identity offset means the shell does not decode it. MAGIC
 # reading correctly is what proves the path healthy; see check_bar_health.
 NOT_ADVERTISED_REGISTER_MAP_VERSION = RegisterMapVersion(0, 0)
-# A board that advertises no platform is UNKNOWN, not dpv1. Substituting a
-# default here reported a dead aperture -- all-ones on every word -- as a
-# working Artix, and the platform identity is what selects a part, prices a
-# design and picks constraints downstream.
-NOT_ADVERTISED_PLATFORM_ID = ""
 
 
 def decode_register_map_version(value: int) -> RegisterMapVersion:

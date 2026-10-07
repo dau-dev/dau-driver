@@ -27,14 +27,13 @@ def execute_scalar_operation(
     output_device_address: int,
     output_byte_count: int,
     trigger: StreamTrigger | None = None,
-    timeout_seconds: float = 5.0,
 ) -> DecodedStreamResult:
     _validate_operation_supported(device.capabilities, logical_type, operation)
     encoded_input = StreamEncoder.encode_column(logical_type, payload, row_count=row_count, operations=(operation,))
-    device.write_dma(device_address=input_device_address, data=encoded_input, timeout_seconds=timeout_seconds)
+    device.write_dma(device_address=input_device_address, data=encoded_input)
     if trigger is not None:
         trigger(device, encoded_input)
-    encoded_result = device.read_dma(device_address=output_device_address, byte_count=output_byte_count, timeout_seconds=timeout_seconds)
+    encoded_result = device.read_dma(device_address=output_device_address, byte_count=output_byte_count)
     return StreamDecoder.decode_scalar_result(encoded_result)
 
 

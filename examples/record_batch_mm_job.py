@@ -6,8 +6,7 @@ For each operation: encode batch -> H2C to 0x0 -> write INPUT_LENGTH ->
 JOB_CONTROL start -> poll JOB_STATUS -> read RESULT_LENGTH -> C2H from
 0x100000 -> decode scalar -> golden compare.
 
-    sudo PYTHONPATH=.../dau-core:.../dau-driver \
-        python3 examples/record_batch_mm_job.py [rows]
+    python3 examples/record_batch_mm_job.py [rows]
 """
 
 from __future__ import annotations

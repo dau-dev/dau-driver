@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Any, cast
 
 import pytest
 from dau_core.registers import DAU_MAGIC_WORD, RegisterMapVersion, RegisterOffset, StreamProtocolVersion
@@ -197,3 +198,25 @@ def test_macos_xdma_device_close_releases_user_client() -> None:
     device.close()
 
     assert client.closed is True
+
+
+def test_the_real_client_checks_bar_index_and_offset_before_calling_the_dext() -> None:
+    """The user client hands the scalars to the dext as unsigned 64-bit values;
+    a negative offset would wrap to a huge one. The check runs before any
+    binding is touched, so a bindings object that cannot be called proves it."""
+    from dau_driver.errors import RegisterAccessError, TransferIoError
+    from dau_driver.macos_xdma import MacOSXDMAClient
+
+    client = MacOSXDMAClient(connection=1, service=1, bindings=cast(Any, object()))
+    for bar_index, offset in ((0, -4), (0, 6), (9, 0), (0, 1 << 64)):
+        with pytest.raises(RegisterAccessError):
+            client.read_bar_u32(bar_index, offset)
+        with pytest.raises(RegisterAccessError):
+            client.write_bar_u32(bar_index, offset, 1)
+    with pytest.raises(RegisterAccessError, match="32 bits"):
+        client.write_bar_u32(0, 0, 1 << 32)
+    for device_offset in (-64, (1 << 64) - 32):
+        with pytest.raises(TransferIoError, match="64-bit scalar"):
+            client.dma_read(device_offset, 64)
+        with pytest.raises(TransferIoError, match="64-bit scalar"):
+            client.dma_write(device_offset, bytes(64))

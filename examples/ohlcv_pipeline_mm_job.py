@@ -8,8 +8,7 @@ start -> poll JOB_STATUS -> read RESULT_LENGTH -> C2H from 0x100000 ->
 decode 5-word group records -> golden compare against
 dau_core.operators (filter_rows -> map_rows -> grouped_aggregate_rows).
 
-    sudo PYTHONPATH=.../dau-core:.../dau-driver \
-        python3 examples/ohlcv_pipeline_mm_job.py [rows]
+    python3 examples/ohlcv_pipeline_mm_job.py [rows]
 """
 
 from __future__ import annotations

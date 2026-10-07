@@ -18,7 +18,8 @@ assert readback == payload
 ```
 
 `write_dma` returns the `DmaTransfer` it validated and performed; `read_dma`
-returns the bytes. Both take an optional `timeout_seconds` (default 5.0).
+returns the bytes. Both block until the transfer completes: the Linux channel
+devices have no timeout, and the package does not promise one it cannot keep.
 
 ## Get the shape right the first time
 

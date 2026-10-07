@@ -22,11 +22,9 @@ classifiers = [
     "Development Status :: 3 - Alpha",
     "Programming Language :: Python",
     "Programming Language :: Python :: Implementation :: CPython",
-    "Programming Language :: Python :: Implementation :: PyPy",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
-    "Programming Language :: Python :: 3.14",
 ]
 
 dependencies = [
@@ -37,6 +35,10 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+# the record-batch codec's Arrow entry points
+arrow = [
+    "pyarrow",
+]
 develop = [
     "build",
     "bump-my-version",
@@ -48,6 +50,7 @@ develop = [
     "mdformat",
     "mdformat-tables>=1",
     "nanobind",
+    "pyarrow",
     "pytest",
     "pytest-cov",
     "ruff",

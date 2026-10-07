@@ -133,12 +133,10 @@ class _SharedBatches:
             return batch
 
     def _preferred_device(self) -> int | None:
-        if self._weights is None:
+        weights = self._weights
+        if weights is None:
             return None
-        return max(
-            range(len(self._weights)),
-            key=lambda index: self._weighted_current[index] + self._weights[index],
-        )
+        return max(range(len(weights)), key=lambda index: self._weighted_current[index] + weights[index])
 
     def _advance_weighted_schedule(self, selected: int) -> None:
         if self._weights is None:
@@ -231,8 +229,8 @@ def run_scan_batches_fleet(
     and a sleep would only add latency per poll. It exists for a
     pure-Python transport — a fake in a concurrent test — where the spin
     WOULD hold the GIL and flatten self-balancing toward an even split
-    regardless of device speed (measured on such fakes with a 15x speed
-    gap: 13/7 in 210 ms spinning, 17/3 in 90 ms yielding).
+    regardless of device speed (on fakes with a large speed gap the
+    spinning split was close to even and took twice as long).
 
     Known limitation: cancelling on a device failure wakes pipelines
     blocked pulling a batch, but one already inside its JOB_STATUS wait

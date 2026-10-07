@@ -5,8 +5,7 @@ reads it back C2H (respecting the 64-byte chunk quirk via normal driver APIs),
 byte-compares, decodes, and checks column aggregates against the expectations
 JSON produced at encode time.
 
-    PYTHONPATH=/path/to/dau/dau-core:/path/to/dau/dau-driver \
-        python3 examples/record_batch_roundtrip.py <batch.bin> [device_address]
+    python3 examples/record_batch_roundtrip.py <batch.bin> [device_address]
 
 Stops immediately on unhealthy BAR reads, short I/O, or mismatch (per
 hardware guidelines).

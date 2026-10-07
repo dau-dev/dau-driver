@@ -20,7 +20,7 @@ from collections.abc import Callable, Hashable, Iterable, Iterator
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from itertools import groupby
-from typing import Any
+from typing import Any, cast
 
 from dau_core.registers import JobControlFlag, RegisterOffset
 
@@ -126,7 +126,7 @@ class _KeyRangeScanBatches[Record]:
         keys = {self._key(record) for record in self._records}
         if not keys:
             return
-        ordered = sorted(keys)
+        ordered = sorted(cast("set[Any]", keys))
         # each key lands in exactly ONE range, so per-key state never
         # spans batches and merging the partials is a concatenation
         batch_of_key = {key: index // self._key_capacity for index, key in enumerate(ordered)}
@@ -145,7 +145,7 @@ def key_range_scan_batches[Record](
     key_capacity: int,
     key: Callable[[Record], Hashable],
     encode: Callable[[Iterable[Record]], bytes],
-) -> Iterator[ScanBatch]:
+) -> Iterable[ScanBatch]:
     """Split records into batches each holding at most ``key_capacity``
     DISTINCT keys — the host half of the hash-mode grouped tile's overflow
     contract.
@@ -236,8 +236,10 @@ def run_scan_batches(
             pending = pool.submit(stage, index + 1)
 
             def surface_staging_failure(future=pending):
-                if future.done() and future.exception() is not None:
-                    raise future.exception()
+                if future.done():
+                    failure = future.exception()
+                    if failure is not None:
+                        raise failure
                 if poll_yield_seconds is not None:
                     time.sleep(poll_yield_seconds)
 
@@ -288,6 +290,9 @@ def run_resident_scan(
         raise ValueError(f"repeats must be positive, got {repeats}")
     if address % DMA_ALIGN_BYTES:
         raise ValueError(f"resident address {address:#x} is not {DMA_ALIGN_BYTES}-byte aligned")
+    memory_bytes = getattr(device, "memory_bytes", None)
+    if memory_bytes is not None and address + row_count * row_bytes > memory_bytes:
+        raise ValueError(f"{row_count} rows of {row_bytes} bytes at {address:#x} end past the device's {memory_bytes} byte memory")
 
     results = []
     for index in range(repeats):

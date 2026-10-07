@@ -95,6 +95,8 @@ def contract_from_manifest_path(path: Path, *, with_spec_hash: bool = False) -> 
     import yaml
 
     document = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    if not isinstance(document, dict):
+        raise TypeError(f"{path} is not a manifest mapping")
     metadata = document.get("metadata") or {}
     serialized = metadata.get("capability_contract")
     if not serialized:
@@ -220,6 +222,20 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
+    import yaml
+
+    from dau_driver.errors import DauDriverError
+
+    try:
+        return _verify(args)
+    except (OSError, TypeError, ValueError, yaml.YAMLError, DauDriverError) as error:
+        # the expected failures: no manifest, a malformed one, a device that
+        # cannot be read -- one line each, not a traceback
+        print(f"cannot verify: {error}", file=sys.stderr)
+        return 1
+
+
+def _verify(args: argparse.Namespace) -> int:
     from dau_driver.discovery import discover_devices
 
     contract, spec_hash = contract_from_manifest_path(args.manifest, with_spec_hash=True)

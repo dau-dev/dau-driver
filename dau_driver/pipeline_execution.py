@@ -45,6 +45,16 @@ class KeyedPipelineConfig:
     map_config: MapConfig | None = None
     map_on_key: bool = False
 
+    def __post_init__(self) -> None:
+        # the words below pack op, shift and flags into fixed fields; a value
+        # outside its field would silently land in a neighbour's bits
+        if not 0 <= int(self.predicate.op0) <= 0xF or not 0 <= int(self.predicate.op1) <= 0xF or not 0 <= int(self.predicate.combine) <= 0xF:
+            raise ValueError("predicate op and combine codes must fit in 4 bits")
+        if self.map_config is not None and not (0 <= int(self.map_config.op) <= 0xFF and 0 <= self.map_config.shift <= 0xFF):
+            raise ValueError("map op code and shift must fit in 8 bits")
+        if not isinstance(self.filter_on_key, bool) or not isinstance(self.map_on_key, bool):
+            raise TypeError("filter_on_key and map_on_key are one-bit flags and must be bool")
+
     def filter_op_word(self) -> int:
         return int(self.predicate.op0) | (int(self.predicate.combine) << 4) | (int(self.predicate.op1) << 8) | (int(self.filter_on_key) << 16)
 
@@ -295,6 +305,8 @@ def bar_ddr_max_rows_per_job(staging) -> int:
 
 def stage_bar_ddr_input(device, payload: bytes, row_count: int, *, staging, input_address: int | None = None) -> None:
     """DMA one pre-packed batch of bar rows into a DDR input region."""
+    if row_count <= 0:
+        raise PipelineJobError(f"row_count must be positive, got {row_count}")
     if input_address is None:
         input_address = staging.input_addresses[0]
     budget = bar_ddr_max_rows_per_job(staging)
@@ -311,6 +323,8 @@ def stage_bar_ddr_input(device, payload: bytes, row_count: int, *, staging, inpu
 
 def start_bar_ddr_job(device, row_count: int, *, staging, input_address: int | None = None, output_address: int | None = None) -> None:
     """Kick a job over rows already staged in DDR."""
+    if row_count <= 0:
+        raise PipelineJobError(f"row_count must be positive, got {row_count}")
     if input_address is None:
         input_address = staging.input_addresses[0]
     if output_address is None:
@@ -359,25 +373,6 @@ def execute_bar_ddr_packed(
     stage_bar_ddr_input(device, payload, row_count, staging=staging)
     start_bar_ddr_job(device, row_count, staging=staging)
     return finish_bar_ddr_job(device, staging=staging, timeout_seconds=timeout_seconds)
-
-
-def execute_bar_ddr_job(
-    device,
-    rows: list[tuple[int, int, int, int]],
-    *,
-    staging,
-    timeout_seconds: float = 60.0,
-):
-    """Tuple-row convenience wrapper over ``execute_bar_ddr_packed``.
-    Returns the decoded bar records.
-
-    ``staging`` is forwarded, not defaulted: it was omitted here entirely, so
-    every call raised TypeError. Nothing called this wrapper, which is why a
-    function that could never work survived -- an unused export is not
-    covered by the tests that cover its callee.
-    """
-    raw, count = execute_bar_ddr_packed(device, pack_bar_rows(rows), len(rows), staging=staging, timeout_seconds=timeout_seconds)
-    return decode_bar_records(raw, count)
 
 
 # The broadcast-NoC bar shell (dau_mm_bar_noc_job) runs one scan across

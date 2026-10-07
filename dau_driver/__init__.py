@@ -1,6 +1,3 @@
-import os
-import os.path
-
 from .device import DauDevice, DeviceIdentity
 from .discovery import discover_devices, identify_device
 from .errors import (
@@ -40,23 +37,8 @@ __all__ = [
     "TransferValidationError",
     "UnhealthyBarError",
     "WrongBitstreamError",
-    "bin_path",
     "discover_devices",
     "execute_scalar_operation",
     "identify_device",
-    "include_path",
-    "lib_path",
     "native_info",
 ]
-
-
-def include_path():
-    return os.path.abspath(os.path.join(os.path.dirname(__file__), "include"))
-
-
-def bin_path():
-    return os.path.abspath(os.path.join(os.path.dirname(__file__), "bin"))
-
-
-def lib_path():
-    return os.path.abspath(os.path.join(os.path.dirname(__file__), "lib"))

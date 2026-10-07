@@ -273,3 +273,16 @@ def test_an_unreadable_only_contract_reports_the_reason_not_the_all_zero_guard()
     device = _Snapshot(lane_count=1, operator_bitmap=0, host_opcode_bitmap=0, sort_capacity=0)
     (mismatch,) = advertisement_mismatches(device, {"lane_count": 4.0, "operator_bitmap": 0, "host_opcode_bitmap": 0, "sort_capacity": 0})
     assert "4.0" in mismatch and "not a capability word" in mismatch
+
+
+def test_the_command_reports_a_missing_or_malformed_manifest_in_one_line(tmp_path: Path, capsys) -> None:
+    from dau_driver.verify_advertisement import main
+
+    assert main(["--manifest", str(tmp_path / "absent.yaml"), "--device-root", str(tmp_path)]) == 1
+    assert capsys.readouterr().err.startswith("cannot verify: ")
+    (tmp_path / "bare.yaml").write_text("name: nothing\n")
+    assert main(["--manifest", str(tmp_path / "bare.yaml"), "--device-root", str(tmp_path)]) == 1
+    assert "carries no capability_contract" in capsys.readouterr().err
+    (tmp_path / "list.yaml").write_text("- not\n- a mapping\n")
+    assert main(["--manifest", str(tmp_path / "list.yaml"), "--device-root", str(tmp_path)]) == 1
+    assert "not a manifest mapping" in capsys.readouterr().err

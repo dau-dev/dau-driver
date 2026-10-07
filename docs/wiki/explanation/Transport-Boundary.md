@@ -42,14 +42,15 @@ They share nothing but the protocol, and the layers above cannot tell them apart
 
 The narrowness has a second payoff that matters more day to day. A fake transport
 is fifty lines. `FakeTransport` records DMA traffic and register writes in
-dictionaries, and every execution path in the package — the scan runner's
+dictionaries, and every Python execution path in the package — the scan runner's
 ping-pong staging, the fleet's demand-driven scheduling, the bar shell's DDR
 layout, capability refusals — is exercised against it in CI, on machines with no
-FPGA.
+FPGA. What sits below the boundary (the kernel module, the DriverKit extension,
+the native extension) is tested on hardware.
 
 This is the package's testing policy stated as an architectural constraint:
-**every execution path must run against a fake, and hardware-only behaviour hides
-behind `DeviceTransport`.** If a code path cannot be reached without a board, it
+**every Python execution path must run against a fake, and hardware-only
+behaviour hides behind `DeviceTransport`.** If a code path cannot be reached without a board, it
 is in the wrong layer.
 
 The fake lives in `dau_driver.testing`, shipped rather than kept in the test

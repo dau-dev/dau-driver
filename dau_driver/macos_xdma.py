@@ -17,7 +17,6 @@ from .errors import DeviceNotFoundError, RegisterAccessError, TransferIoError, U
 
 DEFAULT_BACKEND = "macos-xdma"
 CANONICAL_SERVICE_NAME = "com.dau-dev.xdma"
-DEFAULT_SERVICE_NAME = CANONICAL_SERVICE_NAME
 DEFAULT_SERVICE_NAMES = (CANONICAL_SERVICE_NAME,)
 REGISTER_BAR_INDICES = (0, 1, 2, 3, 4, 5)
 K_METHOD_READ_BAR = 0
@@ -51,6 +50,16 @@ class MacOSXDMAProbeResult:
     service_probes: tuple[MacOSXDMAServiceProbe, ...]
     failures: tuple[str, ...]
     message: str
+
+
+def _check_bar_access(bar_index: int, offset: int) -> None:
+    """The user client hands these to the dext as unsigned 64-bit scalars; a
+    negative offset would wrap to a huge one and address BAR space the caller
+    never meant to touch."""
+    if bar_index not in REGISTER_BAR_INDICES:
+        raise RegisterAccessError(f"BAR index must be one of {REGISTER_BAR_INDICES}, got {bar_index!r}")
+    if offset < 0 or offset % 4 or offset > (1 << 64) - 4:
+        raise RegisterAccessError(f"register offset must be a multiple of 4 within the 64-bit scalar, got {offset!r}")
 
 
 class MacOSXDMAClientProtocol(Protocol):
@@ -174,9 +183,13 @@ class MacOSXDMAClient:
         )
 
     def read_bar_u32(self, bar_index: int, offset: int) -> int:
+        _check_bar_access(bar_index, offset)
         return self.bindings.call_scalar(self.connection, K_METHOD_READ_BAR, (bar_index, offset), 1)[0]
 
     def write_bar_u32(self, bar_index: int, offset: int, value: int) -> None:
+        _check_bar_access(bar_index, offset)
+        if not 0 <= value <= 0xFFFF_FFFF:
+            raise RegisterAccessError(f"register value must fit in 32 bits, got {value!r}")
         self.bindings.call_scalar(self.connection, K_METHOD_WRITE_BAR, (bar_index, offset, value), 0)
 
     def get_info(self) -> MacOSXDMADeviceInfo:
@@ -191,6 +204,8 @@ class MacOSXDMAClient:
     def dma_read(self, device_offset: int, length: int) -> bytes:
         if length < 0:
             raise TransferIoError(f"negative DMA read length {length}")
+        if not 0 <= device_offset <= (1 << 64) - length:
+            raise TransferIoError(f"DMA read of {length} bytes at device offset {device_offset} does not fit the 64-bit scalar")
         chunks: list[bytes] = []
         done = 0
         while done < length:
@@ -200,6 +215,8 @@ class MacOSXDMAClient:
         return b"".join(chunks)
 
     def dma_write(self, device_offset: int, data: bytes | bytearray | memoryview) -> int:
+        if not 0 <= device_offset <= (1 << 64) - len(data):
+            raise TransferIoError(f"DMA write of {len(data)} bytes at device offset {device_offset} does not fit the 64-bit scalar")
         view = memoryview(data).cast("B")
         done = 0
         while done < len(view):
@@ -305,12 +322,6 @@ class _IOKitBindings:
         if out_size.value != output_size:
             raise TransferIoError(f"IOConnectCallMethod({selector}) returned {out_size.value} bytes, expected {output_size}")
         return bytes(buffer)
-
-    def matching_services(self, service_name: str) -> int:
-        iterators = self.matching_iterators(service_name)
-        for iterator in iterators[1:]:
-            self.release(iterator)
-        return iterators[0] if iterators else 0
 
     def matching_iterators(self, service_name: str) -> tuple[int, ...]:
         iterators: list[int] = []

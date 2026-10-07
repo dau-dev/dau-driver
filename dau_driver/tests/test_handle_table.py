@@ -510,3 +510,14 @@ def test_a_yielding_poll_sleeps_between_status_reads_instead_of_spinning(tmp_pat
         _batches([8]), (first, second), row_bytes=ROW_BYTES, collect=lambda _d: None, timeout_seconds=5.0, poll_yield_seconds=0.0005
     )
     assert naps and set(naps) == {0.0005}
+
+
+def test_a_resident_scan_whose_rows_run_past_memory_is_refused(tmp_path) -> None:
+    from dataclasses import replace
+
+    from dau_driver.scan_execution import run_resident_scan
+    from dau_driver.testing import FakeTransport, fake_device
+
+    device = replace(fake_device(tmp_path, FakeTransport()), memory_bytes=4096)
+    with pytest.raises(ValueError, match="end past the device's 4096 byte memory"):
+        run_resident_scan(device, address=4096 - 64, row_count=3, row_bytes=64, collect=lambda _d: None)

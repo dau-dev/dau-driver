@@ -5,6 +5,8 @@ landed), and the error paths."""
 
 from __future__ import annotations
 
+from typing import Any, cast
+
 import pytest
 from dau_core.registers import JobControlFlag, JobStatusFlag, RegisterOffset
 
@@ -386,8 +388,9 @@ def test_key_range_batches_merge_back_to_the_one_shot_answer() -> None:
     assert hash_grouped_field_sum_rows(rows, field_mask=0b0010, capacity=8)[1] is HashGroupedErrorCode.GROUP_CAPACITY_EXCEEDED
 
     partials = []
-    for batch in key_range_scan_batches(rows, key_capacity=8, key=lambda row: row[0], encode=lambda records: tuple(records)):
-        groups, code = hash_grouped_field_sum_rows(batch.payload, field_mask=0b0010, capacity=8)
+    # the fake payload IS the rows: the golden consumes them where a device would consume bytes
+    for batch in key_range_scan_batches(rows, key_capacity=8, key=lambda row: row[0], encode=lambda records: cast(bytes, tuple(records))):
+        groups, code = hash_grouped_field_sum_rows(cast(Any, batch.payload), field_mask=0b0010, capacity=8)
         assert code is HashGroupedErrorCode.OK, "capacity-bounded batches must not overflow"
         partials.append(groups)
     merged = merge_hash_grouped(partials)
