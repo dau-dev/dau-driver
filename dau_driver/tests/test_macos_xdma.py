@@ -208,14 +208,15 @@ def test_the_real_client_checks_bar_index_and_offset_before_calling_the_dext() -
     from dau_driver.macos_xdma import MacOSXDMAClient
 
     client = MacOSXDMAClient(connection=1, service=1, bindings=cast(Any, object()))
-    for bar_index, offset in ((0, -4), (0, 6), (9, 0)):
+    for bar_index, offset in ((0, -4), (0, 6), (9, 0), (0, 1 << 64)):
         with pytest.raises(RegisterAccessError):
             client.read_bar_u32(bar_index, offset)
         with pytest.raises(RegisterAccessError):
             client.write_bar_u32(bar_index, offset, 1)
     with pytest.raises(RegisterAccessError, match="32 bits"):
         client.write_bar_u32(0, 0, 1 << 32)
-    with pytest.raises(TransferIoError, match="negative DMA device offset"):
-        client.dma_read(-64, 64)
-    with pytest.raises(TransferIoError, match="negative DMA device offset"):
-        client.dma_write(-64, bytes(64))
+    for device_offset in (-64, (1 << 64) - 32):
+        with pytest.raises(TransferIoError, match="64-bit scalar"):
+            client.dma_read(device_offset, 64)
+        with pytest.raises(TransferIoError, match="64-bit scalar"):
+            client.dma_write(device_offset, bytes(64))
