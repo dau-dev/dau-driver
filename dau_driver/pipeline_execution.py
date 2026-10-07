@@ -52,6 +52,8 @@ class KeyedPipelineConfig:
             raise ValueError("predicate op and combine codes must fit in 4 bits")
         if self.map_config is not None and not (0 <= int(self.map_config.op) <= 0xFF and 0 <= self.map_config.shift <= 0xFF):
             raise ValueError("map op code and shift must fit in 8 bits")
+        if not isinstance(self.filter_on_key, bool) or not isinstance(self.map_on_key, bool):
+            raise TypeError("filter_on_key and map_on_key are one-bit flags and must be bool")
 
     def filter_op_word(self) -> int:
         return int(self.predicate.op0) | (int(self.predicate.combine) << 4) | (int(self.predicate.op1) << 8) | (int(self.filter_on_key) << 16)

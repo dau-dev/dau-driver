@@ -568,3 +568,12 @@ def test_bar_ddr_staging_refuses_a_non_positive_row_count(tmp_path) -> None:
             stage_bar_ddr_input(device, b"", rows, staging=staging)
         with pytest.raises(PipelineJobError, match="positive"):
             start_bar_ddr_job(device, rows, staging=staging)
+
+
+def test_the_keyed_pipeline_flags_must_be_bool() -> None:
+    from dau_core.operators import FilterPredicate, PredicateOp
+
+    from dau_driver.pipeline_execution import KeyedPipelineConfig
+
+    with pytest.raises(TypeError, match="one-bit flags"):
+        KeyedPipelineConfig(predicate=FilterPredicate(op0=PredicateOp.GT, constant0=5), filter_on_key=cast(Any, 2))

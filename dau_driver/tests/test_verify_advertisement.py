@@ -283,3 +283,6 @@ def test_the_command_reports_a_missing_or_malformed_manifest_in_one_line(tmp_pat
     (tmp_path / "bare.yaml").write_text("name: nothing\n")
     assert main(["--manifest", str(tmp_path / "bare.yaml"), "--device-root", str(tmp_path)]) == 1
     assert "carries no capability_contract" in capsys.readouterr().err
+    (tmp_path / "list.yaml").write_text("- not\n- a mapping\n")
+    assert main(["--manifest", str(tmp_path / "list.yaml"), "--device-root", str(tmp_path)]) == 1
+    assert "not a manifest mapping" in capsys.readouterr().err

@@ -60,6 +60,8 @@ def test_register_offsets_must_be_word_aligned_and_non_negative(tmp_path: Path) 
             device.read_register(offset)
         with pytest.raises(RegisterAccessError, match="multiple of 4"):
             device.write_register(offset, 1)
+        with pytest.raises(RegisterAccessError, match="multiple of 4"):
+            device.check_bar_health(offsets=(offset,))
 
 
 def test_the_fake_transport_refuses_a_short_read_like_the_real_one(tmp_path: Path) -> None:

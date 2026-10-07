@@ -155,9 +155,10 @@ validate_transfer(direction, device_address, byte_count, constraints: DmaConstra
 ```
 
 Raises `TransferValidationError` when `byte_count` is not positive,
-`device_address` is negative, `byte_count` exceeds `max_transfer_bytes`, either
-value is not aligned to `alignment_bytes`, or the direction's channel count is
-zero.
+`device_address` is negative, the span `device_address + byte_count` runs past
+64 bits or past `memory_bytes` when one is given, `byte_count` exceeds
+`max_transfer_bytes`, either value is not aligned to `alignment_bytes`, or the
+direction's channel count is zero. `DauDevice` passes its own `memory_bytes`.
 
 ## Status
 

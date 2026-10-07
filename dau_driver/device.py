@@ -119,7 +119,7 @@ class DauDevice:
 
     def check_bar_health(self, *, offsets: Sequence[RegisterOffset | int] = (RegisterOffset.MAGIC, RegisterOffset.STREAM_PROTOCOL_VERSION)) -> None:
         for offset in offsets:
-            value = self.resolved_transport.read_u32(self.register_window_offset + int(offset))
+            value = self.resolved_transport.read_u32(self.register_window_offset + _checked_offset(offset))
             if value == 0xFFFF_FFFF:
                 raise UnhealthyBarError(f"{_offset_name(offset)} read all ones from {self.user_path}; BAR/AXI-lite path may be unhealthy")
 

@@ -22,8 +22,9 @@ cd dau-driver
 make develop
 ```
 
-The optional native extension builds during the install when a C++ toolchain is
-present; the package falls back to its Python transports when it is not.
+The install builds a small native extension with nanobind, so a C++ toolchain is
+required on the installing machine. The transports themselves are Python; the
+extension only reports its own backend and ABI version today.
 
 ## Kernel drivers
 

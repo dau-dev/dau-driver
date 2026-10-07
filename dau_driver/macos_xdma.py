@@ -52,6 +52,16 @@ class MacOSXDMAProbeResult:
     message: str
 
 
+def _check_bar_access(bar_index: int, offset: int) -> None:
+    """The user client hands these to the dext as unsigned 64-bit scalars; a
+    negative offset would wrap to a huge one and address BAR space the caller
+    never meant to touch."""
+    if bar_index not in REGISTER_BAR_INDICES:
+        raise RegisterAccessError(f"BAR index must be one of {REGISTER_BAR_INDICES}, got {bar_index!r}")
+    if offset < 0 or offset % 4:
+        raise RegisterAccessError(f"register offset must be a non-negative multiple of 4, got {offset!r}")
+
+
 class MacOSXDMAClientProtocol(Protocol):
     def read_bar_u32(self, bar_index: int, offset: int) -> int: ...
 
@@ -173,9 +183,13 @@ class MacOSXDMAClient:
         )
 
     def read_bar_u32(self, bar_index: int, offset: int) -> int:
+        _check_bar_access(bar_index, offset)
         return self.bindings.call_scalar(self.connection, K_METHOD_READ_BAR, (bar_index, offset), 1)[0]
 
     def write_bar_u32(self, bar_index: int, offset: int, value: int) -> None:
+        _check_bar_access(bar_index, offset)
+        if not 0 <= value <= 0xFFFF_FFFF:
+            raise RegisterAccessError(f"register value must fit in 32 bits, got {value!r}")
         self.bindings.call_scalar(self.connection, K_METHOD_WRITE_BAR, (bar_index, offset, value), 0)
 
     def get_info(self) -> MacOSXDMADeviceInfo:
@@ -190,6 +204,8 @@ class MacOSXDMAClient:
     def dma_read(self, device_offset: int, length: int) -> bytes:
         if length < 0:
             raise TransferIoError(f"negative DMA read length {length}")
+        if device_offset < 0:
+            raise TransferIoError(f"negative DMA device offset {device_offset}")
         chunks: list[bytes] = []
         done = 0
         while done < length:
@@ -199,6 +215,8 @@ class MacOSXDMAClient:
         return b"".join(chunks)
 
     def dma_write(self, device_offset: int, data: bytes | bytearray | memoryview) -> int:
+        if device_offset < 0:
+            raise TransferIoError(f"negative DMA device offset {device_offset}")
         view = memoryview(data).cast("B")
         done = 0
         while done < len(view):
