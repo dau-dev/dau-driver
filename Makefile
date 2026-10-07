@@ -27,7 +27,7 @@ lint-py:  ## run python linter with ruff
 	python -m ruff format --check dau_driver
 
 lint-cpp:  ## run cpp linter
-	clang-format --dry-run -Werror -style=file `find ./cpp -name "*.*pp"`
+	clang-format --dry-run -Werror -i -style=file `find ./cpp -name "*.*pp"`
 
 lint-docs:  ## lint docs with mdformat and codespell
 	python -m mdformat --check README.md docs/wiki/
