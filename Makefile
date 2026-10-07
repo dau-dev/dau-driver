@@ -27,7 +27,7 @@ lint-py:  ## run python linter with ruff
 	python -m ruff format --check dau_driver
 
 lint-cpp:  ## run cpp linter
-	clang-format --dry-run -Werror -i -style=file `find ./cpp -name "*.*pp"`
+	clang-format --dry-run -Werror -style=file `find ./cpp -name "*.*pp"`
 
 lint-docs:  ## lint docs with mdformat and codespell
 	python -m mdformat --check README.md docs/wiki/
@@ -66,7 +66,7 @@ check-dist:  ## check python sdist and wheel with check-dist
 check-types:  ## check python types with ty
 	ty check --python $$(which python)
 
-checks: check-dist
+checks: check-dist check-types
 
 # alias
 check: checks

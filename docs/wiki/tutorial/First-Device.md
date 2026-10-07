@@ -287,11 +287,12 @@ first.
 
 ## What you have done
 
-You have exercised the whole host surface — discovery handle, capabilities,
+You have exercised the Python host surface — discovery handle, capabilities,
 registers, status, BAR health, transfer validation, and a full job round trip —
 against a transport that needs no hardware. This is also how the package's own
-test suite runs: every execution path has to work against a fake, so hardware-only
-behaviour stays behind the `DeviceTransport` boundary.
+test suite runs: every Python execution path has to work against a fake, so
+hardware-only behaviour stays behind the `DeviceTransport` boundary and is
+tested on a board.
 
 From here:
 

@@ -111,3 +111,10 @@ def test_recycled_ids_carry_bumped_generations() -> None:
     with pytest.raises(StaleHandleError):
         alloc.resolve(h1)
     assert alloc.resolve(h2) == h2.base
+
+
+def test_allocator_tokens_are_never_reused_within_a_process() -> None:
+    """The id of a discarded object can be handed to the next allocation, which
+    would let a handle from a dead allocator pass as one of ours."""
+    tokens = {StorageAllocator(tier="ddr", base=0, capacity_bytes=4096)._token for _ in range(64)}
+    assert len(tokens) == 64

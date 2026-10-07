@@ -5,7 +5,7 @@ import struct
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Protocol
+from typing import Protocol, cast
 
 from dau_core.capabilities import DeviceCapabilities
 from dau_core.registers import RegisterBlockSnapshot, RegisterOffset, StreamProtocolVersion
@@ -105,13 +105,13 @@ class DauDevice:
             return self.transport
         return PathDeviceTransport(self.user_path, self.h2c_path, self.c2h_path)
 
-    def read_register(self, offset: RegisterOffset) -> int:
-        return self.resolved_transport.read_u32(self.register_window_offset + int(offset))
+    def read_register(self, offset: RegisterOffset | int) -> int:
+        return self.resolved_transport.read_u32(self.register_window_offset + _checked_offset(offset))
 
     def write_register(self, offset: RegisterOffset | int, value: int) -> None:
         if not 0 <= value <= 0xFFFF_FFFF:
             raise RegisterAccessError(f"register value must fit in 32 bits, got {value!r}")
-        self.resolved_transport.write_u32(self.register_window_offset + int(offset), value)
+        self.resolved_transport.write_u32(self.register_window_offset + _checked_offset(offset), value)
 
     def write_address_register(self, low_offset: RegisterOffset | int, high_offset: RegisterOffset | int, address: int) -> None:
         """Method form of :func:`write_address`, kept for direct callers."""
@@ -164,8 +164,8 @@ class DauDevice:
         )
 
     def _read_u64(self, offset: RegisterOffset | int) -> int:
-        low = self.resolved_transport.read_u32(self.register_window_offset + int(offset))
-        high = self.resolved_transport.read_u32(self.register_window_offset + int(offset) + 4)
+        low = self.resolved_transport.read_u32(self.register_window_offset + _checked_offset(offset))
+        high = self.resolved_transport.read_u32(self.register_window_offset + _checked_offset(offset) + 4)
         return low | (high << 32)
 
     def close(self) -> None:
@@ -181,39 +181,21 @@ class DauDevice:
         *,
         device_address: int,
         byte_count: int,
-        timeout_seconds: float = 5.0,
     ) -> DmaTransfer:
-        validate_transfer(direction, device_address, byte_count, self.capabilities.dma)
+        validate_transfer(direction, device_address, byte_count, self.capabilities.dma, memory_bytes=self.memory_bytes)
         return DmaTransfer(
             direction=direction,
             device_address=device_address,
             byte_count=byte_count,
             channel_path=self.h2c_path if direction == DmaDirection.H2C else self.c2h_path,
-            timeout_seconds=timeout_seconds,
         )
 
-    def read_dma(self, *, device_address: int, byte_count: int, timeout_seconds: float = 5.0) -> bytes:
-        transfer = self.prepare_transfer(
-            DmaDirection.C2H,
-            device_address=device_address,
-            byte_count=byte_count,
-            timeout_seconds=timeout_seconds,
-        )
+    def read_dma(self, *, device_address: int, byte_count: int) -> bytes:
+        transfer = self.prepare_transfer(DmaDirection.C2H, device_address=device_address, byte_count=byte_count)
         return self.resolved_transport.read_dma(transfer.device_address, transfer.byte_count)
 
-    def write_dma(
-        self,
-        *,
-        device_address: int,
-        data: bytes | bytearray | memoryview,
-        timeout_seconds: float = 5.0,
-    ) -> DmaTransfer:
-        transfer = self.prepare_transfer(
-            DmaDirection.H2C,
-            device_address=device_address,
-            byte_count=len(data),
-            timeout_seconds=timeout_seconds,
-        )
+    def write_dma(self, *, device_address: int, data: bytes | bytearray | memoryview) -> DmaTransfer:
+        transfer = self.prepare_transfer(DmaDirection.H2C, device_address=device_address, byte_count=len(data))
         self.resolved_transport.write_dma(transfer.device_address, data)
         return transfer
 
@@ -265,6 +247,16 @@ def _write_register_bytes(path: Path, offset: int, data: bytes) -> None:
         raise RegisterAccessError(f"short write for 0x{offset:x} to {path}")
 
 
+def _checked_offset(offset: RegisterOffset | int) -> int:
+    """A register offset is a non-negative multiple of four; anything else is a
+    caller's arithmetic error, and the transports would read or write a word
+    somewhere unintended."""
+    value = int(offset)
+    if value < 0 or value % 4:
+        raise RegisterAccessError(f"register offset must be a non-negative multiple of 4, got {value!r}")
+    return value
+
+
 def _offset_name(offset: RegisterOffset | int) -> str:
     if isinstance(offset, RegisterOffset):
         return offset.name
@@ -300,14 +292,12 @@ def write_address(device, low_offset, high_offset, address: int, *, memory_bytes
     one that does not declare its memory simply goes unbounded, as before.
     Pass an explicit value to override, or `None` to disable the check.
     """
-    if memory_bytes is _DEVICE_MEMORY:
-        memory_bytes = getattr(device, "memory_bytes", None)
+    bound: int | None = getattr(device, "memory_bytes", None) if memory_bytes is _DEVICE_MEMORY else cast("int | None", memory_bytes)
     if not 0 <= address <= 0xFFFF_FFFF_FFFF_FFFF:
         raise RegisterAccessError(f"address must fit in 64 bits, got {address!r}")
-    if memory_bytes is not None and address >= memory_bytes:
+    if bound is not None and address >= bound:
         raise RegisterAccessError(
-            f"address 0x{address:X} is past the device's {memory_bytes} byte memory; "
-            "a transfer from here wraps to the bottom of memory instead of failing"
+            f"address 0x{address:X} is past the device's {bound} byte memory; a transfer from here wraps to the bottom of memory instead of failing"
         )
     device.write_register(low_offset, address & 0xFFFF_FFFF)
     device.write_register(high_offset, (address >> 32) & 0xFFFF_FFFF)

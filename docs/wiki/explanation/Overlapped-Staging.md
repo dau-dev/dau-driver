@@ -124,8 +124,9 @@ and a sleep would only add latency per poll.
 
 It is wrong for a pure-Python transport, which is what a concurrent test uses.
 There the spin holds the GIL and flattens self-balancing toward an even split
-regardless of device speed. Measured on such fakes with a 15x speed gap: 13/7 in
-210 ms spinning, 17/3 in 90 ms yielding. The parameter exists for that case only.
+regardless of device speed: on fakes with a large speed gap the spinning split was
+close to even and took twice as long as the yielding one, which followed the gap.
+The parameter exists for that case only.
 
 ## What the fleet does not do
 

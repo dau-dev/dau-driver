@@ -6,8 +6,7 @@ host encodes a multi-column record batch carrying the operation descriptor,
 writes it to the H2C stream device, reads the 136-byte scalar result stream
 from C2H, decodes it, and compares against the dau-core golden.
 
-    sudo PYTHONPATH=.../dau-core:.../dau-driver \
-        python3 examples/record_batch_stream_aggregation.py [rows]
+    python3 examples/record_batch_stream_aggregation.py [rows]
 
 Stops on short I/O or a result mismatch.
 """

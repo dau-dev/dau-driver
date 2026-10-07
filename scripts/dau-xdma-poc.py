@@ -3,24 +3,7 @@ from __future__ import annotations
 
 import argparse
 import os
-import sys
 import time
-from pathlib import Path
-
-
-def _add_repo_packages_to_path() -> None:
-    # sibling checkouts only exist in a development tree; a shallow checkout
-    # (the /project mount inside the wheel build container) has no such parent
-    parents = Path(__file__).resolve().parents
-    if len(parents) <= 3:
-        return
-    repo_root = parents[3]
-    for package_dir in (repo_root / "dau-core", repo_root / "dau-driver"):
-        if package_dir.exists():
-            sys.path.insert(0, str(package_dir))
-
-
-_add_repo_packages_to_path()
 
 from dau_core.registers import RegisterOffset
 
@@ -57,7 +40,6 @@ def main() -> int:
         device.backend,
         "window",
         hex(device.register_window_offset),
-
         flush=True,
     )
 
@@ -114,11 +96,11 @@ def run_transfer(
     payload_seconds = time.perf_counter() - payload_start
 
     write_start = time.perf_counter()
-    device.write_dma(device_address=device_address, data=payload, timeout_seconds=30.0)
+    device.write_dma(device_address=device_address, data=payload)
     write_seconds = time.perf_counter() - write_start
 
     read_start = time.perf_counter()
-    readback = device.read_dma(device_address=device_address, byte_count=byte_count, timeout_seconds=30.0)
+    readback = device.read_dma(device_address=device_address, byte_count=byte_count)
     read_seconds = time.perf_counter() - read_start
 
     compare_start = time.perf_counter()

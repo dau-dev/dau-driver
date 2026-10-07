@@ -6,7 +6,6 @@ from importlib.metadata import PackageNotFoundError, version
 
 NATIVE_ABI_VERSION = 1
 PACKAGE_NAME = "dau-driver"
-SOURCE_PACKAGE_VERSION = "0.1.0"
 
 
 @dataclass(frozen=True)
@@ -48,4 +47,6 @@ def _package_version() -> str:
     try:
         return version(PACKAGE_NAME)
     except PackageNotFoundError:
-        return SOURCE_PACKAGE_VERSION
+        from dau_driver import __version__
+
+        return __version__

@@ -15,6 +15,7 @@ from dau_core.registers import CURRENT_REGISTER_MAP_VERSION, RegisterMapVersion,
 from dau_core.stream import InvalidStreamError, LogicalType, OperationCode
 
 from .device import DauDevice
+from .errors import TransferIoError
 from .stream_codec import StreamDecoder, StreamEncoder
 
 
@@ -56,6 +57,8 @@ class FakeTransport:
             payload = self.c2h_payloads[device_address]
         except KeyError as exc:
             raise InvalidStreamError(f"no fake C2H payload at 0x{device_address:x}") from exc
+        if len(payload) < byte_count:
+            raise TransferIoError(f"short read at 0x{device_address:x}: expected {byte_count} bytes, the fake holds {len(payload)}")
         return payload[:byte_count]
 
     def write_dma(self, device_address: int, data: bytes | bytearray | memoryview) -> int:

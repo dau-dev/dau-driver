@@ -220,10 +220,17 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    from dau_driver.discovery import discover_devices
+    import yaml
 
-    contract, spec_hash = contract_from_manifest_path(args.manifest, with_spec_hash=True)
-    devices = discover_devices() if args.device_root is None else discover_devices(args.device_root)
+    from dau_driver.discovery import discover_devices
+    from dau_driver.errors import DauDriverError
+
+    try:
+        contract, spec_hash = contract_from_manifest_path(args.manifest, with_spec_hash=True)
+        devices = discover_devices() if args.device_root is None else discover_devices(args.device_root)
+    except (OSError, ValueError, yaml.YAMLError, DauDriverError) as error:
+        print(f"cannot verify: {error}", file=sys.stderr)
+        return 1
     if not devices:
         print("no DAU device found to verify", file=sys.stderr)
         return 1

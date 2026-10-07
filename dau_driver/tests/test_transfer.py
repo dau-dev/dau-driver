@@ -35,6 +35,42 @@ def test_transfer_validation_rejects_zero_length_and_unavailable_direction(tmp_p
         device.prepare_transfer(DmaDirection.C2H, device_address=0x1000, byte_count=64)
 
 
+def test_transfer_validation_bounds_the_whole_span_by_device_memory(tmp_path: Path) -> None:
+    """The DMA engine wraps an address past the end of memory to the bottom
+    instead of failing, so the END of a transfer has to be checked, not only
+    its start."""
+    from dataclasses import replace
+
+    device = replace(make_fake_device(tmp_path), memory_bytes=8192)
+    device.prepare_transfer(DmaDirection.C2H, device_address=8192 - 64, byte_count=64)
+    with pytest.raises(TransferValidationError, match="ends past the device's 8192 byte memory"):
+        device.prepare_transfer(DmaDirection.C2H, device_address=8192 - 64, byte_count=128)
+    with pytest.raises(TransferValidationError, match="64-bit address space"):
+        make_fake_device(tmp_path).prepare_transfer(DmaDirection.C2H, device_address=(1 << 64) - 64, byte_count=128)
+
+
+def test_register_offsets_must_be_word_aligned_and_non_negative(tmp_path: Path) -> None:
+    from dau_driver import RegisterAccessError
+    from dau_driver.testing import FakeTransport, fake_device
+
+    device = fake_device(tmp_path, FakeTransport())
+    assert device.read_register(0x10) == 0
+    for offset in (-4, 0x11):
+        with pytest.raises(RegisterAccessError, match="multiple of 4"):
+            device.read_register(offset)
+        with pytest.raises(RegisterAccessError, match="multiple of 4"):
+            device.write_register(offset, 1)
+
+
+def test_the_fake_transport_refuses_a_short_read_like_the_real_one(tmp_path: Path) -> None:
+    from dau_driver.testing import FakeTransport, fake_device
+
+    transport = FakeTransport()
+    transport.c2h_payloads[0x1000] = bytes(32)
+    with pytest.raises(TransferIoError, match="short read at 0x1000"):
+        fake_device(tmp_path, transport).read_dma(device_address=0x1000, byte_count=64)
+
+
 def test_blocking_dma_write_uses_h2c_channel_at_device_address(tmp_path: Path) -> None:
     device = make_fake_device(tmp_path)
     payload = bytes(range(64))

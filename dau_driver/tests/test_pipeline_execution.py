@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import struct
 from types import SimpleNamespace
+from typing import Any, cast
 
 import pytest
 from dau_core.operators import BarAggregate, GroupAggregate
@@ -542,18 +543,28 @@ def test_the_job_runners_batch_against_what_the_shell_advertises(tmp_path):
         execute_keyed_pipeline_job(device, [(1, 1)] * 5)
 
 
-def test_the_tuple_row_wrapper_forwards_staging() -> None:
-    """This wrapper omitted `staging` entirely, so every call raised
-    TypeError. Nothing called it, which is exactly why it survived: an
-    unused export is not covered by the tests that cover its callee, and a
-    signature mismatch is invisible until someone uses it.
-    """
-    import inspect
+def test_the_keyed_pipeline_config_refuses_fields_that_overflow_their_word() -> None:
+    """The register words pack op, shift and flags into fixed fields; a value
+    outside its field lands in a neighbour's bits with no error from the
+    device."""
+    from dau_core.operators import FilterPredicate, MapConfig, MapOp, PredicateOp
 
-    from dau_driver.pipeline_execution import execute_bar_ddr_job, execute_bar_ddr_packed
+    from dau_driver.pipeline_execution import KeyedPipelineConfig
 
-    wrapper = inspect.signature(execute_bar_ddr_job).parameters
-    callee = inspect.signature(execute_bar_ddr_packed).parameters
-    required = {name for name, p in callee.items() if p.default is inspect.Parameter.empty and p.kind is inspect.Parameter.KEYWORD_ONLY}
-    missing = required - set(wrapper)
-    assert not missing, f"wrapper cannot satisfy its callee; missing {sorted(missing)}"
+    predicate = FilterPredicate(op0=PredicateOp.GT, constant0=5)
+    config = MapConfig(op=MapOp.ADD, constant=1)
+    KeyedPipelineConfig(predicate=predicate, map_config=config)  # the shapes the tile accepts
+    with pytest.raises(ValueError, match="8 bits"):
+        KeyedPipelineConfig(predicate=predicate, map_config=cast(Any, SimpleNamespace(op=MapOp.ADD, constant=0, shift=256)))
+
+
+def test_bar_ddr_staging_refuses_a_non_positive_row_count(tmp_path) -> None:
+    from dau_driver.pipeline_execution import stage_bar_ddr_input, start_bar_ddr_job
+
+    device = fake_device(tmp_path, FakeTransport())
+    staging = SimpleNamespace(input_address=0, input_bytes=1 << 20, output_address=1 << 20, output_bytes=1 << 20)
+    for rows in (0, -1):
+        with pytest.raises(PipelineJobError, match="positive"):
+            stage_bar_ddr_input(device, b"", rows, staging=staging)
+        with pytest.raises(PipelineJobError, match="positive"):
+            start_bar_ddr_job(device, rows, staging=staging)

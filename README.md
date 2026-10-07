@@ -5,7 +5,6 @@ Host I/O for DAU devices: discovery, registers, DMA, and job execution over XDMA
 [![Build Status](https://github.com/dau-dev/dau-driver/actions/workflows/build.yaml/badge.svg?branch=main&event=push)](https://github.com/dau-dev/dau-driver/actions/workflows/build.yaml)
 [![codecov](https://codecov.io/gh/dau-dev/dau-driver/branch/main/graph/badge.svg)](https://codecov.io/gh/dau-dev/dau-driver)
 [![License](https://img.shields.io/github/license/dau-dev/dau-driver)](https://github.com/dau-dev/dau-driver)
-[![PyPI](https://img.shields.io/pypi/v/dau-driver.svg)](https://pypi.python.org/pypi/dau-driver)
 
 `dau-driver` is the host side of a DAU device. It discovers DAU-compatible XDMA
 endpoints, reads the canonical register block, decodes the device's capability
@@ -19,9 +18,13 @@ owns transport and execution only.
   user-client calls, for register access and full H2C/C2H DMA.
 
 ```python
-from dau_driver import discover_devices
+from pathlib import Path
 
-device = discover_devices()[0]
+from dau_driver import discover_devices
+from dau_driver.testing import FakeTransport, fake_device
+
+devices = discover_devices()                       # the XDMA devices under /dev, when a board is installed
+device = devices[0] if devices else fake_device(Path("."), FakeTransport())
 device.check_bar_health()                          # all-ones reads fail here, not later
 print(device.name, device.backend)                 # xdma0 linux-xdma
 print(device.capabilities.dma)                     # alignment / max-transfer constraints
@@ -29,8 +32,10 @@ print(device.read_register_block_snapshot())       # the whole identity block
 print(device.read_status())                        # link, MIG, operator ready bits
 ```
 
-Every execution path also runs against an in-memory fake transport, so the whole
-surface can be exercised — and is tested — with no hardware present.
+The Python execution paths (discovery, registers, transfers, storage, the scan,
+pipeline and fleet runners) also run against the in-memory fake transport above,
+and that is how the test suite exercises them. The kernel driver, the DriverKit
+extension and the native extension are tested on hardware.
 
 ## Documentation
 

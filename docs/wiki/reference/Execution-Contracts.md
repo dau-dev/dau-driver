@@ -25,7 +25,6 @@ execute_scalar_operation(
     output_device_address: int,
     output_byte_count: int,
     trigger: StreamTrigger | None = None,
-    timeout_seconds: float = 5.0,
 ) -> DecodedStreamResult
 ```
 
@@ -285,7 +284,6 @@ cannot make them read one bitstream differently.
 | `start_bar_ddr_job(device, row_count, *, staging, input_address=None, output_address=None)` | Program the addresses and length, then start.                                                                                 |
 | `finish_bar_ddr_job(device, *, staging, output_address=None, timeout_seconds=60.0)`         | Wait and read back. Returns `(raw record bytes, count)`; decoding stays with the caller so hosts can use vectorized decoders. |
 | `execute_bar_ddr_packed(device, payload, row_count, *, staging, timeout_seconds=60.0)`      | Stage, start, finish.                                                                                                         |
-| `execute_bar_ddr_job(device, rows, *, staging, timeout_seconds=60.0)`                       | The tuple-row convenience wrapper: pack, run, and decode the records.                                                         |
 | `bar_ddr_max_rows_per_job(staging)`                                                         | The row budget the given staging layout supports.                                                                             |
 
 Constants: `BAR_ROW_BYTES = 16`, `BAR_RECORD_BYTES = 48`. Both are wire shapes.

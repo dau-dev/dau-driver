@@ -1,13 +1,13 @@
 # XDMA macOS DriverKit Extension
 
-This directory contains a macOS DriverKit system extension (dext) that adapts the Xilinx XDMA PCIe driver model for macOS. The current validation target is device matching plus BAR/register access for DAU identity/status registers. DMA methods are present in the user-client selector table, but the current implementation returns unsupported and does not yet carry host buffers through DriverKit.
+This directory contains a macOS DriverKit system extension (dext) that adapts the Xilinx XDMA PCIe driver model for macOS: device matching, BAR register access, and H2C/C2H DMA through the XDMA engines, driven from Python over IOKit user-client calls.
 
 ## Overview
 
 The XDMA driver provides:
 - **PCI Device Matching**: Automatically detects Xilinx XDMA PCIe devices (vendor 0x10ee and 0x1d0f)
 - **BAR Register Access**: Read/write access to PCIe Base Address Registers for device control
-- **DMA Transfers**: Planned Host-to-Card (H2C) and Card-to-Host (C2H) operations; currently not implemented by the dext
+- **DMA Transfers**: Host-to-Card (H2C) and Card-to-Host (C2H) transfers through the XDMA descriptor engines
 - **Device Information**: Query vendor, device, and subsystem IDs
 
 The DriverKit service is registered as `com.dau-dev.xdma` — the one name user-space tools match. (`XDMADriver` survives only as the dext C++ class name.)
@@ -58,10 +58,10 @@ The driver matches the following PCI device IDs:
 
 ### Development Environment
 
-1. **macOS 11 (Big Sur) or later**
-   - DriverKit is only supported on macOS 11+
+1. **macOS 26.2 or later**
+   - the dext's DriverKit deployment target is 25.2, which ships with macOS 26.2
 
-2. **Xcode 12 or later**
+2. **Xcode 26 or later**
    - Install from Mac App Store
    - Includes DriverKit SDK and required tools
 
@@ -374,7 +374,7 @@ Same as H2C but with reversed addresses:
 |---------|-------------|--------------|
 | Interface | Character devices (`/dev/xdma*`) | IOUserClient methods |
 | BAR Access | `pread`/`pwrite` on `/dev/xdma0_user` | `kMethodReadBAR`/`kMethodWriteBAR` |
-| DMA | `pread`/`pwrite` on `/dev/xdma0_h2c_0` | Planned; current `kMethodDMAWrite`/`kMethodDMARead` stubs return unsupported |
+| DMA | `pread`/`pwrite` on `/dev/xdma0_h2c_0` | `kMethodDMAWrite`/`kMethodDMARead` through the descriptor engines |
 | Interrupts | Linux IRQ handlers | IOInterruptDispatchSource |
 | Memory | `dma_alloc_coherent` | IOBufferMemoryDescriptor |
 

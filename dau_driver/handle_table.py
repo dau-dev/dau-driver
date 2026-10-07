@@ -179,7 +179,8 @@ class HandleTable:
         instead of spinning. Measured on dpv1 (2026-09-27) it is the wrong
         default for a Python caller: any sleep, ``0`` included, hands the
         GIL to another thread and the poll waits out a full switch interval
-        per iteration, about 5 ms a job; the contention it was meant to
+        per iteration, milliseconds on a job that runs for less; the
+        contention it was meant to
         relieve was elsewhere. It stays for a caller whose other threads do
         not hold the GIL.
 

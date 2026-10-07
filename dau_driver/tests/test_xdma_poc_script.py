@@ -13,6 +13,7 @@ REGISTER_WINDOW_BYTES = 0x1000
 
 def load_poc_module():
     spec = importlib.util.spec_from_file_location("dau_xdma_poc", SCRIPT_PATH)
+    assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module

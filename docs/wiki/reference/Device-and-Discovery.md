@@ -86,12 +86,12 @@ user BAR can short-read an eight-byte access.
 
 ### DMA
 
-| Method                                                                            | Behaviour                                                                                           |
-| --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| `prepare_transfer(direction, *, device_address, byte_count, timeout_seconds=5.0)` | Validate and return a `DmaTransfer` without performing it.                                          |
-| `read_register_block_snapshot() -> RegisterBlockSnapshot`                         | The identity/capability words the resident shell advertises, including `lane_count` and `build_id`. |
-| `read_dma(*, device_address, byte_count, timeout_seconds=5.0) -> bytes`           | Validate, then read.                                                                                |
-| `write_dma(*, device_address, data, timeout_seconds=5.0) -> DmaTransfer`          | Validate, then write.                                                                               |
+| Method                                                       | Behaviour                                                                                           |
+| ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
+| `prepare_transfer(direction, *, device_address, byte_count)` | Validate and return a `DmaTransfer` without performing it.                                          |
+| `read_register_block_snapshot() -> RegisterBlockSnapshot`    | The identity/capability words the resident shell advertises, including `lane_count` and `build_id`. |
+| `read_dma(*, device_address, byte_count) -> bytes`           | Validate, then read.                                                                                |
+| `write_dma(*, device_address, data) -> DmaTransfer`          | Validate, then write.                                                                               |
 
 DMA device addresses are device memory addresses, not AXI-lite register offsets.
 
@@ -141,18 +141,17 @@ A `StrEnum`: `H2C` (`"h2c"`), `C2H` (`"c2h"`).
 
 ### `DmaTransfer`
 
-| Field             | Type           | Default |
-| ----------------- | -------------- | ------- |
-| `direction`       | `DmaDirection` | —       |
-| `device_address`  | `int`          | —       |
-| `byte_count`      | `int`          | —       |
-| `channel_path`    | `Path`         | —       |
-| `timeout_seconds` | `float`        | `5.0`   |
+| Field            | Type           | Default |
+| ---------------- | -------------- | ------- |
+| `direction`      | `DmaDirection` | —       |
+| `device_address` | `int`          | —       |
+| `byte_count`     | `int`          | —       |
+| `channel_path`   | `Path`         | —       |
 
 ### `validate_transfer`
 
 ```python
-validate_transfer(direction, device_address, byte_count, constraints: DmaConstraints) -> None
+validate_transfer(direction, device_address, byte_count, constraints: DmaConstraints, *, memory_bytes=None) -> None
 ```
 
 Raises `TransferValidationError` when `byte_count` is not positive,

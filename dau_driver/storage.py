@@ -15,6 +15,7 @@ raises before anything is staged. ``stage``/``resolve`` take any object with
 from __future__ import annotations
 
 from dataclasses import dataclass
+from itertools import count
 
 
 class StaleHandleError(RuntimeError):
@@ -23,6 +24,11 @@ class StaleHandleError(RuntimeError):
 
 class StorageExhaustedError(RuntimeError):
     """The tier cannot hold the requested allocation."""
+
+
+# one token per allocator for the life of the process; the id of a discarded
+# object can be reused by the next allocation and would let a stale handle match
+_ALLOCATOR_TOKENS = count(1)
 
 
 @dataclass(frozen=True)
@@ -62,7 +68,7 @@ class StorageAllocator:
             raise ValueError("align must be a positive power of two")
         self.tier = tier
         self.align = align
-        self._token = id(object())  # binds handles to THIS allocator instance
+        self._token = next(_ALLOCATOR_TOKENS)  # binds handles to THIS allocator instance
         # free list of [start, end) spans: the tier minus the reserved regions
         spans = [(base, base + capacity_bytes)]
         for res_base, res_size in sorted(reserved):

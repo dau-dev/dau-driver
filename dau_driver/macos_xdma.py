@@ -17,7 +17,6 @@ from .errors import DeviceNotFoundError, RegisterAccessError, TransferIoError, U
 
 DEFAULT_BACKEND = "macos-xdma"
 CANONICAL_SERVICE_NAME = "com.dau-dev.xdma"
-DEFAULT_SERVICE_NAME = CANONICAL_SERVICE_NAME
 DEFAULT_SERVICE_NAMES = (CANONICAL_SERVICE_NAME,)
 REGISTER_BAR_INDICES = (0, 1, 2, 3, 4, 5)
 K_METHOD_READ_BAR = 0
@@ -305,12 +304,6 @@ class _IOKitBindings:
         if out_size.value != output_size:
             raise TransferIoError(f"IOConnectCallMethod({selector}) returned {out_size.value} bytes, expected {output_size}")
         return bytes(buffer)
-
-    def matching_services(self, service_name: str) -> int:
-        iterators = self.matching_iterators(service_name)
-        for iterator in iterators[1:]:
-            self.release(iterator)
-        return iterators[0] if iterators else 0
 
     def matching_iterators(self, service_name: str) -> tuple[int, ...]:
         iterators: list[int] = []
