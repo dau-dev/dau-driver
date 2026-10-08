@@ -264,6 +264,12 @@ IOConnectCallScalarMethod(connection, kMethodReadBAR,
 IOServiceClose(connection);
 ```
 
+## Trust model
+
+The dext sets no user-client entitlement and declares `allow-any-userclient-access`, so any process on the host that can open the service can read and write the card's registers and run DMA against host memory it supplies. That is deliberate: the client is an unsigned Python process, and it matches what the Linux character devices give under a permissive udev rule. Whoever can run code on the host can drive the card. Do not install the dext on a machine where that is not acceptable.
+
+What the dext does enforce is the shape of a request: the BAR index is one of the six, the offset is 32-bit aligned, and the access lies inside the mapped length of that BAR (recorded at start from `GetBARInfo`), so a register access cannot reach past the device's own ranges; DMA lengths and buffers are checked the same way.
+
 ## Device Matching
 
 The driver automatically matches PCI devices based on vendor and device IDs specified in `Info.plist`. When a supported device is detected:

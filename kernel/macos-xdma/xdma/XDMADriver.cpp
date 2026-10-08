@@ -53,6 +53,7 @@ struct XDMADriver_IVars {
     uint64_t ringCPUAddress;      // ring address in the dext's address space
     uint8_t configBarIndex;       // memoryIndex of the XDMA config BAR
     bool configBarValid;
+    uint64_t barSize[6];          // mapped length per memoryIndex; 0 = not a memory BAR
 };
 
 bool XDMADriver::init()
@@ -102,6 +103,22 @@ kern_return_t IMPL(XDMADriver, Start)
     ivars->pciDevice->ConfigurationRead16(0x04, &cmdReg);
     cmdReg |= 0x0006;  // Memory space enable | bus master enable
     ivars->pciDevice->ConfigurationWrite16(0x04, cmdReg);
+
+    // Record each memory BAR's mapped length, so a user-client register
+    // access is refused past the end of its BAR instead of reaching whatever
+    // the PCI bridge answers there. memoryIndex, not BAR index, is what the
+    // MemoryRead32/MemoryWrite32 calls take, so the table is keyed by it.
+    for (uint8_t i = 0; i < 6; i++) {
+        ivars->barSize[i] = 0;
+    }
+    for (uint8_t bar = 0; bar < 6; bar++) {
+        uint8_t memoryIndex = 0;
+        uint64_t barSize = 0;
+        uint8_t barType = 0;
+        if (ivars->pciDevice->GetBARInfo(bar, &memoryIndex, &barSize, &barType) == kIOReturnSuccess && memoryIndex < 6) {
+            ivars->barSize[memoryIndex] = barSize;
+        }
+    }
 
     // Locate the XDMA config BAR: probe each mapped range for the H2C0
     // engine identifier (identifier reg [31:16] == 0x1fc0). The DAU user
@@ -238,6 +255,9 @@ kern_return_t XDMADriver::ReadBAR(uint32_t bar_index, uint64_t offset, uint32_t 
     if (offset & 3) {
         return kIOReturnNotAligned;
     }
+    if (ivars->barSize[bar_index] == 0 || offset > ivars->barSize[bar_index] - 4) {
+        return kIOReturnBadArgument;
+    }
 
     ivars->pciDevice->MemoryRead32(bar_index, offset, value);
     return kIOReturnSuccess;
@@ -253,6 +273,9 @@ kern_return_t XDMADriver::WriteBAR(uint32_t bar_index, uint64_t offset, uint32_t
     }
     if (offset & 3) {
         return kIOReturnNotAligned;
+    }
+    if (ivars->barSize[bar_index] == 0 || offset > ivars->barSize[bar_index] - 4) {
+        return kIOReturnBadArgument;
     }
 
     ivars->pciDevice->MemoryWrite32(bar_index, offset, value);
