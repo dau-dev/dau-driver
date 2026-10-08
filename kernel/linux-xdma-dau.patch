@@ -1,0 +1,158 @@
+--- a/xdma/cdev_ctrl.c	2026-10-08 12:07:11
++++ b/xdma/cdev_ctrl.c	2026-07-10 14:46:36
+@@ -233,7 +233,11 @@
+ 	 * prevent touching the pages (byte access) for swap-in,
+ 	 * and prevent the pages from being swapped out
+ 	 */
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 3, 0)
++	vm_flags_set(vma, VMEM_FLAGS);
++#else
+ 	vma->vm_flags |= VMEM_FLAGS;
++#endif
+ 	/* make MMIO accessible to user space */
+ 	rv = io_remap_pfn_range(vma, vma->vm_start, phys >> PAGE_SHIFT,
+ 			vsize, vma->vm_page_prot);
+--- a/xdma/cdev_sgdma.c
++++ b/xdma/cdev_sgdma.c
+@@ -48,6 +48,7 @@
+ static void char_sgdma_unmap_user_buf(struct xdma_io_cb *cb, bool write);
+ 
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 5, 0)
+ static void async_io_handler(unsigned long  cb_hndl, int err)
+ {
+ 	struct xdma_cdev *xcdev;
+@@ -88,7 +89,7 @@
+ 	if (!err)
+ 		numbytes = xdma_xfer_completion((void *)cb, xdev,
+ 				engine->channel, cb->write, cb->ep_addr,
+-				&cb->sgt, 0, 
++				&cb->sgt, 0,
+ 				cb->write ? h2c_timeout * 1000 :
+ 					    c2h_timeout * 1000);
+ 
+@@ -116,7 +117,7 @@
+ 		kmem_cache_free(cdev_cache, caio);
+ 		kfree(cb);
+ 		return;
+-	} 
++	}
+ 	spin_unlock(&caio->lock);
+ 	return;
+ 
+@@ -130,6 +131,7 @@
+ #endif
+ 	kmem_cache_free(cdev_cache, caio);
+ }
++#endif
+ 
+ 
+ /*
+@@ -232,6 +234,7 @@
+ 
+ /*
+  * Map a user memory range into a scatterlist
++ * inspired by vhost_scsi_map_to_sgl()
+  * Returns the number of scatterlist entries used or -errno on error.
+  */
+ static inline void xdma_io_cb_release(struct xdma_io_cb *cb)
+@@ -416,6 +419,7 @@
+ 	return char_sgdma_read_write(file, buf, count, pos, 0);
+ }
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 5, 0)
+ static ssize_t cdev_aio_write(struct kiocb *iocb, const struct iovec *io,
+ 				unsigned long count, loff_t pos)
+ {
+@@ -487,7 +491,9 @@
+ 
+ 	return -EIOCBQUEUED;
+ }
++#endif
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 5, 0)
+ static ssize_t cdev_aio_read(struct kiocb *iocb, const struct iovec *io,
+ 				unsigned long count, loff_t pos)
+ {
+@@ -561,16 +567,28 @@
+ 
+ 	return -EIOCBQUEUED;
+ }
++#endif
+ 
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 16, 0)
+ static ssize_t cdev_write_iter(struct kiocb *iocb, struct iov_iter *io)
+ {
++
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 5, 0)
++	pr_warn_once("write_iter disabled on Linux >= 6.5; use scalar write/pwrite paths\n");
++	return -EOPNOTSUPP;
++#else
+ 	return cdev_aio_write(iocb, io->iov, io->nr_segs, io->iov_offset);
++#endif
+ }
+ 
+ static ssize_t cdev_read_iter(struct kiocb *iocb, struct iov_iter *io)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 5, 0)
++	pr_warn_once("read_iter disabled on Linux >= 6.5; use scalar read/pread paths\n");
++	return -EOPNOTSUPP;
++#else
+ 	return cdev_aio_read(iocb, io->iov, io->nr_segs, io->iov_offset);
++#endif
+ }
+ #endif
+ 
+@@ -798,7 +816,7 @@
+ 
+ 	return io.error;
+ }
+-	
++
+ static long char_sgdma_ioctl(struct file *file, unsigned int cmd,
+ 		unsigned long arg)
+ {
+--- a/xdma/libxdma.h
++++ b/xdma/libxdma.h
+@@ -436,7 +436,7 @@
+ 
+ /* Describes a (SG DMA) single transfer for the engine */
+ #define XFER_FLAG_NEED_UNMAP		0x1
+-#define XFER_FLAG_ST_C2H_EOP_RCVED	0x2	/* ST c2h only */ 
++#define XFER_FLAG_ST_C2H_EOP_RCVED	0x2	/* ST c2h only */
+ struct xdma_transfer {
+ 	struct list_head entry;		/* queue of non-completed transfers */
+ 	struct xdma_desc *desc_virt;	/* virt addr of the 1st descriptor */
+@@ -483,7 +483,7 @@
+ 
+ 	unsigned int sw_desc_idx;
+ 	unsigned int sw_desc_cnt;
+-	struct sw_desc sdesc[0];
++	struct sw_desc sdesc[];
+ };
+ 
+ struct xdma_engine {
+--- a/xdma/xdma_cdev.c
++++ b/xdma/xdma_cdev.c
+@@ -603,7 +603,11 @@
+ 
+ int xdma_cdev_init(void)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 4, 0)
++	g_xdma_class = class_create(XDMA_NODE_NAME);
++#else
+ 	g_xdma_class = class_create(THIS_MODULE, XDMA_NODE_NAME);
++#endif
+ 	if (IS_ERR(g_xdma_class)) {
+ 		dbg_init(XDMA_NODE_NAME ": failed to create class");
+ 		return -EINVAL;
+--- a/xdma/xdma_mod.c
++++ b/xdma/xdma_mod.c
+@@ -111,7 +111,6 @@
+ 	/* aws */
+ 	{ PCI_DEVICE(0x1d0f, 0xf000), },
+ 	{ PCI_DEVICE(0x1d0f, 0xf001), },
+-
+ 	{0,}
+ };
+ MODULE_DEVICE_TABLE(pci, pci_ids);
