@@ -50,6 +50,7 @@ develop = [
     "hatch-cpp",
     "hatchling",
     "mdformat",
+    "mdformat-frontmatter",
     "mdformat-tables>=1",
     "nanobind",
     "pyarrow",
@@ -112,7 +113,7 @@ skip = "*win32 *arm64"
 [tool.coverage.run]
 branch = true
 omit = [
-    "dau_driver/tests/integration/",
+    "dau_driver/tests/integration/*",
 ]
 
 [tool.coverage.report]
