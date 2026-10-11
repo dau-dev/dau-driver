@@ -63,3 +63,13 @@ def test_importing_the_package_stays_cheap() -> None:
     result = subprocess.run([sys.executable, "-c", probe], capture_output=True, text=True, check=True)
     loaded = dict(zip(["ccflow", "pandas"], result.stdout.split(), strict=True))
     assert loaded == {name: "0" for name in ["ccflow", "pandas"]}, f"importing dau_driver pulled in {[n for n, v in loaded.items() if v == '1']}"
+
+
+def test_two_submodules_cannot_export_one_name() -> None:
+    """The declaration is the single source for ``__all__`` and the
+    resolver, so a name claimed twice would make which module provides it
+    depend on dict order. It is refused where the declaration is read."""
+    from dau_driver._lazy import lazy_exports
+
+    with pytest.raises(ValueError, match="exported by both"):
+        lazy_exports("dau_driver", {"first": ("Shared",), "second": ("Shared",)})
