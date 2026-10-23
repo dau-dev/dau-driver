@@ -11,18 +11,21 @@ from collections.abc import Callable, Mapping
 
 from dau_core.capabilities import OperatorCapability
 from dau_core.capability_contract import CapabilityContract
-from dau_core.registers import DEFAULT_STREAM_JOB_REGISTER_CONTRACT, RegisterBlockSnapshot, RegisterMapVersion, RegisterOffset, StreamProtocolVersion
+from dau_core.registers import (
+    CAPABILITY_WORDS_REGISTER_MAP_VERSION,
+    DEFAULT_STREAM_JOB_REGISTER_CONTRACT,
+    JOB_CAPACITY_REGISTER_MAP_VERSION,
+    RegisterBlockSnapshot,
+    RegisterMapVersion,
+    RegisterOffset,
+    StreamProtocolVersion,
+)
 from dau_core.stream import LogicalType, OperationCode, output_type_for
 
 # the register-level type claim of the bitmap words — every
 # opcode-driven tile in the palette is INT32 (per-tile types travel in the
 # manifest capability contract, not in registers)
 REGISTER_BITMAP_INPUT_TYPES = (LogicalType.INT32,)
-CAPABILITY_WORDS_REGISTER_MAP_VERSION = RegisterMapVersion(0, 2)
-# job capacity arrived in 0.3. A 0.2 shell does not decode those offsets, so
-# they are not read from one -- it reports no capacity and the host refuses
-# to batch rather than guessing at depths it cannot see.
-JOB_CAPACITY_REGISTER_MAP_VERSION = RegisterMapVersion(0, 3)
 # identity window candidates: shell base, then the stream-job contract window
 REGISTER_WINDOW_OFFSETS = (0x0, DEFAULT_STREAM_JOB_REGISTER_CONTRACT.register_window_offset)
 

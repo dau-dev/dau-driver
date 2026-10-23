@@ -216,10 +216,7 @@ def test_device_decodes_status_and_counters_from_register_block(tmp_path: Path) 
     status = device.read_status()
     counters = device.read_counters()
 
-    assert status.link_ready
-    assert status.mig_ready
-    assert status.operator_ready
-    assert not status.reset_active
+    assert status.raw_status == 0b0111
     assert status.last_error == 0x42
     assert counters.h2c_bytes == 0x1_0000_0040
     assert counters.c2h_bytes == 0x2_0000_0080

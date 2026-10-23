@@ -30,9 +30,6 @@ import dau_driver
 # or RECORD shape -- fixed by the format, identical on every board.
 WIRE_SHAPE_CONSTANTS = {
     "DMA_ALIGN_BYTES": "the DMA engine's alignment, a property of the transfer format",
-    "GROUP_RECORD_BYTES": "bytes per grouped-aggregation record on the wire",
-    "BAR_ROW_BYTES": "bytes per bar input row on the wire",
-    "BAR_RECORD_BYTES": "bytes per bar output record on the wire",
 }
 
 # Constants that DO describe board or shell geometry and have not moved to
