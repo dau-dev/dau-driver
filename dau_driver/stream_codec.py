@@ -6,6 +6,7 @@ from dataclasses import dataclass
 
 from dau_core.stream import (
     DEFAULT_RECORD_BATCH_LIMITS,
+    LOGICAL_TYPE_BYTE_WIDTHS,
     BatchHeader,
     ColumnDescriptor,
     InvalidStreamError,
@@ -17,18 +18,6 @@ from dau_core.stream import (
 )
 
 _ALIGNMENT_BYTES = 64
-_SUPPORTED_WIDTHS_BYTES = {
-    LogicalType.INT8: 1,
-    LogicalType.INT16: 2,
-    LogicalType.INT32: 4,
-    LogicalType.INT64: 8,
-    LogicalType.UINT8: 1,
-    LogicalType.UINT16: 2,
-    LogicalType.UINT32: 4,
-    LogicalType.UINT64: 8,
-    LogicalType.FLOAT32: 4,
-    LogicalType.FLOAT64: 8,
-}
 _SCALAR_RESULT_STRUCTS = {
     LogicalType.INT8: struct.Struct("<b"),
     LogicalType.INT16: struct.Struct("<h"),
@@ -140,7 +129,7 @@ class StreamEncoder:
         payload_bytes = bytes(payload)
         if row_count < 0:
             raise InvalidStreamError("row_count cannot be negative")
-        width_bytes = _SUPPORTED_WIDTHS_BYTES[normalized_type]
+        width_bytes = LOGICAL_TYPE_BYTE_WIDTHS[normalized_type]
         expected_payload_length = row_count * width_bytes
         if len(payload_bytes) != expected_payload_length:
             raise InvalidStreamError(
@@ -203,7 +192,7 @@ class StreamEncoder:
         offset = first_payload_offset
         for column in columns:
             normalized_type = _normalize_supported_type(column.logical_type)
-            width_bytes = _SUPPORTED_WIDTHS_BYTES[normalized_type]
+            width_bytes = LOGICAL_TYPE_BYTE_WIDTHS[normalized_type]
             payload_bytes = bytes(column.payload)
             if len(payload_bytes) != row_count * width_bytes:
                 raise InvalidStreamError(
@@ -264,7 +253,7 @@ class StreamEncoder:
                 raise InvalidStreamError(f"column {name!r} has nulls; record batches must be null-free")
             # zero-copy view of the primitive data buffer (offset-aware for
             # sliced arrays); one copy happens at stream assembly
-            width = _SUPPORTED_WIDTHS_BYTES[logical_type]
+            width = LOGICAL_TYPE_BYTE_WIDTHS[logical_type]
             start = array.offset * width
             payload = bytes(memoryview(array.buffers()[1])[start : start + len(array) * width])
             columns.append(RecordBatchColumn(field_id=field_id, logical_type=logical_type, payload=payload))
@@ -332,10 +321,10 @@ class StreamDecoder:
             _normalize_supported_type(column.logical_type)
             if column.null_count != 0 or column.validity_length != 0:
                 raise InvalidStreamError("record-batch decode does not support validity bitmaps yet")
-            expected_width_bits = _SUPPORTED_WIDTHS_BYTES[column.logical_type] * 8
+            expected_width_bits = LOGICAL_TYPE_BYTE_WIDTHS[column.logical_type] * 8
             if column.physical_width_bits != expected_width_bits:
                 raise InvalidStreamError(f"physical_width_bits must be {expected_width_bits} for {column.logical_type.name.lower()}")
-            if column.payload_length != column.row_count * _SUPPORTED_WIDTHS_BYTES[column.logical_type]:
+            if column.payload_length != column.row_count * LOGICAL_TYPE_BYTE_WIDTHS[column.logical_type]:
                 raise InvalidStreamError(f"column {column.field_id} payload length does not match row_count")
             _validate_payload_window(column.payload_offset, column.payload_length, len(encoded))
         validate_record_batch(header, columns, limits=limits)
@@ -399,7 +388,7 @@ def _validate_header(header: BatchHeader, encoded_length: int) -> None:
 
 def _validate_column(header: BatchHeader, column: ColumnDescriptor, encoded_length: int) -> None:
     _normalize_supported_type(column.logical_type)
-    expected_width_bits = _SUPPORTED_WIDTHS_BYTES[column.logical_type] * 8
+    expected_width_bits = LOGICAL_TYPE_BYTE_WIDTHS[column.logical_type] * 8
     if column.physical_width_bits != expected_width_bits:
         raise InvalidStreamError(f"physical_width_bits must be {expected_width_bits} for {column.logical_type.name.lower()}")
     if column.null_count != 0 or column.validity_length != 0:
@@ -408,7 +397,7 @@ def _validate_column(header: BatchHeader, column: ColumnDescriptor, encoded_leng
         raise InvalidStreamError("column row_count does not match batch header")
     if column.payload_offset != header.payload_offset or column.payload_length != header.payload_length:
         raise InvalidStreamError("column payload window does not match batch header")
-    expected_payload_length = column.row_count * _SUPPORTED_WIDTHS_BYTES[column.logical_type]
+    expected_payload_length = column.row_count * LOGICAL_TYPE_BYTE_WIDTHS[column.logical_type]
     if column.payload_length != expected_payload_length:
         raise InvalidStreamError("column payload length does not match row_count")
     _validate_payload_window(column.payload_offset, column.payload_length, encoded_length)
@@ -435,7 +424,7 @@ def _normalize_supported_type(logical_type: LogicalType) -> LogicalType:
         normalized_type = LogicalType(logical_type)
     except ValueError as exc:
         raise InvalidStreamError(f"unsupported logical type {logical_type!r}") from exc
-    if normalized_type not in _SUPPORTED_WIDTHS_BYTES:
+    if normalized_type not in LOGICAL_TYPE_BYTE_WIDTHS:
         raise InvalidStreamError(f"unsupported logical type {normalized_type.name.lower()}")
     return normalized_type
 

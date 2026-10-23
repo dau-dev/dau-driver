@@ -28,13 +28,13 @@ from dau_core.operators import (
     grouped_aggregate_rows,
     map_rows,
 )
+from dau_core.records import GROUP_RECORD_BYTES
 from dau_core.registers import JobControlFlag, JobStatusFlag, RegisterOffset
 
 from dau_driver import discover_devices
 
 INPUT_ADDRESS = 0x0000_0000
 OUTPUT_ADDRESS = 0x0010_0000
-GROUP_RECORD_BYTES = 40
 DMA_ALIGN = 64
 
 PREDICATE = FilterPredicate(op0=PredicateOp.GT, constant0=0)

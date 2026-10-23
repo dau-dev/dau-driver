@@ -257,9 +257,9 @@ identity.
 | `decode_group_records(data, count)`                                                              | 40-byte group records as `GroupAggregate` values.                                            |
 | `execute_keyed_pipeline_job(device, rows, *, timeout_seconds=5.0, contract=None, max_rows=None)` | One batch through a configured pipeline. Returns `(group records, selected row count)`.      |
 
-Constants: `GROUP_RECORD_BYTES = 40`, `DMA_ALIGN_BYTES = 64`. These are **wire
-and record shapes** — fixed by the format both sides compile against, not by
-the board.
+`DMA_ALIGN_BYTES = 64` is a **wire shape**: fixed by the transfer format, not by
+the board. The record layouts and their sizes (`GROUP_RECORD_BYTES` is 40) are
+defined in `dau_core.records`, next to the tiles that produce them.
 
 Capacity is not a constant. `device_job_capacity(device)` reads the input row
 and output record capacities the shell advertises; exceeding them raises
@@ -270,10 +270,12 @@ module-level constants exactly, in both directions.
 
 ### Bar jobs
 
-The bar wire layout is declared once, in `BAR_ROW_FIELDS` and
-`BAR_RECORD_FIELDS`, with `struct_format(fields)` and `numpy_dtype_fields(fields)`
-deriving the two consumers' views so a padding, signedness, or field-order change
-cannot make them read one bitstream differently.
+The bar wire layout is declared once, in `dau_core.records` as `BAR_ROW_FIELDS`
+and `BAR_RECORD_FIELDS`, with `struct_format(fields)` and
+`numpy_dtype_fields(fields)` deriving the two consumers' views so a padding,
+signedness, or field-order change cannot make them read one bitstream
+differently. dau-core's suite checks each layout's size against the tile's
+registry entry.
 
 | Function                                                                                    | Behaviour                                                                                                                     |
 | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
@@ -286,7 +288,7 @@ cannot make them read one bitstream differently.
 | `execute_bar_ddr_packed(device, payload, row_count, *, staging, timeout_seconds=60.0)`      | Stage, start, finish.                                                                                                         |
 | `bar_ddr_max_rows_per_job(staging)`                                                         | The row budget the given staging layout supports.                                                                             |
 
-Constants: `BAR_ROW_BYTES = 16`, `BAR_RECORD_BYTES = 48`. Both are wire shapes.
+`BAR_ROW_BYTES` (16) and `BAR_RECORD_BYTES` (48) come from the same module.
 
 `staging` is the board's `DdrStaging` — its input regions, output region, sizes,
 and alignment — passed in from the composed platform. It is a keyword argument

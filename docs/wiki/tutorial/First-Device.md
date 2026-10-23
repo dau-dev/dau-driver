@@ -86,10 +86,7 @@ transport.registers[int(RegisterOffset.BATCHES)] = 12
 print("magic:", hex(device.read_register(RegisterOffset.MAGIC)))
 
 status = device.read_status()
-print("link_ready:    ", status.link_ready)
-print("mig_ready:     ", status.mig_ready)
-print("operator_ready:", status.operator_ready)
-print("reset_active:  ", status.reset_active)
+print("status:", bin(status.raw_status), "last error:", status.last_error)
 
 print(device.read_counters())
 ```
@@ -98,16 +95,13 @@ print(device.read_counters())
 
 ```text
 magic: 0x44415531
-link_ready:     True
-mig_ready:      True
-operator_ready: True
-reset_active:   False
+status: 0b111 last error: 0
 DeviceCounters(h2c_bytes=0, c2h_bytes=0, rows=1000000, batches=12, stalls=0)
 ```
 
 `0x44415531` is the DAU magic word — it is how discovery tells a DAU shell from
-any other XDMA bitstream. `DeviceStatus` decodes the status word into named bits,
-and the counters are 64-bit values read as two 32-bit register accesses.
+any other XDMA bitstream. `DeviceStatus` holds the status word as read, and the
+counters are 64-bit values read as two 32-bit register accesses.
 
 ## Step 4 — Check the register path is healthy
 

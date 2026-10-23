@@ -169,8 +169,8 @@ direction's channel count is zero. `DauDevice` passes its own `memory_bytes`.
 | `raw_status` | `int` |
 | `last_error` | `int` |
 
-Properties decoding `raw_status`: `link_ready` (bit 0), `mig_ready` (bit 1),
-`operator_ready` (bit 2), `reset_active` (bit 3).
+`raw_status` is the STATUS word as read. No shell assigns its bits yet, so it
+is not decoded into named flags.
 
 ### `DeviceCounters`
 
@@ -196,7 +196,8 @@ hardware results. Host opcodes must never be submitted to the device. The
 composed-capability words (`LANE_COUNT`, `HOST_OPCODE_BITMAP`, `SORT_CAPACITY`)
 are only read on 0.2 and above; all-ones is normalized to not-advertised. The
 job-capacity words (`INPUT_ROW_CAPACITY`, `OUTPUT_RECORD_CAPACITY`) need 0.3 and
-above — `JOB_CAPACITY_REGISTER_MAP_VERSION`.
+above. Both gates, `CAPABILITY_WORDS_REGISTER_MAP_VERSION` and
+`JOB_CAPACITY_REGISTER_MAP_VERSION`, are defined in `dau_core.registers`.
 
 ## Storage
 

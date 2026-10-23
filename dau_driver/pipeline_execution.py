@@ -13,12 +13,21 @@ import time
 from dataclasses import dataclass
 
 from dau_core.operators import FilterPredicate, GroupAggregate, MapConfig
+from dau_core.records import (
+    BAR_RECORD_BYTES,
+    BAR_RECORD_FIELDS,
+    BAR_ROW_BYTES,
+    BAR_ROW_FIELDS,
+    GROUP_RECORD_BYTES,
+    GROUP_RECORD_FIELDS,
+    KEYED_ROW_FIELDS,
+    struct_format,
+)
 from dau_core.registers import JobControlFlag, JobStatusFlag, RegisterOffset, StreamJobRegisterContract
 
 from .device import write_address
 from .errors import RegisterAccessError
 
-GROUP_RECORD_BYTES = 40
 DMA_ALIGN_BYTES = 64
 
 
@@ -71,14 +80,14 @@ class KeyedPipelineConfig:
 def pack_keyed_rows(rows: list[tuple[int, int]]) -> bytes:
     """{value, key} pair rows on the 64-byte DMA grid; the logical length
     stays ``len(rows) * 8``."""
-    payload = b"".join(struct.pack("<iI", key, value & 0xFFFFFFFF) for key, value in rows)
+    payload = b"".join(struct.pack(struct_format(KEYED_ROW_FIELDS), key, value & 0xFFFFFFFF) for key, value in rows)
     return payload + b"\x00" * ((-len(payload)) % DMA_ALIGN_BYTES)
 
 
 def decode_group_records(data: bytes, count: int) -> list[GroupAggregate]:
     groups = []
     for offset in range(0, count * GROUP_RECORD_BYTES, GROUP_RECORD_BYTES):
-        key, first, last, minimum, maximum, _pad, total, rows = struct.unpack_from("<iiiiiiqQ", data, offset)
+        key, first, last, minimum, maximum, _pad, total, rows = struct.unpack_from(struct_format(GROUP_RECORD_FIELDS), data, offset)
         groups.append(GroupAggregate(key=key, first=first, last=last, minimum=minimum, maximum=maximum, total=total, count=rows))
     return groups
 
@@ -192,36 +201,6 @@ def execute_keyed_pipeline_job(
 # meant a padding, signedness or field-order change could make the two halves
 # read one bitstream differently, so the shapes live here and both sides
 # derive from them.
-_STRUCT_CODE = {"i4": "i", "i8": "q", "u8": "Q"}
-
-BAR_ROW_FIELDS: tuple[tuple[str, str], ...] = (("key", "i4"), ("price", "i4"), ("shares", "i4"), ("frac", "i4"))
-BAR_RECORD_FIELDS: tuple[tuple[str, str], ...] = (
-    ("key", "i4"),
-    ("open", "i4"),
-    ("close", "i4"),
-    ("low", "i4"),
-    ("high", "i4"),
-    ("pad", "i4"),
-    ("shares", "i8"),
-    ("frac", "i8"),
-    ("count", "u8"),
-)
-
-
-def struct_format(fields: tuple[tuple[str, str], ...]) -> str:
-    """The little-endian ``struct`` format for a declared field layout."""
-    return "<" + "".join(_STRUCT_CODE[kind] for _name, kind in fields)
-
-
-def numpy_dtype_fields(fields: tuple[tuple[str, str], ...]) -> list[tuple[str, str]]:
-    """The same layout as numpy dtype pairs, for vectorized consumers."""
-    return [(name, "<" + kind) for name, kind in fields]
-
-
-BAR_ROW_BYTES = 16
-BAR_RECORD_BYTES = 48
-
-
 def pack_bar_rows(rows: list[tuple[int, int, int, int]]) -> bytes:
     """(key, price, shares, frac) rows for the fused bar tile, on the DMA
     grid; the logical length stays ``len(rows) * 16``."""
@@ -441,7 +420,9 @@ def device_job_capacity(device) -> tuple[int, int]:
     reflashed inside one session -- the flywheel does exactly that -- and a
     cached capacity would then describe the previous shell.
     """
-    from .capability_decode import JOB_CAPACITY_REGISTER_MAP_VERSION, decode_register_map_version
+    from dau_core.registers import JOB_CAPACITY_REGISTER_MAP_VERSION
+
+    from .capability_decode import decode_register_map_version
 
     version = decode_register_map_version(device.read_register(RegisterOffset.REGISTER_MAP_VERSION))
     if version < JOB_CAPACITY_REGISTER_MAP_VERSION:
