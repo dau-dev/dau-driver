@@ -11,7 +11,7 @@ name = "dau-driver"
 authors = [
     {name = "the dau-driver authors", email = "dev@dau.dev"},
 ]
-description = "PCIe Driver for dau"
+description = "PCIe driver for dau projects"
 readme = "README.md"
 license = { text = "Apache-2.0" }
 version = "0.1.0"

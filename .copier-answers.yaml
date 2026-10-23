@@ -8,7 +8,7 @@ add_vcpkg: false
 add_wiki: false
 email: dev@dau.dev
 github: dau-dev
-project_description: PCIe Driver for dau
+project_description: PCIe driver for dau projects
 project_name: dau-driver
 python_version_primary: '3.12'
 team: the dau-driver authors
