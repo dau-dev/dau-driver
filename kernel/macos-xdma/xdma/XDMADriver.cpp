@@ -51,6 +51,7 @@ struct XDMADriver_IVars {
     IODMACommand *ringDMACommand;
     uint64_t ringDeviceAddress;   // ring IOVA as seen by the device
     uint64_t ringCPUAddress;      // ring address in the dext's address space
+    IOLock *ringLock;             // one transfer owns the ring, H2C or C2H, at a time
     uint8_t configBarIndex;       // memoryIndex of the XDMA config BAR
     bool configBarValid;
     uint64_t barSize[6];          // mapped length per memoryIndex; 0 = not a memory BAR
@@ -64,6 +65,11 @@ bool XDMADriver::init()
 
     ivars = IONewZero(XDMADriver_IVars, 1);
     if (ivars == nullptr) {
+        return false;
+    }
+    ivars->ringLock = IOLockAlloc();
+    if (ivars->ringLock == nullptr) {
+        IOSafeDeleteNULL(ivars, XDMADriver_IVars, 1);
         return false;
     }
 
@@ -240,6 +246,10 @@ kern_return_t IMPL(XDMADriver, Stop)
 void XDMADriver::free()
 {
     os_log(OS_LOG_DEFAULT, "XDMADriver::free()");
+    if (ivars != nullptr && ivars->ringLock != nullptr) {
+        IOLockFree(ivars->ringLock);
+        ivars->ringLock = nullptr;
+    }
     IOSafeDeleteNULL(ivars, XDMADriver_IVars, 1);
     super::free();
 }
@@ -367,6 +377,12 @@ kern_return_t XDMADriver::DMATransfer(bool hostToCard, uint64_t device_offset, u
         return kIOReturnDMAError;
     }
 
+    // The H2C and C2H engines share one descriptor ring, so a transfer holds
+    // the ring from writing its chain until the engine has finished reading
+    // it. Without this, a transfer on the other engine could rewrite the
+    // chain while this one is still in flight.
+    IOLockLock(ivars->ringLock);
+
     // Build the descriptor chain
     XDMADescriptor *ring = (XDMADescriptor *)ivars->ringCPUAddress;
     uint64_t dev = device_offset;
@@ -415,7 +431,12 @@ kern_return_t XDMADriver::DMATransfer(bool hostToCard, uint64_t device_offset, u
 
     uint32_t completed = 0;
     ivars->pciDevice->MemoryRead32(bar, chBase + XDMA_ENGINE_COMPLETED_DESC, &completed);
-    bool ok = !(status & XDMA_STAT_BUSY) && !(status & XDMA_STAT_ERROR_MASK);
+    IOLockUnlock(ivars->ringLock);
+
+    // The status bits say the engine stopped without an error; the completed
+    // count says it got through every descriptor of this chain rather than
+    // stopping early on one.
+    bool ok = !(status & XDMA_STAT_BUSY) && !(status & XDMA_STAT_ERROR_MASK) && completed == segCount;
     if (!ok) {
         os_log(OS_LOG_DEFAULT, "XDMADriver: DMA %s failed status=0x%x completed=%u/%u len=%llu",
                hostToCard ? "H2C" : "C2H", status, completed, segCount, length);
