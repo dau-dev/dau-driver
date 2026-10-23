@@ -4,9 +4,9 @@ This guide shows you how to get from "there is a card in the machine" to a
 validated `DauDevice` handle, and how to read the failure when you do not get
 one.
 
-Discovery is deliberately strict. A DAU device is not "an XDMA endpoint"; it is
-an XDMA endpoint whose register window reports the DAU magic word and decodes a
-capability advertisement. Anything else is skipped or refused by name.
+Discovery is strict on purpose. A DAU device is an XDMA endpoint whose register
+window reports the DAU magic word and decodes a capability advertisement.
+Anything else is skipped, or raises a named error when you asked for it by path.
 
 ## Discover every device on the host
 
@@ -29,8 +29,8 @@ devices = discover_devices("/some/other/dev")
 ```
 
 An endpoint whose BAR reads all ones, or whose magic word is not DAU's, is
-skipped rather than returned — broad discovery should not fail because one card
-in the box is running someone else's bitstream.
+skipped rather than returned: broad discovery should not fail because one card in
+the box is running someone else's bitstream.
 
 ## Identify one device by path
 
@@ -42,14 +42,14 @@ from dau_driver import identify_device
 device = identify_device("/dev/xdma0_user")
 ```
 
-This does raise, which is the point: you named this device, so a bad answer is
-an error rather than an omission.
+This one raises: you named this device, so a bad answer is an error rather than
+an omission.
 
-| Exception             | Meaning                                                                                              |
-| --------------------- | ---------------------------------------------------------------------------------------------------- |
-| `UnhealthyBarError`   | The magic word read all ones. The endpoint or its AXI-lite BAR is not responding.                    |
-| `WrongBitstreamError` | The window responded, but with something other than the DAU magic word.                              |
-| `RegisterAccessError` | A register read failed after the window was located — a short read, or the node could not be opened. |
+| Exception             | Meaning                                                                                             |
+| --------------------- | --------------------------------------------------------------------------------------------------- |
+| `UnhealthyBarError`   | The magic word read all ones. The endpoint or its AXI-lite BAR is not responding.                   |
+| `WrongBitstreamError` | The window responded, but with something other than the DAU magic word.                             |
+| `RegisterAccessError` | A register read failed after the window was located: a short read, or the node could not be opened. |
 
 A path that does not exist reads back as zero rather than the magic word, so it
 surfaces as `WrongBitstreamError`, not as a missing-file error.
@@ -65,16 +65,15 @@ wrong bitstream.
 
 ## Check the register path before you trust it
 
-A dead AXI-lite path returns `0xFFFFFFFF`, which is a perfectly plausible
-number. Check for it explicitly:
+A dead AXI-lite path returns `0xFFFFFFFF`, which looks like a valid number. Check for it explicitly:
 
 ```python
 device.check_bar_health()
 ```
 
 Raises `UnhealthyBarError` if `MAGIC` or `STREAM_PROTOCOL_VERSION` reads all
-ones. Call it before a sequence you care about and again afterwards — a
-successful DMA that leaves the BAR dead is worth knowing about immediately.
+ones. Call it before a sequence you care about and again afterwards, because a
+successful DMA that leaves the BAR dead is something to know about at once.
 
 To check other offsets, pass them:
 
@@ -95,8 +94,8 @@ print(device.read_counters())
 
 `read_register_block_snapshot()` reads the whole identity block in one pass:
 versions, platform id, shell version, build id, status, DMA constraints, the
-operator bitmap, and the counters. The composed-capability words — lane count,
-host opcode bitmap, sort capacity — are only read on register map 0.2 and above,
+operator bitmap, and the counters. The composed-capability words (lane count,
+host opcode bitmap, sort capacity) are only read on register map 0.2 and above,
 because older shells do not decode those offsets.
 
 `device.capabilities.operators` lists what the device executes.
@@ -107,7 +106,7 @@ never be submitted to the device.
 ## Read the concrete capability contract
 
 The register bitmap is a coarse advertisement. A design's shell-build manifest
-carries the exact composed contract — per-tile opcodes and input types, with no
+holds the exact composed contract, per-tile opcodes and input types, with no
 bitmap-times-types expansion:
 
 ```python
@@ -158,13 +157,13 @@ NativeInfo(backend='nanobind', abi_version=1, package_version='0.1.0', extension
 ```
 
 `backend='python'` with `extension_available=False` means the compiled extension
-is not present and the pure-Python fallback is in use. Everything still works;
-hot paths are slower.
+is not present. Everything still works: the extension only reports its own
+backend and ABI version today, and every path runs in Python either way.
 
 ## Next
 
-- [Move data to and from a device](Move-Data) — DMA and the stream codec.
-- [Device and discovery reference](Device-and-Discovery) — every
+- [Move data to and from a device](move-data.md): DMA and the stream codec.
+- [Device and discovery reference](../reference/device-and-discovery.md): every
   field and signature.
-- [The transport boundary](Transport-Boundary) — why discovery
-  refuses so much.
+- [The transport boundary](../explanation/transport-boundary.md): why discovery
+  is strict.

@@ -73,16 +73,16 @@ declared and never pre-biased. The module-level `read_u32(path, offset)` and
 and a caller using them composes the window itself.
 
 The window is discovered rather than configured.
-`capability_decode.REGISTER_WINDOW_OFFSETS` is the candidate list —
+`capability_decode.REGISTER_WINDOW_OFFSETS` is the candidate list,
 `(0x0, 0x1000)`, the shell base first and the stream-job contract window
-second — and discovery returns the first offset whose `MAGIC` reads back as
+second, and discovery returns the first offset whose `MAGIC` reads back as
 the DAU magic word, retrying a few times to let a freshly programmed fabric
 settle. A composition top decodes only the low twelve address bits and returns
 all ones for anything unmapped, so a health probe must stay on contract
 registers inside the 4 KiB window.
 
-64-bit registers are read as two separate 32-bit accesses, deliberately: the
-user BAR can short-read an eight-byte access.
+64-bit registers are read as two separate 32-bit accesses on purpose: the user
+BAR can short-read an eight-byte access.
 
 ### DMA
 
@@ -97,8 +97,8 @@ DMA device addresses are device memory addresses, not AXI-lite register offsets.
 
 ## `DeviceTransport`
 
-A `Protocol`. Implement it to swap the backend — the fakes in the test suite do
-exactly this.
+A `Protocol`. Implement it to swap the backend, as the fakes in the test suite
+do.
 
 ```python
 class DeviceTransport(Protocol):
@@ -124,11 +124,12 @@ a memory limit is known and the address is at or past it.
 
 `memory_bytes` defaults to a sentinel, not to `None`, and the sentinel means
 "read `device.memory_bytes`". Passing `None` explicitly disables the bound
-check; passing an integer overrides it. A plain `None` default would have made
-the guard silently inactive for every caller who did not know to opt in.
+check; passing an integer overrides it. A plain `None` default would have turned
+the guard off for every caller who did not know to opt in.
 
 Offsets are passed explicitly; register pairs are not always adjacent. The job
-pair is, but a NoC lane's high half is at `0x14` — `0x04` is its result length.
+pair is, but a NoC lane's high half is at `0x14`, because `0x04` is its result
+length.
 
 Module-level helpers `read_u32(path, offset)` and `read_u64(path, offset)` read
 registers directly from a node path.
@@ -174,20 +175,20 @@ is not decoded into named flags.
 
 ### `DeviceCounters`
 
-`h2c_bytes`, `c2h_bytes`, `rows`, `batches`, `stalls` — all `int`.
+`h2c_bytes`, `c2h_bytes`, `rows`, `batches`, `stalls`, all `int`.
 
 ## Capability decode
 
 Shared register-block decode semantics for every transport backend.
 
-| Function                                      | Returns                                                                                                                                         |
-| --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `decode_platform_id(value)`                   | The ASCII platform id, or `""` when the word is not printable ASCII.                                                                            |
-| `decode_register_map_version(value)`          | The `RegisterMapVersion`. An all-ones word is a dead aperture, not a version, and decodes as `NOT_ADVERTISED_REGISTER_MAP_VERSION` (0.0).       |
-| `read_register_block_snapshot(read_register)` | The discovery-time identity snapshot. `read_register` abstracts the backend's window access.                                                    |
-| `operators_from_snapshot(snapshot)`           | `(hardware operators, host-computed operators)` decoded by register map version.                                                                |
-| `contract_from_manifest_metadata(metadata)`   | The `CapabilityContract` from a shell-build manifest's `capability_contract` key, or `None`.                                                    |
-| `operators_from_contract(contract)`           | `(hardware operators, host-computed operators)` from the concrete composition contract — per-tile opcodes and input types, no bitmap expansion. |
+| Function                                      | Returns                                                                                                                                        |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `decode_platform_id(value)`                   | The ASCII platform id, or `""` when the word is not printable ASCII.                                                                           |
+| `decode_register_map_version(value)`          | The `RegisterMapVersion`. An all-ones word is a dead aperture, not a version, and decodes as `NOT_ADVERTISED_REGISTER_MAP_VERSION` (0.0).      |
+| `read_register_block_snapshot(read_register)` | The discovery-time identity snapshot. `read_register` abstracts the backend's window access.                                                   |
+| `operators_from_snapshot(snapshot)`           | `(hardware operators, host-computed operators)` decoded by register map version.                                                               |
+| `contract_from_manifest_metadata(metadata)`   | The `CapabilityContract` from a shell-build manifest's `capability_contract` key, or `None`.                                                   |
+| `operators_from_contract(contract)`           | `(hardware operators, host-computed operators)` from the concrete composition contract: per-tile opcodes and input types, no bitmap expansion. |
 
 Register map 0.2 and above advertises the composed truth: `OPERATOR_BITMAP`
 carries only HDL-executed opcodes, typed INT32 at register level, and
@@ -213,12 +214,12 @@ reserved regions. Raises `ValueError` for a non-positive capacity, an `align`
 that is not a positive power of two, or a reserved region with non-positive size
 or lying outside the tier.
 
-| Method                              | Behaviour                                                                                                                                                                     |
-| ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `allocate(nbytes) -> StorageHandle` | First-fit, aligned. Raises `StorageExhaustedError` when no span fits, `ValueError` for a non-positive size.                                                                   |
-| `free(handle)`                      | Bump the handle's generation and return the live span to the free list, coalesced. Raises `StaleHandleError` on a stale, forged, or foreign handle — so a double free faults. |
-| `resolve(handle) -> int`            | The handle's device address, generation-checked. Raises `StaleHandleError`.                                                                                                   |
-| `stage(device, handle, data)`       | Resolve, check `data` against the live grant, and `device.write_dma`. Raises `ValueError` when the payload exceeds the grant.                                                 |
+| Method                              | Behaviour                                                                                                                                                                    |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `allocate(nbytes) -> StorageHandle` | First-fit, aligned. Raises `StorageExhaustedError` when no span fits, `ValueError` for a non-positive size.                                                                  |
+| `free(handle)`                      | Bump the handle's generation and return the live span to the free list, coalesced. Raises `StaleHandleError` on a stale, forged, or foreign handle, so a double free faults. |
+| `resolve(handle) -> int`            | The handle's device address, generation-checked. Raises `StaleHandleError`.                                                                                                  |
+| `stage(device, handle, data)`       | Resolve, check `data` against the live grant, and `device.write_dma`. Raises `ValueError` when the payload exceeds the grant.                                                |
 
 ### `StorageHandle`
 
@@ -249,31 +250,31 @@ rather than discovered. A non-positive capacity raises `ValueError`.
 | Method                                                                                         | Behaviour                                                                                                                                                                                                                              |
 | ---------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `install(handle)`                                                                              | Program the handle's grant into slot `handle.id` from the allocator's **live** record. Raises `StaleHandleError` when the allocator will not resolve it, `HandleTableError` for a slot past `capacity` or a base off the 64-byte grid. |
-| `free(handle)`                                                                                 | Drop the slot out of liveness. Unconditional on the allocator — freeing can only make the table refuse more, so it is safe whether or not the host has released the span yet.                                                          |
+| `free(handle)`                                                                                 | Drop the slot out of liveness. Unconditional on the allocator: freeing can only make the table reject more jobs, so it is safe whether or not the host has released the span yet.                                                      |
 | `arm(handle)`                                                                                  | Name the handle the next job resolves, in place of an input address.                                                                                                                                                                   |
 | `run_resident_scan(handle, *, row_count, row_bytes, collect, repeats=1, timeout_seconds=60.0)` | `scan_execution.run_resident_scan` with the raw address replaced by the handle: arm once, then run the job `repeats` times. Returns one `collect(device)` per repeat.                                                                  |
 
-Two authorities, deliberately different. `install` trusts the host — the live
-record is what a slot is programmed from, and a handle the host no longer
-believes in must never become a grant the device does. `arm` trusts nothing: a
-stale handle has to reach the device, or the table is never the thing that
-refused it.
+`install` and `arm` trust different things on purpose. `install` trusts the
+host: the live record is what a slot is programmed from, and a handle the host
+no longer considers valid must never become a grant the device accepts. `arm`
+checks nothing: a stale handle has to reach the device, or the table never gets
+to reject it.
 
 ### `HandleFaultError`
 
-The shell refused to start the job on the handle it was armed with. A
-`PipelineJobError`, so a caller catching every job failure still catches it,
-with its own type because the whole value of the table is that this case is
-distinguishable: the job did not run, nothing was read, nothing was written, and
+The shell would not start the job on the handle it was armed with. It is a
+`PipelineJobError`, so a caller catching every job failure still catches it, and
+it has its own type because the point of the table is that this case can be told
+apart: the job did not run, nothing was read, nothing was written, and
 no result register moved. Results for repeats that did run are dropped with it.
 
 `code` is a `dau_core.registers.HandleFaultCode`:
 
-| Code            | Meaning                                                                                     |
-| --------------- | ------------------------------------------------------------------------------------------- |
-| `BAD_ID`        | The table has no such slot; capacity is planned at build time, not grown at run time.       |
-| `STALE`         | The slot is freed, or live at another generation — that region belongs to someone else now. |
-| `OUT_OF_BOUNDS` | The job asks for more bytes than the grant.                                                 |
+| Code            | Meaning                                                                                    |
+| --------------- | ------------------------------------------------------------------------------------------ |
+| `BAD_ID`        | The table has no such slot; capacity is planned at build time, not grown at run time.      |
+| `STALE`         | The slot is freed, or live at another generation; that region belongs to someone else now. |
+| `OUT_OF_BOUNDS` | The job asks for more bytes than the grant.                                                |
 
 A code outside that set came from the datapath, and the datapath ran; it is
 raised as a plain `PipelineJobError`.

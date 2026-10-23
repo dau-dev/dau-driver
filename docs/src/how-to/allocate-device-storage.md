@@ -22,13 +22,13 @@ allocator = StorageAllocator(
 )
 ```
 
-| Parameter        | Meaning                                                                                                    |
-| ---------------- | ---------------------------------------------------------------------------------------------------------- |
-| `tier`           | The tier's name; stamped onto every handle it issues.                                                      |
-| `capacity_bytes` | The tier's size. Must be positive.                                                                         |
-| `base`           | The tier's first address. Defaults to 0.                                                                   |
-| `reserved`       | `(base, size)` regions carved out before anything is allocated — lane output windows, fixed staging areas. |
-| `align`          | Allocation alignment. Must be a positive power of two; defaults to 64, the DMA grid.                       |
+| Parameter        | Meaning                                                                                                   |
+| ---------------- | --------------------------------------------------------------------------------------------------------- |
+| `tier`           | The tier's name; stamped onto every handle it issues.                                                     |
+| `capacity_bytes` | The tier's size. Must be positive.                                                                        |
+| `base`           | The tier's first address. Defaults to 0.                                                                  |
+| `reserved`       | `(base, size)` regions carved out before anything is allocated: lane output windows, fixed staging areas. |
+| `align`          | Allocation alignment. Must be a positive power of two; defaults to 64, the DMA grid.                      |
 
 A reserved region outside `[base, base + capacity_bytes)` or with a
 non-positive size raises `ValueError` at construction, so a wrong map fails
@@ -54,7 +54,7 @@ print(hex(allocator.resolve(inputs)))
 
 The first allocation starts at `0x1000` because the first 4 KiB were reserved.
 Allocation is first-fit over the free list. `resolve(handle)` returns the device
-address, generation-checked — use it wherever a register or a transfer needs an
+address, generation-checked. Use it wherever a register or a transfer needs an
 address, rather than caching `handle.base`.
 
 `StorageExhaustedError` is raised when no free span can hold the request, before
@@ -70,8 +70,8 @@ StorageExhaustedError: tier 'ddr' cannot hold 1073741824 bytes
 allocator.stage(device, inputs, payload)
 ```
 
-Resolves the handle, checks the payload against the *live* grant — never the
-handle's own copy of the capacity — and writes it with `device.write_dma`. A
+Resolves the handle, checks the payload against the *live* grant (never the
+handle's own copy of the capacity) and writes it with `device.write_dma`. A
 payload larger than the grant raises `ValueError` rather than overrunning into
 the next allocation.
 
@@ -89,8 +89,8 @@ allocator.resolve(inputs)
 ```
 
 Freeing bumps the handle's generation and returns the span to the free list,
-coalesced with its neighbours. The id itself is recycled — a fixed-slot hardware
-handle table reuses slots, and the generation is what makes that safe.
+coalesced with its neighbours. The id itself is recycled, because a fixed-slot
+hardware handle table reuses slots, and the generation is what makes that safe.
 
 The consequence you want: freed storage is never readdressed through an old name.
 A stale handle raises instead of resolving to memory that now belongs to someone
@@ -111,9 +111,9 @@ Resolve at the point of use.
 
 ## Next
 
-- [Run scan jobs](Run-Scan-Jobs) — the input regions and output windows an
+- [Run scan jobs](run-scan-jobs.md): the input regions and output windows an
   allocator hands out.
-- [Move data to and from a device](Move-Data) — the transfers that consume
+- [Move data to and from a device](move-data.md): the transfers that consume
   those addresses.
-- [Storage handles](Storage-Handles) — why generations rather
+- [Storage handles](../explanation/storage-handles.md): why generations rather
   than plain pointers.

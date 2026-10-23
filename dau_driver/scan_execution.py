@@ -30,9 +30,10 @@ from .pipeline_execution import DMA_ALIGN_BYTES, _wait_for_job_done
 
 @dataclass(frozen=True)
 class ScanBatch:
-    """One staged scan batch: the packed row payload (``row_count *
-    row_bytes`` bytes; the runner pads the DMA to the 64-byte grid while
-    INPUT_LENGTH stays exact) and its row count."""
+    """One staged scan batch: the packed row payload and its row count.
+
+    The payload is ``row_count * row_bytes`` bytes; the runner pads the DMA
+    to the 64-byte grid while ``INPUT_LENGTH`` stays exact."""
 
     payload: bytes
     row_count: int

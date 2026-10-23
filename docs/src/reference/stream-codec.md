@@ -1,9 +1,10 @@
 # Stream codec reference
 
 `dau_driver.stream_codec` encodes typed columns as DAU stream batches and decodes
-them back. The wire format — `BatchHeader`, `ColumnDescriptor`,
+them back. The wire format (`BatchHeader`, `ColumnDescriptor`,
 `OperationDescriptor`, `LogicalType`, `StreamFlag`, `RecordBatchLimits`,
-`InvalidStreamError` — is defined in `dau_core.stream`; this module marshals it.
+`InvalidStreamError`) and the per-type widths (`LOGICAL_TYPE_BYTE_WIDTHS`) are
+defined in `dau_core.stream`; this module marshals them.
 
 Batches are 64-byte aligned throughout: the descriptor table starts at
 `BatchHeader.SIZE_BYTES`, each payload begins on a 64-byte boundary, and the
@@ -79,12 +80,12 @@ raises `InvalidStreamError` naming the column. Requires `pyarrow`.
 
 All methods are static.
 
-| Method                                                                                  | Returns                                                                      |
-| --------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| `decode_column(data)`                                                                   | `DecodedStreamColumn` — a single-column batch. Requires `column_count == 1`. |
-| `decode_record_batch(data, *, limits=DEFAULT_RECORD_BATCH_LIMITS)`                      | `DecodedRecordBatch` — the N-column counterpart.                             |
-| `decode_record_batch_to_arrow(data, *, names=None, limits=DEFAULT_RECORD_BATCH_LIMITS)` | A PyArrow `RecordBatch`. Column names default to `f{field_id}`.              |
-| `decode_scalar_result(data)`                                                            | `DecodedStreamResult` — a one-row batch with its `value` unpacked.           |
+| Method                                                                                  | Returns                                                                     |
+| --------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| `decode_column(data)`                                                                   | `DecodedStreamColumn`: a single-column batch. Requires `column_count == 1`. |
+| `decode_record_batch(data, *, limits=DEFAULT_RECORD_BATCH_LIMITS)`                      | `DecodedRecordBatch`: the N-column counterpart.                             |
+| `decode_record_batch_to_arrow(data, *, names=None, limits=DEFAULT_RECORD_BATCH_LIMITS)` | A PyArrow `RecordBatch`. Column names default to `f{field_id}`.             |
+| `decode_scalar_result(data)`                                                            | `DecodedStreamResult`: a one-row batch with its `value` unpacked.           |
 
 Decoding validates the stream version (0.1), the header length, 64-byte
 alignment of the descriptor and payload offsets, every payload window against the
