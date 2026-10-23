@@ -34,7 +34,7 @@ Each batch's `payload` must be exactly `row_count * row_bytes`. The runner pads
 the DMA out to the 64-byte grid while `INPUT_LENGTH` stays exact.
 
 Your `collect` reads lane registers and output regions, which are disjoint from
-the input staging — so collection overlaps the next batch's DMA too.
+the input staging, so collection overlaps the next batch's DMA too.
 
 ## Overlap the encoding as well
 
@@ -75,7 +75,7 @@ batches = key_partitioned_scan_batches(
 ```
 
 Assignment is longest-processing-time-first: the largest key group goes to the
-currently smallest batch. **Records must arrive ordered by key** — a key
+currently smallest batch. **Records must arrive ordered by key**: a key
 appearing in two runs raises `ValueError`. Record order within each key is
 preserved.
 
@@ -85,9 +85,9 @@ when that batch is requested. Key groups are indivisible, so one hot key can
 dominate a batch.
 
 Pass `per_key_state=True` when running these. The runner requires it for a
-stateful composition and checks that the batches actually came from this function
-— a position-sliced iterable raises `ValueError` rather than silently splitting a
-key's state.
+stateful composition and checks that the batches came from this function. A
+position-sliced iterable raises `ValueError` rather than splitting a key's state
+without telling you.
 
 ### Capacity-bounded batches
 
@@ -107,8 +107,8 @@ device's `GROUP_CAPACITY_EXCEEDED` close-out. The key space is partitioned into
 ranges of `key_capacity` keys and one batch is emitted per range.
 
 Records need **not** arrive in key order here, and arrival order is preserved
-within each batch — the hash table needs no key ordering, and imposing one would
-give back the staging freedom the tile exists to provide. The trade is a counting
+within each batch. The hash table needs no key ordering, and imposing one would
+give up the staging freedom the tile exists to provide. The trade is a counting
 pass over every key before the first batch, and row counts that may be uneven:
 key ranges are equal in keys, not in rows.
 
@@ -118,8 +118,8 @@ is a plain concatenation. If your batches came from somewhere else, use
 
 ## Query rows that are already on the device
 
-When the device already holds the data — a resident table queried many times —
-re-staging every batch is the wrong shape. The feed is the larger term of the
+When the device already holds the data, such as a resident table queried many
+times, re-staging every batch is wasted work. The feed is the larger term of the
 device path, so lift the DMA out of the loop:
 
 ```python
@@ -137,7 +137,7 @@ results = run_resident_scan(
 
 Nothing is staged. Each repeat programs the address and length, starts the job,
 waits, and calls `collect`, so you get one result per repeat rather than one
-merged answer — enough to assert that a rerun is bit-identical instead of
+merged answer, so you can check that a rerun returns identical results instead of
 assuming it.
 
 The address must be on the 64-byte DMA grid, and it is raw: it outlives the
@@ -158,9 +158,9 @@ except HandleFaultError as exc:
 
 `install` programs the grant from the allocator's live record, and `capacity` is
 the number of slots the shell was built with. The job then names
-`(id, generation)`: a resolution the device disagrees with refuses the job
-before the reader issues a beat, and that refusal reaches you as
-`HandleFaultError` rather than as results.
+`(id, generation)`. When the device disagrees with a resolution, the shell does
+not start the job (the reader never issues a beat), and you get a
+`HandleFaultError` rather than results.
 
 Call `table.free(handle)` when the region is released, so nothing resolves
 through the slot until it is installed again.
@@ -192,7 +192,7 @@ exact device object that produced it.
 `input_regions` is reused as **device-local** addresses on every card, never
 shared memory.
 
-Bias the split with `weights` — one positive, finite value per device — to
+Bias the split with `weights`, one positive, finite value per device, to
 pre-weight each shared pull toward the requested relative shares. Batches stay
 lazy and are never queued ahead.
 
@@ -203,7 +203,7 @@ never see each other's state. Run it on a single device with
 
 A failure is raised as `FleetScanError` annotated with the batch index and the
 device. Note that cancelling wakes pipelines blocked pulling a batch, but one
-already inside its status wait runs to its own completion or timeout first — so
+already inside its status wait runs to its own completion or timeout first, so
 an early failure can surface only after its peers finish.
 
 ## Report progress
@@ -232,17 +232,17 @@ scan job 3 failed: status=0x3 last_error=2
 
 Raise `timeout_seconds` for large batches; the default is 60 seconds.
 
-If you are running concurrent pipelines against a pure-Python transport — a fake
-in a test — set `poll_yield_seconds` to a small value. The real transports release
+If you are running concurrent pipelines against a pure-Python transport, such as
+a fake in a test, set `poll_yield_seconds` to a small value. The real transports release
 the GIL in their register read, so pipelines interleave without it and a sleep
 would only add latency per poll; a pure-Python transport spinning would hold the
 GIL and flatten self-balancing toward an even split regardless of device speed.
 
 ## Next
 
-- [Allocate device storage](Allocate-Device-Storage) — where the input regions
+- [Allocate device storage](allocate-device-storage.md): where the input regions
   and output windows come from.
-- [Execution contracts reference](Execution-Contracts) — every
+- [Execution contracts reference](../reference/execution-contracts.md): every
   runner's full signature.
-- [Overlapped staging](Overlapped-Staging) — why the ping-pong
+- [Overlapped staging](../explanation/overlapped-staging.md): why the ping-pong
   and the `per_key_state` guard are shaped this way.

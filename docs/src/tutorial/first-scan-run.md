@@ -5,14 +5,14 @@ the streaming runner, and watch it ping-pong between two device regions so each
 batch's DMA overlaps the previous batch's compute. Then we will meet the guard
 that stops a stateful composition from being fed the wrong kind of batch.
 
-As in [Talk to a device without any hardware](First-Device), everything runs
-against the fake transport — no board required. Work in a Python session with
+As in [Talk to a device without any hardware](first-device.md), everything runs
+against the fake transport, with no board required. Work in a Python session with
 `dau-driver` installed.
 
-## Step 1 — Build some batches
+## Step 1: Build some batches
 
 A `ScanBatch` is a packed row payload and its row count. Here each row is four
-int32 fields — a symbol id and a price, with two fields unused. Run:
+int32 fields: a symbol id and a price, with two fields unused. Run:
 
 ```python
 import struct
@@ -49,9 +49,9 @@ for batch in batches:
 ```
 
 Three rows at 16 bytes each is 48 bytes. Note that 48 is not a multiple of the
-64-byte DMA grid — hold that thought for Step 2.
+64-byte DMA grid; Step 2 comes back to that.
 
-## Step 2 — Run them
+## Step 2: Run them
 
 The runner needs two distinct device addresses to alternate between, the row
 width, and a `collect` callback that reads each job's results off the device once
@@ -98,13 +98,13 @@ bytes:   [64, 64]
 
 Three things happened here.
 
-The two batches landed in *different* regions — `0x0` then `0x8000000`. That is
+The two batches landed in *different* regions, `0x0` then `0x8000000`. That is
 the ping-pong: while job 0 computes out of region A, batch 1's DMA is already
 filling region B. Batch 2 would go back to region A, and so on.
 
 The payloads went out as 64 bytes, not 48. The runner pads the DMA up to the
-64-byte grid, while `INPUT_LENGTH` — which is what the device actually reads —
-stays exact at 48. That is why `collect` returned 48 for each batch.
+64-byte grid, while `INPUT_LENGTH`, which is what the device reads, stays exact
+at 48. That is why `collect` returned 48 for each batch.
 
 `collect` was called once per batch, after that batch's job reported DONE, and the
 results came back in batch order.
@@ -113,9 +113,9 @@ Because `batches` here is a list, all the encoding happened before the run. Pass
 generator instead and the runner will pull each batch just before it stages it,
 so the encoding work overlaps compute too.
 
-## Step 3 — Confine each key to one batch
+## Step 3: Confine each key to one batch
 
-Some scan compositions carry per-key state across a batch — a grouped aggregation,
+Some scan compositions keep per-key state across a batch, a grouped aggregation
 for instance. Slicing rows by position would then split a key's state across two
 jobs. `key_partitioned_scan_batches` builds batches where each key lands in
 exactly one. Run:
@@ -157,7 +157,7 @@ assignment is longest-processing-time-first: the largest key group goes into the
 currently smallest batch. Records must arrive ordered by key, and record order
 within each key is preserved.
 
-## Step 4 — Meet the guard
+## Step 4: Meet the guard
 
 `per_key_state` is not advisory. Try running the plain list of batches from Step 1
 with it set:
@@ -187,7 +187,7 @@ A stateful composition only accepts batches that came from
 on a flag you could get wrong, so a position-sliced batch cannot reach a stateful
 job by accident.
 
-## Step 5 — Bound the distinct keys per batch
+## Step 5: Bound the distinct keys per batch
 
 A different constraint applies to the hash-mode grouped tile: its table holds a
 fixed number of *distinct keys*, and a batch presenting more is invalidated by the
@@ -212,22 +212,22 @@ Two batches: the first holds keys `AAA` and `BBB` (four rows), the second holds
 counts differ.
 
 Because each key lands in exactly one batch, combining the per-batch group records
-is a plain concatenation. And unlike Step 3, records need not arrive in key order
-— the hash table needs no key ordering, so arrival order is preserved within each
-batch.
+is a plain concatenation. And unlike Step 3, records need not arrive in key
+order: the hash table needs no key ordering, so arrival order is preserved within
+each batch.
 
 ## What you have done
 
 You have run a multi-batch scan with overlapped staging, built key-confined
 batches two different ways, and seen the guard that keeps a stateful composition
-from silently reading half its state.
+from reading half its state.
 
 From here:
 
 - For choosing between these batching strategies on real work, and for spreading
   batches across several cards, see
-  [Run scan jobs](Run-Scan-Jobs).
+  [Run scan jobs](../how-to/run-scan-jobs.md).
 - For the full signature of every runner, see the
-  [execution contracts reference](Execution-Contracts).
+  [execution contracts reference](../reference/execution-contracts.md).
 - For why the overlap is shaped this way, read
-  [Overlapped staging](Overlapped-Staging).
+  [Overlapped staging](../explanation/overlapped-staging.md).

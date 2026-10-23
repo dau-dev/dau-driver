@@ -66,7 +66,7 @@ run_scan_batches(
 ```
 
 Run one job per batch with ping-pong input staging: batch *i + 1* DMAs into the
-alternate region — and, for a lazy iterable, is produced — while job *i* computes.
+alternate region (and, for a lazy iterable, is produced) while job *i* computes.
 Returns the `collect(device)` values in batch order.
 
 Per batch the runner writes `INPUT_ADDRESS_LOW`/`HIGH` and `INPUT_LENGTH_LOW`,
@@ -108,17 +108,16 @@ Run the job over rows already on the device, uploading nothing. Per repeat the
 runner writes `INPUT_ADDRESS_LOW`/`HIGH` and `INPUT_LENGTH_LOW`, sets
 `JOB_CONTROL` to `START`, waits for DONE, and calls `collect`. Returns one
 `collect(device)` per repeat rather than one merged answer, so a caller can
-assert every run is bit-identical instead of trusting that a rerun of the same
-bytes must be.
+check that every run returns identical results instead of assuming it.
 
 `row_count`, `row_bytes`, and `repeats` must be positive, and `address` must be
-on the `DMA_ALIGN_BYTES` grid — an unaligned region is a silent-wrong-bytes
-failure on silicon. All four raise `ValueError`.
+on the `DMA_ALIGN_BYTES` grid, because an unaligned region returns wrong bytes on
+silicon without any error. All four raise `ValueError`.
 
 `address` is raw, and a raw address outlives the allocation it came from.
 `HandleTable.run_resident_scan` is this same run with a generation-checked
 handle in its place; see
-[the handle table](Device-and-Discovery#handle-table).
+the handle table in [device and discovery](device-and-discovery.md).
 
 ### `key_partitioned_scan_batches`
 
@@ -134,7 +133,7 @@ key_partitioned_scan_batches(
 
 Build key-confined batches by longest-processing-time-first greedy assignment:
 the largest key group goes into the currently smallest batch. Records must be
-ordered by key — a key appearing in more than one run raises `ValueError`. Record
+ordered by key: a key appearing in more than one run raises `ValueError`. Record
 order within each key is preserved.
 
 Creating the iterable consumes nothing. First iteration consumes one complete
@@ -156,7 +155,7 @@ key_range_scan_batches(
 ) -> Iterator[ScanBatch]
 ```
 
-Split records into batches each holding at most `key_capacity` distinct keys — the
+Split records into batches each holding at most `key_capacity` distinct keys, the
 host half of the hash-mode grouped tile's overflow contract. The sorted key space
 is partitioned into ranges of `key_capacity` keys and one batch is emitted per
 range.
@@ -244,7 +243,7 @@ A host-side mirror of the `PIPELINE_*` configuration registers, as a dataclass.
 | `map_on_key`    | `bool`              | `False` |
 
 `filter_op_word()`, `map_op_word()`, and `map_constant_word()` produce the packed
-register values. A `None` `map_config` packs as ADD 0 on the value lane —
+register values. A `None` `map_config` packs as ADD 0 on the value lane, the
 identity.
 
 `configure_pipeline(device, config)` writes all five `PIPELINE_*` registers.
@@ -290,8 +289,8 @@ registry entry.
 
 `BAR_ROW_BYTES` (16) and `BAR_RECORD_BYTES` (48) come from the same module.
 
-`staging` is the board's `DdrStaging` — its input regions, output region, sizes,
-and alignment — passed in from the composed platform. It is a keyword argument
+`staging` is the board's `DdrStaging` (its input regions, output region, sizes,
+and alignment), passed in from the composed platform. It is a keyword argument
 rather than a module constant because addresses and region sizes are board
 geometry, and a package-level default is how one board's memory map ends up
 applied to another.
@@ -318,4 +317,4 @@ host that assumed four lanes on a shell advertising its own count is the
 reason the constant is gone. `record_bytes` defaults to the fused bar shell's
 record; key-partitioned scan shells reuse the runner with their own width. Pass
 `validate_record_count=False` for a lane whose count register latches an *input*
-row count and emits one fixed-width record — the `result_length == count * record_bytes` invariant does not hold there, and `RESULT_LENGTH` is trusted alone.
+row count and emits one fixed-width record. The `result_length == count * record_bytes` invariant does not hold there, so only `RESULT_LENGTH` is used.

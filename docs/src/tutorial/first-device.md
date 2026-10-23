@@ -1,15 +1,15 @@
 # Talk to a device without any hardware
 
-In this tutorial we will drive a DAU device end to end — read its identity
+In this tutorial we will drive a DAU device end to end (read its identity
 registers, check the health of its register path, validate a DMA transfer, and
-run one aggregation job — without a board, a bitstream, or a driver install.
+run one aggregation job) without a board, a bitstream, or a driver install.
 Everything runs against the fake transport that ships with the package for
 exactly this purpose.
 
 Work in a Python session with `dau-driver` installed. Each step shows the code
 to run and an **Output** block with what it prints.
 
-## Step 1 — Open a device
+## Step 1: Open a device
 
 A `DauDevice` is a validated handle. On a real host, `discover_devices()`
 produces one; here we build one over an in-memory transport so nothing is
@@ -35,11 +35,11 @@ backend:  linux-xdma
 platform: DPV1
 ```
 
-The paths passed to `fake_device` are never opened — the transport intercepts
+The paths passed to `fake_device` are never opened; the transport intercepts
 every read and write. Anything you do below would work identically against a real
 device.
 
-## Step 2 — Read what the device says it can do
+## Step 2: Read what the device says it can do
 
 Capabilities are decoded from the device's own register block, so they describe
 the bitstream that is loaded, not the driver. Run:
@@ -58,7 +58,6 @@ for operator in device.capabilities.operators:
 ```text
 alignment_bytes:    64
 max_transfer_bytes: 4096
-
 SUM ['INT32'] -> INT64
 MIN ['INT32'] -> INT64
 MAX ['INT32'] -> INT64
@@ -70,7 +69,7 @@ respect in Step 4. And the operator list is typed: `SUM` over `INT32` produces
 `INT64`, and asking for any other output type is an error the driver catches
 before touching the bus.
 
-## Step 3 — Read the identity and status registers
+## Step 3: Read the identity and status registers
 
 Register access goes through the same transport. Preload a few values so the fake
 has something to report, then read them back. Run:
@@ -99,11 +98,11 @@ status: 0b111 last error: 0
 DeviceCounters(h2c_bytes=0, c2h_bytes=0, rows=1000000, batches=12, stalls=0)
 ```
 
-`0x44415531` is the DAU magic word — it is how discovery tells a DAU shell from
+`0x44415531` is the DAU magic word, which is how discovery tells a DAU shell from
 any other XDMA bitstream. `DeviceStatus` holds the status word as read, and the
 counters are 64-bit values read as two 32-bit register accesses.
 
-## Step 4 — Check the register path is healthy
+## Step 4: Check the register path is healthy
 
 A dead AXI-lite path does not fail; it returns all ones, which looks like a
 perfectly good number. `check_bar_health()` is the check for that. Run:
@@ -142,7 +141,7 @@ UnhealthyBarError: MAGIC read all ones from /tmp/xdma0_user; BAR/AXI-lite path m
 Call this before and after any sequence you care about. It is cheap and it turns
 a wrong number into a named failure.
 
-## Step 5 — Validate a transfer before opening a channel
+## Step 5: Validate a transfer before opening a channel
 
 Transfers are shape-checked against the device's own DMA constraints, before any
 channel is opened. Run:
@@ -167,15 +166,15 @@ h2c 0x40 128 xdma0_h2c_0
 ```
 
 100 bytes is not a multiple of the device's 64-byte alignment, so it never
-reaches the bus. The valid transfer resolves to the H2C channel path — one
+reaches the bus. The valid transfer resolves to the H2C channel path, as one
 `DmaTransfer` describing exactly what is about to happen.
 
-## Step 6 — Run an aggregation job
+## Step 6: Run an aggregation job
 
 Now the whole round trip: encode a column into a DAU stream batch, DMA it in,
 let the device compute, and decode the scalar result. The fake device needs
 something to play the part of the hardware, which is what
-`golden_aggregation_trigger` does — it decodes the input batch and stages the
+`golden_aggregation_trigger` does: it decodes the input batch and stages the
 golden answer where the C2H read will find it. Run:
 
 ```python
@@ -237,7 +236,7 @@ Eight int32 values became a 256-byte stream batch: a header, a column descriptor
 an operation descriptor, and the payload, all padded onto the 64-byte grid the
 DMA engine requires.
 
-## Step 7 — Watch a capability check refuse
+## Step 7: Watch a capability check stop a job
 
 The driver checks the requested operation against the device's advertised
 capabilities *before* any DMA. Run:
@@ -276,13 +275,12 @@ StreamExecutionError: device does not support average for int32
 h2c writes since: 1
 ```
 
-The write count did not go up. Nothing was staged, because the refusal happened
-first.
+The write count did not go up. Nothing was staged, because the check ran first.
 
 ## What you have done
 
-You have exercised the Python host surface — discovery handle, capabilities,
-registers, status, BAR health, transfer validation, and a full job round trip —
+You have exercised the Python host surface (discovery handle, capabilities,
+registers, status, BAR health, transfer validation, and a full job round trip)
 against a transport that needs no hardware. This is also how the package's own
 test suite runs: every Python execution path has to work against a fake, so
 hardware-only behaviour stays behind the `DeviceTransport` boundary and is
@@ -291,8 +289,8 @@ tested on a board.
 From here:
 
 - To run many batches with staging overlapped against compute, see
-  [Run a scan over many batches](First-Scan-Run).
+  [Run a scan over many batches](first-scan-run.md).
 - To find real devices on a real host, see
-  [Find and check a device](Find-a-Device).
+  [Find and check a device](../how-to/find-a-device.md).
 - For why the fake exists at all, read
-  [The transport boundary](Transport-Boundary).
+  [The transport boundary](../explanation/transport-boundary.md).

@@ -11,7 +11,7 @@ name = "dau-driver"
 authors = [
     {name = "the dau-driver authors", email = "dev@dau.dev"},
 ]
-description = "PCIe Driver for dau"
+description = "PCIe driver for dau projects"
 readme = "README.md"
 license = { text = "Apache-2.0" }
 version = "0.1.0"
@@ -200,3 +200,24 @@ section-order = [
     "F401",
     "F403",
 ]
+
+[tool.yardang]
+title = "dau-driver"
+root = "README.md"
+pages = [
+    "docs/src/tutorial/first-device.md",
+    "docs/src/tutorial/first-scan-run.md",
+    "docs/src/how-to/find-a-device.md",
+    "docs/src/how-to/move-data.md",
+    "docs/src/how-to/run-scan-jobs.md",
+    "docs/src/how-to/allocate-device-storage.md",
+    "docs/src/how-to/arm-the-deadman.md",
+    "docs/src/how-to/develop.md",
+    "docs/src/reference/device-and-discovery.md",
+    "docs/src/reference/execution-contracts.md",
+    "docs/src/reference/stream-codec.md",
+    "docs/src/explanation/transport-boundary.md",
+    "docs/src/explanation/overlapped-staging.md",
+    "docs/src/explanation/storage-handles.md",
+]
+use-autoapi = true

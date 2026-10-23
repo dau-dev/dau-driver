@@ -50,8 +50,8 @@ computing the descriptor limit yourself.
 
 ## Guard against addressing past the end of memory
 
-An address beyond the device's memory does not fail — it wraps to the bottom, and
-you silently read or overwrite the wrong region. Tell the handle how big its
+An address beyond the device's memory does not fail. It wraps to the bottom, and
+you read or overwrite the wrong region without any error. Tell the handle how big its
 memory is, then program addresses through the method form:
 
 ```python
@@ -64,13 +64,13 @@ device.write_address_register(RegisterOffset.INPUT_ADDRESS_LOW, RegisterOffset.I
 ```
 
 `RegisterAccessError` is then raised for an address at or past the limit. Left as
-`None`, the caller is trusted — the guard is only as good as the fact, and
-inventing a default would either refuse valid addresses or give false confidence.
+`None`, the caller is trusted: the guard is only as good as the fact, and an
+invented default would either reject valid addresses or give false confidence.
 
 The module-level `write_address` function reads `memory_bytes` off the device by
 default. Pass an integer to override the limit, or `None` to disable the check
-entirely — but disable it deliberately, because the default is what makes the
-guard apply to callers who never thought about it.
+entirely, but only on purpose: the default is what makes the guard apply to
+callers who never thought about it.
 
 ## Program a 64-bit address into a register pair
 
@@ -86,11 +86,11 @@ write_address(device, RegisterOffset.INPUT_ADDRESS_LOW, RegisterOffset.INPUT_ADD
 
 Always write both halves, which is what `write_address` does even when the high
 half is zero. A design whose master is wider than 32 bits keeps the high half
-across a LOW write, so writing only LOW inherits whatever the previous job left
-and quietly addresses the wrong region.
+across a LOW write, so writing only LOW reuses whatever the previous job left there
+and addresses the wrong region.
 
 Pass the offsets explicitly rather than deriving `low + 4`. The job pair is
-adjacent, but a NoC lane's is not — its high half is at `0x14`, because `0x04` is
+adjacent, but a NoC lane's is not: its high half is at `0x14`, because `0x04` is
 the result length.
 
 `write_address` is a function, not a method, because devices here are duck-typed:
@@ -166,10 +166,10 @@ For a single-column batch use `decode_column`; for the one-row result of a
 scalar aggregation use `decode_scalar_result`, which returns the typed `value`
 directly.
 
-Decoding validates as it goes — version, header length, alignment, payload
-windows, per-column widths and row counts, and the operation descriptors — and
+Decoding validates as it goes (version, header length, alignment, payload
+windows, per-column widths and row counts, and the operation descriptors) and
 raises `InvalidStreamError` on any mismatch. A truncated or misaligned read
-surfaces there rather than as a plausible wrong number.
+fails there rather than coming back as a plausible wrong number.
 
 ## Run one aggregation as a single call
 
@@ -191,7 +191,7 @@ print(result.value)
 ```
 
 The operation is checked against the device's advertised capabilities *before*
-any DMA — an unsupported opcode or a mismatched output type raises
+any DMA: an unsupported opcode or a mismatched output type raises
 `StreamExecutionError` with nothing staged. `trigger` is the hook that starts the
 job between the H2C write and the C2H read; supply the register sequence your
 shell expects, or use `dau_driver.testing.golden_aggregation_trigger` against a
@@ -199,9 +199,9 @@ fake.
 
 ## Next
 
-- [Run scan jobs](Run-Scan-Jobs) — many batches, with staging overlapped
+- [Run scan jobs](run-scan-jobs.md): many batches, with staging overlapped
   against compute.
-- [Stream codec reference](Stream-Codec) — every encoder and
+- [Stream codec reference](../reference/stream-codec.md): every encoder and
   decoder entry point.
-- [Allocate device storage](Allocate-Device-Storage) — handing out device
+- [Allocate device storage](allocate-device-storage.md): handing out device
   addresses safely.
