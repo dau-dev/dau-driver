@@ -1,0 +1,133 @@
+dau_driver.capability_decode
+============================
+
+.. py:module:: dau_driver.capability_decode
+
+.. autoapi-nested-parse::
+
+   Shared register-block decode semantics for every DAU transport backend.
+
+   linux-xdma, macos-xdma, and the device layer all decode the same identity
+   window; one definition here so a semantics change cannot silently diverge
+   the backends (they were verbatim copies before, and had already drifted).
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   dau_driver.capability_decode.REGISTER_BITMAP_INPUT_TYPES
+   dau_driver.capability_decode.REGISTER_WINDOW_OFFSETS
+   dau_driver.capability_decode.NOT_ADVERTISED_REGISTER_MAP_VERSION
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   dau_driver.capability_decode.decode_platform_id
+   dau_driver.capability_decode.decode_register_map_version
+   dau_driver.capability_decode._typed_operators_from_bitmap
+   dau_driver.capability_decode.operators_from_snapshot
+   dau_driver.capability_decode.contract_from_manifest_metadata
+   dau_driver.capability_decode.operators_from_contract
+   dau_driver.capability_decode._capability_word
+   dau_driver.capability_decode._build_id
+   dau_driver.capability_decode._capability_words
+   dau_driver.capability_decode.read_register_block_snapshot
+
+
+Module Contents
+---------------
+
+.. py:data:: REGISTER_BITMAP_INPUT_TYPES
+
+.. py:data:: REGISTER_WINDOW_OFFSETS
+
+.. py:function:: decode_platform_id(value: int) -> str
+
+   The platform id as ASCII, or ``""`` when the word is not one. A board
+   that advertises no platform is unknown, not dpv1: substituting a default
+   here once reported a dead aperture (all-ones on every word) as a working
+   Artix, and the platform id selects the part, the pricing and the
+   constraints downstream.
+
+
+.. py:data:: NOT_ADVERTISED_REGISTER_MAP_VERSION
+
+.. py:function:: decode_register_map_version(value: int) -> dau_core.registers.RegisterMapVersion
+
+   Decode the register-map version word.
+
+   An all-ones read means NOT ADVERTISED — the same normalization the
+   capability words use — not a version. Two readers used to disagree on
+   exactly this word: one mapped it to (0, 1), a plausible-looking old
+   shell, while the other ran it through ``from_u32`` and got
+   (65535, 65535), which compares GREATER than the capability-word
+   version and so read words the shell never decoded. A sentinel below
+   every real version makes both readers agree and keeps those offsets
+   unread.
+
+
+.. py:function:: _typed_operators_from_bitmap(bitmap: int, input_types: tuple[dau_core.stream.LogicalType, ...]) -> tuple[dau_core.capabilities.OperatorCapability, ...]
+
+.. py:function:: operators_from_snapshot(snapshot: dau_core.registers.RegisterBlockSnapshot) -> tuple[tuple[dau_core.capabilities.OperatorCapability, ...], tuple[dau_core.capabilities.OperatorCapability, ...]]
+
+   (hardware operators, host-computed operators) from the identity
+   registers, decoded by register map version.
+
+   OPERATOR_BITMAP carries only HDL-executed opcodes (typed INT32 at
+   register level) and HOST_OPCODE_BITMAP carries protocol-level opcodes
+   the host derives from hardware results (AVERAGE = SUM/COUNT divide) —
+   those must never be submitted to the device. A shell that advertises
+   neither word reports nothing here, and its manifest capability
+   contract is the authority.
+
+
+.. py:function:: contract_from_manifest_metadata(metadata: collections.abc.Mapping[str, str]) -> dau_core.capability_contract.CapabilityContract | None
+
+   The machine-readable capability contract a shell-build manifest
+   carries (``capability_contract`` key, JSON), when present.
+
+
+.. py:function:: operators_from_contract(contract: dau_core.capability_contract.CapabilityContract) -> tuple[tuple[dau_core.capabilities.OperatorCapability, ...], tuple[dau_core.capabilities.OperatorCapability, ...]]
+
+   (hardware operators, host-computed operators) from the concrete
+   composition capability contract — per-tile opcodes and input types,
+   no bitmap-times-types expansion.
+
+
+.. py:function:: _capability_word(read_register: collections.abc.Callable[[dau_core.registers.RegisterOffset], int], offset: dau_core.registers.RegisterOffset) -> int
+
+.. py:function:: _build_id(read_register: collections.abc.Callable[[dau_core.registers.RegisterOffset], int]) -> int
+
+   The shell's 64-bit build identity, as TWO 32-bit reads.
+
+   Deliberately not one 8-byte access: the XDMA user BAR can short-read
+   those. Low half at BUILD_ID_LOW, high at BUILD_ID_HIGH, matching the
+   identity block's split.
+
+   All-ones normalizes to 0 like every other capability word — a word
+   nobody decoded advertises nothing, and 0 is the reserved "not stamped"
+   value a consumer already has to handle for shells built before stamping
+   existed.
+
+
+.. py:function:: _capability_words(read_register: collections.abc.Callable[[dau_core.registers.RegisterOffset], int], register_map_version: dau_core.registers.RegisterMapVersion) -> dict[str, int]
+
+   The composed-capability words, read only from a shell that
+   advertises them. Shared by every snapshot reader so the gate and the
+   all-ones normalization cannot diverge between them.
+
+
+.. py:function:: read_register_block_snapshot(read_register: collections.abc.Callable[[dau_core.registers.RegisterOffset], int]) -> dau_core.registers.RegisterBlockSnapshot
+
+   Discovery-time identity snapshot; ``read_register`` abstracts the
+   backend-specific window access (dev-node pread vs DriverKit BAR read).
+   The composed-capability words are only read on register map >= 0.2 —
+   older shells do not decode those offsets.
+
+

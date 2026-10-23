@@ -1,0 +1,93 @@
+dau_driver.errors
+=================
+
+.. py:module:: dau_driver.errors
+
+
+Exceptions
+----------
+
+.. autoapisummary::
+
+   dau_driver.errors.DauDriverError
+   dau_driver.errors.DeviceNotFoundError
+   dau_driver.errors.RegisterAccessError
+   dau_driver.errors.UnhealthyBarError
+   dau_driver.errors.TransferValidationError
+   dau_driver.errors.TransferIoError
+   dau_driver.errors.WrongBitstreamError
+
+
+Module Contents
+---------------
+
+.. py:exception:: DauDriverError
+
+   Bases: :py:obj:`Exception`
+
+
+   Common base class for all non-exit exceptions.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+.. py:exception:: DeviceNotFoundError
+
+   Bases: :py:obj:`DauDriverError`
+
+
+   Common base class for all non-exit exceptions.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+.. py:exception:: RegisterAccessError
+
+   Bases: :py:obj:`DauDriverError`
+
+
+   Common base class for all non-exit exceptions.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+.. py:exception:: UnhealthyBarError
+
+   Bases: :py:obj:`DauDriverError`
+
+
+   Common base class for all non-exit exceptions.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+.. py:exception:: TransferValidationError
+
+   Bases: :py:obj:`DauDriverError`
+
+
+   Common base class for all non-exit exceptions.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+.. py:exception:: TransferIoError
+
+   Bases: :py:obj:`DauDriverError`
+
+
+   Common base class for all non-exit exceptions.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+.. py:exception:: WrongBitstreamError
+
+   Bases: :py:obj:`DauDriverError`
+
+
+   Common base class for all non-exit exceptions.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+

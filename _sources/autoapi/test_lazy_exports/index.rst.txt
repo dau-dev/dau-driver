@@ -1,0 +1,69 @@
+test_lazy_exports
+=================
+
+.. py:module:: test_lazy_exports
+
+.. autoapi-nested-parse::
+
+   Importing this package must stay cheap, and its exports must stay honest.
+
+   Every model in this stack is a ccflow model, and importing ccflow imports
+   csp and pandas: about 0.9 s. A package that imports its model modules
+   at import time puts all of that in front of anything that merely imports
+   it -- including hydra's searchpath plugin, which imports the config package
+   to discover what is installed and reads none of these names.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   test_lazy_exports.INIT
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_lazy_exports._type_checking_imports
+   test_lazy_exports.test_the_declaration_and_the_type_checking_block_agree
+   test_lazy_exports.test_every_exported_name_resolves
+   test_lazy_exports.test_an_unknown_name_still_raises_attribute_error
+   test_lazy_exports.test_importing_the_package_stays_cheap
+
+
+Module Contents
+---------------
+
+.. py:data:: INIT
+
+.. py:function:: _type_checking_imports() -> dict[str, tuple[str, ...]]
+
+   What the ``TYPE_CHECKING`` block declares, read from the source.
+
+
+.. py:function:: test_the_declaration_and_the_type_checking_block_agree() -> None
+
+   The two exist for different readers -- the resolver and a type
+   checker -- and a name in one and not the other is a name that imports
+   for one of them and fails for the other.
+
+
+.. py:function:: test_every_exported_name_resolves() -> None
+
+   A name declared here and missing from its submodule would raise on
+   first access, which is a broken import nobody sees until a caller
+   reaches for it. Resolve all of them now.
+
+
+.. py:function:: test_an_unknown_name_still_raises_attribute_error() -> None
+
+.. py:function:: test_importing_the_package_stays_cheap() -> None
+
+   Run in a fresh interpreter, because this one has already imported
+   everything.
+
+

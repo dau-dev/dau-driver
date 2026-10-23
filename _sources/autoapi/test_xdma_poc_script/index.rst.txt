@@ -1,0 +1,63 @@
+test_xdma_poc_script
+====================
+
+.. py:module:: test_xdma_poc_script
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   test_xdma_poc_script.SCRIPT_PATH
+   test_xdma_poc_script.REGISTER_WINDOW_OFFSET
+   test_xdma_poc_script.REGISTER_WINDOW_BYTES
+   test_xdma_poc_script.poc
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_xdma_poc_script.load_poc_module
+   test_xdma_poc_script.write_composition_register_image
+   test_xdma_poc_script.test_health_offsets_are_mapped_contract_registers_inside_the_window
+   test_xdma_poc_script.test_bar_health_passes_on_composition_top_register_image
+   test_xdma_poc_script.test_bar_health_offsets_follow_a_non_default_register_window
+   test_xdma_poc_script.test_bar_health_still_surfaces_all_ones_on_a_mapped_register
+
+
+Module Contents
+---------------
+
+.. py:data:: SCRIPT_PATH
+
+.. py:data:: REGISTER_WINDOW_OFFSET
+   :value: 4096
+
+
+.. py:data:: REGISTER_WINDOW_BYTES
+   :value: 4096
+
+
+.. py:function:: load_poc_module()
+
+.. py:data:: poc
+   :value: None
+
+
+.. py:function:: write_composition_register_image(user_path: pathlib.Path, *, operator_bitmap: int = 30, register_window_offset: int = REGISTER_WINDOW_OFFSET) -> None
+
+   BAR image of a composition top: the identity fallthrough reads all-ones
+   everywhere except the mapped window-relative contract registers.
+
+
+.. py:function:: test_health_offsets_are_mapped_contract_registers_inside_the_window() -> None
+
+.. py:function:: test_bar_health_passes_on_composition_top_register_image(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_bar_health_offsets_follow_a_non_default_register_window(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_bar_health_still_surfaces_all_ones_on_a_mapped_register(tmp_path: pathlib.Path) -> None
+

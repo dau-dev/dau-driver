@@ -1,0 +1,38 @@
+test_readme
+===========
+
+.. py:module:: test_readme
+
+.. autoapi-nested-parse::
+
+   The README's python block runs as written. A README that shows code that
+   does not run is a claim the repository cannot back.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   test_readme.README
+   test_readme.BLOCK
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_readme.test_the_readme_example_runs_as_written
+
+
+Module Contents
+---------------
+
+.. py:data:: README
+
+.. py:data:: BLOCK
+
+.. py:function:: test_the_readme_example_runs_as_written(tmp_path, monkeypatch) -> None
+

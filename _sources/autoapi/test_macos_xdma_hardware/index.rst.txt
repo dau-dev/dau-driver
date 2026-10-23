@@ -1,0 +1,45 @@
+test_macos_xdma_hardware
+========================
+
+.. py:module:: test_macos_xdma_hardware
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   test_macos_xdma_hardware.pytestmark
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_macos_xdma_hardware.test_macos_xdma_hardware_discovers_dau_identity
+   test_macos_xdma_hardware._scratch_addresses
+   test_macos_xdma_hardware.test_concurrent_transfers_on_both_engines_round_trip
+
+
+Module Contents
+---------------
+
+.. py:data:: pytestmark
+
+.. py:function:: test_macos_xdma_hardware_discovers_dau_identity() -> None
+
+.. py:function:: _scratch_addresses() -> tuple[int, int]
+
+   Two device addresses this test may overwrite. Which memory is free to
+   clobber is board geometry, so it comes from the bench, not from here.
+
+
+.. py:function:: test_concurrent_transfers_on_both_engines_round_trip() -> None
+
+   The H2C and C2H engines share the dext's one descriptor ring. Two
+   threads each write a pattern and read it back, so their transfers
+   interleave across both engines; any transfer that ran on a chain the
+   other thread rewrote returns the wrong bytes or fails.
+
+

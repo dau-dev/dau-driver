@@ -1,0 +1,42 @@
+test_register_write
+===================
+
+.. py:module:: test_register_write
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_register_write.test_write_register_applies_window_offset
+   test_register_write.test_write_register_round_trips_through_read
+   test_register_write.test_write_register_rejects_out_of_range_values
+   test_register_write.test_write_address_bounds_against_the_devices_memory_by_default
+   test_register_write.test_write_address_stays_unbounded_for_a_device_declaring_no_memory
+
+
+Module Contents
+---------------
+
+.. py:function:: test_write_register_applies_window_offset(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_write_register_round_trips_through_read(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_write_register_rejects_out_of_range_values(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_write_address_bounds_against_the_devices_memory_by_default(tmp_path: pathlib.Path) -> None
+
+   The guard must cover the plain FUNCTION, not only the method: the
+   scan and pipeline execution paths call `write_address(device, ...)`
+   directly, so a bound that is off unless a caller opts in does not
+   guard the paths that program job addresses.
+
+
+.. py:function:: test_write_address_stays_unbounded_for_a_device_declaring_no_memory() -> None
+
+   Duck-typed on purpose: devices are not required to subclass
+   DauDevice, and one that declares no memory behaves as it did before
+   rather than failing.
+
+

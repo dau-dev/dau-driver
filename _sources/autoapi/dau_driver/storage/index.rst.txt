@@ -1,0 +1,170 @@
+dau_driver.storage
+==================
+
+.. py:module:: dau_driver.storage
+
+.. autoapi-nested-parse::
+
+   Host-side storage allocation over a platform's declared tiers.
+
+   The dumb half of the allocation lifecycle in STORAGE_AND_NOC.md: the host
+   owns an allocator per shared tier and hands out generation-checked handles;
+   tiles consume grants and never allocate. The handle table this allocator
+   maintains is exactly what a future allocator tile would drive — the API does
+   not change when it does.
+
+   Freed storage is never readdressed: ``free`` bumps the handle's generation,
+   and a stale handle raises instead of resolving to reused memory. Exhaustion
+   raises before anything is staged. ``stage``/``resolve`` take any object with
+   ``write_dma`` (the duck-typed device convention).
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   dau_driver.storage._ALLOCATOR_TOKENS
+
+
+Exceptions
+----------
+
+.. autoapisummary::
+
+   dau_driver.storage.StaleHandleError
+   dau_driver.storage.StorageExhaustedError
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   dau_driver.storage.StorageHandle
+   dau_driver.storage.StorageAllocator
+
+
+Module Contents
+---------------
+
+.. py:exception:: StaleHandleError
+
+   Bases: :py:obj:`RuntimeError`
+
+
+   A handle whose allocation was freed (or never existed) was used.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+.. py:exception:: StorageExhaustedError
+
+   Bases: :py:obj:`RuntimeError`
+
+
+   The tier cannot hold the requested allocation.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+.. py:data:: _ALLOCATOR_TOKENS
+
+.. py:class:: StorageHandle
+
+   One allocation: identity plus placement. ``generation`` is the
+   freed-storage guard — the allocator refuses any handle whose id has been
+   freed since, so reused space is never readable through an old name —
+   and ``allocator`` binds the handle to the allocator that issued it, so a
+   handle from one tier can never free or address another's memory. Every
+   operation trusts only the allocator's LIVE record, never the handle's
+   own copy of base/capacity.
+
+
+   .. py:attribute:: id
+      :type:  int
+
+
+   .. py:attribute:: generation
+      :type:  int
+
+
+   .. py:attribute:: base
+      :type:  int
+
+
+   .. py:attribute:: capacity
+      :type:  int
+
+
+   .. py:attribute:: tier
+      :type:  str
+
+
+   .. py:attribute:: allocator
+      :type:  int
+
+
+.. py:class:: StorageAllocator(*, tier: str, capacity_bytes: int, base: int = 0, reserved: tuple[tuple[int, int], ...] = (), align: int = 64)
+
+   First-fit allocator over one declared tier's ``[base, base+capacity)``,
+   minus reserved regions (lane-output windows, staging areas).
+
+
+   .. py:attribute:: tier
+
+
+   .. py:attribute:: align
+      :value: 64
+
+
+
+   .. py:attribute:: _token
+
+
+   .. py:attribute:: _free
+      :type:  list[tuple[int, int]]
+
+
+   .. py:attribute:: _live
+      :type:  dict[int, StorageHandle]
+
+
+   .. py:attribute:: _generations
+      :type:  dict[int, int]
+
+
+   .. py:attribute:: _free_ids
+      :type:  list[int]
+      :value: []
+
+
+
+   .. py:attribute:: _next_id
+      :value: 0
+
+
+
+   .. py:method:: allocate(nbytes: int) -> StorageHandle
+
+
+   .. py:method:: free(handle: StorageHandle) -> None
+
+
+   .. py:method:: resolve(handle: StorageHandle) -> int
+
+      The handle's device address, generation-checked. Freed storage is
+      never readdressed through an old name.
+
+
+
+   .. py:method:: stage(device, handle: StorageHandle, data: bytes) -> None
+
+      Write ``data`` into the handle's allocation through the device.
+
+
+
+   .. py:method:: _insert_free(start: int, end: int) -> None
+
+

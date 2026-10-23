@@ -1,0 +1,22 @@
+conftest
+========
+
+.. py:module:: conftest
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   conftest.SLOP_ROOT
+   conftest.DAU_CORE_SOURCE
+
+
+Module Contents
+---------------
+
+.. py:data:: SLOP_ROOT
+
+.. py:data:: DAU_CORE_SOURCE
+

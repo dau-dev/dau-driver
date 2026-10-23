@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>test_scan_execution &#8212; dau-driver v0.1.0</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/fuma.css?v=9324ae27" />
+    <link rel="stylesheet" type="text/css" href="../../_static/fuma-code.css?v=a950e949" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/fonts/fuma-fonts.css?v=c2892c73" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/custom.css?v=88c24c6a" />
+    <script src="../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-searchlite-index="searchlite-index.json" defer="defer" src="../../_static/searchlite.js?v=a5320898"></script>
+    <script defer="defer" src="../../_static/fuma.js?v=88a16a98"></script>
+    <script src="../../_static/js/custom.js?v=956e5d78"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="test_register_write" href="../test_register_write/index.html" />
+    <link rel="prev" title="test_stream_codec" href="../test_stream_codec/index.html" />
+    <script>
+      (function () {
+        var root = document.documentElement;
+        try {
+          var stored = localStorage.getItem("fuma-theme");
+          if (stored) {
+            root.classList.add(stored === "dark" ? "dark" : "light");
+            root.style.colorScheme = stored === "dark" ? "dark" : "light";
+          }
+          if (localStorage.getItem("fuma-sidebar") === "collapsed") root.dataset.sidebarCollapsed = "true";
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+<body class="fd-body" data-layout="docs" data-toc-style="normal" data-open-level="0">
+<div id="fd-layout"><header id="fd-subnav">
+  <div class="fd-subnav-inner">
+    <button type="button" class="fd-icon-button fd-sidebar-toggle" aria-controls="fd-sidebar" aria-expanded="false" aria-label="Toggle navigation" title="Toggle navigation">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
+    </button><a class="fd-brand" href="../../index.html"><span class="fd-brand-name">dau-driver v0.1.0</span>
+</a>
+
+    <div class="fd-nav-actions">
+      <button type="button" class="fd-icon-button" data-fd-search-open aria-label="Search" title="Search"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
+      <a class="fd-icon-button" href="https://github.com/dau-dev/dau-driver" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <button type="button" class="fd-icon-button fd-theme-toggle" aria-label="Toggle theme" title="Toggle theme">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-light"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-dark"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<aside id="fd-sidebar" aria-label="Documentation">
+  <div class="fd-sidebar-header">
+    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../index.html"><span class="fd-brand-name">dau-driver v0.1.0</span>
+</a>
+      <button type="button" class="fd-icon-button fd-sidebar-collapse" aria-label="Collapse sidebar" title="Collapse sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+    </div>
+    <button type="button" class="fd-search-trigger" data-fd-search-open title="Search">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><span>Search</span><kbd class="fd-kbd">/</kbd>
+    </button>
+  </div>
+
+  <nav class="fd-sidebar-nav">
+    <div class="fd-sidebar-group">
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/tutorial/first-device.html">
+      <span class="fd-link-text">Talk to a device without any hardware</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/tutorial/first-scan-run.html">
+      <span class="fd-link-text">Run a scan over many batches</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/how-to/find-a-device.html">
+      <span class="fd-link-text">How to find and check a device</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/how-to/move-data.html">
+      <span class="fd-link-text">How to move data to and from a device</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/how-to/run-scan-jobs.html">
+      <span class="fd-link-text">How to run scan jobs</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/how-to/allocate-device-storage.html">
+      <span class="fd-link-text">How to allocate device storage</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/how-to/arm-the-deadman.html">
+      <span class="fd-link-text">How to fence a PCIe operation with the deadman</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/how-to/develop.html">
+      <span class="fd-link-text">Develop and contribute</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/reference/device-and-discovery.html">
+      <span class="fd-link-text">Device and discovery reference</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/reference/execution-contracts.html">
+      <span class="fd-link-text">Execution contracts reference</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/reference/stream-codec.html">
+      <span class="fd-link-text">Stream codec reference</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/explanation/transport-boundary.html">
+      <span class="fd-link-text">The transport boundary: why a driver owns almost nothing</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/explanation/overlapped-staging.html">
+      <span class="fd-link-text">Overlapped staging: why the runner ping-pongs, and when it stops</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/explanation/storage-handles.html">
+      <span class="fd-link-text">Storage handles: why a generation instead of a pointer</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <details class="fd-folder" open>
+      <summary class="fd-folder-summary" title="Toggle section: API Reference">
+        <a class="fd-link" href="../index.html">
+          <span class="fd-link-text">API Reference</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../conftest/index.html">
+      <span class="fd-link-text">conftest</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_docs/index.html">
+      <span class="fd-link-text">test_docs</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <details class="fd-folder">
+      <summary class="fd-folder-summary" title="Toggle section: dau_driver">
+        <a class="fd-link" href="../dau_driver/index.html">
+          <span class="fd-link-text">dau_driver</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/_lazy/index.html">
+      <span class="fd-link-text">dau_driver._lazy</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/capability_decode/index.html">
+      <span class="fd-link-text">dau_driver.capability_decode</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/device/index.html">
+      <span class="fd-link-text">dau_driver.device</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/discovery/index.html">
+      <span class="fd-link-text">dau_driver.discovery</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/errors/index.html">
+      <span class="fd-link-text">dau_driver.errors</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/extension/index.html">
+      <span class="fd-link-text">dau_driver.extension</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/fleet/index.html">
+      <span class="fd-link-text">dau_driver.fleet</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/handle_table/index.html">
+      <span class="fd-link-text">dau_driver.handle_table</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/linux_xdma/index.html">
+      <span class="fd-link-text">dau_driver.linux_xdma</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/macos_xdma/index.html">
+      <span class="fd-link-text">dau_driver.macos_xdma</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/native/index.html">
+      <span class="fd-link-text">dau_driver.native</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/pipeline_execution/index.html">
+      <span class="fd-link-text">dau_driver.pipeline_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/scan_execution/index.html">
+      <span class="fd-link-text">dau_driver.scan_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/status/index.html">
+      <span class="fd-link-text">dau_driver.status</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/storage/index.html">
+      <span class="fd-link-text">dau_driver.storage</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/stream_codec/index.html">
+      <span class="fd-link-text">dau_driver.stream_codec</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/stream_execution/index.html">
+      <span class="fd-link-text">dau_driver.stream_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/testing/index.html">
+      <span class="fd-link-text">dau_driver.testing</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/transfer/index.html">
+      <span class="fd-link-text">dau_driver.transfer</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/verify_advertisement/index.html">
+      <span class="fd-link-text">dau_driver.verify_advertisement</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/xdma_io/index.html">
+      <span class="fd-link-text">dau_driver.xdma_io</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_fleet/index.html">
+      <span class="fd-link-text">test_fleet</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_native/index.html">
+      <span class="fd-link-text">test_native</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_readme/index.html">
+      <span class="fd-link-text">test_readme</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_storage/index.html">
+      <span class="fd-link-text">test_storage</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_transfer/index.html">
+      <span class="fd-link-text">test_transfer</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_discovery/index.html">
+      <span class="fd-link-text">test_discovery</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_macos_xdma/index.html">
+      <span class="fd-link-text">test_macos_xdma</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_handle_table/index.html">
+      <span class="fd-link-text">test_handle_table</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_lazy_exports/index.html">
+      <span class="fd-link-text">test_lazy_exports</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_stream_codec/index.html">
+      <span class="fd-link-text">test_stream_codec</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link fd-current" href="#">
+      <span class="fd-link-text">test_scan_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_register_write/index.html">
+      <span class="fd-link-text">test_register_write</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_xdma_poc_script/index.html">
+      <span class="fd-link-text">test_xdma_poc_script</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_stream_execution/index.html">
+      <span class="fd-link-text">test_stream_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_capability_decode/index.html">
+      <span class="fd-link-text">test_capability_decode</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_pipeline_execution/index.html">
+      <span class="fd-link-text">test_pipeline_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_record_batch_codec/index.html">
+      <span class="fd-link-text">test_record_batch_codec</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_macos_xdma_hardware/index.html">
+      <span class="fd-link-text">test_macos_xdma_hardware</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_linux_xdma_hardware/index.html">
+      <span class="fd-link-text">test_linux_xdma_hardware</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_verify_advertisement/index.html">
+      <span class="fd-link-text">test_verify_advertisement</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_no_board_geometry_constants/index.html">
+      <span class="fd-link-text">test_no_board_geometry_constants</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+</ul>
+    </div>
+  </nav>
+
+  <div class="fd-sidebar-footer">
+    <div class="fd-toolbar">
+      <a class="fd-toolbar-item" href="https://github.com/dau-dev/dau-driver" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <div class="fd-theme-switch" role="group" aria-label="Theme">
+        <button type="button" class="fd-theme-option" data-fd-theme="light" aria-label="Light theme" title="Light theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></button>
+        <button type="button" class="fd-theme-option" data-fd-theme="dark" aria-label="Dark theme" title="Dark theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg></button>
+      </div>
+    </div>
+  </div>
+</aside>
+<button type="button" id="fd-sidebar-restore" class="fd-icon-button" aria-label="Expand sidebar" title="Expand sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+<div class="fd-sidebar-scrim" hidden></div>
+  <div id="fd-toc-popover">
+    <button type="button" class="fd-toc-trigger" aria-expanded="false" aria-controls="fd-toc-mobile" title="On this page">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg><span>On this page</span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+    <div id="fd-toc-mobile" hidden><ul class="fd-toc-list">
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#attributes">Attributes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#classes">Classes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#functions">Functions</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#module-contents">Module Contents</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.REGION_A">REGION_A</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.REGION_B">REGION_B</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.OverlapTransport">OverlapTransport</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_scan_execution.OverlapTransport.total">OverlapTransport.total</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_scan_execution.OverlapTransport.started">OverlapTransport.started</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_scan_execution.OverlapTransport.write_u32">OverlapTransport.write_u32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_scan_execution.OverlapTransport.read_u32">OverlapTransport.read_u32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution._batches">_batches()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_run_scan_batches_alternates_regions_and_overlaps_staging">test_run_scan_batches_alternates_regions_and_overlaps_staging()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_run_scan_batches_accepts_a_lazy_iterator">test_run_scan_batches_accepts_a_lazy_iterator()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_run_scan_batches_rejects_payload_row_mismatch">test_run_scan_batches_rejects_payload_row_mismatch()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_run_scan_batches_propagates_job_errors">test_run_scan_batches_propagates_job_errors()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_run_scan_batches_validates_configuration_and_empty">test_run_scan_batches_validates_configuration_and_empty()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_run_scan_batches_surfaces_staging_failures_promptly">test_run_scan_batches_surfaces_staging_failures_promptly()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_run_scan_batches_rejects_zero_row_batches">test_run_scan_batches_rejects_zero_row_batches()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution._record_batches">_record_batches()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution._decoded_records">_decoded_records()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_key_partitioned_batches_confine_skewed_keys_and_balance_within_largest_group">test_key_partitioned_batches_confine_skewed_keys_and_balance_within_largest_group()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_key_partitioned_batches_degenerate_cases">test_key_partitioned_batches_degenerate_cases()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_key_partitioned_batches_delay_input_consumption_and_encode_payloads_one_at_a_time">test_key_partitioned_batches_delay_input_consumption_and_encode_payloads_one_at_a_time()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_key_partitioning_avoids_positional_split_state_hazard">test_key_partitioning_avoids_positional_split_state_hazard()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_run_scan_batches_refuses_positional_batches_for_per_key_state">test_run_scan_batches_refuses_positional_batches_for_per_key_state()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_run_scan_batches_accepts_key_partitioned_batches_for_per_key_state">test_run_scan_batches_accepts_key_partitioned_batches_for_per_key_state()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_batch_balance_is_bounded_by_the_largest_key">test_batch_balance_is_bounded_by_the_largest_key()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution._encode_pairs">_encode_pairs()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_key_range_batches_bound_the_distinct_keys_per_batch">test_key_range_batches_bound_the_distinct_keys_per_batch()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_key_range_batches_put_each_key_in_exactly_one_batch">test_key_range_batches_put_each_key_in_exactly_one_batch()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_key_range_batches_preserve_arrival_order_within_a_batch">test_key_range_batches_preserve_arrival_order_within_a_batch()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_key_range_batches_handle_the_boundaries">test_key_range_batches_handle_the_boundaries()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_key_range_batches_merge_back_to_the_one_shot_answer">test_key_range_batches_merge_back_to_the_one_shot_answer()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.ResidentTransport">ResidentTransport</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_scan_execution.ResidentTransport.starts">ResidentTransport.starts</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_scan_execution.ResidentTransport.write_u32">ResidentTransport.write_u32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_scan_execution.ResidentTransport.read_u32">ResidentTransport.read_u32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_a_resident_run_uploads_nothing">test_a_resident_run_uploads_nothing()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_a_resident_run_still_programs_the_exact_input_length">test_a_resident_run_still_programs_the_exact_input_length()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_a_misaligned_resident_address_is_refused">test_a_misaligned_resident_address_is_refused()</a>
+  </li>
+</ul>
+</div>
+  </div>
+
+  <main id="fd-main">
+    <article class="fd-page">
+<nav class="fd-breadcrumbs" aria-label="Breadcrumbs">
+  <ol>
+    <li>
+      <a href="../index.html">API Reference</a>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
+    </li>
+    <li aria-current="page">test_scan_execution</li>
+  </ol>
+</nav>
+      <div class="fd-prose">
+  <section id="module-test_scan_execution">
+<span id="test-scan-execution"></span><h1>test_scan_execution<a class="headerlink" href="#module-test_scan_execution" title="Link to this heading">¶</a></h1>
+<p>The streaming scan runner against the in-memory FakeTransport: the
+ping-pong protocol (region alternation, exact INPUT_LENGTH, padded DMA),
+the overlap guarantee (a job only completes once the next batch’s DMA
+landed), and the error paths.</p>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_scan_execution.REGION_A" title="test_scan_execution.REGION_A"><code class="xref py py-obj docutils literal notranslate"><span class="pre">REGION_A</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_scan_execution.REGION_B" title="test_scan_execution.REGION_B"><code class="xref py py-obj docutils literal notranslate"><span class="pre">REGION_B</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_scan_execution.OverlapTransport" title="test_scan_execution.OverlapTransport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OverlapTransport</span></code></a></p></td>
+<td><p>JOB_STATUS reports DONE only once the <em>next</em> batch's H2C write has</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_scan_execution.ResidentTransport" title="test_scan_execution.ResidentTransport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ResidentTransport</span></code></a></p></td>
+<td><p>DONE as soon as a job starts; records what was written.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_scan_execution._batches" title="test_scan_execution._batches"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_batches</span></code></a>(→ list[dau_driver.scan_execution.ScanBatch])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_scan_execution.test_run_scan_batches_alternates_regions_and_overlaps_staging" title="test_scan_execution.test_run_scan_batches_alternates_regions_and_overlaps_staging"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_run_scan_batches_alternates_regions_and_overlaps_staging</span></code></a>(...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_scan_execution.test_run_scan_batches_accepts_a_lazy_iterator" title="test_scan_execution.test_run_scan_batches_accepts_a_lazy_iterator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_run_scan_batches_accepts_a_lazy_iterator</span></code></a>(tmp_path)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_scan_execution.test_run_scan_batches_rejects_payload_row_mismatch" title="test_scan_execution.test_run_scan_batches_rejects_payload_row_mismatch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_run_scan_batches_rejects_payload_row_mismatch</span></code></a>(...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_scan_execution.test_run_scan_batches_propagates_job_errors" title="test_scan_execution.test_run_scan_batches_propagates_job_errors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_run_scan_batches_propagates_job_errors</span></code></a>(tmp_path)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_scan_execution.test_run_scan_batches_validates_configuration_and_empty" title="test_scan_execution.test_run_scan_batches_validates_configuration_and_empty"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_run_scan_batches_validates_configuration_and_empty</span></code></a>(...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_scan_execution.test_run_scan_batches_surfaces_staging_failures_promptly" title="test_scan_execution.test_run_scan_batches_surfaces_staging_failures_promptly"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_run_scan_batches_surfaces_staging_failures_promptly</span></code></a>(...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_scan_execution.test_run_scan_batches_rejects_zero_row_batches" title="test_scan_execution.test_run_scan_batches_rejects_zero_row_batches"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_run_scan_batches_rejects_zero_row_batches</span></code></a>(tmp_path)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_scan_execution._record_batches" title="test_scan_execution._record_batches"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_record_batches</span></code></a>(records, *, batch_count)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_scan_execution._decoded_records" title="test_scan_execution._decoded_records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_decoded_records</span></code></a>(batch)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_scan_execution.test_key_partitioned_batches_confine_skewed_keys_and_balance_within_largest_group" title="test_scan_execution.test_key_partitioned_batches_confine_skewed_keys_and_balance_within_largest_group"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_key_partitioned_batches_confine_skewed_keys_and_balance_within_largest_group</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_scan_execution.test_key_partitioned_batches_degenerate_cases" title="test_scan_execution.test_key_partitioned_batches_degenerate_cases"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_key_partitioned_batches_degenerate_cases</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_scan_execution.test_key_partitioned_batches_delay_input_consumption_and_encode_payloads_one_at_a_time" title="test_scan_execution.test_key_partitioned_batches_delay_input_consumption_and_encode_payloads_one_at_a_time"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_key_partitioned_batches_delay_input_consumption_and_encode_payloads_one_at_a_time</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_scan_execution.test_key_partitioning_avoids_positional_split_state_hazard" title="test_scan_execution.test_key_partitioning_avoids_positional_split_state_hazard"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_key_partitioning_avoids_positional_split_state_hazard</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_scan_execution.test_run_scan_batches_refuses_positional_batches_for_per_key_state" title="test_scan_execution.test_run_scan_batches_refuses_positional_batches_for_per_key_state"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_run_scan_batches_refuses_positional_batches_for_per_key_state</span></code></a>(...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_scan_execution.test_run_scan_batches_accepts_key_partitioned_batches_for_per_key_state" title="test_scan_execution.test_run_scan_batches_accepts_key_partitioned_batches_for_per_key_state"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_run_scan_batches_accepts_key_partitioned_batches_for_per_key_state</span></code></a>(...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_scan_execution.test_batch_balance_is_bounded_by_the_largest_key" title="test_scan_execution.test_batch_balance_is_bounded_by_the_largest_key"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_batch_balance_is_bounded_by_the_largest_key</span></code></a>(→ None)</p></td>
+<td><p>A key cannot be split without resetting the per-key state the</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_scan_execution._encode_pairs" title="test_scan_execution._encode_pairs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_encode_pairs</span></code></a>(→ bytes)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_scan_execution.test_key_range_batches_bound_the_distinct_keys_per_batch" title="test_scan_execution.test_key_range_batches_bound_the_distinct_keys_per_batch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_key_range_batches_bound_the_distinct_keys_per_batch</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_scan_execution.test_key_range_batches_put_each_key_in_exactly_one_batch" title="test_scan_execution.test_key_range_batches_put_each_key_in_exactly_one_batch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_key_range_batches_put_each_key_in_exactly_one_batch</span></code></a>(→ None)</p></td>
+<td><p>The property that makes combining per-batch group records a</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_scan_execution.test_key_range_batches_preserve_arrival_order_within_a_batch" title="test_scan_execution.test_key_range_batches_preserve_arrival_order_within_a_batch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_key_range_batches_preserve_arrival_order_within_a_batch</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_scan_execution.test_key_range_batches_handle_the_boundaries" title="test_scan_execution.test_key_range_batches_handle_the_boundaries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_key_range_batches_handle_the_boundaries</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_scan_execution.test_key_range_batches_merge_back_to_the_one_shot_answer" title="test_scan_execution.test_key_range_batches_merge_back_to_the_one_shot_answer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_key_range_batches_merge_back_to_the_one_shot_answer</span></code></a>(→ None)</p></td>
+<td><p>End to end against the tile golden: capacity-bounded batches run</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_scan_execution.test_a_resident_run_uploads_nothing" title="test_scan_execution.test_a_resident_run_uploads_nothing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_resident_run_uploads_nothing</span></code></a>(→ None)</p></td>
+<td><p>The whole point: rows already on the device are queried without a DMA.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_scan_execution.test_a_resident_run_still_programs_the_exact_input_length" title="test_scan_execution.test_a_resident_run_still_programs_the_exact_input_length"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_resident_run_still_programs_the_exact_input_length</span></code></a>(→ None)</p></td>
+<td><p>Address and length are the contract; getting either wrong reads the</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_scan_execution.test_a_misaligned_resident_address_is_refused" title="test_scan_execution.test_a_misaligned_resident_address_is_refused"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_misaligned_resident_address_is_refused</span></code></a>(→ None)</p></td>
+<td><p>An unaligned DMA region is a silent-wrong-bytes failure on silicon,</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="test_scan_execution.REGION_A">
+<span class="sig-prename descclassname"><span class="pre">test_scan_execution.</span></span><span class="sig-name descname"><span class="pre">REGION_A</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#test_scan_execution.REGION_A" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="test_scan_execution.REGION_B">
+<span class="sig-prename descclassname"><span class="pre">test_scan_execution.</span></span><span class="sig-name descname"><span class="pre">REGION_B</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">134217728</span></em><a class="headerlink" href="#test_scan_execution.REGION_B" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="test_scan_execution.OverlapTransport">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">test_scan_execution.</span></span><span class="sig-name descname"><span class="pre">OverlapTransport</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">total_batches</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#test_scan_execution.OverlapTransport" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../dau_driver/testing/index.html#dau_driver.testing.FakeTransport" title="dau_driver.testing.FakeTransport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dau_driver.testing.FakeTransport</span></code></a></p>
+<p>JOB_STATUS reports DONE only once the <em>next</em> batch’s H2C write has
+landed (the last job completes unconditionally): a serial
+stage-after-finish runner deadlocks into the timeout here, so a green
+run proves staging overlaps the running job.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="test_scan_execution.OverlapTransport.total">
+<span class="sig-name descname"><span class="pre">total</span></span><a class="headerlink" href="#test_scan_execution.OverlapTransport.total" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="test_scan_execution.OverlapTransport.started">
+<span class="sig-name descname"><span class="pre">started</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#test_scan_execution.OverlapTransport.started" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="test_scan_execution.OverlapTransport.write_u32">
+<span class="sig-name descname"><span class="pre">write_u32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_scan_execution.OverlapTransport.write_u32" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="test_scan_execution.OverlapTransport.read_u32">
+<span class="sig-name descname"><span class="pre">read_u32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#test_scan_execution.OverlapTransport.read_u32" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_scan_execution._batches">
+<span class="sig-prename descclassname"><span class="pre">test_scan_execution.</span></span><span class="sig-name descname"><span class="pre">_batches</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows_per_batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">row_bytes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">16</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../dau_driver/scan_execution/index.html#dau_driver.scan_execution.ScanBatch" title="dau_driver.scan_execution.ScanBatch"><span class="pre">dau_driver.scan_execution.ScanBatch</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#test_scan_execution._batches" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_scan_execution.test_run_scan_batches_alternates_regions_and_overlaps_staging">
+<span class="sig-prename descclassname"><span class="pre">test_scan_execution.</span></span><span class="sig-name descname"><span class="pre">test_run_scan_batches_alternates_regions_and_overlaps_staging</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#test_scan_execution.test_run_scan_batches_alternates_regions_and_overlaps_staging" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_scan_execution.test_run_scan_batches_accepts_a_lazy_iterator">
+<span class="sig-prename descclassname"><span class="pre">test_scan_execution.</span></span><span class="sig-name descname"><span class="pre">test_run_scan_batches_accepts_a_lazy_iterator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#test_scan_execution.test_run_scan_batches_accepts_a_lazy_iterator" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_scan_execution.test_run_scan_batches_rejects_payload_row_mismatch">
+<span class="sig-prename descclassname"><span class="pre">test_scan_execution.</span></span><span class="sig-name descname"><span class="pre">test_run_scan_batches_rejects_payload_row_mismatch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#test_scan_execution.test_run_scan_batches_rejects_payload_row_mismatch" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_scan_execution.test_run_scan_batches_propagates_job_errors">
+<span class="sig-prename descclassname"><span class="pre">test_scan_execution.</span></span><span class="sig-name descname"><span class="pre">test_run_scan_batches_propagates_job_errors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#test_scan_execution.test_run_scan_batches_propagates_job_errors" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_scan_execution.test_run_scan_batches_validates_configuration_and_empty">
+<span class="sig-prename descclassname"><span class="pre">test_scan_execution.</span></span><span class="sig-name descname"><span class="pre">test_run_scan_batches_validates_configuration_and_empty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#test_scan_execution.test_run_scan_batches_validates_configuration_and_empty" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_scan_execution.test_run_scan_batches_surfaces_staging_failures_promptly">
+<span class="sig-prename descclassname"><span class="pre">test_scan_execution.</span></span><span class="sig-name descname"><span class="pre">test_run_scan_batches_surfaces_staging_failures_promptly</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#test_scan_execution.test_run_scan_batches_surfaces_staging_failures_promptly" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_scan_execution.test_run_scan_batches_rejects_zero_row_batches">
+<span class="sig-prename descclassname"><span class="pre">test_scan_execution.</span></span><span class="sig-name descname"><span class="pre">test_run_scan_batches_rejects_zero_row_batches</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#test_scan_execution.test_run_scan_batches_rejects_zero_row_batches" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_scan_execution._record_batches">
+<span class="sig-prename descclassname"><span class="pre">test_scan_execution.</span></span><span class="sig-name descname"><span class="pre">_record_batches</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">records</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_count</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#test_scan_execution._record_batches" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_scan_execution._decoded_records">
+<span class="sig-prename descclassname"><span class="pre">test_scan_execution.</span></span><span class="sig-name descname"><span class="pre">_decoded_records</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#test_scan_execution._decoded_records" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_scan_execution.test_key_partitioned_batches_confine_skewed_keys_and_balance_within_largest_group">
+<span class="sig-prename descclassname"><span class="pre">test_scan_execution.</span></span><span class="sig-name descname"><span class="pre">test_key_partitioned_batches_confine_skewed_keys_and_balance_within_largest_group</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#test_scan_execution.test_key_partitioned_batches_confine_skewed_keys_and_balance_within_largest_group" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_scan_execution.test_key_partitioned_batches_degenerate_cases">
+<span class="sig-prename descclassname"><span class="pre">test_scan_execution.</span></span><span class="sig-name descname"><span class="pre">test_key_partitioned_batches_degenerate_cases</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#test_scan_execution.test_key_partitioned_batches_degenerate_cases" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_scan_execution.test_key_partitioned_batches_delay_input_consumption_and_encode_payloads_one_at_a_time">
+<span class="sig-prename descclassname"><span class="pre">test_scan_execution.</span></span><span class="sig-name descname"><span class="pre">test_key_partitioned_batches_delay_input_consumption_and_encode_payloads_one_at_a_time</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#test_scan_execution.test_key_partitioned_batches_delay_input_consumption_and_encode_payloads_one_at_a_time" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_scan_execution.test_key_partitioning_avoids_positional_split_state_hazard">
+<span class="sig-prename descclassname"><span class="pre">test_scan_execution.</span></span><span class="sig-name descname"><span class="pre">test_key_partitioning_avoids_positional_split_state_hazard</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#test_scan_execution.test_key_partitioning_avoids_positional_split_state_hazard" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_scan_execution.test_run_scan_batches_refuses_positional_batches_for_per_key_state">
+<span class="sig-prename descclassname"><span class="pre">test_scan_execution.</span></span><span class="sig-name descname"><span class="pre">test_run_scan_batches_refuses_positional_batches_for_per_key_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#test_scan_execution.test_run_scan_batches_refuses_positional_batches_for_per_key_state" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_scan_execution.test_run_scan_batches_accepts_key_partitioned_batches_for_per_key_state">
+<span class="sig-prename descclassname"><span class="pre">test_scan_execution.</span></span><span class="sig-name descname"><span class="pre">test_run_scan_batches_accepts_key_partitioned_batches_for_per_key_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#test_scan_execution.test_run_scan_batches_accepts_key_partitioned_batches_for_per_key_state" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_scan_execution.test_batch_balance_is_bounded_by_the_largest_key">
+<span class="sig-prename descclassname"><span class="pre">test_scan_execution.</span></span><span class="sig-name descname"><span class="pre">test_batch_balance_is_bounded_by_the_largest_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_scan_execution.test_batch_balance_is_bounded_by_the_largest_key" title="Link to this definition">¶</a></dt>
+<dd><p>A key cannot be split without resetting the per-key state the
+partitioning exists to protect, so one dominant key caps how evenly
+batches can balance — and therefore how much overlap can hide. Pinned
+because the balancing heuristic could otherwise be read as a promise
+it cannot keep under skew.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_scan_execution._encode_pairs">
+<span class="sig-prename descclassname"><span class="pre">test_scan_execution.</span></span><span class="sig-name descname"><span class="pre">_encode_pairs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">records</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span></span></span><a class="headerlink" href="#test_scan_execution._encode_pairs" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_scan_execution.test_key_range_batches_bound_the_distinct_keys_per_batch">
+<span class="sig-prename descclassname"><span class="pre">test_scan_execution.</span></span><span class="sig-name descname"><span class="pre">test_key_range_batches_bound_the_distinct_keys_per_batch</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_scan_execution.test_key_range_batches_bound_the_distinct_keys_per_batch" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_scan_execution.test_key_range_batches_put_each_key_in_exactly_one_batch">
+<span class="sig-prename descclassname"><span class="pre">test_scan_execution.</span></span><span class="sig-name descname"><span class="pre">test_key_range_batches_put_each_key_in_exactly_one_batch</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_scan_execution.test_key_range_batches_put_each_key_in_exactly_one_batch" title="Link to this definition">¶</a></dt>
+<dd><p>The property that makes combining per-batch group records a
+concatenation rather than a summation.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_scan_execution.test_key_range_batches_preserve_arrival_order_within_a_batch">
+<span class="sig-prename descclassname"><span class="pre">test_scan_execution.</span></span><span class="sig-name descname"><span class="pre">test_key_range_batches_preserve_arrival_order_within_a_batch</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_scan_execution.test_key_range_batches_preserve_arrival_order_within_a_batch" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_scan_execution.test_key_range_batches_handle_the_boundaries">
+<span class="sig-prename descclassname"><span class="pre">test_scan_execution.</span></span><span class="sig-name descname"><span class="pre">test_key_range_batches_handle_the_boundaries</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_scan_execution.test_key_range_batches_handle_the_boundaries" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_scan_execution.test_key_range_batches_merge_back_to_the_one_shot_answer">
+<span class="sig-prename descclassname"><span class="pre">test_scan_execution.</span></span><span class="sig-name descname"><span class="pre">test_key_range_batches_merge_back_to_the_one_shot_answer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_scan_execution.test_key_range_batches_merge_back_to_the_one_shot_answer" title="Link to this definition">¶</a></dt>
+<dd><p>End to end against the tile golden: capacity-bounded batches run
+through the hash-mode model and merge to what one unbounded pass
+would have produced.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="test_scan_execution.ResidentTransport">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">test_scan_execution.</span></span><span class="sig-name descname"><span class="pre">ResidentTransport</span></span><a class="headerlink" href="#test_scan_execution.ResidentTransport" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../dau_driver/testing/index.html#dau_driver.testing.FakeTransport" title="dau_driver.testing.FakeTransport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dau_driver.testing.FakeTransport</span></code></a></p>
+<p>DONE as soon as a job starts; records what was written.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="test_scan_execution.ResidentTransport.starts">
+<span class="sig-name descname"><span class="pre">starts</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#test_scan_execution.ResidentTransport.starts" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="test_scan_execution.ResidentTransport.write_u32">
+<span class="sig-name descname"><span class="pre">write_u32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_scan_execution.ResidentTransport.write_u32" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="test_scan_execution.ResidentTransport.read_u32">
+<span class="sig-name descname"><span class="pre">read_u32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#test_scan_execution.ResidentTransport.read_u32" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_scan_execution.test_a_resident_run_uploads_nothing">
+<span class="sig-prename descclassname"><span class="pre">test_scan_execution.</span></span><span class="sig-name descname"><span class="pre">test_a_resident_run_uploads_nothing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_scan_execution.test_a_resident_run_uploads_nothing" title="Link to this definition">¶</a></dt>
+<dd><p>The whole point: rows already on the device are queried without a DMA.
+On the measured platform the feed is the larger term of the device path
+(40.0 ms total against a ~10.4 ms job), so removing it from the loop is
+what amortization means.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_scan_execution.test_a_resident_run_still_programs_the_exact_input_length">
+<span class="sig-prename descclassname"><span class="pre">test_scan_execution.</span></span><span class="sig-name descname"><span class="pre">test_a_resident_run_still_programs_the_exact_input_length</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_scan_execution.test_a_resident_run_still_programs_the_exact_input_length" title="Link to this definition">¶</a></dt>
+<dd><p>Address and length are the contract; getting either wrong reads the
+wrong bytes and would be indistinguishable from a bad answer.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_scan_execution.test_a_misaligned_resident_address_is_refused">
+<span class="sig-prename descclassname"><span class="pre">test_scan_execution.</span></span><span class="sig-name descname"><span class="pre">test_a_misaligned_resident_address_is_refused</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_scan_execution.test_a_misaligned_resident_address_is_refused" title="Link to this definition">¶</a></dt>
+<dd><p>An unaligned DMA region is a silent-wrong-bytes failure on silicon,
+so it is refused where the mistake is still cheap.</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+      </div>
+<nav class="fd-pagination" aria-label="Pagination">
+  <a class="fd-pagination-card fd-pagination-prev" href="../test_stream_codec/index.html" title="Previous: test_stream_codec">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m15 18-6-6 6-6"/></svg>
+    <span class="fd-pagination-text">
+      <span class="fd-pagination-label">Previous</span>
+      <span class="fd-pagination-title">test_stream_codec</span>
+    </span>
+  </a>
+  <a class="fd-pagination-card fd-pagination-next" href="../test_register_write/index.html" title="Next: test_register_write">
+    <span class="fd-pagination-text">
+      <span class="fd-pagination-label">Next</span>
+      <span class="fd-pagination-title">test_register_write</span>
+    </span>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
+  </a>
+</nav>
+<footer id="fd-footer">
+  <p class="fd-footer-meta"><span>&#169; the dau-driver authors</span><span>Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.</span>
+  </p>
+</footer>
+    </article>
+  </main>
+<nav id="fd-toc" aria-label="On this page">
+  <p class="fd-toc-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>On this page</p>
+  <div class="fd-toc-body"><svg class="fd-toc-rail" aria-hidden="true" preserveAspectRatio="none">
+      <path class="fd-toc-track" fill="none" />
+      <path class="fd-toc-thumb" fill="none" />
+    </svg><ul class="fd-toc-list">
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#attributes">Attributes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#classes">Classes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#functions">Functions</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#module-contents">Module Contents</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.REGION_A">REGION_A</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.REGION_B">REGION_B</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.OverlapTransport">OverlapTransport</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_scan_execution.OverlapTransport.total">OverlapTransport.total</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_scan_execution.OverlapTransport.started">OverlapTransport.started</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_scan_execution.OverlapTransport.write_u32">OverlapTransport.write_u32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_scan_execution.OverlapTransport.read_u32">OverlapTransport.read_u32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution._batches">_batches()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_run_scan_batches_alternates_regions_and_overlaps_staging">test_run_scan_batches_alternates_regions_and_overlaps_staging()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_run_scan_batches_accepts_a_lazy_iterator">test_run_scan_batches_accepts_a_lazy_iterator()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_run_scan_batches_rejects_payload_row_mismatch">test_run_scan_batches_rejects_payload_row_mismatch()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_run_scan_batches_propagates_job_errors">test_run_scan_batches_propagates_job_errors()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_run_scan_batches_validates_configuration_and_empty">test_run_scan_batches_validates_configuration_and_empty()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_run_scan_batches_surfaces_staging_failures_promptly">test_run_scan_batches_surfaces_staging_failures_promptly()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_run_scan_batches_rejects_zero_row_batches">test_run_scan_batches_rejects_zero_row_batches()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution._record_batches">_record_batches()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution._decoded_records">_decoded_records()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_key_partitioned_batches_confine_skewed_keys_and_balance_within_largest_group">test_key_partitioned_batches_confine_skewed_keys_and_balance_within_largest_group()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_key_partitioned_batches_degenerate_cases">test_key_partitioned_batches_degenerate_cases()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_key_partitioned_batches_delay_input_consumption_and_encode_payloads_one_at_a_time">test_key_partitioned_batches_delay_input_consumption_and_encode_payloads_one_at_a_time()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_key_partitioning_avoids_positional_split_state_hazard">test_key_partitioning_avoids_positional_split_state_hazard()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_run_scan_batches_refuses_positional_batches_for_per_key_state">test_run_scan_batches_refuses_positional_batches_for_per_key_state()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_run_scan_batches_accepts_key_partitioned_batches_for_per_key_state">test_run_scan_batches_accepts_key_partitioned_batches_for_per_key_state()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_batch_balance_is_bounded_by_the_largest_key">test_batch_balance_is_bounded_by_the_largest_key()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution._encode_pairs">_encode_pairs()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_key_range_batches_bound_the_distinct_keys_per_batch">test_key_range_batches_bound_the_distinct_keys_per_batch()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_key_range_batches_put_each_key_in_exactly_one_batch">test_key_range_batches_put_each_key_in_exactly_one_batch()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_key_range_batches_preserve_arrival_order_within_a_batch">test_key_range_batches_preserve_arrival_order_within_a_batch()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_key_range_batches_handle_the_boundaries">test_key_range_batches_handle_the_boundaries()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_key_range_batches_merge_back_to_the_one_shot_answer">test_key_range_batches_merge_back_to_the_one_shot_answer()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.ResidentTransport">ResidentTransport</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_scan_execution.ResidentTransport.starts">ResidentTransport.starts</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_scan_execution.ResidentTransport.write_u32">ResidentTransport.write_u32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_scan_execution.ResidentTransport.read_u32">ResidentTransport.read_u32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_a_resident_run_uploads_nothing">test_a_resident_run_uploads_nothing()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_a_resident_run_still_programs_the_exact_input_length">test_a_resident_run_still_programs_the_exact_input_length()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_a_misaligned_resident_address_is_refused">test_a_misaligned_resident_address_is_refused()</a>
+  </li>
+</ul>
+
+  </div>
+  <div class="fd-toc-actions">
+    <a class="fd-toc-action" href="https://github.com/dau-dev/dau-driver/edit/HEAD/autoapi/test_scan_execution/index.rst" target="_blank" rel="noopener" title="Edit this page"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg><span>Edit this page</span></a>
+    <a class="fd-toc-action" href="../../_sources/autoapi/test_scan_execution/index.rst.txt" rel="nofollow" title="View source"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg><span>View source</span></a>
+  </div>
+</nav>
+</div>
+<dialog id="fd-search-dialog" aria-label="Search">
+  <form class="fd-search-panel" method="dialog" role="search">
+    <div class="fd-search-field">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="search" id="fd-search-input" autocomplete="off" spellcheck="false" placeholder="Search documentation..." aria-label="Search" />
+      <kbd class="fd-kbd">Esc</kbd>
+    </div>
+    <div id="fd-search-results" role="listbox" aria-label="Search results"></div>
+    <p id="fd-search-empty" class="fd-search-empty" hidden>No results found.</p>
+  </form>
+</dialog>
+  </body>
+</html>

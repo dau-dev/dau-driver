@@ -1,0 +1,202 @@
+test_scan_execution
+===================
+
+.. py:module:: test_scan_execution
+
+.. autoapi-nested-parse::
+
+   The streaming scan runner against the in-memory FakeTransport: the
+   ping-pong protocol (region alternation, exact INPUT_LENGTH, padded DMA),
+   the overlap guarantee (a job only completes once the next batch's DMA
+   landed), and the error paths.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   test_scan_execution.REGION_A
+   test_scan_execution.REGION_B
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   test_scan_execution.OverlapTransport
+   test_scan_execution.ResidentTransport
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_scan_execution._batches
+   test_scan_execution.test_run_scan_batches_alternates_regions_and_overlaps_staging
+   test_scan_execution.test_run_scan_batches_accepts_a_lazy_iterator
+   test_scan_execution.test_run_scan_batches_rejects_payload_row_mismatch
+   test_scan_execution.test_run_scan_batches_propagates_job_errors
+   test_scan_execution.test_run_scan_batches_validates_configuration_and_empty
+   test_scan_execution.test_run_scan_batches_surfaces_staging_failures_promptly
+   test_scan_execution.test_run_scan_batches_rejects_zero_row_batches
+   test_scan_execution._record_batches
+   test_scan_execution._decoded_records
+   test_scan_execution.test_key_partitioned_batches_confine_skewed_keys_and_balance_within_largest_group
+   test_scan_execution.test_key_partitioned_batches_degenerate_cases
+   test_scan_execution.test_key_partitioned_batches_delay_input_consumption_and_encode_payloads_one_at_a_time
+   test_scan_execution.test_key_partitioning_avoids_positional_split_state_hazard
+   test_scan_execution.test_run_scan_batches_refuses_positional_batches_for_per_key_state
+   test_scan_execution.test_run_scan_batches_accepts_key_partitioned_batches_for_per_key_state
+   test_scan_execution.test_batch_balance_is_bounded_by_the_largest_key
+   test_scan_execution._encode_pairs
+   test_scan_execution.test_key_range_batches_bound_the_distinct_keys_per_batch
+   test_scan_execution.test_key_range_batches_put_each_key_in_exactly_one_batch
+   test_scan_execution.test_key_range_batches_preserve_arrival_order_within_a_batch
+   test_scan_execution.test_key_range_batches_handle_the_boundaries
+   test_scan_execution.test_key_range_batches_merge_back_to_the_one_shot_answer
+   test_scan_execution.test_a_resident_run_uploads_nothing
+   test_scan_execution.test_a_resident_run_still_programs_the_exact_input_length
+   test_scan_execution.test_a_misaligned_resident_address_is_refused
+
+
+Module Contents
+---------------
+
+.. py:data:: REGION_A
+   :value: 0
+
+
+.. py:data:: REGION_B
+   :value: 134217728
+
+
+.. py:class:: OverlapTransport(total_batches: int)
+
+   Bases: :py:obj:`dau_driver.testing.FakeTransport`
+
+
+   JOB_STATUS reports DONE only once the *next* batch's H2C write has
+   landed (the last job completes unconditionally): a serial
+   stage-after-finish runner deadlocks into the timeout here, so a green
+   run proves staging overlaps the running job.
+
+
+   .. py:attribute:: total
+
+
+   .. py:attribute:: started
+      :value: 0
+
+
+
+   .. py:method:: write_u32(offset: int, value: int) -> None
+
+
+   .. py:method:: read_u32(offset: int) -> int
+
+
+.. py:function:: _batches(rows_per_batch: list[int], row_bytes: int = 16) -> list[dau_driver.scan_execution.ScanBatch]
+
+.. py:function:: test_run_scan_batches_alternates_regions_and_overlaps_staging(tmp_path)
+
+.. py:function:: test_run_scan_batches_accepts_a_lazy_iterator(tmp_path)
+
+.. py:function:: test_run_scan_batches_rejects_payload_row_mismatch(tmp_path)
+
+.. py:function:: test_run_scan_batches_propagates_job_errors(tmp_path)
+
+.. py:function:: test_run_scan_batches_validates_configuration_and_empty(tmp_path)
+
+.. py:function:: test_run_scan_batches_surfaces_staging_failures_promptly(tmp_path)
+
+.. py:function:: test_run_scan_batches_rejects_zero_row_batches(tmp_path)
+
+.. py:function:: _record_batches(records, *, batch_count)
+
+.. py:function:: _decoded_records(batch)
+
+.. py:function:: test_key_partitioned_batches_confine_skewed_keys_and_balance_within_largest_group()
+
+.. py:function:: test_key_partitioned_batches_degenerate_cases()
+
+.. py:function:: test_key_partitioned_batches_delay_input_consumption_and_encode_payloads_one_at_a_time()
+
+.. py:function:: test_key_partitioning_avoids_positional_split_state_hazard()
+
+.. py:function:: test_run_scan_batches_refuses_positional_batches_for_per_key_state(tmp_path)
+
+.. py:function:: test_run_scan_batches_accepts_key_partitioned_batches_for_per_key_state(tmp_path)
+
+.. py:function:: test_batch_balance_is_bounded_by_the_largest_key() -> None
+
+   A key cannot be split without resetting the per-key state the
+   partitioning exists to protect, so one dominant key caps how evenly
+   batches can balance — and therefore how much overlap can hide. Pinned
+   because the balancing heuristic could otherwise be read as a promise
+   it cannot keep under skew.
+
+
+.. py:function:: _encode_pairs(records) -> bytes
+
+.. py:function:: test_key_range_batches_bound_the_distinct_keys_per_batch() -> None
+
+.. py:function:: test_key_range_batches_put_each_key_in_exactly_one_batch() -> None
+
+   The property that makes combining per-batch group records a
+   concatenation rather than a summation.
+
+
+.. py:function:: test_key_range_batches_preserve_arrival_order_within_a_batch() -> None
+
+.. py:function:: test_key_range_batches_handle_the_boundaries() -> None
+
+.. py:function:: test_key_range_batches_merge_back_to_the_one_shot_answer() -> None
+
+   End to end against the tile golden: capacity-bounded batches run
+   through the hash-mode model and merge to what one unbounded pass
+   would have produced.
+
+
+.. py:class:: ResidentTransport
+
+   Bases: :py:obj:`dau_driver.testing.FakeTransport`
+
+
+   DONE as soon as a job starts; records what was written.
+
+
+   .. py:attribute:: starts
+      :value: 0
+
+
+
+   .. py:method:: write_u32(offset: int, value: int) -> None
+
+
+   .. py:method:: read_u32(offset: int) -> int
+
+
+.. py:function:: test_a_resident_run_uploads_nothing(tmp_path) -> None
+
+   The whole point: rows already on the device are queried without a DMA.
+   On the measured platform the feed is the larger term of the device path
+   (40.0 ms total against a ~10.4 ms job), so removing it from the loop is
+   what amortization means.
+
+
+.. py:function:: test_a_resident_run_still_programs_the_exact_input_length(tmp_path) -> None
+
+   Address and length are the contract; getting either wrong reads the
+   wrong bytes and would be indistinguishable from a bad answer.
+
+
+.. py:function:: test_a_misaligned_resident_address_is_refused(tmp_path) -> None
+
+   An unaligned DMA region is a silent-wrong-bytes failure on silicon,
+   so it is refused where the mistake is still cheap.
+
+

@@ -1,0 +1,243 @@
+test_verify_advertisement
+=========================
+
+.. py:module:: test_verify_advertisement
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   test_verify_advertisement._CONTRACT
+   test_verify_advertisement._SPEC_HASH
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   test_verify_advertisement._Snapshot
+   test_verify_advertisement._StampedSnapshot
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_verify_advertisement._manifest
+   test_verify_advertisement.test_a_matching_device_reports_no_mismatches
+   test_verify_advertisement.test_the_resident_design_that_fooled_the_flash_is_caught
+   test_verify_advertisement.test_every_mismatch_is_reported_not_just_the_first
+   test_verify_advertisement.test_hex_and_int_spellings_of_a_word_compare_equal
+   test_verify_advertisement.test_a_word_the_manifest_does_not_record_is_skipped
+   test_verify_advertisement.test_contract_is_read_from_a_manifest
+   test_verify_advertisement.test_a_manifest_without_a_contract_refuses
+   test_verify_advertisement.test_a_contract_that_advertises_nothing_is_refused
+   test_verify_advertisement.test_a_zero_device_word_means_not_advertised_not_zero
+   test_verify_advertisement.test_a_dead_board_is_caught_by_the_required_identity_not_by_the_words
+   test_verify_advertisement.test_an_unreadable_word_is_a_mismatch_not_a_skip_and_never_raises
+   test_verify_advertisement.test_a_float_lane_count_does_not_pass_a_mismatched_device
+   test_verify_advertisement.test_device_name_for_endpoint_resolves_through_sysfs
+   test_verify_advertisement.test_an_endpoint_that_did_not_re_enumerate_refuses
+   test_verify_advertisement._stamped
+   test_verify_advertisement.test_a_matching_build_id_is_the_exact_check
+   test_verify_advertisement.test_build_id_catches_what_the_capability_words_cannot
+   test_verify_advertisement.test_a_board_built_under_a_superseded_palette_still_verifies
+   test_verify_advertisement.test_an_unstamped_shell_does_not_fail_the_exact_check
+   test_verify_advertisement.test_a_manifest_without_a_spec_hash_does_not_fail_the_exact_check
+   test_verify_advertisement.test_the_snapshot_actually_reads_build_id_back_from_the_registers
+   test_verify_advertisement.test_a_dead_aperture_reads_back_as_unstamped_not_as_an_identity
+   test_verify_advertisement.test_a_json_boolean_is_not_a_capability_word
+   test_verify_advertisement.test_an_unreadable_only_contract_reports_the_reason_not_the_all_zero_guard
+   test_verify_advertisement.test_the_command_reports_a_missing_or_malformed_manifest_in_one_line
+
+
+Module Contents
+---------------
+
+.. py:data:: _CONTRACT
+
+.. py:class:: _Snapshot
+
+   .. py:attribute:: lane_count
+      :type:  int
+
+
+   .. py:attribute:: operator_bitmap
+      :type:  int
+
+
+   .. py:attribute:: host_opcode_bitmap
+      :type:  int
+
+
+   .. py:attribute:: sort_capacity
+      :type:  int
+
+
+.. py:function:: _manifest(tmp_path: pathlib.Path, contract=_CONTRACT) -> pathlib.Path
+
+.. py:function:: test_a_matching_device_reports_no_mismatches() -> None
+
+.. py:function:: test_the_resident_design_that_fooled_the_flash_is_caught() -> None
+
+   The case this exists for. A volatile program that does not take
+   leaves the FPGA on its flash-resident design, and the endpoint
+   enumerates exactly as it would on success — same vendor, same device id,
+   same address. Only the composed advertisement differs: here the resident
+   shell carries three lanes where the manifest declares one.
+
+
+.. py:function:: test_every_mismatch_is_reported_not_just_the_first() -> None
+
+   A caller staring at a failed flash wants all of them: 'lane count
+   differs' and 'operator bitmap differs' have different causes.
+
+
+.. py:function:: test_hex_and_int_spellings_of_a_word_compare_equal() -> None
+
+.. py:function:: test_a_word_the_manifest_does_not_record_is_skipped() -> None
+
+   An older manifest predating a word must not fail a device that
+   advertises it -- absence is not disagreement.
+
+
+.. py:function:: test_contract_is_read_from_a_manifest(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_a_manifest_without_a_contract_refuses(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_a_contract_that_advertises_nothing_is_refused() -> None
+
+   All-zero is exactly what a dead or undecoded aperture reads back as,
+   because the driver normalizes all-ones to zero. A contract of all zeros
+   would therefore MATCH a board that is not answering, which is the
+   failure this module exists to prevent.
+
+
+.. py:function:: test_a_zero_device_word_means_not_advertised_not_zero() -> None
+
+   Fixed binding tops place no NoC lane block, so they advertise
+   LANE_COUNT 0 while their manifest records 1. dau's build_tasks states
+   the merge rule: let the manifest win over a 0 word, never the reverse.
+   Treating it as a mismatch failed a correctly programmed board, and
+   because the verify runs before the deadman disarm, that rebooted the
+   host.
+
+
+.. py:function:: test_a_dead_board_is_caught_by_the_required_identity_not_by_the_words() -> None
+
+   The consequence of the rule above: a board answering nothing at all
+   now looks the same as a top that advertises nothing, so the WORDS can no
+   longer catch it. The build identity is what does -- which is why the
+   flash path requires one.
+
+
+.. py:function:: test_an_unreadable_word_is_a_mismatch_not_a_skip_and_never_raises(bad) -> None
+
+   Fail CLOSED. A word the manifest records in a form this cannot read
+   is not the same as one it does not record: reading it as absent is how a
+   check silently stops checking. Raising is worse still -- this runs
+   before the deadman disarm, so an uncaught exception reboots the host.
+
+
+.. py:function:: test_a_float_lane_count_does_not_pass_a_mismatched_device() -> None
+
+   The concrete fail-open case: 4.0 parsed as 'absent' let a device
+   advertising 1 pass a manifest expecting 4.
+
+
+.. py:function:: test_device_name_for_endpoint_resolves_through_sysfs(tmp_path) -> None
+
+.. py:function:: test_an_endpoint_that_did_not_re_enumerate_refuses(tmp_path) -> None
+
+.. py:class:: _StampedSnapshot
+
+   .. py:attribute:: lane_count
+      :type:  int
+
+
+   .. py:attribute:: operator_bitmap
+      :type:  int
+
+
+   .. py:attribute:: host_opcode_bitmap
+      :type:  int
+
+
+   .. py:attribute:: sort_capacity
+      :type:  int
+
+
+   .. py:attribute:: build_id
+      :type:  int
+
+
+.. py:data:: _SPEC_HASH
+   :value: '5:cbbe0c39ca6857cf1854804711d7abac7c301b620d4a478185ca0686dedd5575'
+
+
+.. py:function:: _stamped(build_id: int) -> _StampedSnapshot
+
+.. py:function:: test_a_matching_build_id_is_the_exact_check() -> None
+
+.. py:function:: test_build_id_catches_what_the_capability_words_cannot() -> None
+
+   The incident's own pair: q19-scan and q19-packed-wide advertise
+   identical lane count, operator bitmap, host-opcode bitmap and sort
+   capacity, so a word-level check passes when the board is running the
+   other one. BUILD_ID does not.
+
+
+.. py:function:: test_a_board_built_under_a_superseded_palette_still_verifies(tmp_path: pathlib.Path) -> None
+
+   Verification is registry-INDEPENDENT, and it has to stay that way.
+
+   A design flashed before a tile rename records a manifest naming tiles
+   the palette no longer carries, under a superseded canonical-form
+   version. The design cache refuses such an entry — it cannot re-express
+   that spec as one it could build today — but this check asks a different
+   question: is the board running the design THIS manifest describes. Both
+   sides of that comparison are recorded facts, so the answer does not
+   depend on which names the registry happens to carry now, and a resident
+   board must not become unidentifiable because the vocabulary moved on.
+
+   The manifest is a build's immutable record. Reading it here needs no
+   palette and must never acquire one.
+
+
+.. py:function:: test_an_unstamped_shell_does_not_fail_the_exact_check() -> None
+
+   Every shell built before stamping existed advertises 0. That is a
+   weaker verification, not a failing one -- main() says so on stderr.
+
+
+.. py:function:: test_a_manifest_without_a_spec_hash_does_not_fail_the_exact_check() -> None
+
+.. py:function:: test_the_snapshot_actually_reads_build_id_back_from_the_registers() -> None
+
+   Without this the exact check is decorative: `build_id` would sit at
+   its dataclass default of 0 forever, every verification would silently
+   fall back to the capability words, and the fallback note would be the
+   only hint. The word ORDER matters as much -- low at 0x0014, high at
+   0x0018, per the identity block -- because a swap makes the check fail on
+   a correctly flashed board.
+
+
+.. py:function:: test_a_dead_aperture_reads_back_as_unstamped_not_as_an_identity() -> None
+
+.. py:function:: test_a_json_boolean_is_not_a_capability_word() -> None
+
+   int(True) == 1 would quietly satisfy a device advertising one lane.
+
+
+.. py:function:: test_an_unreadable_only_contract_reports_the_reason_not_the_all_zero_guard() -> None
+
+   Guard ordering: the all-zero refusal must not swallow an unreadable
+   word and raise, which loses the specific reason a caller needs.
+
+
+.. py:function:: test_the_command_reports_a_missing_or_malformed_manifest_in_one_line(tmp_path: pathlib.Path, capsys) -> None
+

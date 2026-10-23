@@ -1,0 +1,311 @@
+dau_driver.pipeline_execution
+=============================
+
+.. py:module:: dau_driver.pipeline_execution
+
+.. autoapi-nested-parse::
+
+   Keyed composed-pipeline job execution against the dau_mm_ohlcv_job shell.
+
+   The shell runs keyed {value, key} INT32 pair rows through
+   filter -> map -> ordered grouped aggregation and stages 40-byte group
+   records in the output BRAM (see dau_build.shell_tops
+   generate_mm_ohlcv_job_top_sv and the PIPELINE_* register contract).
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   dau_driver.pipeline_execution.DMA_ALIGN_BYTES
+
+
+Exceptions
+----------
+
+.. autoapisummary::
+
+   dau_driver.pipeline_execution.PipelineJobError
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   dau_driver.pipeline_execution.KeyedPipelineConfig
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   dau_driver.pipeline_execution.pack_keyed_rows
+   dau_driver.pipeline_execution.decode_group_records
+   dau_driver.pipeline_execution.configure_pipeline
+   dau_driver.pipeline_execution._wait_for_job_done
+   dau_driver.pipeline_execution._read_aligned_records
+   dau_driver.pipeline_execution.execute_keyed_pipeline_job
+   dau_driver.pipeline_execution.pack_bar_rows
+   dau_driver.pipeline_execution.decode_bar_records
+   dau_driver.pipeline_execution.execute_bar_job
+   dau_driver.pipeline_execution.bar_ddr_max_rows_per_job
+   dau_driver.pipeline_execution.stage_bar_ddr_input
+   dau_driver.pipeline_execution.start_bar_ddr_job
+   dau_driver.pipeline_execution.finish_bar_ddr_job
+   dau_driver.pipeline_execution.execute_bar_ddr_packed
+   dau_driver.pipeline_execution.bar_noc_lane_output_bytes
+   dau_driver.pipeline_execution.bar_noc_max_rows_per_job
+   dau_driver.pipeline_execution.device_lane_count
+   dau_driver.pipeline_execution._advertised
+   dau_driver.pipeline_execution.device_job_capacity
+   dau_driver.pipeline_execution.bar_noc_lane_output_address
+   dau_driver.pipeline_execution.configure_bar_noc_lanes
+   dau_driver.pipeline_execution.execute_bar_noc_packed
+
+
+Module Contents
+---------------
+
+.. py:data:: DMA_ALIGN_BYTES
+   :value: 64
+
+
+.. py:exception:: PipelineJobError(message: str, *, last_error: int | None = None)
+
+   Bases: :py:obj:`dau_driver.errors.RegisterAccessError`
+
+
+   A job that timed out or closed out with an error.
+
+   ``last_error`` carries the shell's error code when the job closed out with
+   one, and ``None`` when there was none to read (a timeout). Carried on the
+   exception rather than left for the caller to read back, because the
+   register only holds the LAST job's code: a caller that re-reads it after
+   catching this is racing the next job for the reason this one failed.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: last_error
+      :value: None
+
+
+
+.. py:class:: KeyedPipelineConfig
+
+   Host-side mirror of the PIPELINE_* configuration registers.
+
+
+   .. py:attribute:: predicate
+      :type:  dau_core.operators.FilterPredicate
+
+
+   .. py:attribute:: filter_on_key
+      :type:  bool
+      :value: False
+
+
+
+   .. py:attribute:: map_config
+      :type:  dau_core.operators.MapConfig | None
+      :value: None
+
+
+
+   .. py:attribute:: map_on_key
+      :type:  bool
+      :value: False
+
+
+
+   .. py:method:: __post_init__() -> None
+
+
+   .. py:method:: filter_op_word() -> int
+
+
+   .. py:method:: map_op_word() -> int
+
+
+   .. py:method:: map_constant_word() -> int
+
+
+.. py:function:: pack_keyed_rows(rows: list[tuple[int, int]]) -> bytes
+
+   {value, key} pair rows on the 64-byte DMA grid; the logical length
+   stays ``len(rows) * 8``.
+
+
+.. py:function:: decode_group_records(data: bytes, count: int) -> list[dau_core.operators.GroupAggregate]
+
+.. py:function:: configure_pipeline(device, config: KeyedPipelineConfig) -> None
+
+.. py:function:: _wait_for_job_done(device, *, timeout_seconds: float, label: str, poll=None) -> None
+
+   Poll JOB_STATUS until DONE, raising on timeout or a hardware error
+   flag. Shared by every register-polled job runner so the wait/error
+   semantics stay identical across shells. ``poll``, when given, runs
+   each iteration so concurrent work (e.g. overlap staging) can surface
+   its failure instead of hiding behind this wait's timeout.
+
+
+.. py:function:: _read_aligned_records(device, *, address: int, result_length: int, record_bytes: int, count: int, count_label: str, prefix: str = '', validate_record_count: bool = True) -> bytes
+
+   Read the 64-byte-aligned record block that RESULT_LENGTH describes.
+   Returns ``b""`` (and issues no C2H read) when the lane produced no
+   output.
+
+   When ``validate_record_count`` is set (bar/q1: the count register is an
+   output-record count), the ``result_length == count * record_bytes``
+   invariant is enforced. q6-style aggregate lanes latch an input row
+   count in the count register and emit one fixed-width record, so they
+   pass ``validate_record_count=False`` and trust RESULT_LENGTH alone. The
+   empty test keys off RESULT_LENGTH, which is equivalent to ``count == 0``
+   whenever the invariant holds.
+
+
+.. py:function:: execute_keyed_pipeline_job(device, rows: list[tuple[int, int]], *, timeout_seconds: float = 5.0, contract: dau_core.registers.StreamJobRegisterContract | None = None, max_rows: int | None = None) -> tuple[list[dau_core.operators.GroupAggregate], int]
+
+   Run one batch of (key, value) rows; the pipeline must already be
+   configured (``configure_pipeline``). Returns (group records, selected
+   row count).
+
+   ``max_rows`` defaults to what the DEVICE advertises, not to a constant:
+   the staging budget is the resident shell's BRAM depth, and only the
+   shell knows it.
+
+
+.. py:function:: pack_bar_rows(rows: list[tuple[int, int, int, int]]) -> bytes
+
+   (key, price, shares, frac) rows for the fused bar tile, on the DMA
+   grid; the logical length stays ``len(rows) * 16``.
+
+
+.. py:function:: decode_bar_records(data: bytes, count: int)
+
+.. py:function:: execute_bar_job(device, rows: list[tuple[int, int, int, int]], *, timeout_seconds: float = 5.0, contract: dau_core.registers.StreamJobRegisterContract | None = None, max_rows: int | None = None)
+
+   Run one batch of (key, price, shares, frac) rows through the fused
+   bar shell. Returns the decoded bar records.
+
+   ``max_rows`` defaults to what the DEVICE advertises; the bar shell's
+   staging depth is its own, not the grouped shell's.
+
+
+.. py:function:: bar_ddr_max_rows_per_job(staging) -> int
+
+   Rows per job, bounded by the worst case of one record per row so an
+   overrun is impossible by construction. An actual overflow would fault
+   the job rather than corrupt input, but refusing early says which budget
+   was exceeded.
+
+
+.. py:function:: stage_bar_ddr_input(device, payload: bytes, row_count: int, *, staging, input_address: int | None = None) -> None
+
+   DMA one pre-packed batch of bar rows into a DDR input region.
+
+
+.. py:function:: start_bar_ddr_job(device, row_count: int, *, staging, input_address: int | None = None, output_address: int | None = None) -> None
+
+   Kick a job over rows already staged in DDR.
+
+
+.. py:function:: finish_bar_ddr_job(device, *, staging, output_address: int | None = None, timeout_seconds: float = 60.0) -> tuple[bytes, int]
+
+   Wait for the running job and read its records back. Returns the raw
+   record bytes and the bar count — decoding stays with the caller so
+   hosts can use vectorized decoders.
+
+
+.. py:function:: execute_bar_ddr_packed(device, payload: bytes, row_count: int, *, staging, timeout_seconds: float = 60.0) -> tuple[bytes, int]
+
+   Run one pre-packed batch of bar rows through the DDR-staged fused
+   bar shell (dau_mm_bar_ddr_job): stage, start, finish.
+
+
+.. py:function:: bar_noc_lane_output_bytes(staging, lanes: int) -> int
+
+   Each lane gets an equal slice of the board's result region.
+
+
+.. py:function:: bar_noc_max_rows_per_job(staging, lanes: int) -> int
+
+   Bounded by the worst case of every record landing in ONE lane, so no
+   partition can overrun its slice however skewed the keys are.
+
+
+.. py:function:: device_lane_count(device) -> int
+
+   The number of NoC lanes the RESIDENT shell advertises.
+
+   The shell publishes its lane count in the identity registers, so the
+   host has no business assuming one. A composition built with eight lanes
+   driven by a host that assumes four writes four lane windows and silently
+   drops the rest of the result -- the kind of wrong answer that looks like
+   a correct short read.
+
+   Refuses when the shell advertises nothing (0, which fixed binding tops
+   and any pre-0.2 shell report) rather than falling back to a default:
+   a caller running such a shell knows its geometry and must say so.
+
+
+.. py:function:: _advertised(value: int) -> int
+
+   All-ones is a word nobody decoded, not a four-billion-row capacity —
+   the same normalization every capability reader applies.
+
+
+.. py:function:: device_job_capacity(device) -> tuple[int, int]
+
+   (input rows, output records) ONE job may stage on the RESIDENT shell.
+
+   These are the shell's BRAM depths, and the host used to carry them as
+   module constants -- one pair for the grouped shell and one for the bar
+   shell, both compiled in. Every shell was therefore batched against the
+   depths of whichever shell the constants were written for, and a shell
+   built with a different depth would have been sliced to the wrong size
+   with nothing to say so. The shell advertises them from register map 0.3.
+
+   Refuses when the shell advertises nothing, exactly like the lane count:
+   a 0.2 or earlier shell does not decode these offsets, and a host that
+   guessed here would be reintroducing the constants this replaced.
+
+   Reads the two capacity words directly rather than taking a whole
+   identity snapshot: this sits on the per-job path, and a snapshot is
+   ~25 MMIO reads where three will do. Not cached, because a device can be
+   reflashed inside one session -- the flywheel does exactly that -- and a
+   cached capacity would then describe the previous shell.
+
+
+.. py:function:: bar_noc_lane_output_address(staging, lane: int, lanes: int) -> int
+
+.. py:function:: configure_bar_noc_lanes(device, *, staging, lanes: int | None = None) -> None
+
+   Point every lane's writer at its slice of the output region.
+
+   ``lanes`` defaults to what the DEVICE advertises, not to a constant: the
+   shell knows its own geometry and the host should ask.
+
+
+.. py:function:: execute_bar_noc_packed(device, payload: bytes, row_count: int, *, staging, lanes: int | None = None, record_bytes: int = BAR_RECORD_BYTES, validate_record_count: bool = True, timeout_seconds: float = 60.0) -> list[tuple[bytes, int]]
+
+   Run one pre-packed batch through a broadcast-NoC shell: one scan
+   computes every lane's partition concurrently. The lanes must already
+   be configured (``configure_bar_noc_lanes``). Returns raw record bytes
+   and each lane's RECORD_COUNT_LOW value.
+
+   ``lanes`` defaults to the count the DEVICE advertises; the
+   key-partitioned scan shells reuse this runner by passing their own lane
+   count and per-record width when they run a shell that advertises none.
+
+   q1's grouped shell keeps the default
+   ``validate_record_count`` (its count register is an output group-record
+   count). q6's aggregate shell latches an input row count and emits one
+   fixed-width [sum, count] record per lane, so it passes
+   ``validate_record_count=False`` and relies on RESULT_LENGTH.
+
+

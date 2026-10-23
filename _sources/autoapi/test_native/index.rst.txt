@@ -1,0 +1,19 @@
+test_native
+===========
+
+.. py:module:: test_native
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_native.test_native_info_is_available_without_built_extension
+
+
+Module Contents
+---------------
+
+.. py:function:: test_native_info_is_available_without_built_extension() -> None
+

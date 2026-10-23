@@ -1,0 +1,115 @@
+test_discovery
+==============
+
+.. py:module:: test_discovery
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   test_discovery.FakeXdmaPaths
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_discovery.test_discover_devices_returns_empty_list_when_no_xdma_paths
+   test_discovery.test_discover_devices_uses_macos_backend_on_darwin_default_dev_root
+   test_discovery.test_identify_device_rejects_generic_xdma_bitstream
+   test_discovery.test_identify_device_reports_unhealthy_bar_when_magic_reads_all_ones
+   test_discovery.test_discover_devices_reports_one_matching_fake_device
+   test_discovery.test_discover_devices_decodes_the_concrete_contract_on_register_map_0_2
+   test_discovery.test_identify_device_supports_register_window_offset
+   test_discovery.test_identify_device_retries_transient_zero_magic_read
+   test_discovery.test_identify_device_reports_unadvertised_metadata_honestly
+   test_discovery.test_an_undecoded_operator_word_advertises_nothing
+   test_discovery.test_device_decodes_status_and_counters_from_register_block
+   test_discovery.test_device_reads_register_block_snapshot_from_dau_core_contract
+   test_discovery.test_read_u64_uses_two_u32_register_reads_for_xdma_user_bar
+   test_discovery.test_device_bar_health_check_reports_all_ones_for_selected_register
+   test_discovery.test_device_validates_dma_transfer_shape_before_real_xdma_io
+   test_discovery._sysfs_owner
+   test_discovery.test_a_fake_device_is_identified_by_its_node_and_says_so
+   test_discovery.test_endpoint_for_devnode_reads_the_owning_pci_device_from_sysfs
+   test_discovery.test_a_discovered_linux_device_is_identified_by_its_pci_endpoint
+   test_discovery.write_fake_xdma_device
+   test_discovery.write_u32
+   test_discovery.write_u64
+
+
+Module Contents
+---------------
+
+.. py:class:: FakeXdmaPaths
+
+   .. py:attribute:: user
+      :type:  pathlib.Path
+
+
+   .. py:attribute:: h2c
+      :type:  pathlib.Path
+
+
+   .. py:attribute:: c2h
+      :type:  pathlib.Path
+
+
+.. py:function:: test_discover_devices_returns_empty_list_when_no_xdma_paths(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_discover_devices_uses_macos_backend_on_darwin_default_dev_root(monkeypatch: pytest.MonkeyPatch) -> None
+
+.. py:function:: test_identify_device_rejects_generic_xdma_bitstream(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_identify_device_reports_unhealthy_bar_when_magic_reads_all_ones(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_discover_devices_reports_one_matching_fake_device(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_discover_devices_decodes_the_concrete_contract_on_register_map_0_2(tmp_path: pathlib.Path) -> None
+
+   Register map 0.2: OPERATOR_BITMAP is hardware truth (typed INT32 at
+   register level, no five-type expansion) and HOST_OPCODE_BITMAP carries
+   the host-computed opcodes (AVERAGE = SUM/COUNT divide) separately.
+
+
+.. py:function:: test_identify_device_supports_register_window_offset(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_identify_device_retries_transient_zero_magic_read(tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch) -> None
+
+.. py:function:: test_identify_device_reports_unadvertised_metadata_honestly(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_an_undecoded_operator_word_advertises_nothing(tmp_path: pathlib.Path) -> None
+
+   MAGIC reads, so the path is healthy, but the operator word is
+   all-ones. Read literally that word claims every opcode the encoding has
+   a bit for — including AVERAGE, which is host-computed and must never be
+   submitted to a device. Silence is the only honest decode.
+
+
+.. py:function:: test_device_decodes_status_and_counters_from_register_block(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_device_reads_register_block_snapshot_from_dau_core_contract(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_read_u64_uses_two_u32_register_reads_for_xdma_user_bar(tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch) -> None
+
+.. py:function:: test_device_bar_health_check_reports_all_ones_for_selected_register(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_device_validates_dma_transfer_shape_before_real_xdma_io(tmp_path: pathlib.Path) -> None
+
+.. py:function:: _sysfs_owner(root: pathlib.Path, bdf: str, node: str) -> None
+
+.. py:function:: test_a_fake_device_is_identified_by_its_node_and_says_so(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_endpoint_for_devnode_reads_the_owning_pci_device_from_sysfs(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_a_discovered_linux_device_is_identified_by_its_pci_endpoint(tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch) -> None
+
+.. py:function:: write_fake_xdma_device(root: pathlib.Path, *, index: int = 0, magic: int = DAU_MAGIC_WORD, platform_id: str = 'DPV1', register_map_version: dau_core.registers.RegisterMapVersion | None = None, stream_protocol_version: dau_core.registers.StreamProtocolVersion | None = None, operator_bitmap: int = 1 << OperationCode.AVERAGE, lane_count: int = 0, host_opcode_bitmap: int = 0, sort_capacity: int = 0, status: int = 0, last_error: int = 0, h2c_bytes: int = 0, c2h_bytes: int = 0, rows: int = 0, batches: int = 0, stalls: int = 0, register_window_offset: int = 0) -> FakeXdmaPaths
+
+.. py:function:: write_u32(register_image: bytearray, register_window_offset: int, offset: dau_core.registers.RegisterOffset, value: int) -> None
+
+.. py:function:: write_u64(register_image: bytearray, register_window_offset: int, offset: dau_core.registers.RegisterOffset, value: int) -> None
+

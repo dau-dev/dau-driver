@@ -1,0 +1,68 @@
+dau_driver.native
+=================
+
+.. py:module:: dau_driver.native
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   dau_driver.native.NATIVE_ABI_VERSION
+   dau_driver.native.PACKAGE_NAME
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   dau_driver.native.NativeInfo
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   dau_driver.native.native_info
+   dau_driver.native._load_extension
+   dau_driver.native._package_version
+
+
+Module Contents
+---------------
+
+.. py:data:: NATIVE_ABI_VERSION
+   :value: 1
+
+
+.. py:data:: PACKAGE_NAME
+   :value: 'dau-driver'
+
+
+.. py:class:: NativeInfo
+
+   .. py:attribute:: backend
+      :type:  str
+
+
+   .. py:attribute:: abi_version
+      :type:  int
+
+
+   .. py:attribute:: package_version
+      :type:  str
+
+
+   .. py:attribute:: extension_available
+      :type:  bool
+
+
+.. py:function:: native_info() -> NativeInfo
+
+.. py:function:: _load_extension()
+
+.. py:function:: _package_version() -> str
+

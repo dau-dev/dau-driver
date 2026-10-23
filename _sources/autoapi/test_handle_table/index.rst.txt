@@ -1,0 +1,317 @@
+test_handle_table
+=================
+
+.. py:module:: test_handle_table
+
+.. autoapi-nested-parse::
+
+   The host end of the handle table, against a transport that models the
+   shell's.
+
+   ``dau_build.tests.test_handle_table_sim`` asserts these same four claims from
+   inside the RTL, driving the table's ports directly. This asserts them from the
+   other end of the wire: the only thing the host may do is write the aperture,
+   and a live handle has to resolve, a freed one has to be refused, a recycled
+   slot has to refuse the previous generation, and an unarmed job has to be
+   refused -- all of it produced by the register sequence the driver actually
+   emits, not by a host-side check standing in for the device.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   test_handle_table.CAPACITY
+   test_handle_table.ROW_BYTES
+   test_handle_table.ROWS
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   test_handle_table.HandleTableTransport
+   test_handle_table.OverlappingHandleTransport
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_handle_table._table
+   test_handle_table._run
+   test_handle_table.test_a_live_handle_resolves_to_its_region
+   test_handle_table.test_a_freed_handle_is_refused
+   test_handle_table.test_a_recycled_slot_refuses_the_previous_generation
+   test_handle_table.test_an_unarmed_job_handle_is_refused
+   test_handle_table.test_a_job_longer_than_the_grant_is_refused
+   test_handle_table.test_an_id_past_the_table_is_refused_before_the_device_sees_it
+   test_handle_table.test_installing_a_stale_handle_is_a_host_bug_not_a_device_refusal
+   test_handle_table.test_freeing_a_slot_works_after_the_allocator_released_the_span
+   test_handle_table.test_the_install_sequence_stages_the_whole_grant_before_committing
+   test_handle_table.test_a_datapath_error_is_not_reported_as_a_handle_fault
+   test_handle_table.test_repeats_amortize_one_staging_over_many_jobs
+   test_handle_table.test_an_off_grid_length_is_refused_before_it_becomes_a_length_gate_fault
+   test_handle_table.test_an_unaligned_grant_never_becomes_a_slot
+   test_handle_table.test_a_capacity_of_zero_is_not_a_table
+   test_handle_table._batches
+   test_handle_table._pair
+   test_handle_table.test_batches_ping_pong_between_two_grants_and_overlap_staging
+   test_handle_table.test_a_lazy_batch_iterator_is_consumed_one_ahead
+   test_handle_table.test_a_batch_the_shell_would_refuse_is_refused_before_it_moves
+   test_handle_table.test_one_grant_is_not_a_pair
+   test_handle_table.test_a_batch_past_its_grant_is_refused_by_the_allocator_before_the_dma
+   test_handle_table.test_a_grant_released_mid_stream_stops_the_stream
+   test_handle_table.test_a_staging_failure_waits_for_the_running_job_before_it_escapes
+   test_handle_table.test_a_slot_freed_on_the_device_refuses_its_batch
+   test_handle_table.test_a_yielding_poll_sleeps_between_status_reads_instead_of_spinning
+   test_handle_table.test_a_resident_scan_whose_rows_run_past_memory_is_refused
+
+
+Module Contents
+---------------
+
+.. py:data:: CAPACITY
+   :value: 4
+
+
+.. py:data:: ROW_BYTES
+   :value: 8
+
+
+.. py:data:: ROWS
+   :value: 8
+
+
+.. py:class:: HandleTableTransport(capacity: int = CAPACITY, *, datapath_error: int = 0)
+
+   Bases: :py:obj:`dau_driver.testing.FakeTransport`
+
+
+   ``dau_shell_handle_table`` plus the shell's job close-out, in Python.
+
+   Entries live exactly as the RTL's do -- a live bit, a base, a length, a
+   generation -- and a job start resolves ``JOB_HANDLE_*`` against them before
+   anything else happens. A refused job sets ERROR with the fault code in
+   LAST_ERROR and records NO run, which is how a test can tell a refusal from
+   a job that ran and produced nothing.
+
+
+   .. py:attribute:: capacity
+      :value: 4
+
+
+
+   .. py:attribute:: entries
+      :type:  dict[int, tuple[int, int, int]]
+
+
+   .. py:attribute:: runs
+      :type:  list[tuple[int, int]]
+      :value: []
+
+
+
+   .. py:attribute:: datapath_error
+      :value: 0
+
+
+
+   .. py:method:: write_u32(offset: int, value: int) -> None
+
+
+   .. py:method:: read_u32(offset: int) -> int
+
+
+   .. py:method:: _staged() -> tuple[int, int, int, int]
+
+
+   .. py:method:: _commit(control: int) -> None
+
+
+   .. py:method:: _start() -> None
+
+
+.. py:function:: _table(tmp_path, transport=None, *, capacity=CAPACITY, tier_bytes=1 << 20)
+
+.. py:function:: _run(table, handle, **kwargs)
+
+.. py:function:: test_a_live_handle_resolves_to_its_region(tmp_path) -> None
+
+   The baseline the refusals are measured against: the allocator's grant
+   is programmed into the slot, the job names the handle instead of an
+   address, and the read lands on the region the allocator handed out.
+
+
+.. py:function:: test_a_freed_handle_is_refused(tmp_path) -> None
+
+   Freeing the slot stops it resolving even though the memory is untouched
+   and the base the handle used to mean still reads fine.
+
+
+.. py:function:: test_a_recycled_slot_refuses_the_previous_generation(tmp_path) -> None
+
+   THE CASE THE TABLE EXISTS FOR. The allocator recycles the id, so the
+   second allocation lands in the same SLOT over a different region. The first
+   caller's handle is byte-for-byte what it always was and its base still
+   reads -- the generation is the only thing that can refuse it. It does, and
+   the reissued handle reaches the new tenant's region, proving the slot was
+   really reused underneath.
+
+
+.. py:function:: test_an_unarmed_job_handle_is_refused(tmp_path) -> None
+
+   Generation zero is one the allocator never issues, so a host that
+   starts a job without arming a handle is refused rather than quietly
+   reading slot zero -- which is live here, and would otherwise answer.
+
+
+.. py:function:: test_a_job_longer_than_the_grant_is_refused(tmp_path) -> None
+
+   The grant bounds the read: asking past it would walk into whatever
+   follows the region, the same wrong answer by a different route.
+
+
+.. py:function:: test_an_id_past_the_table_is_refused_before_the_device_sees_it(tmp_path) -> None
+
+   A slot the built table does not have is a fault on silicon (BAD_ID) and
+   a refusal here, because capacity is a design fact the host was told, not
+   one it discovers -- and the cheapest place to learn a personality is too
+   small is before the run.
+
+
+.. py:function:: test_installing_a_stale_handle_is_a_host_bug_not_a_device_refusal(tmp_path) -> None
+
+   The host allocator's generation is the authority for what a slot is
+   programmed from. Installing a handle it will not resolve would teach the
+   device a grant the host does not believe in -- the one direction the
+   generation check cannot catch, since the device would then agree.
+
+
+.. py:function:: test_freeing_a_slot_works_after_the_allocator_released_the_span(tmp_path) -> None
+
+   Freeing a slot can only make the table refuse more, so it must not
+   depend on the allocator still holding the handle: a caller who released
+   host-side first would otherwise be unable to close the device-side hole at
+   all, which is the exposure inverted.
+
+
+.. py:function:: test_the_install_sequence_stages_the_whole_grant_before_committing(tmp_path) -> None
+
+   A commit is a pulse over whatever is staged, so every field has to be
+   written first. A half-staged entry commits a grant made of one allocation's
+   base and another's length.
+
+
+.. py:function:: test_a_datapath_error_is_not_reported_as_a_handle_fault(tmp_path) -> None
+
+   The refusal type is only worth having if it means what it says: a code
+   from a tile is a job that RAN, and calling that a stale handle would send
+   a caller looking for an allocation bug that is not there.
+
+
+.. py:function:: test_repeats_amortize_one_staging_over_many_jobs(tmp_path) -> None
+
+   The residency claim itself, through a handle: the rows are staged once
+   and the job runs against the same grant repeatedly, arming it once.
+
+
+.. py:function:: test_an_off_grid_length_is_refused_before_it_becomes_a_length_gate_fault(tmp_path) -> None
+
+   The shell's 0xFE length gate fires before the table is asked, so an
+   off-grid length would arrive as a fault that says nothing about the
+   handle.
+
+
+.. py:function:: test_an_unaligned_grant_never_becomes_a_slot(tmp_path) -> None
+
+   A finer-grained allocator can hand out a base the DMA path cannot read
+   from, and through a handle nobody ever writes that address down to notice.
+   Refuse it where the mistake is still cheap, as the raw-address runner
+   does.
+
+
+.. py:function:: test_a_capacity_of_zero_is_not_a_table(tmp_path) -> None
+
+.. py:class:: OverlappingHandleTransport(total_batches: int)
+
+   Bases: :py:obj:`HandleTableTransport`
+
+
+   JOB_STATUS reports DONE only once the NEXT batch's H2C write has
+   landed (the last job completes unconditionally), as the raw-address
+   runner's test does: a runner that staged only after the job finished
+   would time out here, so a green run proves the two grants ping-pong.
+
+
+   .. py:attribute:: total
+
+
+   .. py:attribute:: finish_current
+      :value: False
+
+
+
+   .. py:attribute:: status_polls
+      :value: 0
+
+
+
+   .. py:method:: read_u32(offset: int) -> int
+
+
+.. py:function:: _batches(rows_per_batch, row_bytes=ROW_BYTES)
+
+.. py:function:: _pair(table, allocator, grant_rows=64)
+
+.. py:function:: test_batches_ping_pong_between_two_grants_and_overlap_staging(tmp_path) -> None
+
+   Each batch is staged into its grant's region through the allocator,
+   the job names that grant (never an address), the next batch lands while
+   the job runs, and the results come back in batch order.
+
+
+.. py:function:: test_a_lazy_batch_iterator_is_consumed_one_ahead(tmp_path) -> None
+
+.. py:function:: test_a_batch_the_shell_would_refuse_is_refused_before_it_moves(tmp_path, batches, message) -> None
+
+.. py:function:: test_one_grant_is_not_a_pair(tmp_path) -> None
+
+.. py:function:: test_a_batch_past_its_grant_is_refused_by_the_allocator_before_the_dma(tmp_path) -> None
+
+.. py:function:: test_a_grant_released_mid_stream_stops_the_stream(tmp_path) -> None
+
+   The host frees the second grant while the first job runs. Staging
+   into it goes through the allocator, which no longer resolves the handle,
+   and the failure surfaces from the running job's wait rather than after a
+   timeout -- with nothing collected for the batches that did run.
+
+
+.. py:function:: test_a_staging_failure_waits_for_the_running_job_before_it_escapes(tmp_path) -> None
+
+   The failure is raised from the running job's poll, but only once
+   that job is DONE: the caller frees the grants on the way out, and a job
+   still reading one would then read the next tenant's bytes.
+
+
+.. py:function:: test_a_slot_freed_on_the_device_refuses_its_batch(tmp_path) -> None
+
+   The device side of the same story: the slot is freed on the table but
+   the host still holds the handle, so the bytes land (the allocator still
+   believes in the grant) and the JOB is refused, as HandleFaultError.
+
+
+.. py:function:: test_a_yielding_poll_sleeps_between_status_reads_instead_of_spinning(tmp_path, monkeypatch) -> None
+
+   A spinning poll holds a core the host arm of a split is using; with
+   ``poll_yield_seconds`` the runner sleeps between JOB_STATUS reads. Both
+   runners take it; the fake finishes the job after a few polls so the
+   sleeps are counted, not just possible.
+
+
+.. py:function:: test_a_resident_scan_whose_rows_run_past_memory_is_refused(tmp_path) -> None
+

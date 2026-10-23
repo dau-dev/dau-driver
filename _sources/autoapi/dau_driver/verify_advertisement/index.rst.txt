@@ -1,0 +1,123 @@
+dau_driver.verify_advertisement
+===============================
+
+.. py:module:: dau_driver.verify_advertisement
+
+.. autoapi-nested-parse::
+
+   Check that a device is running the design a build manifest describes.
+
+   A programming ladder that only checks the endpoint reappeared cannot tell a
+   successful reprogram from a failed one. The FPGA falls back to its
+   flash-resident design when a volatile program does not take, so the endpoint
+   comes back either way, with the same vendor and device id, at the same
+   address. On 2026-08-06 a dpv1 SRAM program failed silently for exactly this
+   reason: the programmer exited zero without writing, the plan saw an
+   endpoint, disarmed its deadman, and reported success while the board kept
+   running the previous design.
+
+   Two things distinguish them, and they are not equally strong.
+
+   BUILD_ID is exact. A shell stamps the leading 64 bits of its composition's
+   spec hash into its identity block, the manifest carries the same hash, and
+   they either agree or the board is running something else.
+
+   The composed capability words — lane count, operator bitmap, host-opcode
+   bitmap, sort capacity — are a coarse projection and must not be mistaken
+   for an identity. Most designs share a word tuple with several others:
+   q19-scan and q19-packed-wide are identical across all four, which is the
+   incident's own pair. They are still worth comparing, because a shell built
+   before stamping existed advertises BUILD_ID 0 and the words are then all
+   there is — but a pass on words alone is reported as the weaker result it is.
+
+   This is a verification, not a decode: it deliberately reports every
+   mismatch rather than the first, because "lane count differs" and "operator
+   bitmap differs" have different causes and a caller staring at a failed flash
+   wants both.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   dau_driver.verify_advertisement.ADVERTISED_WORDS
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   dau_driver.verify_advertisement.contract_from_manifest_path
+   dau_driver.verify_advertisement.build_id_mismatch
+   dau_driver.verify_advertisement.advertisement_mismatches
+   dau_driver.verify_advertisement.device_name_for_endpoint
+   dau_driver.verify_advertisement.main
+
+
+Module Contents
+---------------
+
+.. py:data:: ADVERTISED_WORDS
+   :type:  tuple[tuple[str, str], ...]
+   :value: (('lane_count', 'lane_count'), ('operator_bitmap', 'operator_bitmap'), ('host_opcode_bitmap',...
+
+
+.. py:function:: contract_from_manifest_path(path: pathlib.Path, *, with_spec_hash: bool = False) -> Any
+
+   The capability contract a shell-build manifest carries, as plain data,
+   and optionally the spec hash beside it.
+
+   Reads the manifest as text and pulls the embedded JSON rather than
+   importing the build package: this runs on a bench host where only the
+   driver may be installed.
+
+
+.. py:function:: build_id_mismatch(snapshot, spec_hash: str | None, *, required: bool = False) -> str | None
+
+   The EXACT check, when both sides carry it: does the shell's BUILD_ID
+   match the spec hash of the design the manifest describes?
+
+   This is what the advertised capability words cannot do. They are a
+   coarse projection — most designs share a word tuple with several others,
+   and q19-scan and q19-packed-wide are identical across all four — so a
+   word-level match is consistent with the board running a different
+   design. A BUILD_ID match is not.
+
+   Returns None when the check does not apply: no spec hash in the
+   manifest, or a shell that advertises BUILD_ID 0 (unstamped, which every
+   shell built before stamping existed does). Absence is reported by the
+   caller rather than treated as agreement — an unstamped shell is a weaker
+   verification, not a passing one.
+
+
+.. py:function:: advertisement_mismatches(snapshot, contract: collections.abc.Mapping[str, Any]) -> tuple[str, ...]
+
+   Every advertised word where the device and the contract disagree.
+
+   A word the contract does not record is SKIPPED rather than treated as
+   zero: an older manifest that predates a word should not fail a device
+   that advertises it. A word the contract records and the device does not
+   match is a mismatch, which is the case that matters.
+
+   Raises when the contract records no NON-ZERO word. All-zero is what a
+   dead or undecoded register aperture reads back as — the driver
+   normalizes all-ones to zero precisely so a dead word advertises nothing
+   — so a contract of all zeros would match a board that is not answering
+   at all. Such a contract cannot identify a design, and saying so is the
+   only safe answer; silently passing is the failure this module exists to
+   prevent.
+
+
+.. py:function:: device_name_for_endpoint(bdf: str, *, sysfs_root: pathlib.Path = Path('/sys/bus/pci/devices')) -> str
+
+   The xdma instance an endpoint owns, e.g. ``0000:04:00.0`` ->
+   ``xdma0``. The devnodes hang off the PCI device in sysfs, which is the
+   only link between the BDF a programming plan knows and the device the
+   driver enumerates.
+
+
+.. py:function:: main(argv: collections.abc.Sequence[str] | None = None) -> int
+

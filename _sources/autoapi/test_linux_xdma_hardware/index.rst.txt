@@ -1,0 +1,29 @@
+test_linux_xdma_hardware
+========================
+
+.. py:module:: test_linux_xdma_hardware
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   test_linux_xdma_hardware.pytestmark
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_linux_xdma_hardware.test_linux_xdma_hardware_discovers_dau_identity
+
+
+Module Contents
+---------------
+
+.. py:data:: pytestmark
+
+.. py:function:: test_linux_xdma_hardware_discovers_dau_identity() -> None
+

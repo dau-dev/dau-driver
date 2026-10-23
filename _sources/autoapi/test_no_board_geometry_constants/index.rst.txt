@@ -1,0 +1,71 @@
+test_no_board_geometry_constants
+================================
+
+.. py:module:: test_no_board_geometry_constants
+
+.. autoapi-nested-parse::
+
+   Board geometry does not live in this package.
+
+   The rule the docs state repeatedly: hardware access is board/host
+   configuration, never code defaults. A module constant naming an address, a
+   region size, or a device's capacity is a second source of truth for
+   something the platform already declares, and the two drift the first time a
+   board differs — which is exactly how a host ended up assuming four lanes on
+   a shell that advertises its own count, and how one board's DDR layout ended
+   up applied to another behind a `memory_bytes > 1 << 32` conditional.
+
+   Wire and record shapes are NOT board geometry and stay: how many bytes a
+   bar record occupies is a property of the format both sides compile against,
+   not of the board it runs on. The two are easy to confuse, so this pins the
+   distinction explicitly rather than leaving it to a reviewer's judgement.
+
+   Asserted EXACTLY and in both directions: remove a constant without
+   tightening this list and the test fails; add one without justifying it here
+   and the test fails. The list is expected to shrink.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   test_no_board_geometry_constants.WIRE_SHAPE_CONSTANTS
+   test_no_board_geometry_constants.UNMIGRATED_GEOMETRY_CONSTANTS
+   test_no_board_geometry_constants._MODULES
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_no_board_geometry_constants._module_constants
+   test_no_board_geometry_constants.test_every_module_constant_is_a_wire_shape_or_a_declared_holdout
+   test_no_board_geometry_constants.test_no_address_or_capacity_constant_survives_unlisted
+
+
+Module Contents
+---------------
+
+.. py:data:: WIRE_SHAPE_CONSTANTS
+
+.. py:data:: UNMIGRATED_GEOMETRY_CONSTANTS
+   :type:  dict[str, str]
+
+.. py:data:: _MODULES
+   :value: ('pipeline_execution',)
+
+
+.. py:function:: _module_constants(module_name: str) -> set[str]
+
+.. py:function:: test_every_module_constant_is_a_wire_shape_or_a_declared_holdout() -> None
+
+.. py:function:: test_no_address_or_capacity_constant_survives_unlisted() -> None
+
+   The specific shape that caused the incidents: a hex literal bound to
+   a module-level name. Addresses and region sizes read this way; wire
+   shapes are small decimals.
+
+

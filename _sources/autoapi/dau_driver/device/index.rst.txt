@@ -1,0 +1,287 @@
+dau_driver.device
+=================
+
+.. py:module:: dau_driver.device
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   dau_driver.device._DEVICE_MEMORY
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   dau_driver.device.DeviceTransport
+   dau_driver.device.PathDeviceTransport
+   dau_driver.device.DeviceIdentity
+   dau_driver.device.DauDevice
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   dau_driver.device.read_u32
+   dau_driver.device.read_u64
+   dau_driver.device._read_register_bytes
+   dau_driver.device._write_register_bytes
+   dau_driver.device._checked_offset
+   dau_driver.device._offset_name
+   dau_driver.device.write_address
+
+
+Module Contents
+---------------
+
+.. py:class:: DeviceTransport
+
+   Bases: :py:obj:`Protocol`
+
+
+   Base class for protocol classes.
+
+   Protocol classes are defined as::
+
+       class Proto(Protocol):
+           def meth(self) -> int:
+               ...
+
+   Such classes are primarily used with static type checkers that recognize
+   structural subtyping (static duck-typing).
+
+   For example::
+
+       class C:
+           def meth(self) -> int:
+               return 0
+
+       def func(x: Proto) -> int:
+           return x.meth()
+
+       func(C())  # Passes static type check
+
+   See PEP 544 for details. Protocol classes decorated with
+   @typing.runtime_checkable act as simple-minded runtime protocols that check
+   only the presence of given attributes, ignoring their type signatures.
+   Protocol classes can be generic, they are defined as::
+
+       class GenProto[T](Protocol):
+           def meth(self) -> T:
+               ...
+
+
+   .. py:method:: read_u32(offset: int) -> int
+
+
+   .. py:method:: write_u32(offset: int, value: int) -> None
+
+
+   .. py:method:: read_dma(device_address: int, byte_count: int) -> bytes
+
+
+   .. py:method:: write_dma(device_address: int, data: bytes | bytearray | memoryview) -> int
+
+
+.. py:class:: PathDeviceTransport
+
+   .. py:attribute:: user_path
+      :type:  pathlib.Path
+
+
+   .. py:attribute:: h2c_path
+      :type:  pathlib.Path
+
+
+   .. py:attribute:: c2h_path
+      :type:  pathlib.Path
+
+
+   .. py:method:: read_u32(offset: int) -> int
+
+
+   .. py:method:: write_u32(offset: int, value: int) -> None
+
+
+   .. py:method:: read_dma(device_address: int, byte_count: int) -> bytes
+
+
+   .. py:method:: write_dma(device_address: int, data: bytes | bytearray | memoryview) -> int
+
+
+.. py:class:: DeviceIdentity
+
+   What a device is called for keying purposes, and how stable that is.
+
+   ``kind`` is ``"bdf"`` when the value is the PCI endpoint the board sits
+   at (``0000:04:00.0``), which survives a reboot and tells two boards of
+   one platform apart; it is ``"node"`` when only the driver's devnode name
+   (``xdma0``) could be given, which a reboot can renumber. Callers that
+   persist anything keyed by this should read ``kind`` before trusting it.
+
+
+   .. py:attribute:: kind
+      :type:  str
+
+
+   .. py:attribute:: value
+      :type:  str
+
+
+   .. py:method:: __str__() -> str
+
+
+.. py:class:: DauDevice
+
+   .. py:attribute:: name
+      :type:  str
+
+
+   .. py:attribute:: backend
+      :type:  str
+
+
+   .. py:attribute:: user_path
+      :type:  pathlib.Path
+
+
+   .. py:attribute:: h2c_path
+      :type:  pathlib.Path
+
+
+   .. py:attribute:: c2h_path
+      :type:  pathlib.Path
+
+
+   .. py:attribute:: capabilities
+      :type:  dau_core.capabilities.DeviceCapabilities
+
+
+   .. py:attribute:: register_window_offset
+      :type:  int
+      :value: 0
+
+
+
+   .. py:attribute:: transport
+      :type:  DeviceTransport | None
+      :value: None
+
+
+
+   .. py:attribute:: memory_bytes
+      :type:  int | None
+      :value: None
+
+
+
+   .. py:property:: identity
+      :type: DeviceIdentity
+
+
+      The most stable name this backend can give the device.
+
+      On ``linux-xdma`` that is the PCI endpoint (BDF) sysfs says owns the
+      ``_user`` devnode, resolved through the node itself -- so a device
+      whose node is not present (a test fake) or whose backend has no
+      sysfs to ask (``macos-xdma`` reports no location) falls back to the
+      devnode name, and says so through ``kind``. Never raises.
+
+
+   .. py:property:: resolved_transport
+      :type: DeviceTransport
+
+
+
+   .. py:method:: read_register(offset: dau_core.registers.RegisterOffset | int) -> int
+
+
+   .. py:method:: write_register(offset: dau_core.registers.RegisterOffset | int, value: int) -> None
+
+
+   .. py:method:: write_address_register(low_offset: dau_core.registers.RegisterOffset | int, high_offset: dau_core.registers.RegisterOffset | int, address: int) -> None
+
+      Method form of :func:`write_address`, kept for direct callers.
+
+
+
+   .. py:method:: check_bar_health(*, offsets: collections.abc.Sequence[dau_core.registers.RegisterOffset | int] = (RegisterOffset.MAGIC, RegisterOffset.STREAM_PROTOCOL_VERSION)) -> None
+
+
+   .. py:method:: read_status() -> dau_driver.status.DeviceStatus
+
+
+   .. py:method:: read_register_block_snapshot() -> dau_core.registers.RegisterBlockSnapshot
+
+
+   .. py:method:: read_counters() -> dau_driver.status.DeviceCounters
+
+
+   .. py:method:: _read_u64(offset: dau_core.registers.RegisterOffset | int) -> int
+
+
+   .. py:method:: close() -> None
+
+
+   .. py:method:: prepare_transfer(direction: dau_driver.transfer.DmaDirection, *, device_address: int, byte_count: int) -> dau_driver.transfer.DmaTransfer
+
+
+   .. py:method:: read_dma(*, device_address: int, byte_count: int) -> bytes
+
+
+   .. py:method:: write_dma(*, device_address: int, data: bytes | bytearray | memoryview) -> dau_driver.transfer.DmaTransfer
+
+
+.. py:function:: read_u32(path: pathlib.Path, offset: dau_core.registers.RegisterOffset | int) -> int
+
+.. py:function:: read_u64(path: pathlib.Path, offset: dau_core.registers.RegisterOffset | int) -> int
+
+.. py:function:: _read_register_bytes(path: pathlib.Path, offset: int, byte_count: int, offset_name: str) -> bytes
+
+.. py:function:: _write_register_bytes(path: pathlib.Path, offset: int, data: bytes) -> None
+
+.. py:function:: _checked_offset(offset: dau_core.registers.RegisterOffset | int) -> int
+
+   A register offset is a non-negative multiple of four; anything else is a
+   caller's arithmetic error, and the transports would read or write a word
+   somewhere unintended.
+
+
+.. py:function:: _offset_name(offset: dau_core.registers.RegisterOffset | int) -> str
+
+.. py:data:: _DEVICE_MEMORY
+
+.. py:function:: write_address(device, low_offset, high_offset, address: int, *, memory_bytes: int | None | object = _DEVICE_MEMORY) -> None
+
+   Program an address across its LOW/HIGH register pair on any device.
+
+   A FUNCTION, not a method, because devices here are duck-typed: test
+   fakes and alternative transports implement `write_register` without
+   subclassing `DauDevice`, and making this a method silently broke every
+   one of them.
+
+   BOTH halves are always written, including a zero high half. A design
+   whose master is wider than 32 bits keeps the high half across a LOW
+   write, so writing only LOW inherits whatever the previous job left and
+   quietly addresses the wrong region.
+
+   The offsets are passed explicitly rather than derived as `low + 4`: the
+   job pair is adjacent but a LANE's is not — its high half is at 0x14
+   because 0x04 is the result length.
+
+   `memory_bytes` bounds the address. It DEFAULTS to the device's own
+   declared memory rather than to None, because a guard that is off
+   unless every call site remembers to switch it on is not a guard: the
+   execution paths that program job addresses all used the plain function
+   and so ran unbounded. Reading it off the device is a duck-typed probe
+   on purpose — devices here are not required to subclass `DauDevice`, and
+   one that does not declare its memory simply goes unbounded, as before.
+   Pass an explicit value to override, or `None` to disable the check.
+
+

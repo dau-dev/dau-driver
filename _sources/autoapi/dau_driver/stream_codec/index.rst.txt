@@ -1,0 +1,212 @@
+dau_driver.stream_codec
+=======================
+
+.. py:module:: dau_driver.stream_codec
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   dau_driver.stream_codec._ALIGNMENT_BYTES
+   dau_driver.stream_codec._SCALAR_RESULT_STRUCTS
+   dau_driver.stream_codec._STRUCT_CODES
+   dau_driver.stream_codec._ARROW_TYPE_FACTORIES
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   dau_driver.stream_codec.DecodedStreamColumn
+   dau_driver.stream_codec.DecodedStreamResult
+   dau_driver.stream_codec.RecordBatchColumn
+   dau_driver.stream_codec.DecodedRecordBatch
+   dau_driver.stream_codec.StreamEncoder
+   dau_driver.stream_codec.StreamDecoder
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   dau_driver.stream_codec._arrow_to_logical_type
+   dau_driver.stream_codec._logical_to_arrow_type
+   dau_driver.stream_codec._validate_header
+   dau_driver.stream_codec._validate_column
+   dau_driver.stream_codec._validate_operations
+   dau_driver.stream_codec._validate_payload_window
+   dau_driver.stream_codec._normalize_supported_type
+   dau_driver.stream_codec._normalize_operation_descriptor
+   dau_driver.stream_codec._unpack_column
+   dau_driver.stream_codec._unpack_operation
+   dau_driver.stream_codec._align_up
+
+
+Module Contents
+---------------
+
+.. py:data:: _ALIGNMENT_BYTES
+   :value: 64
+
+
+.. py:data:: _SCALAR_RESULT_STRUCTS
+
+.. py:data:: _STRUCT_CODES
+
+.. py:function:: _arrow_to_logical_type(arrow_type) -> dau_core.stream.LogicalType
+
+.. py:function:: _logical_to_arrow_type(logical_type: dau_core.stream.LogicalType)
+
+.. py:data:: _ARROW_TYPE_FACTORIES
+
+.. py:class:: DecodedStreamColumn
+
+   .. py:attribute:: header
+      :type:  dau_core.stream.BatchHeader
+
+
+   .. py:attribute:: column
+      :type:  dau_core.stream.ColumnDescriptor
+
+
+   .. py:attribute:: payload
+      :type:  bytes
+
+
+   .. py:attribute:: operations
+      :type:  tuple[dau_core.stream.OperationDescriptor, ...]
+      :value: ()
+
+
+
+.. py:class:: DecodedStreamResult
+
+   .. py:attribute:: header
+      :type:  dau_core.stream.BatchHeader
+
+
+   .. py:attribute:: column
+      :type:  dau_core.stream.ColumnDescriptor
+
+
+   .. py:attribute:: payload
+      :type:  bytes
+
+
+   .. py:attribute:: value
+      :type:  int | float
+
+
+.. py:class:: RecordBatchColumn
+
+   One fixed-width, null-free input column for record-batch encoding.
+
+
+   .. py:attribute:: field_id
+      :type:  int
+
+
+   .. py:attribute:: logical_type
+      :type:  dau_core.stream.LogicalType
+
+
+   .. py:attribute:: payload
+      :type:  bytes
+
+
+.. py:class:: DecodedRecordBatch
+
+   .. py:attribute:: header
+      :type:  dau_core.stream.BatchHeader
+
+
+   .. py:attribute:: columns
+      :type:  tuple[dau_core.stream.ColumnDescriptor, ...]
+
+
+   .. py:attribute:: payloads
+      :type:  tuple[bytes, ...]
+
+
+   .. py:attribute:: operations
+      :type:  tuple[dau_core.stream.OperationDescriptor, ...]
+      :value: ()
+
+
+
+   .. py:method:: column_payload(field_id: int) -> bytes
+
+
+.. py:class:: StreamEncoder
+
+   .. py:method:: encode_column(logical_type: dau_core.stream.LogicalType, payload: bytes, *, row_count: int, field_id: int = 0, schema_hash: int = 0, batch_id: int = 0, operations: collections.abc.Iterable[dau_core.stream.OperationDescriptor] = ()) -> bytes
+      :staticmethod:
+
+
+
+   .. py:method:: encode_record_batch(columns: collections.abc.Sequence[RecordBatchColumn], *, row_count: int, schema_hash: int = 0, batch_id: int = 0, operations: collections.abc.Iterable[dau_core.stream.OperationDescriptor] = (), limits: dau_core.stream.RecordBatchLimits = DEFAULT_RECORD_BATCH_LIMITS) -> bytes
+      :staticmethod:
+
+
+      Encode N fixed-width, null-free columns as one multi-column batch.
+
+
+
+   .. py:method:: encode_arrow_batch(batch, *, schema_hash: int = 0, batch_id: int = 0, operations: collections.abc.Iterable[dau_core.stream.OperationDescriptor] = (), limits: dau_core.stream.RecordBatchLimits = DEFAULT_RECORD_BATCH_LIMITS) -> bytes
+      :staticmethod:
+
+
+      Encode a PyArrow ``RecordBatch``/``Table`` of fixed-width, null-free columns.
+
+
+
+.. py:class:: StreamDecoder
+
+   .. py:method:: decode_column(data: bytes) -> DecodedStreamColumn
+      :staticmethod:
+
+
+
+   .. py:method:: decode_record_batch(data: bytes, *, limits: dau_core.stream.RecordBatchLimits = DEFAULT_RECORD_BATCH_LIMITS) -> DecodedRecordBatch
+      :staticmethod:
+
+
+      Decode a multi-column record batch (the N-column counterpart of decode_column).
+
+
+
+   .. py:method:: decode_record_batch_to_arrow(data: bytes, *, names: collections.abc.Sequence[str] | None = None, limits: dau_core.stream.RecordBatchLimits = DEFAULT_RECORD_BATCH_LIMITS)
+      :staticmethod:
+
+
+      Decode and rematerialize as a PyArrow ``RecordBatch``.
+
+
+
+   .. py:method:: decode_scalar_result(data: bytes) -> DecodedStreamResult
+      :staticmethod:
+
+
+
+.. py:function:: _validate_header(header: dau_core.stream.BatchHeader, encoded_length: int) -> None
+
+.. py:function:: _validate_column(header: dau_core.stream.BatchHeader, column: dau_core.stream.ColumnDescriptor, encoded_length: int) -> None
+
+.. py:function:: _validate_operations(header: dau_core.stream.BatchHeader, operations: tuple[dau_core.stream.OperationDescriptor, ...]) -> None
+
+.. py:function:: _validate_payload_window(payload_offset: int, payload_length: int, encoded_length: int) -> None
+
+.. py:function:: _normalize_supported_type(logical_type: dau_core.stream.LogicalType) -> dau_core.stream.LogicalType
+
+.. py:function:: _normalize_operation_descriptor(operation: dau_core.stream.OperationDescriptor, *, column_count: int = 1) -> dau_core.stream.OperationDescriptor
+
+.. py:function:: _unpack_column(data: bytes) -> dau_core.stream.ColumnDescriptor
+
+.. py:function:: _unpack_operation(data: bytes) -> dau_core.stream.OperationDescriptor
+
+.. py:function:: _align_up(value: int, alignment: int) -> int
+

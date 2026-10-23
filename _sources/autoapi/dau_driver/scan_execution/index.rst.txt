@@ -1,0 +1,190 @@
+dau_driver.scan_execution
+=========================
+
+.. py:module:: dau_driver.scan_execution
+
+.. autoapi-nested-parse::
+
+   Streaming scan-job runner: ping-pong staging over two DDR input
+   regions so the next batch's H2C DMA overlaps the current job's compute —
+   the OHLCV bar-DDR overlap pattern generalized to the scan-composition
+   register contract (INPUT_ADDRESS/INPUT_LENGTH + JOB_CONTROL/JOB_STATUS).
+
+   The caller owns everything shell-specific: lane output addresses and
+   any static configuration are written before the run, and ``collect``
+   reads each job's results (lane registers + output regions, which are
+   disjoint from input staging, so collection also overlaps the next DMA).
+
+   Overlap caveat: H2C writes and the job's burst reads share one DDR
+   controller on dpv1, so the measured win is bounded by DDR bandwidth
+   headroom — the silicon A/B decides the batch split, not this module.
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   dau_driver.scan_execution.ScanBatch
+   dau_driver.scan_execution._KeyPartitionedScanBatches
+   dau_driver.scan_execution._KeyRangeScanBatches
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   dau_driver.scan_execution.key_partitioned_scan_batches
+   dau_driver.scan_execution.key_range_scan_batches
+   dau_driver.scan_execution.run_scan_batches
+   dau_driver.scan_execution.run_resident_scan
+
+
+Module Contents
+---------------
+
+.. py:class:: ScanBatch
+
+   One staged scan batch: the packed row payload and its row count.
+
+   The payload is ``row_count * row_bytes`` bytes; the runner pads the DMA
+   to the 64-byte grid while ``INPUT_LENGTH`` stays exact.
+
+
+   .. py:attribute:: payload
+      :type:  bytes
+
+
+   .. py:attribute:: row_count
+      :type:  int
+
+
+.. py:class:: _KeyPartitionedScanBatches[Record](records: collections.abc.Iterable[Record], *, batch_count: int, key: collections.abc.Callable[[Record], collections.abc.Hashable], encode: collections.abc.Callable[[collections.abc.Iterable[Record]], bytes])
+
+   Bases: :py:obj:`collections.abc.Iterator`\ [\ :py:obj:`ScanBatch`\ ]
+
+
+   .. py:attribute:: _records
+
+
+   .. py:attribute:: _batch_count
+
+
+   .. py:attribute:: _key
+
+
+   .. py:attribute:: _encode
+
+
+   .. py:attribute:: _batches
+
+
+   .. py:method:: __next__() -> ScanBatch
+
+      Return the next item from the iterator. When exhausted, raise StopIteration
+
+
+
+   .. py:method:: _build_batches() -> collections.abc.Iterator[ScanBatch]
+
+
+.. py:function:: key_partitioned_scan_batches[Record](records: collections.abc.Iterable[Record], *, batch_count: int, key: collections.abc.Callable[[Record], collections.abc.Hashable], encode: collections.abc.Callable[[collections.abc.Iterable[Record]], bytes]) -> collections.abc.Iterator[ScanBatch]
+
+   Build key-confined batches using longest-processing-time-first
+   greedy assignment: largest key group goes into the currently-smallest
+   batch. Records must be ordered by key, and record order within each key
+   is preserved.
+
+   LPT requires every key-group size before assignment, so first iteration
+   consumes one complete grouping pass. Creating this iterable consumes
+   nothing, and each batch's flattened records and encoded payload are
+   constructed only when that batch is requested. Since key groups are
+   indivisible, the largest group bounds the difference between batch
+   sizes; one hot key can therefore dominate a batch.
+
+
+.. py:class:: _KeyRangeScanBatches[Record](records: collections.abc.Iterable[Record], *, key_capacity: int, key: collections.abc.Callable[[Record], collections.abc.Hashable], encode: collections.abc.Callable[[collections.abc.Iterable[Record]], bytes])
+
+   Lazily materialized capacity-bounded batches (see
+   :func:`key_range_scan_batches`).
+
+
+   .. py:attribute:: _records
+
+
+   .. py:attribute:: _key_capacity
+
+
+   .. py:attribute:: _key
+
+
+   .. py:attribute:: _encode
+
+
+   .. py:method:: __iter__() -> collections.abc.Iterator[ScanBatch]
+
+
+.. py:function:: key_range_scan_batches[Record](records: collections.abc.Iterable[Record], *, key_capacity: int, key: collections.abc.Callable[[Record], collections.abc.Hashable], encode: collections.abc.Callable[[collections.abc.Iterable[Record]], bytes]) -> collections.abc.Iterable[ScanBatch]
+
+   Split records into batches each holding at most ``key_capacity``
+   DISTINCT keys — the host half of the hash-mode grouped tile's overflow
+   contract.
+
+   The tile's table is a hardware fact: a batch presenting more distinct
+   keys than it holds closes out ``GROUP_CAPACITY_EXCEEDED`` and is
+   invalidated. Rather than react to that, size the batches so it cannot
+   happen: partition the key space into ranges of ``key_capacity`` keys
+   and emit one batch per range. Each key therefore lands in exactly ONE
+   batch, so no per-key state spans a batch boundary and combining the
+   per-batch group records is a concatenation — a stronger property than
+   the general additive merge
+   (``dau_core.operators.merge_hash_grouped``), which remains correct and
+   is what a caller should use when batches were produced some other way.
+
+   Unlike :func:`key_partitioned_scan_batches`, records need NOT arrive in
+   key order and arrival order is preserved within each batch: the
+   hash-mode table needs no key ordering, and imposing one here would give
+   back the staging freedom the tile exists to provide. The trade is a
+   counting pass over every key before the first batch is produced, and
+   batches whose ROW counts may be uneven — key ranges are equal in keys,
+   not in rows. The device's error close-out remains the safety net for a
+   caller whose ``key_capacity`` does not match the built design.
+
+
+.. py:function:: run_scan_batches(device, batches: collections.abc.Iterable[ScanBatch], *, per_key_state: bool, input_regions: tuple[int, int], row_bytes: int, collect: collections.abc.Callable[[Any], Any], timeout_seconds: float = 60.0, progress=None, poll_yield_seconds: float | None = None) -> list[Any]
+
+   Run scan jobs over ``batches`` with ping-pong input staging: batch
+   ``i + 1`` DMAs into the alternate region (and, for a lazy iterable,
+   is produced) while job ``i`` computes. Returns ``collect(device)``
+   results in batch order. ``batches`` may be lazy — encoding work in
+   the iterator overlaps compute too. ``per_key_state`` is required so a
+   stateful composition cannot silently run position-sliced batches; such
+   jobs accept only the result of :func:`key_partitioned_scan_batches`.
+
+
+.. py:function:: run_resident_scan(device, *, address: int, row_count: int, row_bytes: int, collect: collections.abc.Callable[[Any], Any], repeats: int = 1, timeout_seconds: float = 60.0) -> list[Any]
+
+   Run the job over rows ALREADY on the device, uploading nothing.
+
+   :func:`run_scan_batches` re-stages every batch, which is right when the
+   host owns the data and wrong when the device already holds it. A resident
+   dataset is staged once and queried many times, so the DMA belongs outside
+   the loop -- and on the measured platform that DMA is the larger term: the
+   q6 device path is 40.0 ms of which the feed is most of it, against a job
+   of about 10.4 ms.
+
+   This is deliberately the smallest thing that proves the idea, and it
+   proves it WITHOUT the shell handle table: the caller uploads once and
+   passes the address it uploaded to. What the handle table adds later is
+   safety (a generation-checked identity instead of a raw address a caller
+   can get wrong) and the ability for the DEVICE to name its own allocations
+   -- not speed. Keeping those separable is what lets the amortization be
+   measured before any bitstream changes.
+
+   Returns one ``collect(device)`` per repeat, so a caller can assert every
+   run is bit-identical rather than trusting that a rerun of the same bytes
+   must be.
+
+

@@ -1,0 +1,305 @@
+dau_driver.fleet
+================
+
+.. py:module:: dau_driver.fleet
+
+.. autoapi-nested-parse::
+
+   Concurrent scan scheduling across independent DAU devices.
+
+
+
+Exceptions
+----------
+
+.. autoapisummary::
+
+   dau_driver.fleet.FleetScanError
+   dau_driver.fleet._BatchIterationError
+   dau_driver.fleet._WorkerError
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   dau_driver.fleet.FleetScanResult
+   dau_driver.fleet._DeviceTracker
+   dau_driver.fleet._TrackedDevice
+   dau_driver.fleet._SharedBatches
+   dau_driver.fleet._DeviceBatches
+   dau_driver.fleet._Progress
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   dau_driver.fleet.run_scan_batches_fleet
+   dau_driver.fleet._validate_configuration
+   dau_driver.fleet._validate_weights
+
+
+Module Contents
+---------------
+
+.. py:class:: FleetScanResult
+
+   One collected batch result with its global index and exact device.
+
+   Keeping the device object, rather than only its display name, makes
+   provenance unambiguous even when callers construct devices with duplicate
+   names.
+
+
+   .. py:attribute:: batch_index
+      :type:  int
+
+
+   .. py:attribute:: device
+      :type:  Any
+
+
+   .. py:attribute:: value
+      :type:  Any
+
+
+.. py:exception:: FleetScanError(batch_index: int | None, device: Any, cause: Exception)
+
+   Bases: :py:obj:`RuntimeError`
+
+
+   Failure from one device pipeline, annotated with fleet provenance.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: batch_index
+
+
+   .. py:attribute:: device
+
+
+.. py:class:: _DeviceTracker
+
+   .. py:attribute:: indices
+      :type:  list[int]
+      :value: []
+
+
+
+   .. py:attribute:: staged_count
+      :type:  int
+      :value: 0
+
+
+
+   .. py:attribute:: completed_count
+      :type:  int
+      :value: 0
+
+
+
+   .. py:attribute:: explicit_error_index
+      :type:  int | None
+      :value: None
+
+
+
+   .. py:attribute:: lock
+      :type:  threading.Lock
+
+
+   .. py:method:: pulled(batch_index: int) -> None
+
+
+   .. py:method:: staged() -> None
+
+
+   .. py:method:: completed() -> None
+
+
+   .. py:method:: mark_error(batch_index: int) -> None
+
+
+   .. py:method:: result_indices() -> list[int]
+
+
+   .. py:method:: failure_index() -> int | None
+
+
+.. py:class:: _TrackedDevice(device: Any, tracker: _DeviceTracker)
+
+   .. py:attribute:: _device
+
+
+   .. py:attribute:: _tracker
+
+
+   .. py:method:: __getattr__(name: str) -> Any
+
+
+   .. py:method:: write_dma(*, device_address: int, data: bytes | bytearray | memoryview)
+
+
+.. py:exception:: _BatchIterationError(batch_index: int, cause: Exception)
+
+   Bases: :py:obj:`Exception`
+
+
+   Common base class for all non-exit exceptions.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: batch_index
+
+
+   .. py:attribute:: cause
+
+
+.. py:class:: _SharedBatches(batches: collections.abc.Iterable[dau_driver.scan_execution.ScanBatch], device_count: int, weights: collections.abc.Sequence[float] | None)
+
+   .. py:attribute:: _iterator
+
+
+   .. py:attribute:: _condition
+
+
+   .. py:attribute:: _next_index
+      :value: 0
+
+
+
+   .. py:attribute:: _cancelled
+      :value: False
+
+
+
+   .. py:attribute:: _exhausted
+      :value: False
+
+
+
+   .. py:attribute:: _weights
+
+
+   .. py:attribute:: _weighted_current
+
+
+   .. py:method:: pull(device_index: int, tracker: _DeviceTracker) -> dau_driver.scan_execution.ScanBatch
+
+
+   .. py:method:: _preferred_device() -> int | None
+
+
+   .. py:method:: _advance_weighted_schedule(selected: int) -> None
+
+
+   .. py:method:: cancel() -> None
+
+
+.. py:class:: _DeviceBatches(source: _SharedBatches, device_index: int, tracker: _DeviceTracker)
+
+   .. py:attribute:: _source
+
+
+   .. py:attribute:: _device_index
+
+
+   .. py:attribute:: _tracker
+
+
+   .. py:method:: __iter__() -> _DeviceBatches
+
+
+   .. py:method:: __next__() -> dau_driver.scan_execution.ScanBatch
+
+
+.. py:class:: _Progress(callback: collections.abc.Callable[[int], Any] | None)
+
+   .. py:attribute:: _callback
+
+
+   .. py:attribute:: _completed
+      :value: 0
+
+
+
+   .. py:attribute:: _lock
+
+
+   .. py:method:: report() -> None
+
+
+.. py:exception:: _WorkerError(batch_index: int | None, device: Any, cause: Exception)
+
+   Bases: :py:obj:`Exception`
+
+
+   Common base class for all non-exit exceptions.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: batch_index
+
+
+   .. py:attribute:: device
+
+
+   .. py:attribute:: cause
+
+
+.. py:function:: run_scan_batches_fleet(devices, batches: collections.abc.Iterable[dau_driver.scan_execution.ScanBatch], *, per_key_state: bool, input_regions: tuple[int, int], row_bytes: int, collect: collections.abc.Callable[[Any], Any], timeout_seconds: float = 60.0, progress=None, weights: collections.abc.Sequence[float] | None = None, poll_yield_seconds: float | None = None) -> list[FleetScanResult]
+
+   Run one independent scan pipeline per device over a shared lazy input.
+
+   Each batch is pulled exactly once by whichever device pipeline demands it.
+   With ``weights=None`` this is pure demand-driven scheduling and naturally
+   self-balances by device throughput. Weights use weighted round-robin only
+   to pre-bias each shared pull toward the requested relative device shares;
+   batches remain lazy and are never partitioned or queued ahead.
+
+   Results are returned in global batch order as frozen
+   :class:`FleetScanResult` records. Each record retains the exact device
+   object so the caller can recover which card produced its collect value.
+   ``input_regions`` is reused as device-local addresses, never shared memory.
+
+   ``per_key_state`` is required and must be False. A stateful composition
+   cannot run on a fleet at all: batches are pulled from ONE shared source
+   by whichever device is free, so a given key's rows land on whichever
+   cards happen to be idle and per-key state is split across devices that
+   never see each other's rows. Key-partitioning the input does not help —
+   the affinity would have to be device-wide, and demand-driven scheduling
+   is what makes the fleet self-balancing in the first place. Refusing is
+   the same guard `run_scan_batches` applies to position-sliced batches,
+   one level up.
+
+   ``poll_yield_seconds`` is passed through to each pipeline's
+   JOB_STATUS poll and defaults to None (spin). The real transports
+   release the GIL in their register read (``os.pread`` on Linux,
+   ``ctypes`` on macOS), so concurrent pipelines interleave without it
+   and a sleep would only add latency per poll. It exists for a
+   pure-Python transport — a fake in a concurrent test — where the spin
+   WOULD hold the GIL and flatten self-balancing toward an even split
+   regardless of device speed (on fakes with a large speed gap the
+   spinning split was close to even and took twice as long).
+
+   Known limitation: cancelling on a device failure wakes pipelines
+   blocked pulling a batch, but one already inside its JOB_STATUS wait
+   runs to its own completion or timeout first, so an early failure can
+   surface only after its peers finish.
+
+   An empty batch iterable returns ``[]``. An empty device sequence raises
+   ``ValueError`` because no pipeline can consume even a potentially lazy
+   iterable. A single device invokes the same ``run_scan_batches`` pipeline as
+   the multi-device workers and adds only ordered provenance records.
+
+
+.. py:function:: _validate_configuration(input_regions: tuple[int, int], row_bytes: int) -> None
+
+.. py:function:: _validate_weights(weights: collections.abc.Sequence[float] | None, device_count: int) -> tuple[float, ...] | None
+

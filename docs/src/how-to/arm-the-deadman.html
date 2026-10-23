@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>How to fence a PCIe operation with the deadman &#8212; dau-driver v0.1.0</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/fuma.css?v=9324ae27" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/fuma-code.css?v=a950e949" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/fonts/fuma-fonts.css?v=c2892c73" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/custom.css?v=88c24c6a" />
+    <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-searchlite-index="searchlite-index.json" defer="defer" src="../../../_static/searchlite.js?v=a5320898"></script>
+    <script defer="defer" src="../../../_static/fuma.js?v=88a16a98"></script>
+    <script src="../../../_static/js/custom.js?v=956e5d78"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Develop and contribute" href="develop.html" />
+    <link rel="prev" title="How to allocate device storage" href="allocate-device-storage.html" />
+    <script>
+      (function () {
+        var root = document.documentElement;
+        try {
+          var stored = localStorage.getItem("fuma-theme");
+          if (stored) {
+            root.classList.add(stored === "dark" ? "dark" : "light");
+            root.style.colorScheme = stored === "dark" ? "dark" : "light";
+          }
+          if (localStorage.getItem("fuma-sidebar") === "collapsed") root.dataset.sidebarCollapsed = "true";
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+<body class="fd-body" data-layout="docs" data-toc-style="normal" data-open-level="0">
+<div id="fd-layout"><header id="fd-subnav">
+  <div class="fd-subnav-inner">
+    <button type="button" class="fd-icon-button fd-sidebar-toggle" aria-controls="fd-sidebar" aria-expanded="false" aria-label="Toggle navigation" title="Toggle navigation">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
+    </button><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau-driver v0.1.0</span>
+</a>
+
+    <div class="fd-nav-actions">
+      <button type="button" class="fd-icon-button" data-fd-search-open aria-label="Search" title="Search"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
+      <a class="fd-icon-button" href="https://github.com/dau-dev/dau-driver" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <button type="button" class="fd-icon-button fd-theme-toggle" aria-label="Toggle theme" title="Toggle theme">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-light"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-dark"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<aside id="fd-sidebar" aria-label="Documentation">
+  <div class="fd-sidebar-header">
+    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau-driver v0.1.0</span>
+</a>
+      <button type="button" class="fd-icon-button fd-sidebar-collapse" aria-label="Collapse sidebar" title="Collapse sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+    </div>
+    <button type="button" class="fd-search-trigger" data-fd-search-open title="Search">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><span>Search</span><kbd class="fd-kbd">/</kbd>
+    </button>
+  </div>
+
+  <nav class="fd-sidebar-nav">
+    <div class="fd-sidebar-group">
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../tutorial/first-device.html">
+      <span class="fd-link-text">Talk to a device without any hardware</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../tutorial/first-scan-run.html">
+      <span class="fd-link-text">Run a scan over many batches</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="find-a-device.html">
+      <span class="fd-link-text">How to find and check a device</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="move-data.html">
+      <span class="fd-link-text">How to move data to and from a device</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="run-scan-jobs.html">
+      <span class="fd-link-text">How to run scan jobs</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="allocate-device-storage.html">
+      <span class="fd-link-text">How to allocate device storage</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link fd-current" href="#">
+      <span class="fd-link-text">How to fence a PCIe operation with the deadman</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="develop.html">
+      <span class="fd-link-text">Develop and contribute</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../reference/device-and-discovery.html">
+      <span class="fd-link-text">Device and discovery reference</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../reference/execution-contracts.html">
+      <span class="fd-link-text">Execution contracts reference</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../reference/stream-codec.html">
+      <span class="fd-link-text">Stream codec reference</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../explanation/transport-boundary.html">
+      <span class="fd-link-text">The transport boundary: why a driver owns almost nothing</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../explanation/overlapped-staging.html">
+      <span class="fd-link-text">Overlapped staging: why the runner ping-pongs, and when it stops</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../explanation/storage-handles.html">
+      <span class="fd-link-text">Storage handles: why a generation instead of a pointer</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <details class="fd-folder">
+      <summary class="fd-folder-summary" title="Toggle section: API Reference">
+        <a class="fd-link" href="../../../autoapi/index.html">
+          <span class="fd-link-text">API Reference</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/conftest/index.html">
+      <span class="fd-link-text">conftest</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_docs/index.html">
+      <span class="fd-link-text">test_docs</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <details class="fd-folder">
+      <summary class="fd-folder-summary" title="Toggle section: dau_driver">
+        <a class="fd-link" href="../../../autoapi/dau_driver/index.html">
+          <span class="fd-link-text">dau_driver</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/_lazy/index.html">
+      <span class="fd-link-text">dau_driver._lazy</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/capability_decode/index.html">
+      <span class="fd-link-text">dau_driver.capability_decode</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/device/index.html">
+      <span class="fd-link-text">dau_driver.device</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/discovery/index.html">
+      <span class="fd-link-text">dau_driver.discovery</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/errors/index.html">
+      <span class="fd-link-text">dau_driver.errors</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/extension/index.html">
+      <span class="fd-link-text">dau_driver.extension</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/fleet/index.html">
+      <span class="fd-link-text">dau_driver.fleet</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/handle_table/index.html">
+      <span class="fd-link-text">dau_driver.handle_table</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/linux_xdma/index.html">
+      <span class="fd-link-text">dau_driver.linux_xdma</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/macos_xdma/index.html">
+      <span class="fd-link-text">dau_driver.macos_xdma</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/native/index.html">
+      <span class="fd-link-text">dau_driver.native</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/pipeline_execution/index.html">
+      <span class="fd-link-text">dau_driver.pipeline_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/scan_execution/index.html">
+      <span class="fd-link-text">dau_driver.scan_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/status/index.html">
+      <span class="fd-link-text">dau_driver.status</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/storage/index.html">
+      <span class="fd-link-text">dau_driver.storage</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/stream_codec/index.html">
+      <span class="fd-link-text">dau_driver.stream_codec</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/stream_execution/index.html">
+      <span class="fd-link-text">dau_driver.stream_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/testing/index.html">
+      <span class="fd-link-text">dau_driver.testing</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/transfer/index.html">
+      <span class="fd-link-text">dau_driver.transfer</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/verify_advertisement/index.html">
+      <span class="fd-link-text">dau_driver.verify_advertisement</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/xdma_io/index.html">
+      <span class="fd-link-text">dau_driver.xdma_io</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_fleet/index.html">
+      <span class="fd-link-text">test_fleet</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_native/index.html">
+      <span class="fd-link-text">test_native</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_readme/index.html">
+      <span class="fd-link-text">test_readme</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_storage/index.html">
+      <span class="fd-link-text">test_storage</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_transfer/index.html">
+      <span class="fd-link-text">test_transfer</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_discovery/index.html">
+      <span class="fd-link-text">test_discovery</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_macos_xdma/index.html">
+      <span class="fd-link-text">test_macos_xdma</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_handle_table/index.html">
+      <span class="fd-link-text">test_handle_table</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_lazy_exports/index.html">
+      <span class="fd-link-text">test_lazy_exports</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_stream_codec/index.html">
+      <span class="fd-link-text">test_stream_codec</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_scan_execution/index.html">
+      <span class="fd-link-text">test_scan_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_register_write/index.html">
+      <span class="fd-link-text">test_register_write</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_xdma_poc_script/index.html">
+      <span class="fd-link-text">test_xdma_poc_script</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_stream_execution/index.html">
+      <span class="fd-link-text">test_stream_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_capability_decode/index.html">
+      <span class="fd-link-text">test_capability_decode</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_pipeline_execution/index.html">
+      <span class="fd-link-text">test_pipeline_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_record_batch_codec/index.html">
+      <span class="fd-link-text">test_record_batch_codec</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_macos_xdma_hardware/index.html">
+      <span class="fd-link-text">test_macos_xdma_hardware</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_linux_xdma_hardware/index.html">
+      <span class="fd-link-text">test_linux_xdma_hardware</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_verify_advertisement/index.html">
+      <span class="fd-link-text">test_verify_advertisement</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_no_board_geometry_constants/index.html">
+      <span class="fd-link-text">test_no_board_geometry_constants</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+</ul>
+    </div>
+  </nav>
+
+  <div class="fd-sidebar-footer">
+    <div class="fd-toolbar">
+      <a class="fd-toolbar-item" href="https://github.com/dau-dev/dau-driver" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <div class="fd-theme-switch" role="group" aria-label="Theme">
+        <button type="button" class="fd-theme-option" data-fd-theme="light" aria-label="Light theme" title="Light theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></button>
+        <button type="button" class="fd-theme-option" data-fd-theme="dark" aria-label="Dark theme" title="Dark theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg></button>
+      </div>
+    </div>
+  </div>
+</aside>
+<button type="button" id="fd-sidebar-restore" class="fd-icon-button" aria-label="Expand sidebar" title="Expand sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+<div class="fd-sidebar-scrim" hidden></div>
+  <div id="fd-toc-popover">
+    <button type="button" class="fd-toc-trigger" aria-expanded="false" aria-controls="fd-toc-mobile" title="On this page">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg><span>On this page</span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+    <div id="fd-toc-mobile" hidden><ul class="fd-toc-list">
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#why-it-is-not-optional">Why it is not optional</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#use-a-composed-plan-not-a-script">Use a composed plan, not a script</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#arm-and-disarm-by-hand-only-when-you-must">Arm and disarm by hand only when you must</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#disarm-only-after-the-device-answers">Disarm only after the device answers</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#next">Next</a>
+  </li>
+</ul>
+</div>
+  </div>
+
+  <main id="fd-main">
+    <article class="fd-page">
+      <div class="fd-prose">
+  <section class="tex2jax_ignore mathjax_ignore" id="how-to-fence-a-pcie-operation-with-the-deadman">
+<h1>How to fence a PCIe operation with the deadman<a class="headerlink" href="#how-to-fence-a-pcie-operation-with-the-deadman" title="Link to this heading">¶</a></h1>
+<p>This guide shows you how to run a sequence that touches the PCIe bus without
+risking a host you cannot get back. It applies to anything that removes an
+endpoint, resets a bridge, rescans, holds runtime power management, or
+reprograms the fabric, not only to the obviously destructive steps.</p>
+<p>The rule is short: <strong>arm a cancellable auto-reboot guard before any
+PCIe-touching sequence, and disarm it only after the health ladder passes.</strong></p>
+<section id="why-it-is-not-optional">
+<h2>Why it is not optional<a class="headerlink" href="#why-it-is-not-optional" title="Link to this heading">¶</a></h2>
+<p>A bus operation that hangs the host does not fail; it stops answering. The
+machine is up, the session is gone, and the only fix is a power cycle. A
+guard armed beforehand turns that into a wait: if nothing disarms it, the host
+reboots itself and comes back.</p>
+<p>This has happened often enough that none of these sequences should be run by
+hand.</p>
+</section>
+<section id="use-a-composed-plan-not-a-script">
+<h2>Use a composed plan, not a script<a class="headerlink" href="#use-a-composed-plan-not-a-script" title="Link to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">dau-build</span></code> hardware plans arm the guard around the destructive span,
+take the host lock, read the board’s access facts from its platform
+definition, and support a dry run. A bare script does none of that.</p>
+<p>The plans this package’s smoke command is injected into cover the two common
+cases:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>dau-cfg<span class="w"> </span><span class="nv">task</span><span class="o">=</span>tasks/hardware/hardware-plan<span class="w"> </span><span class="nv">plan</span><span class="o">=</span>plans/dpv1-validate-bitstream<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">platform</span><span class="o">=</span>platforms/&lt;vendor&gt;/&lt;board&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>model.work_root<span class="o">=</span>/srv/vivado-shell<span class="w"> </span>model.bitstream<span class="o">=</span>artifacts/candidate.bit<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>plan.dau_core_root<span class="o">=</span>/srv/checkouts/dau-core<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>plan.dau_driver_root<span class="o">=</span>/srv/checkouts/dau-driver
+</pre></div>
+</div>
+<p>Without <code class="docutils literal notranslate"><span class="pre">model.execute=true</span></code> this prints the step ladder and touches nothing.
+Read it before running it.</p>
+<p>Endpoint removal, secondary-bus reset, rescan, and runtime-PM holds are
+<strong>steps of those plans</strong>, not scripts in this repository. Reach for
+<code class="docutils literal notranslate"><span class="pre">plan=plans/recovery</span></code> and the programming plans rather than reproducing the
+steps yourself.</p>
+</section>
+<section id="arm-and-disarm-by-hand-only-when-you-must">
+<h2>Arm and disarm by hand only when you must<a class="headerlink" href="#arm-and-disarm-by-hand-only-when-you-must" title="Link to this heading">¶</a></h2>
+<p>The guard is a <code class="docutils literal notranslate"><span class="pre">dau-utils</span></code> tool, not part of this package:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>dau_utils.deadman<span class="w"> </span>arm<span class="w"> </span>--timeout<span class="w"> </span>&lt;seconds&gt;
+sudo<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>dau_utils.deadman<span class="w"> </span>status
+sudo<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>dau_utils.deadman<span class="w"> </span>disarm
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">dau-driver</span></code> neither implements nor depends on it. <code class="docutils literal notranslate"><span class="pre">dau_utils</span></code> is a separate
+prerequisite on the bench host, and nothing here will tell you it is missing.
+Pair it with the host’s own hardware watchdog, so that a host hung too far for
+the timer to fire still recovers.</p>
+<p>Choose the timeout from how long the span takes, with margin. Too short reboots
+a healthy host mid-programming; too long means a long wait after a hang you
+already know about.</p>
+</section>
+<section id="disarm-only-after-the-device-answers">
+<h2>Disarm only after the device answers<a class="headerlink" href="#disarm-only-after-the-device-answers" title="Link to this heading">¶</a></h2>
+<p>The ordering matters more than the arming does. A programmed board is not
+healthy because programming returned. It is healthy because the device it
+produced identified itself afterwards.</p>
+<p>So the ladder is: arm, do the destructive span, discover the device, read
+the magic word, read back the identity block, compare it against what was
+built, and only then disarm.</p>
+<p>Verification steps come <strong>before</strong> the disarm on purpose, so an uncaught
+exception in a verify step reboots the host. That is the intended behaviour. The alternative is the incident
+this ordering exists to prevent, where a plan saw an endpoint, disarmed, and
+reported success while the board kept running the previous design.</p>
+<p>Verify the advertisement against the manifest that produced the bitstream:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>dau-driver-verify-advertisement<span class="w"> </span>--manifest<span class="w"> </span>&lt;output_root&gt;/shell-build.artifacts.yaml
+</pre></div>
+</div>
+<p>Add <code class="docutils literal notranslate"><span class="pre">--require-build-id</span></code> to fail, rather than warn, on a device whose build id
+does not match the manifest’s spec hash.</p>
+</section>
+<section id="next">
+<h2>Next<a class="headerlink" href="#next" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="find-a-device.html"><span class="std std-doc">Find and check a device</span></a>: the health checks the ladder
+ends with.</p></li>
+<li><p><a class="reference internal" href="../reference/device-and-discovery.html"><span class="std std-doc">Device and discovery</span></a>: <code class="docutils literal notranslate"><span class="pre">check_bar_health</span></code>, the
+register window, and the identity snapshot.</p></li>
+<li><p><a class="reference internal" href="../explanation/transport-boundary.html"><span class="std std-doc">The transport boundary</span></a>: why discovery skips anything
+that is not a DAU shell.</p></li>
+</ul>
+</section>
+</section>
+
+
+      </div>
+<nav class="fd-pagination" aria-label="Pagination">
+  <a class="fd-pagination-card fd-pagination-prev" href="allocate-device-storage.html" title="Previous: How to allocate device storage">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m15 18-6-6 6-6"/></svg>
+    <span class="fd-pagination-text">
+      <span class="fd-pagination-label">Previous</span>
+      <span class="fd-pagination-title">How to allocate device storage</span>
+    </span>
+  </a>
+  <a class="fd-pagination-card fd-pagination-next" href="develop.html" title="Next: Develop and contribute">
+    <span class="fd-pagination-text">
+      <span class="fd-pagination-label">Next</span>
+      <span class="fd-pagination-title">Develop and contribute</span>
+    </span>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
+  </a>
+</nav>
+<footer id="fd-footer">
+  <p class="fd-footer-meta"><span>&#169; the dau-driver authors</span><span>Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.</span>
+  </p>
+</footer>
+    </article>
+  </main>
+<nav id="fd-toc" aria-label="On this page">
+  <p class="fd-toc-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>On this page</p>
+  <div class="fd-toc-body"><svg class="fd-toc-rail" aria-hidden="true" preserveAspectRatio="none">
+      <path class="fd-toc-track" fill="none" />
+      <path class="fd-toc-thumb" fill="none" />
+    </svg><ul class="fd-toc-list">
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#why-it-is-not-optional">Why it is not optional</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#use-a-composed-plan-not-a-script">Use a composed plan, not a script</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#arm-and-disarm-by-hand-only-when-you-must">Arm and disarm by hand only when you must</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#disarm-only-after-the-device-answers">Disarm only after the device answers</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#next">Next</a>
+  </li>
+</ul>
+
+  </div>
+  <div class="fd-toc-actions">
+    <a class="fd-toc-action" href="https://github.com/dau-dev/dau-driver/edit/HEAD/docs/src/how-to/arm-the-deadman.md" target="_blank" rel="noopener" title="Edit this page"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg><span>Edit this page</span></a>
+    <a class="fd-toc-action" href="../../../_sources/docs/src/how-to/arm-the-deadman.md.txt" rel="nofollow" title="View source"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg><span>View source</span></a>
+  </div>
+</nav>
+</div>
+<dialog id="fd-search-dialog" aria-label="Search">
+  <form class="fd-search-panel" method="dialog" role="search">
+    <div class="fd-search-field">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="search" id="fd-search-input" autocomplete="off" spellcheck="false" placeholder="Search documentation..." aria-label="Search" />
+      <kbd class="fd-kbd">Esc</kbd>
+    </div>
+    <div id="fd-search-results" role="listbox" aria-label="Search results"></div>
+    <p id="fd-search-empty" class="fd-search-empty" hidden>No results found.</p>
+  </form>
+</dialog>
+  </body>
+</html>

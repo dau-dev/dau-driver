@@ -1,0 +1,52 @@
+test_record_batch_codec
+=======================
+
+.. py:module:: test_record_batch_codec
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_record_batch_codec._columns
+   test_record_batch_codec.test_record_batch_round_trip
+   test_record_batch_codec.test_payload_regions_are_64_byte_aligned_and_non_overlapping
+   test_record_batch_codec.test_operations_travel_with_the_batch
+   test_record_batch_codec.test_arrow_round_trip
+   test_record_batch_codec.test_arrow_batch_with_nulls_rejected
+   test_record_batch_codec.test_arrow_batch_with_strings_rejected
+   test_record_batch_codec.test_column_payload_length_mismatch_rejected
+   test_record_batch_codec.test_limits_enforced_on_encode_and_decode
+   test_record_batch_codec.test_truncated_batch_rejected
+   test_record_batch_codec.test_prepared_taq_shaped_batch_round_trips
+   test_record_batch_codec.test_arrow_encode_handles_sliced_arrays
+
+
+Module Contents
+---------------
+
+.. py:function:: _columns(rows: int = 4) -> list[dau_driver.stream_codec.RecordBatchColumn]
+
+.. py:function:: test_record_batch_round_trip() -> None
+
+.. py:function:: test_payload_regions_are_64_byte_aligned_and_non_overlapping() -> None
+
+.. py:function:: test_operations_travel_with_the_batch() -> None
+
+.. py:function:: test_arrow_round_trip() -> None
+
+.. py:function:: test_arrow_batch_with_nulls_rejected() -> None
+
+.. py:function:: test_arrow_batch_with_strings_rejected() -> None
+
+.. py:function:: test_column_payload_length_mismatch_rejected() -> None
+
+.. py:function:: test_limits_enforced_on_encode_and_decode() -> None
+
+.. py:function:: test_truncated_batch_rejected() -> None
+
+.. py:function:: test_prepared_taq_shaped_batch_round_trips() -> None
+
+.. py:function:: test_arrow_encode_handles_sliced_arrays() -> None
+

@@ -1,0 +1,1630 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>dau_driver.macos_xdma &#8212; dau-driver v0.1.0</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/fuma.css?v=9324ae27" />
+    <link rel="stylesheet" type="text/css" href="../../_static/fuma-code.css?v=a950e949" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/fonts/fuma-fonts.css?v=c2892c73" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/custom.css?v=88c24c6a" />
+    <script src="../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-searchlite-index="searchlite-index.json" defer="defer" src="../../_static/searchlite.js?v=a5320898"></script>
+    <script defer="defer" src="../../_static/fuma.js?v=88a16a98"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs"
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = "pre.mermaid {\n    /* Same as .mermaid-container > pre */\n    display: block;\n    width: 100%;\n}\n\npre.mermaid > svg {\n    /* Same as .mermaid-container > pre > svg */\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}";
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = ".mermaid-container {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    width: 100%;\n}\n\n.mermaid-container > pre {\n    display: block;\n    width: 100%;\n}\n\n.mermaid-container > pre > svg {\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}\n\n.mermaid-fullscreen-btn {\n    position: absolute;\n    width: 28px;\n    height: 28px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.3);\n    border-radius: 4px;\n    cursor: pointer;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transition: all 0.2s;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);\n    font-size: 14px;\n    line-height: 1;\n    padding: 0;\n    color: #333;\n}\n\n.mermaid-fullscreen-btn:hover {\n    opacity: 100% !important;\n    background: rgba(255, 255, 255, 1);\n    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-btn.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.3);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-btn.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal {\n    display: none;\n    position: fixed !important;\n    top: 0 !important;\n    left: 0 !important;\n    width: 95vw;\n    height: 100vh;\n    background: rgba(255, 255, 255, 0.98);\n    z-index: 9999;\n    padding: 20px;\n    overflow: auto;\n}\n\n.mermaid-fullscreen-modal.dark-theme {\n    background: rgba(0, 0, 0, 0.98);\n}\n\n.mermaid-fullscreen-modal.active {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen {\n    position: relative;\n    width: 95vw;\n    height: 90vh;\n    max-width: 95vw;\n    max-height: 90vh;\n    background: white;\n    border-radius: 8px;\n    padding: 20px;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);\n    overflow: auto;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen.dark-theme {\n    background: #1a1a1a;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);\n}\n\n.mermaid-container-fullscreen pre.mermaid {\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen .mermaid svg {\n    height: 100% !important;\n    width: 100% !important;\n    cursor: grab;\n}\n\n.mermaid-fullscreen-close {\n    position: fixed !important;\n    top: 20px !important;\n    right: 20px !important;\n    width: 40px;\n    height: 40px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.2);\n    border-radius: 50%;\n    cursor: pointer;\n    z-index: 10000;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n    transition: all 0.2s;\n    font-size: 24px;\n    line-height: 1;\n    color: #333;\n}\n\n.mermaid-fullscreen-close:hover {\n    background: white;\n    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-close.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.2);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-close.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal .mermaid-fullscreen-btn {\n    display: none !important;\n}";
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+let _lazyObserver = null;
+let _renderQueue = Promise.resolve();
+let closeModal = () => {};
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal?.classList.contains('active')) {
+        closeModal();
+    }
+});
+
+// Apply d3 zoom to each SVG. Idempotent: an SVG already wrapped is skipped,
+// so this is safe to call both for the initial batch and for diagrams that
+// render lazily once they become visible.
+const addZoomToSvgs = (svgs) => {
+    svgs.each(function() {
+        if (this.getAttribute('data-zoom-applied') === 'true') return;
+        var svg = d3.select(this);
+        svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+        var inner = svg.select("g");
+        var zoom = d3.zoom().on("zoom", function(event) {
+            inner.attr("transform", event.transform);
+        });
+        svg.call(zoom);
+        this.setAttribute('data-zoom-applied', 'true');
+    });
+};
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        // Disconnect any previous lazy rendering observer
+        if (_lazyObserver) {
+            _lazyObserver.disconnect();
+            _lazyObserver = null;
+        }
+
+        all_mermaids.forEach((el) => {
+            el.removeAttribute('data-mermaid-deferred');
+            el.removeAttribute('data-mermaid-render-failed');
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+
+        // Separate visible and hidden elements. Mermaid's layout engine measures
+        // text dimensions via the DOM, which fails for elements hidden by a parent
+        // (e.g., Reveal.js non-active slides, sphinx-design unopened tabs),
+        // producing broken SVGs. Render visible elements now, defer hidden ones.
+        const visible = [];
+        const hidden = [];
+        all_mermaids.forEach((el) => {
+            // offsetParent is null for display:none ancestors.
+            // getClientRects().length > 0 catches position:fixed elements
+            // (which also have null offsetParent but are still visible).
+            if (el.offsetParent !== null || el.getClientRects().length > 0) {
+                visible.push(el);
+            } else {
+                hidden.push(el);
+                el.setAttribute('data-mermaid-deferred', 'true');
+            }
+        });
+
+        if (visible.length > 0) {
+            try {
+                await mermaid.run({ nodes: visible });
+            } catch (e) {
+                console.error("Mermaid rendering failed:", e);
+            }
+        }
+
+        // Lazily render hidden elements when they become visible.
+        // Uses a promise chain (_renderQueue) to serialize rendering,
+        // since IntersectionObserver may report multiple entries at once
+        // and mermaid.run() is not safe to call concurrently.
+        if (hidden.length > 0) {
+            if (typeof IntersectionObserver === 'undefined') {
+                console.warn("IntersectionObserver not available; hidden mermaid diagrams will not render.");
+            } else {
+                _renderQueue = Promise.resolve();
+                _lazyObserver = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.isIntersecting && entry.target.getAttribute("data-processed") !== "true") {
+                            _lazyObserver.unobserve(entry.target);
+                            const el = entry.target;
+                            _renderQueue = _renderQueue.then(async () => {
+                                try {
+                                    await mermaid.run({ nodes: [el] });
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    // Apply zoom to the now-rendered diagram, matching
+                                    // the decoration visible diagrams receive.
+                                    if (true) {
+                                        addZoomToSvgs(d3.selectAll(".mermaid").select(function() {
+                                            return this.querySelector("svg");
+                                        }));
+                                    }
+                                } catch (e) {
+                                    console.error("Mermaid deferred rendering failed:", e);
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    el.setAttribute('data-mermaid-render-failed', 'true');
+                                }
+                            });
+                        }
+                    }
+                });
+                hidden.forEach((el) => _lazyObserver.observe(el));
+            }
+        }
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    // Exclude deferred (hidden) and render-failed elements from completion checks
+    const mermaids_active = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])");
+    const mermaids_processed = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])[data-processed='true']");
+
+    if (true) {
+        const mermaids_to_add_zoom = -1 === -1 ? mermaids_active.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll(".mermaid").select(function() {
+                return this.querySelector("svg");
+            });
+            // Wait until every active (visible) diagram has rendered. Deferred
+            // diagrams are excluded, so a fixed d3_node_count that counts a
+            // hidden diagram no longer loops forever waiting for its SVG.
+            if(mermaids_active.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            }
+            addZoomToSvgs(svgs);
+        }
+    } else if(mermaids_active.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if (!true) return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = "\u26f6";
+        fullscreenBtn.style.opacity = "50%";
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scrollX, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.display = 'block';
+
+                if (true) {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+
+// Resolves once the lazily-loaded zenuml plugin has registered (or immediately
+// when the page has no zenuml diagram). `load` awaits this before rendering.
+let zenumlReady = Promise.resolve();
+const pageHasZenuml = () => [...document.querySelectorAll(".mermaid")].some((el) => {
+    const code = el.getAttribute("data-original-code") || el.textContent || "";
+    const diagram = code
+        .replace(/^\s*---\s*\n[^]*?\n---\s*/, "")
+        .replace(/^\s*%%\{[^]*?\}%%\s*/, "");
+    return /^\s*zenuml\b/i.test(diagram);
+});
+
+
+const load = async () => {
+    initStyles();
+
+
+    // Wait for the zenuml plugin (loaded lazily below) to finish registering
+    // before rendering, so zenuml diagrams are recognised.
+    await zenumlReady;
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...{"startOnLoad": false},
+                ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+mermaid.registerLayoutLoaders(elkLayouts);
+
+
+
+// Only load and register the zenuml plugin when the page actually contains a
+// zenuml diagram. This avoids fetching the (large) zenuml bundle on every page,
+// and avoids its side effects where they are not needed. The import is kept off
+// the module's top level (no top-level await) so the "load" listener below is
+// still registered synchronously; `load` awaits `zenumlReady` before rendering.
+if (pageHasZenuml()) {
+    // The zenuml bundle injects a stylesheet that declares generic design tokens
+    // (--background, --border, --white, ...) on :root, clobbering identically-named
+    // tokens in the host theme (sphinxawesome, shibuya, ...) and causing a flash of
+    // restyled page content. Confine those declarations to the zenuml diagram
+    // subtree so they no longer leak onto the host page.
+    const descopeZenumlStyle = (node) => {
+        if (!node || node.tagName !== "STYLE" || node.hasAttribute("data-zenuml-descoped")) return;
+        const css = node.textContent || "";
+        if (!css.includes("--occurance-border")) return; // zenuml stylesheet signature
+        node.setAttribute("data-zenuml-descoped", "true");
+        node.textContent = css.replace(/:root\b/g, ".zenuml");
+    };
+    new MutationObserver((records) => {
+        for (const rec of records) {
+            for (const node of rec.addedNodes) descopeZenumlStyle(node);
+        }
+    }).observe(document.head, { childList: true });
+
+    zenumlReady = import("https://cdn.jsdelivr.net/npm/@mermaid-js/mermaid-zenuml@0.2.2/dist/mermaid-zenuml.esm.min.mjs").then(({ default: zenumlLayouts }) => {
+        mermaid.registerExternalDiagrams([zenumlLayouts]);
+    });
+}
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...{"startOnLoad": false},
+    ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script src="../../_static/js/custom.js?v=956e5d78"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <script>
+      (function () {
+        var root = document.documentElement;
+        try {
+          var stored = localStorage.getItem("fuma-theme");
+          if (stored) {
+            root.classList.add(stored === "dark" ? "dark" : "light");
+            root.style.colorScheme = stored === "dark" ? "dark" : "light";
+          }
+          if (localStorage.getItem("fuma-sidebar") === "collapsed") root.dataset.sidebarCollapsed = "true";
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+<body class="fd-body" data-layout="docs" data-toc-style="normal" data-open-level="0">
+<div id="fd-layout"><header id="fd-subnav">
+  <div class="fd-subnav-inner">
+    <button type="button" class="fd-icon-button fd-sidebar-toggle" aria-controls="fd-sidebar" aria-expanded="false" aria-label="Toggle navigation" title="Toggle navigation">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
+    </button><a class="fd-brand" href="../../index.html"><span class="fd-brand-name">dau-driver v0.1.0</span>
+</a>
+
+    <div class="fd-nav-actions">
+      <button type="button" class="fd-icon-button" data-fd-search-open aria-label="Search" title="Search"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
+      <a class="fd-icon-button" href="https://github.com/dau-dev/dau-driver" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <button type="button" class="fd-icon-button fd-theme-toggle" aria-label="Toggle theme" title="Toggle theme">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-light"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-dark"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<aside id="fd-sidebar" aria-label="Documentation">
+  <div class="fd-sidebar-header">
+    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../index.html"><span class="fd-brand-name">dau-driver v0.1.0</span>
+</a>
+      <button type="button" class="fd-icon-button fd-sidebar-collapse" aria-label="Collapse sidebar" title="Collapse sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+    </div>
+    <button type="button" class="fd-search-trigger" data-fd-search-open title="Search">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><span>Search</span><kbd class="fd-kbd">/</kbd>
+    </button>
+  </div>
+
+  <nav class="fd-sidebar-nav">
+    <div class="fd-sidebar-group">
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/tutorial/first-device.html">
+      <span class="fd-link-text">Talk to a device without any hardware</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/tutorial/first-scan-run.html">
+      <span class="fd-link-text">Run a scan over many batches</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/how-to/find-a-device.html">
+      <span class="fd-link-text">How to find and check a device</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/how-to/move-data.html">
+      <span class="fd-link-text">How to move data to and from a device</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/how-to/run-scan-jobs.html">
+      <span class="fd-link-text">How to run scan jobs</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/how-to/allocate-device-storage.html">
+      <span class="fd-link-text">How to allocate device storage</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/how-to/arm-the-deadman.html">
+      <span class="fd-link-text">How to fence a PCIe operation with the deadman</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/how-to/develop.html">
+      <span class="fd-link-text">Develop and contribute</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/reference/device-and-discovery.html">
+      <span class="fd-link-text">Device and discovery reference</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/reference/execution-contracts.html">
+      <span class="fd-link-text">Execution contracts reference</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/reference/stream-codec.html">
+      <span class="fd-link-text">Stream codec reference</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/explanation/transport-boundary.html">
+      <span class="fd-link-text">The transport boundary: why a driver owns almost nothing</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/explanation/overlapped-staging.html">
+      <span class="fd-link-text">Overlapped staging: why the runner ping-pongs, and when it stops</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/explanation/storage-handles.html">
+      <span class="fd-link-text">Storage handles: why a generation instead of a pointer</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <details class="fd-folder">
+      <summary class="fd-folder-summary" title="Toggle section: API Reference">
+        <a class="fd-link" href="../../autoapi/index.html">
+          <span class="fd-link-text">API Reference</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/conftest/index.html">
+      <span class="fd-link-text">conftest</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_docs/index.html">
+      <span class="fd-link-text">test_docs</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <details class="fd-folder">
+      <summary class="fd-folder-summary" title="Toggle section: dau_driver">
+        <a class="fd-link" href="../../autoapi/dau_driver/index.html">
+          <span class="fd-link-text">dau_driver</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/_lazy/index.html">
+      <span class="fd-link-text">dau_driver._lazy</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/capability_decode/index.html">
+      <span class="fd-link-text">dau_driver.capability_decode</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/device/index.html">
+      <span class="fd-link-text">dau_driver.device</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/discovery/index.html">
+      <span class="fd-link-text">dau_driver.discovery</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/errors/index.html">
+      <span class="fd-link-text">dau_driver.errors</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/extension/index.html">
+      <span class="fd-link-text">dau_driver.extension</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/fleet/index.html">
+      <span class="fd-link-text">dau_driver.fleet</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/handle_table/index.html">
+      <span class="fd-link-text">dau_driver.handle_table</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/linux_xdma/index.html">
+      <span class="fd-link-text">dau_driver.linux_xdma</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/macos_xdma/index.html">
+      <span class="fd-link-text">dau_driver.macos_xdma</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/native/index.html">
+      <span class="fd-link-text">dau_driver.native</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/pipeline_execution/index.html">
+      <span class="fd-link-text">dau_driver.pipeline_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/scan_execution/index.html">
+      <span class="fd-link-text">dau_driver.scan_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/status/index.html">
+      <span class="fd-link-text">dau_driver.status</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/storage/index.html">
+      <span class="fd-link-text">dau_driver.storage</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/stream_codec/index.html">
+      <span class="fd-link-text">dau_driver.stream_codec</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/stream_execution/index.html">
+      <span class="fd-link-text">dau_driver.stream_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/testing/index.html">
+      <span class="fd-link-text">dau_driver.testing</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/transfer/index.html">
+      <span class="fd-link-text">dau_driver.transfer</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/verify_advertisement/index.html">
+      <span class="fd-link-text">dau_driver.verify_advertisement</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/xdma_io/index.html">
+      <span class="fd-link-text">dau_driver.xdma_io</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_fleet/index.html">
+      <span class="fd-link-text">test_fleet</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_native/index.html">
+      <span class="fd-link-text">test_native</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_readme/index.html">
+      <span class="fd-link-text">test_readme</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_storage/index.html">
+      <span class="fd-link-text">test_storage</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_transfer/index.html">
+      <span class="fd-link-text">test_transfer</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_discovery/index.html">
+      <span class="fd-link-text">test_discovery</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_macos_xdma/index.html">
+      <span class="fd-link-text">test_macos_xdma</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_handle_table/index.html">
+      <span class="fd-link-text">test_handle_table</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_lazy_exports/index.html">
+      <span class="fd-link-text">test_lazy_exports</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_stream_codec/index.html">
+      <span class="fd-link-text">test_stream_codec</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_scan_execution/index.html">
+      <span class="fd-link-text">test_scan_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_register_write/index.html">
+      <span class="fd-link-text">test_register_write</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_xdma_poc_script/index.html">
+      <span class="fd-link-text">test_xdma_poc_script</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_stream_execution/index.html">
+      <span class="fd-link-text">test_stream_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_capability_decode/index.html">
+      <span class="fd-link-text">test_capability_decode</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_pipeline_execution/index.html">
+      <span class="fd-link-text">test_pipeline_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_record_batch_codec/index.html">
+      <span class="fd-link-text">test_record_batch_codec</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_macos_xdma_hardware/index.html">
+      <span class="fd-link-text">test_macos_xdma_hardware</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_linux_xdma_hardware/index.html">
+      <span class="fd-link-text">test_linux_xdma_hardware</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_verify_advertisement/index.html">
+      <span class="fd-link-text">test_verify_advertisement</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_no_board_geometry_constants/index.html">
+      <span class="fd-link-text">test_no_board_geometry_constants</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+</ul>
+    </div>
+  </nav>
+
+  <div class="fd-sidebar-footer">
+    <div class="fd-toolbar">
+      <a class="fd-toolbar-item" href="https://github.com/dau-dev/dau-driver" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <div class="fd-theme-switch" role="group" aria-label="Theme">
+        <button type="button" class="fd-theme-option" data-fd-theme="light" aria-label="Light theme" title="Light theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></button>
+        <button type="button" class="fd-theme-option" data-fd-theme="dark" aria-label="Dark theme" title="Dark theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg></button>
+      </div>
+    </div>
+  </div>
+</aside>
+<button type="button" id="fd-sidebar-restore" class="fd-icon-button" aria-label="Expand sidebar" title="Expand sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+<div class="fd-sidebar-scrim" hidden></div>
+
+  <main id="fd-main">
+    <article class="fd-page">
+<nav class="fd-breadcrumbs" aria-label="Breadcrumbs">
+  <ol>
+    <li>
+      <a href="../index.html">Module code</a>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
+    </li>
+    <li aria-current="page">dau_driver.macos_xdma</li>
+  </ol>
+</nav>
+      <div class="fd-prose">
+  <h1>Source code for dau_driver.macos_xdma</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ctypes</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ctypes.util</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Protocol</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dau_core.capabilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">DeviceCapabilities</span><span class="p">,</span> <span class="n">DmaConstraints</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dau_core.registers</span><span class="w"> </span><span class="kn">import</span> <span class="n">DAU_MAGIC_WORD</span><span class="p">,</span> <span class="n">RegisterBlockSnapshot</span><span class="p">,</span> <span class="n">RegisterOffset</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.capability_decode</span><span class="w"> </span><span class="kn">import</span> <span class="n">REGISTER_WINDOW_OFFSETS</span><span class="p">,</span> <span class="n">operators_from_snapshot</span><span class="p">,</span> <span class="n">read_register_block_snapshot</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.device</span><span class="w"> </span><span class="kn">import</span> <span class="n">DauDevice</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.errors</span><span class="w"> </span><span class="kn">import</span> <span class="n">DeviceNotFoundError</span><span class="p">,</span> <span class="n">RegisterAccessError</span><span class="p">,</span> <span class="n">TransferIoError</span><span class="p">,</span> <span class="n">UnhealthyBarError</span><span class="p">,</span> <span class="n">WrongBitstreamError</span>
+
+<span class="n">DEFAULT_BACKEND</span> <span class="o">=</span> <span class="s2">"macos-xdma"</span>
+<span class="n">CANONICAL_SERVICE_NAME</span> <span class="o">=</span> <span class="s2">"com.dau-dev.xdma"</span>
+<span class="n">DEFAULT_SERVICE_NAMES</span> <span class="o">=</span> <span class="p">(</span><span class="n">CANONICAL_SERVICE_NAME</span><span class="p">,)</span>
+<span class="n">REGISTER_BAR_INDICES</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="n">K_METHOD_READ_BAR</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">K_METHOD_WRITE_BAR</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">K_METHOD_DMA_WRITE</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">K_METHOD_DMA_READ</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">K_METHOD_GET_INFO</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">DMA_CHUNK_BYTES</span> <span class="o">=</span> <span class="mi">8</span> <span class="o">&lt;&lt;</span> <span class="mi">20</span>
+<span class="n">MACOS_XDMA_DMA_CONSTRAINTS</span> <span class="o">=</span> <span class="n">DmaConstraints</span><span class="p">(</span>
+    <span class="n">alignment_bytes</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
+    <span class="n">descriptor_bytes</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+    <span class="n">max_transfer_bytes</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">28</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">read_channels</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">write_channels</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="MacOSXDMAServiceProbe">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.MacOSXDMAServiceProbe">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MacOSXDMAServiceProbe</span><span class="p">:</span>
+    <span class="n">service_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">matched_services</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">opened_clients</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">error</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="MacOSXDMAProbeResult">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.MacOSXDMAProbeResult">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MacOSXDMAProbeResult</span><span class="p">:</span>
+    <span class="n">status</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">devices</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">DauDevice</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="n">service_names</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="n">service_probes</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">MacOSXDMAServiceProbe</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="n">failures</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="n">message</span><span class="p">:</span> <span class="nb">str</span></div>
+
+
+
+<div class="viewcode-block" id="_check_bar_access">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma._check_bar_access">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_bar_access</span><span class="p">(</span><span class="n">bar_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The user client hands these to the dext as unsigned 64-bit scalars; a</span>
+<span class="sd">    negative offset would wrap to a huge one and address BAR space the caller</span>
+<span class="sd">    never meant to touch."""</span>
+    <span class="k">if</span> <span class="n">bar_index</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">REGISTER_BAR_INDICES</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">RegisterAccessError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"BAR index must be one of </span><span class="si">{</span><span class="n">REGISTER_BAR_INDICES</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="n">bar_index</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">offset</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">offset</span> <span class="o">%</span> <span class="mi">4</span> <span class="ow">or</span> <span class="n">offset</span> <span class="o">&gt;</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">64</span><span class="p">)</span> <span class="o">-</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">RegisterAccessError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"register offset must be a multiple of 4 within the 64-bit scalar, got </span><span class="si">{</span><span class="n">offset</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="MacOSXDMAClientProtocol">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.MacOSXDMAClientProtocol">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MacOSXDMAClientProtocol</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<div class="viewcode-block" id="MacOSXDMAClientProtocol.read_bar_u32">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.MacOSXDMAClientProtocol.read_bar_u32">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_bar_u32</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bar_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span> <span class="o">...</span></div>
+
+
+<div class="viewcode-block" id="MacOSXDMAClientProtocol.write_bar_u32">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.MacOSXDMAClientProtocol.write_bar_u32">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_bar_u32</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bar_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span></div>
+
+
+<div class="viewcode-block" id="MacOSXDMAClientProtocol.get_info">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.MacOSXDMAClientProtocol.get_info">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MacOSXDMADeviceInfo</span><span class="p">:</span> <span class="o">...</span></div>
+
+
+<div class="viewcode-block" id="MacOSXDMAClientProtocol.dma_read">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.MacOSXDMAClientProtocol.dma_read">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dma_read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">length</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span> <span class="o">...</span></div>
+
+
+<div class="viewcode-block" id="MacOSXDMAClientProtocol.dma_write">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.MacOSXDMAClientProtocol.dma_write">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dma_write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="nb">bytearray</span> <span class="o">|</span> <span class="nb">memoryview</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span> <span class="o">...</span></div>
+
+
+<div class="viewcode-block" id="MacOSXDMAClientProtocol.close">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.MacOSXDMAClientProtocol.close">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="MacOSXDMADeviceInfo">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.MacOSXDMADeviceInfo">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MacOSXDMADeviceInfo</span><span class="p">:</span>
+    <span class="n">vendor_id</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">device_id</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">subsystem_vendor_id</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">subsystem_device_id</span><span class="p">:</span> <span class="nb">int</span></div>
+
+
+
+<div class="viewcode-block" id="MacOSXDMATransport">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.MacOSXDMATransport">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MacOSXDMATransport</span><span class="p">:</span>
+    <span class="n">client</span><span class="p">:</span> <span class="n">MacOSXDMAClientProtocol</span>
+    <span class="n">bar_index</span><span class="p">:</span> <span class="nb">int</span>
+
+<div class="viewcode-block" id="MacOSXDMATransport.read_u32">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.MacOSXDMATransport.read_u32">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_u32</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">read_bar_u32</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bar_index</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MacOSXDMATransport.write_u32">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.MacOSXDMATransport.write_u32">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_u32</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">write_bar_u32</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bar_index</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MacOSXDMATransport.read_dma">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.MacOSXDMATransport.read_dma">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_dma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_address</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">byte_count</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">dma_read</span><span class="p">(</span><span class="n">device_address</span><span class="p">,</span> <span class="n">byte_count</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MacOSXDMATransport.write_dma">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.MacOSXDMATransport.write_dma">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_dma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_address</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="nb">bytearray</span> <span class="o">|</span> <span class="nb">memoryview</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">dma_write</span><span class="p">(</span><span class="n">device_address</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MacOSXDMATransport.close">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.MacOSXDMATransport.close">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="MacOSXDMAClient">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.MacOSXDMAClient">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MacOSXDMAClient</span><span class="p">:</span>
+    <span class="n">connection</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">service</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">bindings</span><span class="p">:</span> <span class="n">_IOKitBindings</span>
+
+<div class="viewcode-block" id="MacOSXDMAClient.open_all">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.MacOSXDMAClient.open_all">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">open_all</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">service_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">service_names</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">MacOSXDMAClient</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+        <span class="n">clients</span><span class="p">,</span> <span class="n">service_probes</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">open_candidates</span><span class="p">(</span><span class="n">service_name</span><span class="o">=</span><span class="n">service_name</span><span class="p">,</span> <span class="n">service_names</span><span class="o">=</span><span class="n">service_names</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">clients</span><span class="p">:</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="n">_normalize_service_names</span><span class="p">(</span><span class="n">service_name</span><span class="o">=</span><span class="n">service_name</span><span class="p">,</span> <span class="n">service_names</span><span class="o">=</span><span class="n">service_names</span><span class="p">)</span>
+            <span class="n">detail</span> <span class="o">=</span> <span class="n">_format_service_probe_details</span><span class="p">(</span><span class="n">service_probes</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">DeviceNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"no macOS XDMA DriverKit user client opened for </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">names</span><span class="p">)</span><span class="si">}</span><span class="s2">; </span><span class="si">{</span><span class="n">detail</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">clients</span></div>
+
+
+<div class="viewcode-block" id="MacOSXDMAClient.open_candidates">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.MacOSXDMAClient.open_candidates">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">open_candidates</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">service_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">service_names</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">MacOSXDMAClient</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">MacOSXDMAServiceProbe</span><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="n">_normalize_service_names</span><span class="p">(</span><span class="n">service_name</span><span class="o">=</span><span class="n">service_name</span><span class="p">,</span> <span class="n">service_names</span><span class="o">=</span><span class="n">service_names</span><span class="p">)</span>
+        <span class="n">bindings</span> <span class="o">=</span> <span class="n">_IOKitBindings</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+        <span class="n">all_clients</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">MacOSXDMAClient</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">service_probes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">MacOSXDMAServiceProbe</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">seen_services</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+            <span class="n">clients</span><span class="p">,</span> <span class="n">probe</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_open_service_name</span><span class="p">(</span><span class="n">bindings</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">seen_services</span><span class="p">)</span>
+            <span class="n">all_clients</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">clients</span><span class="p">)</span>
+            <span class="n">service_probes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">probe</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">all_clients</span><span class="p">),</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">service_probes</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MacOSXDMAClient._open_service_name">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.MacOSXDMAClient._open_service_name">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_open_service_name</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">bindings</span><span class="p">:</span> <span class="n">_IOKitBindings</span><span class="p">,</span>
+        <span class="n">service_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">seen_services</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">MacOSXDMAClient</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">MacOSXDMAServiceProbe</span><span class="p">]:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">iterators</span> <span class="o">=</span> <span class="n">bindings</span><span class="o">.</span><span class="n">matching_iterators</span><span class="p">(</span><span class="n">service_name</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">DeviceNotFoundError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(),</span> <span class="n">MacOSXDMAServiceProbe</span><span class="p">(</span><span class="n">service_name</span><span class="o">=</span><span class="n">service_name</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
+
+        <span class="n">clients</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">MacOSXDMAClient</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">matched_services</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">iterator</span> <span class="ow">in</span> <span class="n">iterators</span><span class="p">:</span>
+                <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                    <span class="n">service</span> <span class="o">=</span> <span class="n">bindings</span><span class="o">.</span><span class="n">next_service</span><span class="p">(</span><span class="n">iterator</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">service</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="k">break</span>
+                    <span class="n">matched_services</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">if</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">seen_services</span><span class="p">:</span>
+                        <span class="n">bindings</span><span class="o">.</span><span class="n">release</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+                        <span class="k">continue</span>
+                    <span class="n">seen_services</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+                    <span class="n">connection</span> <span class="o">=</span> <span class="n">bindings</span><span class="o">.</span><span class="n">open_service</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">connection</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">bindings</span><span class="o">.</span><span class="n">release</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+                        <span class="k">continue</span>
+                    <span class="n">clients</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">cls</span><span class="p">(</span><span class="n">connection</span><span class="o">=</span><span class="n">connection</span><span class="p">,</span> <span class="n">service</span><span class="o">=</span><span class="n">service</span><span class="p">,</span> <span class="n">bindings</span><span class="o">=</span><span class="n">bindings</span><span class="p">))</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">iterator</span> <span class="ow">in</span> <span class="n">iterators</span><span class="p">:</span>
+                <span class="n">bindings</span><span class="o">.</span><span class="n">release</span><span class="p">(</span><span class="n">iterator</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">clients</span><span class="p">),</span> <span class="n">MacOSXDMAServiceProbe</span><span class="p">(</span>
+            <span class="n">service_name</span><span class="o">=</span><span class="n">service_name</span><span class="p">,</span>
+            <span class="n">matched_services</span><span class="o">=</span><span class="n">matched_services</span><span class="p">,</span>
+            <span class="n">opened_clients</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">clients</span><span class="p">),</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MacOSXDMAClient.read_bar_u32">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.MacOSXDMAClient.read_bar_u32">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_bar_u32</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bar_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="n">_check_bar_access</span><span class="p">(</span><span class="n">bar_index</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bindings</span><span class="o">.</span><span class="n">call_scalar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="p">,</span> <span class="n">K_METHOD_READ_BAR</span><span class="p">,</span> <span class="p">(</span><span class="n">bar_index</span><span class="p">,</span> <span class="n">offset</span><span class="p">),</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="MacOSXDMAClient.write_bar_u32">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.MacOSXDMAClient.write_bar_u32">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_bar_u32</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bar_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_check_bar_access</span><span class="p">(</span><span class="n">bar_index</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mh">0xFFFF_FFFF</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">RegisterAccessError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"register value must fit in 32 bits, got </span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bindings</span><span class="o">.</span><span class="n">call_scalar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="p">,</span> <span class="n">K_METHOD_WRITE_BAR</span><span class="p">,</span> <span class="p">(</span><span class="n">bar_index</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">value</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MacOSXDMAClient.get_info">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.MacOSXDMAClient.get_info">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MacOSXDMADeviceInfo</span><span class="p">:</span>
+        <span class="n">vendor_id</span><span class="p">,</span> <span class="n">device_id</span><span class="p">,</span> <span class="n">subsystem_vendor_id</span><span class="p">,</span> <span class="n">subsystem_device_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bindings</span><span class="o">.</span><span class="n">call_scalar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="p">,</span> <span class="n">K_METHOD_GET_INFO</span><span class="p">,</span> <span class="p">(),</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">MacOSXDMADeviceInfo</span><span class="p">(</span>
+            <span class="n">vendor_id</span><span class="o">=</span><span class="n">vendor_id</span><span class="p">,</span>
+            <span class="n">device_id</span><span class="o">=</span><span class="n">device_id</span><span class="p">,</span>
+            <span class="n">subsystem_vendor_id</span><span class="o">=</span><span class="n">subsystem_vendor_id</span><span class="p">,</span>
+            <span class="n">subsystem_device_id</span><span class="o">=</span><span class="n">subsystem_device_id</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MacOSXDMAClient.dma_read">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.MacOSXDMAClient.dma_read">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dma_read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">length</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">length</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">TransferIoError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"negative DMA read length </span><span class="si">{</span><span class="n">length</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">device_offset</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">64</span><span class="p">)</span> <span class="o">-</span> <span class="n">length</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">TransferIoError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"DMA read of </span><span class="si">{</span><span class="n">length</span><span class="si">}</span><span class="s2"> bytes at device offset </span><span class="si">{</span><span class="n">device_offset</span><span class="si">}</span><span class="s2"> does not fit the 64-bit scalar"</span><span class="p">)</span>
+        <span class="n">chunks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">done</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">done</span> <span class="o">&lt;</span> <span class="n">length</span><span class="p">:</span>
+            <span class="n">chunk</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">length</span> <span class="o">-</span> <span class="n">done</span><span class="p">,</span> <span class="n">DMA_CHUNK_BYTES</span><span class="p">)</span>
+            <span class="n">chunks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bindings</span><span class="o">.</span><span class="n">call_struct_out</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="p">,</span> <span class="n">K_METHOD_DMA_READ</span><span class="p">,</span> <span class="p">(</span><span class="n">device_offset</span> <span class="o">+</span> <span class="n">done</span><span class="p">,</span> <span class="n">chunk</span><span class="p">),</span> <span class="n">chunk</span><span class="p">))</span>
+            <span class="n">done</span> <span class="o">+=</span> <span class="n">chunk</span>
+        <span class="k">return</span> <span class="sa">b</span><span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">chunks</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MacOSXDMAClient.dma_write">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.MacOSXDMAClient.dma_write">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dma_write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="nb">bytearray</span> <span class="o">|</span> <span class="nb">memoryview</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">device_offset</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">64</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">TransferIoError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"DMA write of </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2"> bytes at device offset </span><span class="si">{</span><span class="n">device_offset</span><span class="si">}</span><span class="s2"> does not fit the 64-bit scalar"</span><span class="p">)</span>
+        <span class="n">view</span> <span class="o">=</span> <span class="nb">memoryview</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">"B"</span><span class="p">)</span>
+        <span class="n">done</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">done</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">view</span><span class="p">):</span>
+            <span class="n">chunk</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">view</span><span class="p">)</span> <span class="o">-</span> <span class="n">done</span><span class="p">,</span> <span class="n">DMA_CHUNK_BYTES</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bindings</span><span class="o">.</span><span class="n">call_struct_in</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="p">,</span> <span class="n">K_METHOD_DMA_WRITE</span><span class="p">,</span> <span class="p">(</span><span class="n">device_offset</span> <span class="o">+</span> <span class="n">done</span><span class="p">,),</span> <span class="n">view</span><span class="p">[</span><span class="n">done</span> <span class="p">:</span> <span class="n">done</span> <span class="o">+</span> <span class="n">chunk</span><span class="p">])</span>
+            <span class="n">done</span> <span class="o">+=</span> <span class="n">chunk</span>
+        <span class="k">return</span> <span class="n">done</span></div>
+
+
+<div class="viewcode-block" id="MacOSXDMAClient.close">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.MacOSXDMAClient.close">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bindings</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bindings</span><span class="o">.</span><span class="n">release</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="_IOKitBindings">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma._IOKitBindings">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_IOKitBindings</span><span class="p">:</span>
+    <span class="n">iokit</span><span class="p">:</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">CDLL</span>
+    <span class="n">libsystem</span><span class="p">:</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">CDLL</span>
+
+<div class="viewcode-block" id="_IOKitBindings.load">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma._IOKitBindings.load">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_IOKitBindings</span><span class="p">:</span>
+        <span class="n">iokit_path</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">find_library</span><span class="p">(</span><span class="s2">"IOKit"</span><span class="p">)</span>
+        <span class="n">libsystem_path</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">find_library</span><span class="p">(</span><span class="s2">"System"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">iokit_path</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">libsystem_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">DeviceNotFoundError</span><span class="p">(</span><span class="s2">"macOS IOKit libraries are not available"</span><span class="p">)</span>
+        <span class="n">bindings</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">iokit</span><span class="o">=</span><span class="n">ctypes</span><span class="o">.</span><span class="n">CDLL</span><span class="p">(</span><span class="n">iokit_path</span><span class="p">),</span> <span class="n">libsystem</span><span class="o">=</span><span class="n">ctypes</span><span class="o">.</span><span class="n">CDLL</span><span class="p">(</span><span class="n">libsystem_path</span><span class="p">))</span>
+        <span class="n">bindings</span><span class="o">.</span><span class="n">_configure_signatures</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">bindings</span></div>
+
+
+<div class="viewcode-block" id="_IOKitBindings._configure_signatures">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma._IOKitBindings._configure_signatures">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_configure_signatures</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iokit</span><span class="o">.</span><span class="n">IOServiceNameMatching</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_char_p</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iokit</span><span class="o">.</span><span class="n">IOServiceNameMatching</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_void_p</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iokit</span><span class="o">.</span><span class="n">IOServiceMatching</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_char_p</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iokit</span><span class="o">.</span><span class="n">IOServiceMatching</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_void_p</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iokit</span><span class="o">.</span><span class="n">IOServiceGetMatchingServices</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint32</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_void_p</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">POINTER</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint32</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iokit</span><span class="o">.</span><span class="n">IOServiceGetMatchingServices</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_int32</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iokit</span><span class="o">.</span><span class="n">IOIteratorNext</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint32</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iokit</span><span class="o">.</span><span class="n">IOIteratorNext</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint32</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iokit</span><span class="o">.</span><span class="n">IOServiceOpen</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint32</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint32</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint32</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">POINTER</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint32</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iokit</span><span class="o">.</span><span class="n">IOServiceOpen</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_int32</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iokit</span><span class="o">.</span><span class="n">IOServiceClose</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint32</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iokit</span><span class="o">.</span><span class="n">IOServiceClose</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_int32</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iokit</span><span class="o">.</span><span class="n">IOObjectRelease</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint32</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iokit</span><span class="o">.</span><span class="n">IOObjectRelease</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_int32</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iokit</span><span class="o">.</span><span class="n">IOConnectCallScalarMethod</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint32</span><span class="p">,</span>
+            <span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint32</span><span class="p">,</span>
+            <span class="n">ctypes</span><span class="o">.</span><span class="n">POINTER</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint64</span><span class="p">),</span>
+            <span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint32</span><span class="p">,</span>
+            <span class="n">ctypes</span><span class="o">.</span><span class="n">POINTER</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint64</span><span class="p">),</span>
+            <span class="n">ctypes</span><span class="o">.</span><span class="n">POINTER</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint32</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iokit</span><span class="o">.</span><span class="n">IOConnectCallScalarMethod</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_int32</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iokit</span><span class="o">.</span><span class="n">IOConnectCallMethod</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint32</span><span class="p">,</span>
+            <span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint32</span><span class="p">,</span>
+            <span class="n">ctypes</span><span class="o">.</span><span class="n">POINTER</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint64</span><span class="p">),</span>
+            <span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint32</span><span class="p">,</span>
+            <span class="n">ctypes</span><span class="o">.</span><span class="n">c_void_p</span><span class="p">,</span>
+            <span class="n">ctypes</span><span class="o">.</span><span class="n">c_size_t</span><span class="p">,</span>
+            <span class="n">ctypes</span><span class="o">.</span><span class="n">POINTER</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint64</span><span class="p">),</span>
+            <span class="n">ctypes</span><span class="o">.</span><span class="n">POINTER</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint32</span><span class="p">),</span>
+            <span class="n">ctypes</span><span class="o">.</span><span class="n">c_void_p</span><span class="p">,</span>
+            <span class="n">ctypes</span><span class="o">.</span><span class="n">POINTER</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_size_t</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iokit</span><span class="o">.</span><span class="n">IOConnectCallMethod</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_int32</span></div>
+
+
+<div class="viewcode-block" id="_IOKitBindings.call_struct_in">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma._IOKitBindings.call_struct_in">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">call_struct_in</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">connection</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">selector</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">scalars</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="nb">bytearray</span> <span class="o">|</span> <span class="nb">memoryview</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">scalar_array</span> <span class="o">=</span> <span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint64</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">scalars</span><span class="p">))(</span><span class="o">*</span><span class="n">scalars</span><span class="p">)</span> <span class="k">if</span> <span class="n">scalars</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">buffer</span> <span class="o">=</span> <span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_char</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">))</span><span class="o">.</span><span class="n">from_buffer_copy</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iokit</span><span class="o">.</span><span class="n">IOConnectCallMethod</span><span class="p">(</span>
+            <span class="n">connection</span><span class="p">,</span>
+            <span class="n">selector</span><span class="p">,</span>
+            <span class="n">scalar_array</span><span class="p">,</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">scalars</span><span class="p">),</span>
+            <span class="n">buffer</span><span class="p">,</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+            <span class="kc">None</span><span class="p">,</span>
+            <span class="kc">None</span><span class="p">,</span>
+            <span class="kc">None</span><span class="p">,</span>
+            <span class="kc">None</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">result</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">TransferIoError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"IOConnectCallMethod(</span><span class="si">{</span><span class="n">selector</span><span class="si">}</span><span class="s2">) struct-in failed: 0x</span><span class="si">{</span><span class="n">result</span><span class="si">:</span><span class="s2">x</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="_IOKitBindings.call_struct_out">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma._IOKitBindings.call_struct_out">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">call_struct_out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">connection</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">selector</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">scalars</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">output_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+        <span class="n">scalar_array</span> <span class="o">=</span> <span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint64</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">scalars</span><span class="p">))(</span><span class="o">*</span><span class="n">scalars</span><span class="p">)</span> <span class="k">if</span> <span class="n">scalars</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">buffer</span> <span class="o">=</span> <span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_char</span> <span class="o">*</span> <span class="n">output_size</span><span class="p">)()</span>
+        <span class="n">out_size</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_size_t</span><span class="p">(</span><span class="n">output_size</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iokit</span><span class="o">.</span><span class="n">IOConnectCallMethod</span><span class="p">(</span>
+            <span class="n">connection</span><span class="p">,</span>
+            <span class="n">selector</span><span class="p">,</span>
+            <span class="n">scalar_array</span><span class="p">,</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">scalars</span><span class="p">),</span>
+            <span class="kc">None</span><span class="p">,</span>
+            <span class="mi">0</span><span class="p">,</span>
+            <span class="kc">None</span><span class="p">,</span>
+            <span class="kc">None</span><span class="p">,</span>
+            <span class="n">buffer</span><span class="p">,</span>
+            <span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">out_size</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">result</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">TransferIoError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"IOConnectCallMethod(</span><span class="si">{</span><span class="n">selector</span><span class="si">}</span><span class="s2">) struct-out failed: 0x</span><span class="si">{</span><span class="n">result</span><span class="si">:</span><span class="s2">x</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">out_size</span><span class="o">.</span><span class="n">value</span> <span class="o">!=</span> <span class="n">output_size</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">TransferIoError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"IOConnectCallMethod(</span><span class="si">{</span><span class="n">selector</span><span class="si">}</span><span class="s2">) returned </span><span class="si">{</span><span class="n">out_size</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2"> bytes, expected </span><span class="si">{</span><span class="n">output_size</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="_IOKitBindings.matching_iterators">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma._IOKitBindings.matching_iterators">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">matching_iterators</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+        <span class="n">iterators</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">matcher_name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"IOServiceNameMatching"</span><span class="p">,</span> <span class="s2">"IOServiceMatching"</span><span class="p">):</span>
+            <span class="n">iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_matching_iterator</span><span class="p">(</span><span class="n">matcher_name</span><span class="p">,</span> <span class="n">service_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">iterator</span><span class="p">:</span>
+                <span class="n">iterators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">iterator</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">iterators</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="_IOKitBindings._matching_iterator">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma._IOKitBindings._matching_iterator">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_matching_iterator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">matcher_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">service_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="n">matching_function</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iokit</span><span class="p">,</span> <span class="n">matcher_name</span><span class="p">)</span>
+        <span class="n">matching</span> <span class="o">=</span> <span class="n">matching_function</span><span class="p">(</span><span class="n">service_name</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">matching</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">DeviceNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"could not create IOKit </span><span class="si">{</span><span class="n">matcher_name</span><span class="si">}</span><span class="s2"> dictionary for </span><span class="si">{</span><span class="n">service_name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">iterator</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint32</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iokit</span><span class="o">.</span><span class="n">IOServiceGetMatchingServices</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">matching</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">iterator</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">result</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">DeviceNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"IOServiceGetMatchingServices(</span><span class="si">{</span><span class="n">matcher_name</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">service_name</span><span class="si">}</span><span class="s2">) failed: 0x</span><span class="si">{</span><span class="n">result</span><span class="si">:</span><span class="s2">x</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">iterator</span><span class="o">.</span><span class="n">value</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="_IOKitBindings.next_service">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma._IOKitBindings.next_service">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">next_service</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iterator</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iokit</span><span class="o">.</span><span class="n">IOIteratorNext</span><span class="p">(</span><span class="n">iterator</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="_IOKitBindings.open_service">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma._IOKitBindings.open_service">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">open_service</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="n">connection</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint32</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iokit</span><span class="o">.</span><span class="n">IOServiceOpen</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mach_task_self</span><span class="p">(),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">connection</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">result</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">connection</span><span class="o">.</span><span class="n">value</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="_IOKitBindings.call_scalar">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma._IOKitBindings.call_scalar">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">call_scalar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">connection</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">selector</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">output_count</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+        <span class="n">input_array</span> <span class="o">=</span> <span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint64</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">inputs</span><span class="p">))(</span><span class="o">*</span><span class="n">inputs</span><span class="p">)</span> <span class="k">if</span> <span class="n">inputs</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">output_array</span> <span class="o">=</span> <span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint64</span> <span class="o">*</span> <span class="n">output_count</span><span class="p">)()</span>
+        <span class="n">output_count_value</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint32</span><span class="p">(</span><span class="n">output_count</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iokit</span><span class="o">.</span><span class="n">IOConnectCallScalarMethod</span><span class="p">(</span>
+            <span class="n">connection</span><span class="p">,</span>
+            <span class="n">selector</span><span class="p">,</span>
+            <span class="n">input_array</span><span class="p">,</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">inputs</span><span class="p">),</span>
+            <span class="n">output_array</span> <span class="k">if</span> <span class="n">output_count</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">output_count_value</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">result</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">RegisterAccessError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"IOConnectCallScalarMethod(</span><span class="si">{</span><span class="n">selector</span><span class="si">}</span><span class="s2">) failed: 0x</span><span class="si">{</span><span class="n">result</span><span class="si">:</span><span class="s2">x</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">output_array</span><span class="p">[</span><span class="n">index</span><span class="p">])</span> <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">output_count_value</span><span class="o">.</span><span class="n">value</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="_IOKitBindings.close">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma._IOKitBindings.close">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">connection</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iokit</span><span class="o">.</span><span class="n">IOServiceClose</span><span class="p">(</span><span class="n">connection</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="_IOKitBindings.release">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma._IOKitBindings.release">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">release</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">iokit</span><span class="o">.</span><span class="n">IOObjectRelease</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="_IOKitBindings.mach_task_self">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma._IOKitBindings.mach_task_self">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mach_task_self</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">libsystem</span><span class="o">.</span><span class="n">mach_task_self</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint32</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">libsystem</span><span class="o">.</span><span class="n">mach_task_self</span><span class="p">())</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint32</span><span class="o">.</span><span class="n">in_dll</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">libsystem</span><span class="p">,</span> <span class="s2">"mach_task_self_"</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="discover_devices">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.discover_devices">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">discover_devices</span><span class="p">(</span><span class="n">client_factory</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">MacOSXDMAClientProtocol</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">DauDevice</span><span class="p">]:</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">probe_devices</span><span class="p">(</span><span class="n">client_factory</span><span class="o">=</span><span class="n">client_factory</span><span class="p">)</span><span class="o">.</span><span class="n">devices</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="probe_devices">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.probe_devices">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">probe_devices</span><span class="p">(</span>
+    <span class="n">client_factory</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">MacOSXDMAClientProtocol</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">service_names</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">DEFAULT_SERVICE_NAMES</span><span class="p">,</span>
+    <span class="n">service_probes</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">MacOSXDMAServiceProbe</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MacOSXDMAProbeResult</span><span class="p">:</span>
+    <span class="n">probes</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">service_probes</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">client_factory</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">clients</span><span class="p">,</span> <span class="n">probes</span> <span class="o">=</span> <span class="n">MacOSXDMAClient</span><span class="o">.</span><span class="n">open_candidates</span><span class="p">(</span><span class="n">service_names</span><span class="o">=</span><span class="n">service_names</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">clients</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">client_factory</span><span class="p">())</span>
+    <span class="k">except</span> <span class="n">DeviceNotFoundError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_probe_result</span><span class="p">(</span>
+            <span class="n">status</span><span class="o">=</span><span class="s2">"no-service"</span><span class="p">,</span>
+            <span class="n">devices</span><span class="o">=</span><span class="p">(),</span>
+            <span class="n">service_names</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">service_names</span><span class="p">),</span>
+            <span class="n">service_probes</span><span class="o">=</span><span class="n">probes</span><span class="p">,</span>
+            <span class="n">failures</span><span class="o">=</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">),),</span>
+        <span class="p">)</span>
+
+    <span class="n">devices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">DauDevice</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">failures</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">client</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">clients</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">devices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">identify_device</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">))</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">UnhealthyBarError</span><span class="p">,</span> <span class="n">WrongBitstreamError</span><span class="p">,</span> <span class="n">RegisterAccessError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">failures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
+            <span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">_probe_result</span><span class="p">(</span>
+        <span class="n">status</span><span class="o">=</span><span class="n">_probe_status</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">devices</span><span class="p">),</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">clients</span><span class="p">),</span> <span class="n">probes</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">failures</span><span class="p">)),</span>
+        <span class="n">devices</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">devices</span><span class="p">),</span>
+        <span class="n">service_names</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">service_names</span><span class="p">),</span>
+        <span class="n">service_probes</span><span class="o">=</span><span class="n">probes</span><span class="p">,</span>
+        <span class="n">failures</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">failures</span><span class="p">),</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_normalize_service_names">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma._normalize_service_names">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_normalize_service_names</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">service_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">service_names</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">service_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">service_names</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"pass either service_name or service_names, not both"</span><span class="p">)</span>
+    <span class="n">raw_names</span> <span class="o">=</span> <span class="p">(</span><span class="n">service_name</span><span class="p">,)</span> <span class="k">if</span> <span class="n">service_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">DEFAULT_SERVICE_NAMES</span> <span class="k">if</span> <span class="n">service_names</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">service_names</span><span class="p">)</span>
+    <span class="n">names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">raw_names</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">and</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+            <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">names</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"at least one macOS XDMA service name is required"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">names</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_probe_status">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma._probe_status">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_probe_status</span><span class="p">(</span>
+    <span class="n">devices</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">DauDevice</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">clients</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">MacOSXDMAClientProtocol</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">service_probes</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">MacOSXDMAServiceProbe</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">failures</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">devices</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"found"</span>
+    <span class="k">if</span> <span class="n">failures</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="s2">"all ones"</span> <span class="ow">in</span> <span class="n">failure</span> <span class="k">for</span> <span class="n">failure</span> <span class="ow">in</span> <span class="n">failures</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s2">"unhealthy-bar"</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="s2">"DAU magic"</span> <span class="ow">in</span> <span class="n">failure</span> <span class="k">for</span> <span class="n">failure</span> <span class="ow">in</span> <span class="n">failures</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s2">"wrong-bitstream"</span>
+        <span class="k">return</span> <span class="s2">"register-access-failed"</span>
+    <span class="k">if</span> <span class="n">clients</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"no-compatible-bitstream"</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">probe</span><span class="o">.</span><span class="n">matched_services</span> <span class="ow">and</span> <span class="n">probe</span><span class="o">.</span><span class="n">opened_clients</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">probe</span> <span class="ow">in</span> <span class="n">service_probes</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">"no-user-client"</span>
+    <span class="k">return</span> <span class="s2">"no-service"</span></div>
+
+
+
+<div class="viewcode-block" id="_probe_result">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma._probe_result">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_probe_result</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">status</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">devices</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">DauDevice</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">service_names</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">service_probes</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">MacOSXDMAServiceProbe</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">failures</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MacOSXDMAProbeResult</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">MacOSXDMAProbeResult</span><span class="p">(</span>
+        <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">,</span>
+        <span class="n">devices</span><span class="o">=</span><span class="n">devices</span><span class="p">,</span>
+        <span class="n">service_names</span><span class="o">=</span><span class="n">service_names</span><span class="p">,</span>
+        <span class="n">service_probes</span><span class="o">=</span><span class="n">service_probes</span><span class="p">,</span>
+        <span class="n">failures</span><span class="o">=</span><span class="n">failures</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="n">_probe_message</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">devices</span><span class="p">,</span> <span class="n">service_names</span><span class="p">,</span> <span class="n">service_probes</span><span class="p">,</span> <span class="n">failures</span><span class="p">),</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_probe_message">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma._probe_message">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_probe_message</span><span class="p">(</span>
+    <span class="n">status</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">devices</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">DauDevice</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">service_names</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">service_probes</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">MacOSXDMAServiceProbe</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">failures</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">service_list</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">service_names</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s2">"found"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">devices</span><span class="p">)</span><span class="si">}</span><span class="s2"> DAU macOS XDMA device(s)"</span>
+    <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s2">"no-service"</span><span class="p">:</span>
+        <span class="n">detail</span> <span class="o">=</span> <span class="n">_format_service_probe_details</span><span class="p">(</span><span class="n">service_probes</span><span class="p">)</span>
+        <span class="n">suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">" Details: </span><span class="si">{</span><span class="n">detail</span><span class="si">}</span><span class="s2">."</span> <span class="k">if</span> <span class="n">detail</span> <span class="k">else</span> <span class="s2">""</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"No macOS XDMA DriverKit service found for </span><span class="si">{</span><span class="n">service_list</span><span class="si">}</span><span class="s2">. "</span>
+            <span class="s2">"Check that the PCIe endpoint is visible, the com.dau-dev.xdma dext is signed/installed/approved, "</span>
+            <span class="sa">f</span><span class="s2">"and the driver called RegisterService().</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s2">"no-user-client"</span><span class="p">:</span>
+        <span class="n">detail</span> <span class="o">=</span> <span class="n">_format_service_probe_details</span><span class="p">(</span><span class="n">service_probes</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"DriverKit service matched but IOServiceOpen did not return a user client. </span><span class="si">{</span><span class="n">detail</span><span class="si">}</span><span class="s2">. "</span>
+            <span class="s2">"Check XDMADriver::NewUserClient, XDMAUserClientProperties, and user-client access entitlements."</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s2">"wrong-bitstream"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"DriverKit service opened, but the BAR/register scan did not find the DAU magic word. "</span> <span class="o">+</span> <span class="s2">"; "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">failures</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s2">"unhealthy-bar"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"DriverKit service opened, but BAR reads look unhealthy. "</span> <span class="o">+</span> <span class="s2">"; "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">failures</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s2">"register-access-failed"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"DriverKit service opened, but scalar BAR/register calls failed. "</span> <span class="o">+</span> <span class="s2">"; "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">failures</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">"DriverKit service opened, but no DAU-compatible register window was found."</span></div>
+
+
+
+<div class="viewcode-block" id="_format_service_probe_details">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma._format_service_probe_details">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_format_service_probe_details</span><span class="p">(</span><span class="n">service_probes</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">MacOSXDMAServiceProbe</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">probe</span> <span class="ow">in</span> <span class="n">service_probes</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">probe</span><span class="o">.</span><span class="n">error</span><span class="p">:</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">probe</span><span class="o">.</span><span class="n">service_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">probe</span><span class="o">.</span><span class="n">error</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">probe</span><span class="o">.</span><span class="n">service_name</span><span class="si">}</span><span class="s2">: matched </span><span class="si">{</span><span class="n">probe</span><span class="o">.</span><span class="n">matched_services</span><span class="si">}</span><span class="s2"> service(s), opened </span><span class="si">{</span><span class="n">probe</span><span class="o">.</span><span class="n">opened_clients</span><span class="si">}</span><span class="s2"> user client(s)"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">"; "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="identify_device">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.identify_device">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">identify_device</span><span class="p">(</span><span class="n">client</span><span class="p">:</span> <span class="n">MacOSXDMAClientProtocol</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DauDevice</span><span class="p">:</span>
+    <span class="n">bar_index</span><span class="p">,</span> <span class="n">register_window_offset</span><span class="p">,</span> <span class="n">magic</span> <span class="o">=</span> <span class="n">_find_register_window</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">magic</span> <span class="o">==</span> <span class="mh">0xFFFF_FFFF</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">UnhealthyBarError</span><span class="p">(</span><span class="s2">"DAU BAR magic read all ones from macOS XDMA user client; BAR/AXI-lite path may be unhealthy"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">magic</span> <span class="o">!=</span> <span class="n">DAU_MAGIC_WORD</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">WrongBitstreamError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"expected DAU magic 0x</span><span class="si">{</span><span class="n">DAU_MAGIC_WORD</span><span class="si">:</span><span class="s2">08x</span><span class="si">}</span><span class="s2">, found 0x</span><span class="si">{</span><span class="n">magic</span><span class="si">:</span><span class="s2">08x</span><span class="si">}</span><span class="s2"> from macOS XDMA user client"</span><span class="p">)</span>
+
+    <span class="n">info</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_info</span><span class="p">()</span>
+    <span class="n">snapshot</span> <span class="o">=</span> <span class="n">_read_register_block_snapshot</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">bar_index</span><span class="p">,</span> <span class="n">register_window_offset</span><span class="p">)</span>
+    <span class="n">operators</span><span class="p">,</span> <span class="n">host_operators</span> <span class="o">=</span> <span class="n">operators_from_snapshot</span><span class="p">(</span><span class="n">snapshot</span><span class="p">)</span>
+    <span class="n">capabilities</span> <span class="o">=</span> <span class="n">DeviceCapabilities</span><span class="p">(</span>
+        <span class="n">platform_id</span><span class="o">=</span><span class="n">snapshot</span><span class="o">.</span><span class="n">platform_id</span><span class="p">,</span>
+        <span class="n">pci_vendor_id</span><span class="o">=</span><span class="n">info</span><span class="o">.</span><span class="n">vendor_id</span><span class="p">,</span>
+        <span class="n">pci_device_id</span><span class="o">=</span><span class="n">info</span><span class="o">.</span><span class="n">device_id</span><span class="p">,</span>
+        <span class="n">register_map_version</span><span class="o">=</span><span class="n">snapshot</span><span class="o">.</span><span class="n">register_map_version</span><span class="p">,</span>
+        <span class="n">stream_protocol_version</span><span class="o">=</span><span class="n">snapshot</span><span class="o">.</span><span class="n">stream_protocol_version</span><span class="p">,</span>
+        <span class="n">dma</span><span class="o">=</span><span class="n">MACOS_XDMA_DMA_CONSTRAINTS</span><span class="p">,</span>
+        <span class="n">operators</span><span class="o">=</span><span class="n">operators</span><span class="p">,</span>
+        <span class="n">host_operators</span><span class="o">=</span><span class="n">host_operators</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">DauDevice</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"xdma</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+        <span class="n">backend</span><span class="o">=</span><span class="n">DEFAULT_BACKEND</span><span class="p">,</span>
+        <span class="n">user_path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">"macos-xdma</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">_bar</span><span class="si">{</span><span class="n">bar_index</span><span class="si">}</span><span class="s2">_user"</span><span class="p">),</span>
+        <span class="n">h2c_path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">"macos-xdma</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">_h2c_0"</span><span class="p">),</span>
+        <span class="n">c2h_path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">"macos-xdma</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">_c2h_0"</span><span class="p">),</span>
+        <span class="n">capabilities</span><span class="o">=</span><span class="n">capabilities</span><span class="p">,</span>
+        <span class="n">register_window_offset</span><span class="o">=</span><span class="n">register_window_offset</span><span class="p">,</span>
+        <span class="n">transport</span><span class="o">=</span><span class="n">MacOSXDMATransport</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">,</span> <span class="n">bar_index</span><span class="o">=</span><span class="n">bar_index</span><span class="p">),</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_find_register_window">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma._find_register_window">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_find_register_window</span><span class="p">(</span><span class="n">client</span><span class="p">:</span> <span class="n">MacOSXDMAClientProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+    <span class="n">first_magic</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">bar_index</span> <span class="ow">in</span> <span class="n">REGISTER_BAR_INDICES</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">register_window_offset</span> <span class="ow">in</span> <span class="n">REGISTER_WINDOW_OFFSETS</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">magic</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">read_bar_u32</span><span class="p">(</span><span class="n">bar_index</span><span class="p">,</span> <span class="n">register_window_offset</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">RegisterOffset</span><span class="o">.</span><span class="n">MAGIC</span><span class="p">))</span>
+            <span class="k">except</span> <span class="n">RegisterAccessError</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">first_magic</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">first_magic</span> <span class="o">=</span> <span class="n">magic</span>
+            <span class="k">if</span> <span class="n">magic</span> <span class="o">==</span> <span class="n">DAU_MAGIC_WORD</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">bar_index</span><span class="p">,</span> <span class="n">register_window_offset</span><span class="p">,</span> <span class="n">magic</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">first_magic</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">first_magic</span></div>
+
+
+
+<div class="viewcode-block" id="_read_register_block_snapshot">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma._read_register_block_snapshot">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_read_register_block_snapshot</span><span class="p">(</span><span class="n">client</span><span class="p">:</span> <span class="n">MacOSXDMAClientProtocol</span><span class="p">,</span> <span class="n">bar_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">register_window_offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RegisterBlockSnapshot</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">read_register_block_snapshot</span><span class="p">(</span><span class="k">lambda</span> <span class="n">offset</span><span class="p">:</span> <span class="n">_read_register</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">bar_index</span><span class="p">,</span> <span class="n">register_window_offset</span><span class="p">,</span> <span class="n">offset</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="_read_register">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma._read_register">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_read_register</span><span class="p">(</span><span class="n">client</span><span class="p">:</span> <span class="n">MacOSXDMAClientProtocol</span><span class="p">,</span> <span class="n">bar_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">register_window_offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="n">RegisterOffset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">client</span><span class="o">.</span><span class="n">read_bar_u32</span><span class="p">(</span><span class="n">bar_index</span><span class="p">,</span> <span class="n">register_window_offset</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">offset</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="main">
+<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.main">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">"Probe DAU-compatible macOS XDMA DriverKit devices"</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--service-name"</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">"append"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"service_names"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"IOKit service name/class to probe; may be repeated"</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--verbose"</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Print service match/open diagnostics"</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
+
+    <span class="n">service_names</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">service_names</span><span class="p">)</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">service_names</span> <span class="k">else</span> <span class="n">DEFAULT_SERVICE_NAMES</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">probe_devices</span><span class="p">(</span><span class="n">service_names</span><span class="o">=</span><span class="n">service_names</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">devices</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"macos-xdma</span><span class="se">\t</span><span class="s2">status=</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2"> devices=0 message=</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">service_probe</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">service_probes</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="s2">"macos-xdma-service</span><span class="se">\t</span><span class="s2">"</span>
+                    <span class="sa">f</span><span class="s2">"name=</span><span class="si">{</span><span class="n">service_probe</span><span class="o">.</span><span class="n">service_name</span><span class="si">}</span><span class="s2"> "</span>
+                    <span class="sa">f</span><span class="s2">"matched=</span><span class="si">{</span><span class="n">service_probe</span><span class="o">.</span><span class="n">matched_services</span><span class="si">}</span><span class="s2"> "</span>
+                    <span class="sa">f</span><span class="s2">"opened=</span><span class="si">{</span><span class="n">service_probe</span><span class="o">.</span><span class="n">opened_clients</span><span class="si">}</span><span class="s2"> "</span>
+                    <span class="sa">f</span><span class="s2">"error=</span><span class="si">{</span><span class="n">service_probe</span><span class="o">.</span><span class="n">error</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s1">''</span><span class="si">}</span><span class="s2">"</span>
+                <span class="p">)</span>
+        <span class="k">return</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">device</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">devices</span><span class="p">:</span>
+        <span class="n">snapshot</span> <span class="o">=</span> <span class="n">device</span><span class="o">.</span><span class="n">read_register_block_snapshot</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">"macos-xdma-device</span><span class="se">\t</span><span class="s2">"</span>
+            <span class="sa">f</span><span class="s2">"name=</span><span class="si">{</span><span class="n">device</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> "</span>
+            <span class="sa">f</span><span class="s2">"vendor=0x</span><span class="si">{</span><span class="n">device</span><span class="o">.</span><span class="n">capabilities</span><span class="o">.</span><span class="n">pci_vendor_id</span><span class="si">:</span><span class="s2">04x</span><span class="si">}</span><span class="s2"> "</span>
+            <span class="sa">f</span><span class="s2">"device=0x</span><span class="si">{</span><span class="n">device</span><span class="o">.</span><span class="n">capabilities</span><span class="o">.</span><span class="n">pci_device_id</span><span class="si">:</span><span class="s2">04x</span><span class="si">}</span><span class="s2"> "</span>
+            <span class="sa">f</span><span class="s2">"platform=</span><span class="si">{</span><span class="n">snapshot</span><span class="o">.</span><span class="n">platform_id</span><span class="si">}</span><span class="s2"> "</span>
+            <span class="sa">f</span><span class="s2">"register_window=0x</span><span class="si">{</span><span class="n">device</span><span class="o">.</span><span class="n">register_window_offset</span><span class="si">:</span><span class="s2">x</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="mi">0</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</pre></div>
+
+      </div>
+<footer id="fd-footer">
+  <p class="fd-footer-meta"><span>&#169; the dau-driver authors</span><span>Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.</span>
+  </p>
+</footer>
+    </article>
+  </main>
+<nav id="fd-toc" aria-label="On this page">
+  <div class="fd-toc-actions">
+    <a class="fd-toc-action" href="https://github.com/dau-dev/dau-driver/edit/HEAD/_modules/dau_driver/macos_xdma.md" target="_blank" rel="noopener" title="Edit this page"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg><span>Edit this page</span></a>
+  </div>
+</nav>
+</div>
+<dialog id="fd-search-dialog" aria-label="Search">
+  <form class="fd-search-panel" method="dialog" role="search">
+    <div class="fd-search-field">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="search" id="fd-search-input" autocomplete="off" spellcheck="false" placeholder="Search documentation..." aria-label="Search" />
+      <kbd class="fd-kbd">Esc</kbd>
+    </div>
+    <div id="fd-search-results" role="listbox" aria-label="Search results"></div>
+    <p id="fd-search-empty" class="fd-search-empty" hidden>No results found.</p>
+  </form>
+</dialog>
+  </body>
+</html>

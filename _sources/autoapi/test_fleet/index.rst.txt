@@ -1,0 +1,150 @@
+test_fleet
+==========
+
+.. py:module:: test_fleet
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   test_fleet.REGIONS
+   test_fleet.ROW_BYTES
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   test_fleet.TimedTransport
+   test_fleet.BlockingTransport
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_fleet._device
+   test_fleet._batches
+   test_fleet._collect
+   test_fleet.test_fleet_preserves_order_and_fast_device_takes_more_batches
+   test_fleet.test_single_device_matches_scan_runner
+   test_fleet.test_fleet_consumes_batches_only_as_device_pipelines_demand_them
+   test_fleet.test_fleet_failure_includes_global_batch_and_device
+   test_fleet.test_weights_pre_bias_batch_assignment
+   test_fleet.test_fleet_defines_empty_inputs
+   test_fleet.test_poll_yield_reaches_every_pipeline_status_wait
+   test_fleet.test_a_stateful_composition_cannot_run_on_a_fleet
+
+
+Module Contents
+---------------
+
+.. py:data:: REGIONS
+   :value: (0, 134217728)
+
+
+.. py:data:: ROW_BYTES
+   :value: 64
+
+
+.. py:class:: TimedTransport(delay: float = 0.0, *, fail_write: bool = False)
+
+   Bases: :py:obj:`dau_driver.testing.FakeTransport`
+
+
+   In-memory DeviceTransport: records DMA traffic and register writes.
+
+   Advertises a current (register map 0.3) shell by default, including the
+   job capacity a host batches against — an all-zero register file models a
+   shell nobody builds any more, and every job test would be exercising the
+   not-advertised refusal instead of the path it means to test. Tests that
+   want an older shell clear or lower these.
+
+
+   .. py:attribute:: delay
+      :value: 0.0
+
+
+
+   .. py:attribute:: fail_write
+      :value: False
+
+
+
+   .. py:method:: write_dma(device_address: int, data: bytes | bytearray | memoryview) -> int
+
+
+   .. py:method:: write_u32(offset: int, value: int) -> None
+
+
+   .. py:method:: read_u32(offset: int) -> int
+
+
+.. py:class:: BlockingTransport(started: threading.Event, release: threading.Event)
+
+   Bases: :py:obj:`TimedTransport`
+
+
+   In-memory DeviceTransport: records DMA traffic and register writes.
+
+   Advertises a current (register map 0.3) shell by default, including the
+   job capacity a host batches against — an all-zero register file models a
+   shell nobody builds any more, and every job test would be exercising the
+   not-advertised refusal instead of the path it means to test. Tests that
+   want an older shell clear or lower these.
+
+
+   .. py:attribute:: started
+
+
+   .. py:attribute:: release
+
+
+   .. py:method:: write_u32(offset: int, value: int) -> None
+
+
+   .. py:method:: read_u32(offset: int) -> int
+
+
+.. py:function:: _device(tmp_path, name: str, transport: dau_driver.testing.FakeTransport)
+
+.. py:function:: _batches(count: int)
+
+.. py:function:: _collect(device)
+
+.. py:function:: test_fleet_preserves_order_and_fast_device_takes_more_batches(tmp_path)
+
+.. py:function:: test_single_device_matches_scan_runner(tmp_path)
+
+.. py:function:: test_fleet_consumes_batches_only_as_device_pipelines_demand_them(tmp_path)
+
+.. py:function:: test_fleet_failure_includes_global_batch_and_device(tmp_path)
+
+.. py:function:: test_weights_pre_bias_batch_assignment(tmp_path)
+
+.. py:function:: test_fleet_defines_empty_inputs(tmp_path)
+
+.. py:function:: test_poll_yield_reaches_every_pipeline_status_wait(tmp_path) -> None
+
+   ``poll_yield_seconds`` exists for pure-Python transports, whose
+   register read would otherwise hold the GIL and serialize co-running
+   pipelines. The real transports release it (``os.pread`` / ``ctypes``),
+   so the default is to spin — assert the plumbing deterministically
+   rather than a wall-clock split, which is not a reliable signal.
+
+
+.. py:function:: test_a_stateful_composition_cannot_run_on_a_fleet(tmp_path) -> None
+
+   Batches are pulled from ONE shared source by whichever device is free,
+   so a key's rows land on whichever cards happen to be idle and per-key
+   state splits across devices that never see each other's rows.
+   Key-partitioning the input does not save it — the affinity would have to
+   be device-wide, and demand-driven scheduling is what makes the fleet
+   self-balancing. This is the same guard `run_scan_batches` applies to
+   position-sliced batches, one level up.
+
+

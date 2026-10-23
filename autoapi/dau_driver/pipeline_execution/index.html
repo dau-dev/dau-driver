@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>dau_driver.pipeline_execution &#8212; dau-driver v0.1.0</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/fuma.css?v=9324ae27" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/fuma-code.css?v=a950e949" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/fonts/fuma-fonts.css?v=c2892c73" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/custom.css?v=88c24c6a" />
+    <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-searchlite-index="searchlite-index.json" defer="defer" src="../../../_static/searchlite.js?v=a5320898"></script>
+    <script defer="defer" src="../../../_static/fuma.js?v=88a16a98"></script>
+    <script src="../../../_static/js/custom.js?v=956e5d78"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="dau_driver.scan_execution" href="../scan_execution/index.html" />
+    <link rel="prev" title="dau_driver.native" href="../native/index.html" />
+    <script>
+      (function () {
+        var root = document.documentElement;
+        try {
+          var stored = localStorage.getItem("fuma-theme");
+          if (stored) {
+            root.classList.add(stored === "dark" ? "dark" : "light");
+            root.style.colorScheme = stored === "dark" ? "dark" : "light";
+          }
+          if (localStorage.getItem("fuma-sidebar") === "collapsed") root.dataset.sidebarCollapsed = "true";
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+<body class="fd-body" data-layout="docs" data-toc-style="normal" data-open-level="0">
+<div id="fd-layout"><header id="fd-subnav">
+  <div class="fd-subnav-inner">
+    <button type="button" class="fd-icon-button fd-sidebar-toggle" aria-controls="fd-sidebar" aria-expanded="false" aria-label="Toggle navigation" title="Toggle navigation">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
+    </button><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau-driver v0.1.0</span>
+</a>
+
+    <div class="fd-nav-actions">
+      <button type="button" class="fd-icon-button" data-fd-search-open aria-label="Search" title="Search"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
+      <a class="fd-icon-button" href="https://github.com/dau-dev/dau-driver" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <button type="button" class="fd-icon-button fd-theme-toggle" aria-label="Toggle theme" title="Toggle theme">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-light"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-dark"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<aside id="fd-sidebar" aria-label="Documentation">
+  <div class="fd-sidebar-header">
+    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau-driver v0.1.0</span>
+</a>
+      <button type="button" class="fd-icon-button fd-sidebar-collapse" aria-label="Collapse sidebar" title="Collapse sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+    </div>
+    <button type="button" class="fd-search-trigger" data-fd-search-open title="Search">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><span>Search</span><kbd class="fd-kbd">/</kbd>
+    </button>
+  </div>
+
+  <nav class="fd-sidebar-nav">
+    <div class="fd-sidebar-group">
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/tutorial/first-device.html">
+      <span class="fd-link-text">Talk to a device without any hardware</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/tutorial/first-scan-run.html">
+      <span class="fd-link-text">Run a scan over many batches</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/how-to/find-a-device.html">
+      <span class="fd-link-text">How to find and check a device</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/how-to/move-data.html">
+      <span class="fd-link-text">How to move data to and from a device</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/how-to/run-scan-jobs.html">
+      <span class="fd-link-text">How to run scan jobs</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/how-to/allocate-device-storage.html">
+      <span class="fd-link-text">How to allocate device storage</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/how-to/arm-the-deadman.html">
+      <span class="fd-link-text">How to fence a PCIe operation with the deadman</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/how-to/develop.html">
+      <span class="fd-link-text">Develop and contribute</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/reference/device-and-discovery.html">
+      <span class="fd-link-text">Device and discovery reference</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/reference/execution-contracts.html">
+      <span class="fd-link-text">Execution contracts reference</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/reference/stream-codec.html">
+      <span class="fd-link-text">Stream codec reference</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/explanation/transport-boundary.html">
+      <span class="fd-link-text">The transport boundary: why a driver owns almost nothing</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/explanation/overlapped-staging.html">
+      <span class="fd-link-text">Overlapped staging: why the runner ping-pongs, and when it stops</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/explanation/storage-handles.html">
+      <span class="fd-link-text">Storage handles: why a generation instead of a pointer</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <details class="fd-folder" open>
+      <summary class="fd-folder-summary" title="Toggle section: API Reference">
+        <a class="fd-link" href="../../index.html">
+          <span class="fd-link-text">API Reference</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../conftest/index.html">
+      <span class="fd-link-text">conftest</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_docs/index.html">
+      <span class="fd-link-text">test_docs</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <details class="fd-folder" open>
+      <summary class="fd-folder-summary" title="Toggle section: dau_driver">
+        <a class="fd-link" href="../index.html">
+          <span class="fd-link-text">dau_driver</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../_lazy/index.html">
+      <span class="fd-link-text">dau_driver._lazy</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../capability_decode/index.html">
+      <span class="fd-link-text">dau_driver.capability_decode</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../device/index.html">
+      <span class="fd-link-text">dau_driver.device</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../discovery/index.html">
+      <span class="fd-link-text">dau_driver.discovery</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../errors/index.html">
+      <span class="fd-link-text">dau_driver.errors</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../extension/index.html">
+      <span class="fd-link-text">dau_driver.extension</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../fleet/index.html">
+      <span class="fd-link-text">dau_driver.fleet</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../handle_table/index.html">
+      <span class="fd-link-text">dau_driver.handle_table</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../linux_xdma/index.html">
+      <span class="fd-link-text">dau_driver.linux_xdma</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../macos_xdma/index.html">
+      <span class="fd-link-text">dau_driver.macos_xdma</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../native/index.html">
+      <span class="fd-link-text">dau_driver.native</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link fd-current" href="#">
+      <span class="fd-link-text">dau_driver.pipeline_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../scan_execution/index.html">
+      <span class="fd-link-text">dau_driver.scan_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../status/index.html">
+      <span class="fd-link-text">dau_driver.status</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../storage/index.html">
+      <span class="fd-link-text">dau_driver.storage</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../stream_codec/index.html">
+      <span class="fd-link-text">dau_driver.stream_codec</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../stream_execution/index.html">
+      <span class="fd-link-text">dau_driver.stream_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../testing/index.html">
+      <span class="fd-link-text">dau_driver.testing</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../transfer/index.html">
+      <span class="fd-link-text">dau_driver.transfer</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../verify_advertisement/index.html">
+      <span class="fd-link-text">dau_driver.verify_advertisement</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../xdma_io/index.html">
+      <span class="fd-link-text">dau_driver.xdma_io</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_fleet/index.html">
+      <span class="fd-link-text">test_fleet</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_native/index.html">
+      <span class="fd-link-text">test_native</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_readme/index.html">
+      <span class="fd-link-text">test_readme</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_storage/index.html">
+      <span class="fd-link-text">test_storage</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_transfer/index.html">
+      <span class="fd-link-text">test_transfer</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_discovery/index.html">
+      <span class="fd-link-text">test_discovery</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_macos_xdma/index.html">
+      <span class="fd-link-text">test_macos_xdma</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_handle_table/index.html">
+      <span class="fd-link-text">test_handle_table</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_lazy_exports/index.html">
+      <span class="fd-link-text">test_lazy_exports</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_stream_codec/index.html">
+      <span class="fd-link-text">test_stream_codec</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_scan_execution/index.html">
+      <span class="fd-link-text">test_scan_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_register_write/index.html">
+      <span class="fd-link-text">test_register_write</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_xdma_poc_script/index.html">
+      <span class="fd-link-text">test_xdma_poc_script</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_stream_execution/index.html">
+      <span class="fd-link-text">test_stream_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_capability_decode/index.html">
+      <span class="fd-link-text">test_capability_decode</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_pipeline_execution/index.html">
+      <span class="fd-link-text">test_pipeline_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_record_batch_codec/index.html">
+      <span class="fd-link-text">test_record_batch_codec</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_macos_xdma_hardware/index.html">
+      <span class="fd-link-text">test_macos_xdma_hardware</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_linux_xdma_hardware/index.html">
+      <span class="fd-link-text">test_linux_xdma_hardware</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_verify_advertisement/index.html">
+      <span class="fd-link-text">test_verify_advertisement</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_no_board_geometry_constants/index.html">
+      <span class="fd-link-text">test_no_board_geometry_constants</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+</ul>
+    </div>
+  </nav>
+
+  <div class="fd-sidebar-footer">
+    <div class="fd-toolbar">
+      <a class="fd-toolbar-item" href="https://github.com/dau-dev/dau-driver" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <div class="fd-theme-switch" role="group" aria-label="Theme">
+        <button type="button" class="fd-theme-option" data-fd-theme="light" aria-label="Light theme" title="Light theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></button>
+        <button type="button" class="fd-theme-option" data-fd-theme="dark" aria-label="Dark theme" title="Dark theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg></button>
+      </div>
+    </div>
+  </div>
+</aside>
+<button type="button" id="fd-sidebar-restore" class="fd-icon-button" aria-label="Expand sidebar" title="Expand sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+<div class="fd-sidebar-scrim" hidden></div>
+  <div id="fd-toc-popover">
+    <button type="button" class="fd-toc-trigger" aria-expanded="false" aria-controls="fd-toc-mobile" title="On this page">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg><span>On this page</span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+    <div id="fd-toc-mobile" hidden><ul class="fd-toc-list">
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#attributes">Attributes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#exceptions">Exceptions</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#classes">Classes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#functions">Functions</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#module-contents">Module Contents</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.DMA_ALIGN_BYTES">DMA_ALIGN_BYTES</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.PipelineJobError">PipelineJobError</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.pipeline_execution.PipelineJobError.last_error">PipelineJobError.last_error</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.KeyedPipelineConfig">KeyedPipelineConfig</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.pipeline_execution.KeyedPipelineConfig.predicate">KeyedPipelineConfig.predicate</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.pipeline_execution.KeyedPipelineConfig.filter_on_key">KeyedPipelineConfig.filter_on_key</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.pipeline_execution.KeyedPipelineConfig.map_config">KeyedPipelineConfig.map_config</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.pipeline_execution.KeyedPipelineConfig.map_on_key">KeyedPipelineConfig.map_on_key</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.pipeline_execution.KeyedPipelineConfig.__post_init__">KeyedPipelineConfig.__post_init__()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.pipeline_execution.KeyedPipelineConfig.filter_op_word">KeyedPipelineConfig.filter_op_word()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.pipeline_execution.KeyedPipelineConfig.map_op_word">KeyedPipelineConfig.map_op_word()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.pipeline_execution.KeyedPipelineConfig.map_constant_word">KeyedPipelineConfig.map_constant_word()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.pack_keyed_rows">pack_keyed_rows()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.decode_group_records">decode_group_records()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.configure_pipeline">configure_pipeline()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution._wait_for_job_done">_wait_for_job_done()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution._read_aligned_records">_read_aligned_records()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.execute_keyed_pipeline_job">execute_keyed_pipeline_job()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.pack_bar_rows">pack_bar_rows()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.decode_bar_records">decode_bar_records()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.execute_bar_job">execute_bar_job()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.bar_ddr_max_rows_per_job">bar_ddr_max_rows_per_job()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.stage_bar_ddr_input">stage_bar_ddr_input()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.start_bar_ddr_job">start_bar_ddr_job()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.finish_bar_ddr_job">finish_bar_ddr_job()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.execute_bar_ddr_packed">execute_bar_ddr_packed()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.bar_noc_lane_output_bytes">bar_noc_lane_output_bytes()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.bar_noc_max_rows_per_job">bar_noc_max_rows_per_job()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.device_lane_count">device_lane_count()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution._advertised">_advertised()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.device_job_capacity">device_job_capacity()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.bar_noc_lane_output_address">bar_noc_lane_output_address()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.configure_bar_noc_lanes">configure_bar_noc_lanes()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.execute_bar_noc_packed">execute_bar_noc_packed()</a>
+  </li>
+</ul>
+</div>
+  </div>
+
+  <main id="fd-main">
+    <article class="fd-page">
+<nav class="fd-breadcrumbs" aria-label="Breadcrumbs">
+  <ol>
+    <li>
+      <a href="../../index.html">API Reference</a>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
+    </li>
+    <li>
+      <a href="../index.html">dau_driver</a>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
+    </li>
+    <li aria-current="page">dau_driver.pipeline_execution</li>
+  </ol>
+</nav>
+      <div class="fd-prose">
+  <section id="module-dau_driver.pipeline_execution">
+<span id="dau-driver-pipeline-execution"></span><h1>dau_driver.pipeline_execution<a class="headerlink" href="#module-dau_driver.pipeline_execution" title="Link to this heading">¶</a></h1>
+<p>Keyed composed-pipeline job execution against the dau_mm_ohlcv_job shell.</p>
+<p>The shell runs keyed {value, key} INT32 pair rows through
+filter -&gt; map -&gt; ordered grouped aggregation and stages 40-byte group
+records in the output BRAM (see dau_build.shell_tops
+generate_mm_ohlcv_job_top_sv and the PIPELINE_* register contract).</p>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.DMA_ALIGN_BYTES" title="dau_driver.pipeline_execution.DMA_ALIGN_BYTES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DMA_ALIGN_BYTES</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="exceptions">
+<h2>Exceptions<a class="headerlink" href="#exceptions" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.PipelineJobError" title="dau_driver.pipeline_execution.PipelineJobError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PipelineJobError</span></code></a></p></td>
+<td><p>A job that timed out or closed out with an error.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.KeyedPipelineConfig" title="dau_driver.pipeline_execution.KeyedPipelineConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">KeyedPipelineConfig</span></code></a></p></td>
+<td><p>Host-side mirror of the PIPELINE_* configuration registers.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.pack_keyed_rows" title="dau_driver.pipeline_execution.pack_keyed_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pack_keyed_rows</span></code></a>(→ bytes)</p></td>
+<td><p>{value, key} pair rows on the 64-byte DMA grid; the logical length</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.decode_group_records" title="dau_driver.pipeline_execution.decode_group_records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decode_group_records</span></code></a>(...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.configure_pipeline" title="dau_driver.pipeline_execution.configure_pipeline"><code class="xref py py-obj docutils literal notranslate"><span class="pre">configure_pipeline</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution._wait_for_job_done" title="dau_driver.pipeline_execution._wait_for_job_done"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_wait_for_job_done</span></code></a>(→ None)</p></td>
+<td><p>Poll JOB_STATUS until DONE, raising on timeout or a hardware error</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution._read_aligned_records" title="dau_driver.pipeline_execution._read_aligned_records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_read_aligned_records</span></code></a>(→ bytes)</p></td>
+<td><p>Read the 64-byte-aligned record block that RESULT_LENGTH describes.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.execute_keyed_pipeline_job" title="dau_driver.pipeline_execution.execute_keyed_pipeline_job"><code class="xref py py-obj docutils literal notranslate"><span class="pre">execute_keyed_pipeline_job</span></code></a>(...)</p></td>
+<td><p>Run one batch of (key, value) rows; the pipeline must already be</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.pack_bar_rows" title="dau_driver.pipeline_execution.pack_bar_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pack_bar_rows</span></code></a>(→ bytes)</p></td>
+<td><p>(key, price, shares, frac) rows for the fused bar tile, on the DMA</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.decode_bar_records" title="dau_driver.pipeline_execution.decode_bar_records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decode_bar_records</span></code></a>(data, count)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.execute_bar_job" title="dau_driver.pipeline_execution.execute_bar_job"><code class="xref py py-obj docutils literal notranslate"><span class="pre">execute_bar_job</span></code></a>(device, rows, *[, timeout_seconds, ...])</p></td>
+<td><p>Run one batch of (key, price, shares, frac) rows through the fused</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.bar_ddr_max_rows_per_job" title="dau_driver.pipeline_execution.bar_ddr_max_rows_per_job"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bar_ddr_max_rows_per_job</span></code></a>(→ int)</p></td>
+<td><p>Rows per job, bounded by the worst case of one record per row so an</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.stage_bar_ddr_input" title="dau_driver.pipeline_execution.stage_bar_ddr_input"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stage_bar_ddr_input</span></code></a>(→ None)</p></td>
+<td><p>DMA one pre-packed batch of bar rows into a DDR input region.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.start_bar_ddr_job" title="dau_driver.pipeline_execution.start_bar_ddr_job"><code class="xref py py-obj docutils literal notranslate"><span class="pre">start_bar_ddr_job</span></code></a>(→ None)</p></td>
+<td><p>Kick a job over rows already staged in DDR.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.finish_bar_ddr_job" title="dau_driver.pipeline_execution.finish_bar_ddr_job"><code class="xref py py-obj docutils literal notranslate"><span class="pre">finish_bar_ddr_job</span></code></a>(→ tuple[bytes, int])</p></td>
+<td><p>Wait for the running job and read its records back. Returns the raw</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.execute_bar_ddr_packed" title="dau_driver.pipeline_execution.execute_bar_ddr_packed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">execute_bar_ddr_packed</span></code></a>(→ tuple[bytes, int])</p></td>
+<td><p>Run one pre-packed batch of bar rows through the DDR-staged fused</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.bar_noc_lane_output_bytes" title="dau_driver.pipeline_execution.bar_noc_lane_output_bytes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bar_noc_lane_output_bytes</span></code></a>(→ int)</p></td>
+<td><p>Each lane gets an equal slice of the board's result region.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.bar_noc_max_rows_per_job" title="dau_driver.pipeline_execution.bar_noc_max_rows_per_job"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bar_noc_max_rows_per_job</span></code></a>(→ int)</p></td>
+<td><p>Bounded by the worst case of every record landing in ONE lane, so no</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.device_lane_count" title="dau_driver.pipeline_execution.device_lane_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_lane_count</span></code></a>(→ int)</p></td>
+<td><p>The number of NoC lanes the RESIDENT shell advertises.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution._advertised" title="dau_driver.pipeline_execution._advertised"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_advertised</span></code></a>(→ int)</p></td>
+<td><p>All-ones is a word nobody decoded, not a four-billion-row capacity —</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.device_job_capacity" title="dau_driver.pipeline_execution.device_job_capacity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_job_capacity</span></code></a>(→ tuple[int, int])</p></td>
+<td><p>(input rows, output records) ONE job may stage on the RESIDENT shell.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.bar_noc_lane_output_address" title="dau_driver.pipeline_execution.bar_noc_lane_output_address"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bar_noc_lane_output_address</span></code></a>(→ int)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.configure_bar_noc_lanes" title="dau_driver.pipeline_execution.configure_bar_noc_lanes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">configure_bar_noc_lanes</span></code></a>(→ None)</p></td>
+<td><p>Point every lane's writer at its slice of the output region.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.execute_bar_noc_packed" title="dau_driver.pipeline_execution.execute_bar_noc_packed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">execute_bar_noc_packed</span></code></a>(→ list[tuple[bytes, int]])</p></td>
+<td><p>Run one pre-packed batch through a broadcast-NoC shell: one scan</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="dau_driver.pipeline_execution.DMA_ALIGN_BYTES">
+<span class="sig-prename descclassname"><span class="pre">dau_driver.pipeline_execution.</span></span><span class="sig-name descname"><span class="pre">DMA_ALIGN_BYTES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">64</span></em><a class="headerlink" href="#dau_driver.pipeline_execution.DMA_ALIGN_BYTES" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="dau_driver.pipeline_execution.PipelineJobError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_driver.pipeline_execution.</span></span><span class="sig-name descname"><span class="pre">PipelineJobError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_error</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/dau_driver/pipeline_execution.html#PipelineJobError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.pipeline_execution.PipelineJobError" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../errors/index.html#dau_driver.errors.RegisterAccessError" title="dau_driver.errors.RegisterAccessError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dau_driver.errors.RegisterAccessError</span></code></a></p>
+<p>A job that timed out or closed out with an error.</p>
+<p><code class="docutils literal notranslate"><span class="pre">last_error</span></code> carries the shell’s error code when the job closed out with
+one, and <code class="docutils literal notranslate"><span class="pre">None</span></code> when there was none to read (a timeout). Carried on the
+exception rather than left for the caller to read back, because the
+register only holds the LAST job’s code: a caller that re-reads it after
+catching this is racing the next job for the reason this one failed.</p>
+<p>Initialize self.  See help(type(self)) for accurate signature.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_driver.pipeline_execution.PipelineJobError.last_error">
+<span class="sig-name descname"><span class="pre">last_error</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_driver.pipeline_execution.PipelineJobError.last_error" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_driver.pipeline_execution.KeyedPipelineConfig">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_driver.pipeline_execution.</span></span><span class="sig-name descname"><span class="pre">KeyedPipelineConfig</span></span><a class="reference internal" href="../../../_modules/dau_driver/pipeline_execution.html#KeyedPipelineConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.pipeline_execution.KeyedPipelineConfig" title="Link to this definition">¶</a></dt>
+<dd><p>Host-side mirror of the PIPELINE_* configuration registers.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_driver.pipeline_execution.KeyedPipelineConfig.predicate">
+<span class="sig-name descname"><span class="pre">predicate</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dau_core.operators.FilterPredicate</span></em><a class="headerlink" href="#dau_driver.pipeline_execution.KeyedPipelineConfig.predicate" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_driver.pipeline_execution.KeyedPipelineConfig.filter_on_key">
+<span class="sig-name descname"><span class="pre">filter_on_key</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#dau_driver.pipeline_execution.KeyedPipelineConfig.filter_on_key" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_driver.pipeline_execution.KeyedPipelineConfig.map_config">
+<span class="sig-name descname"><span class="pre">map_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dau_core.operators.MapConfig</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_driver.pipeline_execution.KeyedPipelineConfig.map_config" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_driver.pipeline_execution.KeyedPipelineConfig.map_on_key">
+<span class="sig-name descname"><span class="pre">map_on_key</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#dau_driver.pipeline_execution.KeyedPipelineConfig.map_on_key" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_driver.pipeline_execution.KeyedPipelineConfig.__post_init__">
+<span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/pipeline_execution.html#KeyedPipelineConfig.__post_init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.pipeline_execution.KeyedPipelineConfig.__post_init__" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_driver.pipeline_execution.KeyedPipelineConfig.filter_op_word">
+<span class="sig-name descname"><span class="pre">filter_op_word</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/pipeline_execution.html#KeyedPipelineConfig.filter_op_word"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.pipeline_execution.KeyedPipelineConfig.filter_op_word" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_driver.pipeline_execution.KeyedPipelineConfig.map_op_word">
+<span class="sig-name descname"><span class="pre">map_op_word</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/pipeline_execution.html#KeyedPipelineConfig.map_op_word"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.pipeline_execution.KeyedPipelineConfig.map_op_word" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_driver.pipeline_execution.KeyedPipelineConfig.map_constant_word">
+<span class="sig-name descname"><span class="pre">map_constant_word</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/pipeline_execution.html#KeyedPipelineConfig.map_constant_word"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.pipeline_execution.KeyedPipelineConfig.map_constant_word" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_driver.pipeline_execution.pack_keyed_rows">
+<span class="sig-prename descclassname"><span class="pre">dau_driver.pipeline_execution.</span></span><span class="sig-name descname"><span class="pre">pack_keyed_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/pipeline_execution.html#pack_keyed_rows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.pipeline_execution.pack_keyed_rows" title="Link to this definition">¶</a></dt>
+<dd><p>{value, key} pair rows on the 64-byte DMA grid; the logical length
+stays <code class="docutils literal notranslate"><span class="pre">len(rows)</span> <span class="pre">*</span> <span class="pre">8</span></code>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_driver.pipeline_execution.decode_group_records">
+<span class="sig-prename descclassname"><span class="pre">dau_driver.pipeline_execution.</span></span><span class="sig-name descname"><span class="pre">decode_group_records</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dau_core.operators.GroupAggregate</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_driver/pipeline_execution.html#decode_group_records"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.pipeline_execution.decode_group_records" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_driver.pipeline_execution.configure_pipeline">
+<span class="sig-prename descclassname"><span class="pre">dau_driver.pipeline_execution.</span></span><span class="sig-name descname"><span class="pre">configure_pipeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dau_driver.pipeline_execution.KeyedPipelineConfig" title="dau_driver.pipeline_execution.KeyedPipelineConfig"><span class="pre">KeyedPipelineConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/pipeline_execution.html#configure_pipeline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.pipeline_execution.configure_pipeline" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_driver.pipeline_execution._wait_for_job_done">
+<span class="sig-prename descclassname"><span class="pre">dau_driver.pipeline_execution.</span></span><span class="sig-name descname"><span class="pre">_wait_for_job_done</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poll</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/pipeline_execution.html#_wait_for_job_done"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.pipeline_execution._wait_for_job_done" title="Link to this definition">¶</a></dt>
+<dd><p>Poll JOB_STATUS until DONE, raising on timeout or a hardware error
+flag. Shared by every register-polled job runner so the wait/error
+semantics stay identical across shells. <code class="docutils literal notranslate"><span class="pre">poll</span></code>, when given, runs
+each iteration so concurrent work (e.g. overlap staging) can surface
+its failure instead of hiding behind this wait’s timeout.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_driver.pipeline_execution._read_aligned_records">
+<span class="sig-prename descclassname"><span class="pre">dau_driver.pipeline_execution.</span></span><span class="sig-name descname"><span class="pre">_read_aligned_records</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">record_bytes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">count_label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate_record_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/pipeline_execution.html#_read_aligned_records"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.pipeline_execution._read_aligned_records" title="Link to this definition">¶</a></dt>
+<dd><p>Read the 64-byte-aligned record block that RESULT_LENGTH describes.
+Returns <code class="docutils literal notranslate"><span class="pre">b&quot;&quot;</span></code> (and issues no C2H read) when the lane produced no
+output.</p>
+<p>When <code class="docutils literal notranslate"><span class="pre">validate_record_count</span></code> is set (bar/q1: the count register is an
+output-record count), the <code class="docutils literal notranslate"><span class="pre">result_length</span> <span class="pre">==</span> <span class="pre">count</span> <span class="pre">*</span> <span class="pre">record_bytes</span></code>
+invariant is enforced. q6-style aggregate lanes latch an input row
+count in the count register and emit one fixed-width record, so they
+pass <code class="docutils literal notranslate"><span class="pre">validate_record_count=False</span></code> and trust RESULT_LENGTH alone. The
+empty test keys off RESULT_LENGTH, which is equivalent to <code class="docutils literal notranslate"><span class="pre">count</span> <span class="pre">==</span> <span class="pre">0</span></code>
+whenever the invariant holds.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_driver.pipeline_execution.execute_keyed_pipeline_job">
+<span class="sig-prename descclassname"><span class="pre">dau_driver.pipeline_execution.</span></span><span class="sig-name descname"><span class="pre">execute_keyed_pipeline_job</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contract</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dau_core.registers.StreamJobRegisterContract</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dau_core.operators.GroupAggregate</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_driver/pipeline_execution.html#execute_keyed_pipeline_job"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.pipeline_execution.execute_keyed_pipeline_job" title="Link to this definition">¶</a></dt>
+<dd><p>Run one batch of (key, value) rows; the pipeline must already be
+configured (<code class="docutils literal notranslate"><span class="pre">configure_pipeline</span></code>). Returns (group records, selected
+row count).</p>
+<p><code class="docutils literal notranslate"><span class="pre">max_rows</span></code> defaults to what the DEVICE advertises, not to a constant:
+the staging budget is the resident shell’s BRAM depth, and only the
+shell knows it.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_driver.pipeline_execution.pack_bar_rows">
+<span class="sig-prename descclassname"><span class="pre">dau_driver.pipeline_execution.</span></span><span class="sig-name descname"><span class="pre">pack_bar_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/pipeline_execution.html#pack_bar_rows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.pipeline_execution.pack_bar_rows" title="Link to this definition">¶</a></dt>
+<dd><p>(key, price, shares, frac) rows for the fused bar tile, on the DMA
+grid; the logical length stays <code class="docutils literal notranslate"><span class="pre">len(rows)</span> <span class="pre">*</span> <span class="pre">16</span></code>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_driver.pipeline_execution.decode_bar_records">
+<span class="sig-prename descclassname"><span class="pre">dau_driver.pipeline_execution.</span></span><span class="sig-name descname"><span class="pre">decode_bar_records</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/dau_driver/pipeline_execution.html#decode_bar_records"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.pipeline_execution.decode_bar_records" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_driver.pipeline_execution.execute_bar_job">
+<span class="sig-prename descclassname"><span class="pre">dau_driver.pipeline_execution.</span></span><span class="sig-name descname"><span class="pre">execute_bar_job</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contract</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dau_core.registers.StreamJobRegisterContract</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/dau_driver/pipeline_execution.html#execute_bar_job"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.pipeline_execution.execute_bar_job" title="Link to this definition">¶</a></dt>
+<dd><p>Run one batch of (key, price, shares, frac) rows through the fused
+bar shell. Returns the decoded bar records.</p>
+<p><code class="docutils literal notranslate"><span class="pre">max_rows</span></code> defaults to what the DEVICE advertises; the bar shell’s
+staging depth is its own, not the grouped shell’s.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_driver.pipeline_execution.bar_ddr_max_rows_per_job">
+<span class="sig-prename descclassname"><span class="pre">dau_driver.pipeline_execution.</span></span><span class="sig-name descname"><span class="pre">bar_ddr_max_rows_per_job</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">staging</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/pipeline_execution.html#bar_ddr_max_rows_per_job"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.pipeline_execution.bar_ddr_max_rows_per_job" title="Link to this definition">¶</a></dt>
+<dd><p>Rows per job, bounded by the worst case of one record per row so an
+overrun is impossible by construction. An actual overflow would fault
+the job rather than corrupt input, but refusing early says which budget
+was exceeded.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_driver.pipeline_execution.stage_bar_ddr_input">
+<span class="sig-prename descclassname"><span class="pre">dau_driver.pipeline_execution.</span></span><span class="sig-name descname"><span class="pre">stage_bar_ddr_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">row_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">staging</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/pipeline_execution.html#stage_bar_ddr_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.pipeline_execution.stage_bar_ddr_input" title="Link to this definition">¶</a></dt>
+<dd><p>DMA one pre-packed batch of bar rows into a DDR input region.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_driver.pipeline_execution.start_bar_ddr_job">
+<span class="sig-prename descclassname"><span class="pre">dau_driver.pipeline_execution.</span></span><span class="sig-name descname"><span class="pre">start_bar_ddr_job</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">row_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">staging</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/pipeline_execution.html#start_bar_ddr_job"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.pipeline_execution.start_bar_ddr_job" title="Link to this definition">¶</a></dt>
+<dd><p>Kick a job over rows already staged in DDR.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_driver.pipeline_execution.finish_bar_ddr_job">
+<span class="sig-prename descclassname"><span class="pre">dau_driver.pipeline_execution.</span></span><span class="sig-name descname"><span class="pre">finish_bar_ddr_job</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">staging</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">60.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">bytes</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_driver/pipeline_execution.html#finish_bar_ddr_job"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.pipeline_execution.finish_bar_ddr_job" title="Link to this definition">¶</a></dt>
+<dd><p>Wait for the running job and read its records back. Returns the raw
+record bytes and the bar count — decoding stays with the caller so
+hosts can use vectorized decoders.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_driver.pipeline_execution.execute_bar_ddr_packed">
+<span class="sig-prename descclassname"><span class="pre">dau_driver.pipeline_execution.</span></span><span class="sig-name descname"><span class="pre">execute_bar_ddr_packed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">row_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">staging</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">60.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">bytes</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_driver/pipeline_execution.html#execute_bar_ddr_packed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.pipeline_execution.execute_bar_ddr_packed" title="Link to this definition">¶</a></dt>
+<dd><p>Run one pre-packed batch of bar rows through the DDR-staged fused
+bar shell (dau_mm_bar_ddr_job): stage, start, finish.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_driver.pipeline_execution.bar_noc_lane_output_bytes">
+<span class="sig-prename descclassname"><span class="pre">dau_driver.pipeline_execution.</span></span><span class="sig-name descname"><span class="pre">bar_noc_lane_output_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">staging</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lanes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/pipeline_execution.html#bar_noc_lane_output_bytes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.pipeline_execution.bar_noc_lane_output_bytes" title="Link to this definition">¶</a></dt>
+<dd><p>Each lane gets an equal slice of the board’s result region.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_driver.pipeline_execution.bar_noc_max_rows_per_job">
+<span class="sig-prename descclassname"><span class="pre">dau_driver.pipeline_execution.</span></span><span class="sig-name descname"><span class="pre">bar_noc_max_rows_per_job</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">staging</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lanes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/pipeline_execution.html#bar_noc_max_rows_per_job"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.pipeline_execution.bar_noc_max_rows_per_job" title="Link to this definition">¶</a></dt>
+<dd><p>Bounded by the worst case of every record landing in ONE lane, so no
+partition can overrun its slice however skewed the keys are.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_driver.pipeline_execution.device_lane_count">
+<span class="sig-prename descclassname"><span class="pre">dau_driver.pipeline_execution.</span></span><span class="sig-name descname"><span class="pre">device_lane_count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/pipeline_execution.html#device_lane_count"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.pipeline_execution.device_lane_count" title="Link to this definition">¶</a></dt>
+<dd><p>The number of NoC lanes the RESIDENT shell advertises.</p>
+<p>The shell publishes its lane count in the identity registers, so the
+host has no business assuming one. A composition built with eight lanes
+driven by a host that assumes four writes four lane windows and silently
+drops the rest of the result – the kind of wrong answer that looks like
+a correct short read.</p>
+<p>Refuses when the shell advertises nothing (0, which fixed binding tops
+and any pre-0.2 shell report) rather than falling back to a default:
+a caller running such a shell knows its geometry and must say so.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_driver.pipeline_execution._advertised">
+<span class="sig-prename descclassname"><span class="pre">dau_driver.pipeline_execution.</span></span><span class="sig-name descname"><span class="pre">_advertised</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/pipeline_execution.html#_advertised"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.pipeline_execution._advertised" title="Link to this definition">¶</a></dt>
+<dd><p>All-ones is a word nobody decoded, not a four-billion-row capacity —
+the same normalization every capability reader applies.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_driver.pipeline_execution.device_job_capacity">
+<span class="sig-prename descclassname"><span class="pre">dau_driver.pipeline_execution.</span></span><span class="sig-name descname"><span class="pre">device_job_capacity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_driver/pipeline_execution.html#device_job_capacity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.pipeline_execution.device_job_capacity" title="Link to this definition">¶</a></dt>
+<dd><p>(input rows, output records) ONE job may stage on the RESIDENT shell.</p>
+<p>These are the shell’s BRAM depths, and the host used to carry them as
+module constants – one pair for the grouped shell and one for the bar
+shell, both compiled in. Every shell was therefore batched against the
+depths of whichever shell the constants were written for, and a shell
+built with a different depth would have been sliced to the wrong size
+with nothing to say so. The shell advertises them from register map 0.3.</p>
+<p>Refuses when the shell advertises nothing, exactly like the lane count:
+a 0.2 or earlier shell does not decode these offsets, and a host that
+guessed here would be reintroducing the constants this replaced.</p>
+<p>Reads the two capacity words directly rather than taking a whole
+identity snapshot: this sits on the per-job path, and a snapshot is
+~25 MMIO reads where three will do. Not cached, because a device can be
+reflashed inside one session – the flywheel does exactly that – and a
+cached capacity would then describe the previous shell.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_driver.pipeline_execution.bar_noc_lane_output_address">
+<span class="sig-prename descclassname"><span class="pre">dau_driver.pipeline_execution.</span></span><span class="sig-name descname"><span class="pre">bar_noc_lane_output_address</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">staging</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lane</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lanes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/pipeline_execution.html#bar_noc_lane_output_address"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.pipeline_execution.bar_noc_lane_output_address" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_driver.pipeline_execution.configure_bar_noc_lanes">
+<span class="sig-prename descclassname"><span class="pre">dau_driver.pipeline_execution.</span></span><span class="sig-name descname"><span class="pre">configure_bar_noc_lanes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">staging</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lanes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/pipeline_execution.html#configure_bar_noc_lanes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.pipeline_execution.configure_bar_noc_lanes" title="Link to this definition">¶</a></dt>
+<dd><p>Point every lane’s writer at its slice of the output region.</p>
+<p><code class="docutils literal notranslate"><span class="pre">lanes</span></code> defaults to what the DEVICE advertises, not to a constant: the
+shell knows its own geometry and the host should ask.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_driver.pipeline_execution.execute_bar_noc_packed">
+<span class="sig-prename descclassname"><span class="pre">dau_driver.pipeline_execution.</span></span><span class="sig-name descname"><span class="pre">execute_bar_noc_packed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">row_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">staging</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lanes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">record_bytes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">BAR_RECORD_BYTES</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate_record_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">60.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">bytes</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_driver/pipeline_execution.html#execute_bar_noc_packed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.pipeline_execution.execute_bar_noc_packed" title="Link to this definition">¶</a></dt>
+<dd><p>Run one pre-packed batch through a broadcast-NoC shell: one scan
+computes every lane’s partition concurrently. The lanes must already
+be configured (<code class="docutils literal notranslate"><span class="pre">configure_bar_noc_lanes</span></code>). Returns raw record bytes
+and each lane’s RECORD_COUNT_LOW value.</p>
+<p><code class="docutils literal notranslate"><span class="pre">lanes</span></code> defaults to the count the DEVICE advertises; the
+key-partitioned scan shells reuse this runner by passing their own lane
+count and per-record width when they run a shell that advertises none.</p>
+<p>q1’s grouped shell keeps the default
+<code class="docutils literal notranslate"><span class="pre">validate_record_count</span></code> (its count register is an output group-record
+count). q6’s aggregate shell latches an input row count and emits one
+fixed-width [sum, count] record per lane, so it passes
+<code class="docutils literal notranslate"><span class="pre">validate_record_count=False</span></code> and relies on RESULT_LENGTH.</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+      </div>
+<nav class="fd-pagination" aria-label="Pagination">
+  <a class="fd-pagination-card fd-pagination-prev" href="../native/index.html" title="Previous: dau_driver.native">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m15 18-6-6 6-6"/></svg>
+    <span class="fd-pagination-text">
+      <span class="fd-pagination-label">Previous</span>
+      <span class="fd-pagination-title">dau_driver.native</span>
+    </span>
+  </a>
+  <a class="fd-pagination-card fd-pagination-next" href="../scan_execution/index.html" title="Next: dau_driver.scan_execution">
+    <span class="fd-pagination-text">
+      <span class="fd-pagination-label">Next</span>
+      <span class="fd-pagination-title">dau_driver.scan_execution</span>
+    </span>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
+  </a>
+</nav>
+<footer id="fd-footer">
+  <p class="fd-footer-meta"><span>&#169; the dau-driver authors</span><span>Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.</span>
+  </p>
+</footer>
+    </article>
+  </main>
+<nav id="fd-toc" aria-label="On this page">
+  <p class="fd-toc-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>On this page</p>
+  <div class="fd-toc-body"><svg class="fd-toc-rail" aria-hidden="true" preserveAspectRatio="none">
+      <path class="fd-toc-track" fill="none" />
+      <path class="fd-toc-thumb" fill="none" />
+    </svg><ul class="fd-toc-list">
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#attributes">Attributes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#exceptions">Exceptions</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#classes">Classes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#functions">Functions</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#module-contents">Module Contents</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.DMA_ALIGN_BYTES">DMA_ALIGN_BYTES</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.PipelineJobError">PipelineJobError</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.pipeline_execution.PipelineJobError.last_error">PipelineJobError.last_error</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.KeyedPipelineConfig">KeyedPipelineConfig</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.pipeline_execution.KeyedPipelineConfig.predicate">KeyedPipelineConfig.predicate</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.pipeline_execution.KeyedPipelineConfig.filter_on_key">KeyedPipelineConfig.filter_on_key</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.pipeline_execution.KeyedPipelineConfig.map_config">KeyedPipelineConfig.map_config</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.pipeline_execution.KeyedPipelineConfig.map_on_key">KeyedPipelineConfig.map_on_key</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.pipeline_execution.KeyedPipelineConfig.__post_init__">KeyedPipelineConfig.__post_init__()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.pipeline_execution.KeyedPipelineConfig.filter_op_word">KeyedPipelineConfig.filter_op_word()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.pipeline_execution.KeyedPipelineConfig.map_op_word">KeyedPipelineConfig.map_op_word()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.pipeline_execution.KeyedPipelineConfig.map_constant_word">KeyedPipelineConfig.map_constant_word()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.pack_keyed_rows">pack_keyed_rows()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.decode_group_records">decode_group_records()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.configure_pipeline">configure_pipeline()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution._wait_for_job_done">_wait_for_job_done()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution._read_aligned_records">_read_aligned_records()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.execute_keyed_pipeline_job">execute_keyed_pipeline_job()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.pack_bar_rows">pack_bar_rows()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.decode_bar_records">decode_bar_records()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.execute_bar_job">execute_bar_job()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.bar_ddr_max_rows_per_job">bar_ddr_max_rows_per_job()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.stage_bar_ddr_input">stage_bar_ddr_input()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.start_bar_ddr_job">start_bar_ddr_job()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.finish_bar_ddr_job">finish_bar_ddr_job()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.execute_bar_ddr_packed">execute_bar_ddr_packed()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.bar_noc_lane_output_bytes">bar_noc_lane_output_bytes()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.bar_noc_max_rows_per_job">bar_noc_max_rows_per_job()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.device_lane_count">device_lane_count()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution._advertised">_advertised()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.device_job_capacity">device_job_capacity()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.bar_noc_lane_output_address">bar_noc_lane_output_address()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.configure_bar_noc_lanes">configure_bar_noc_lanes()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.pipeline_execution.execute_bar_noc_packed">execute_bar_noc_packed()</a>
+  </li>
+</ul>
+
+  </div>
+  <div class="fd-toc-actions">
+    <a class="fd-toc-action" href="https://github.com/dau-dev/dau-driver/edit/HEAD/autoapi/dau_driver/pipeline_execution/index.rst" target="_blank" rel="noopener" title="Edit this page"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg><span>Edit this page</span></a>
+    <a class="fd-toc-action" href="../../../_sources/autoapi/dau_driver/pipeline_execution/index.rst.txt" rel="nofollow" title="View source"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg><span>View source</span></a>
+  </div>
+</nav>
+</div>
+<dialog id="fd-search-dialog" aria-label="Search">
+  <form class="fd-search-panel" method="dialog" role="search">
+    <div class="fd-search-field">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="search" id="fd-search-input" autocomplete="off" spellcheck="false" placeholder="Search documentation..." aria-label="Search" />
+      <kbd class="fd-kbd">Esc</kbd>
+    </div>
+    <div id="fd-search-results" role="listbox" aria-label="Search results"></div>
+    <p id="fd-search-empty" class="fd-search-empty" hidden>No results found.</p>
+  </form>
+</dialog>
+  </body>
+</html>

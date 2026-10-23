@@ -1,0 +1,74 @@
+dau_driver.transfer
+===================
+
+.. py:module:: dau_driver.transfer
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   dau_driver.transfer.DmaDirection
+   dau_driver.transfer.DmaTransfer
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   dau_driver.transfer.validate_transfer
+
+
+Module Contents
+---------------
+
+.. py:class:: DmaDirection
+
+   Bases: :py:obj:`enum.StrEnum`
+
+
+   Enum where members are also (and must be) strings
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: H2C
+      :value: 'h2c'
+
+
+
+   .. py:attribute:: C2H
+      :value: 'c2h'
+
+
+
+.. py:class:: DmaTransfer
+
+   .. py:attribute:: direction
+      :type:  DmaDirection
+
+
+   .. py:attribute:: device_address
+      :type:  int
+
+
+   .. py:attribute:: byte_count
+      :type:  int
+
+
+   .. py:attribute:: channel_path
+      :type:  pathlib.Path
+
+
+.. py:function:: validate_transfer(direction: DmaDirection, device_address: int, byte_count: int, constraints: dau_core.capabilities.DmaConstraints, *, memory_bytes: int | None = None) -> None
+
+   Refuse a transfer the device cannot perform as asked.
+
+   ``memory_bytes`` is the device's addressable memory when the caller knows
+   it; with it, the whole span ``[device_address, device_address + byte_count)``
+   must lie inside memory, since the DMA engine wraps an address past the end
+   to the bottom of memory instead of failing.
+
+

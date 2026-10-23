@@ -1,0 +1,31 @@
+test_stream_execution
+=====================
+
+.. py:module:: test_stream_execution
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_stream_execution.test_execute_scalar_operation_writes_encoded_stream_triggers_device_and_decodes_result
+   test_stream_execution.test_execute_scalar_operation_rejects_unsupported_operation_before_dma
+   test_stream_execution.test_execute_scalar_operation_rejects_capability_output_type_mismatch
+   test_stream_execution._make_device
+   test_stream_execution._operation
+
+
+Module Contents
+---------------
+
+.. py:function:: test_execute_scalar_operation_writes_encoded_stream_triggers_device_and_decodes_result(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_execute_scalar_operation_rejects_unsupported_operation_before_dma(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_execute_scalar_operation_rejects_capability_output_type_mismatch(tmp_path: pathlib.Path) -> None
+
+.. py:function:: _make_device(tmp_path: pathlib.Path, transport: dau_driver.testing.FakeTransport) -> dau_driver.DauDevice
+
+.. py:function:: _operation(opcode: dau_core.stream.OperationCode, *, output_type: dau_core.stream.LogicalType) -> dau_core.stream.OperationDescriptor
+

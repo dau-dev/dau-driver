@@ -1,0 +1,80 @@
+dau_driver
+==========
+
+.. py:module:: dau_driver
+
+.. autoapi-nested-parse::
+
+   dau-driver: host I/O for a DAU device.
+
+   Exports load on first use (:mod:`dau_driver._lazy`), so importing this
+   package does not import ccflow and its stack before a caller asks for a
+   name that needs it.
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/dau_driver/_lazy/index
+   /autoapi/dau_driver/capability_decode/index
+   /autoapi/dau_driver/device/index
+   /autoapi/dau_driver/discovery/index
+   /autoapi/dau_driver/errors/index
+   /autoapi/dau_driver/extension/index
+   /autoapi/dau_driver/fleet/index
+   /autoapi/dau_driver/handle_table/index
+   /autoapi/dau_driver/linux_xdma/index
+   /autoapi/dau_driver/macos_xdma/index
+   /autoapi/dau_driver/native/index
+   /autoapi/dau_driver/pipeline_execution/index
+   /autoapi/dau_driver/scan_execution/index
+   /autoapi/dau_driver/status/index
+   /autoapi/dau_driver/storage/index
+   /autoapi/dau_driver/stream_codec/index
+   /autoapi/dau_driver/stream_execution/index
+   /autoapi/dau_driver/testing/index
+   /autoapi/dau_driver/transfer/index
+   /autoapi/dau_driver/verify_advertisement/index
+   /autoapi/dau_driver/xdma_io/index
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   dau_driver.__version__
+   dau_driver._EXPORTS
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   dau_driver.lazy_exports
+
+
+Package Contents
+----------------
+
+.. py:function:: lazy_exports(package: str, exports: dict[str, tuple[str, ...]]) -> tuple[collections.abc.Callable[[str], object], list[str]]
+
+   A module ``__getattr__`` and ``__all__`` for ``{submodule: names}``.
+
+   Returns both so the two cannot disagree: a name exported by nothing is
+   not reachable, and a name declared here and missing from its submodule
+   raises on first access rather than at import -- which is what the
+   package's lazy-export guard test turns back into an import-time error.
+
+
+.. py:data:: __version__
+   :value: '0.1.0'
+
+
+.. py:data:: _EXPORTS
+

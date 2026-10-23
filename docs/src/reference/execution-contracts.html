@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Execution contracts reference &#8212; dau-driver v0.1.0</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/fuma.css?v=9324ae27" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/fuma-code.css?v=a950e949" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/fonts/fuma-fonts.css?v=c2892c73" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/custom.css?v=88c24c6a" />
+    <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-searchlite-index="searchlite-index.json" defer="defer" src="../../../_static/searchlite.js?v=a5320898"></script>
+    <script defer="defer" src="../../../_static/fuma.js?v=88a16a98"></script>
+    <script src="../../../_static/js/custom.js?v=956e5d78"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Stream codec reference" href="stream-codec.html" />
+    <link rel="prev" title="Device and discovery reference" href="device-and-discovery.html" />
+    <script>
+      (function () {
+        var root = document.documentElement;
+        try {
+          var stored = localStorage.getItem("fuma-theme");
+          if (stored) {
+            root.classList.add(stored === "dark" ? "dark" : "light");
+            root.style.colorScheme = stored === "dark" ? "dark" : "light";
+          }
+          if (localStorage.getItem("fuma-sidebar") === "collapsed") root.dataset.sidebarCollapsed = "true";
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+<body class="fd-body" data-layout="docs" data-toc-style="normal" data-open-level="0">
+<div id="fd-layout"><header id="fd-subnav">
+  <div class="fd-subnav-inner">
+    <button type="button" class="fd-icon-button fd-sidebar-toggle" aria-controls="fd-sidebar" aria-expanded="false" aria-label="Toggle navigation" title="Toggle navigation">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
+    </button><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau-driver v0.1.0</span>
+</a>
+
+    <div class="fd-nav-actions">
+      <button type="button" class="fd-icon-button" data-fd-search-open aria-label="Search" title="Search"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
+      <a class="fd-icon-button" href="https://github.com/dau-dev/dau-driver" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <button type="button" class="fd-icon-button fd-theme-toggle" aria-label="Toggle theme" title="Toggle theme">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-light"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-dark"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<aside id="fd-sidebar" aria-label="Documentation">
+  <div class="fd-sidebar-header">
+    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau-driver v0.1.0</span>
+</a>
+      <button type="button" class="fd-icon-button fd-sidebar-collapse" aria-label="Collapse sidebar" title="Collapse sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+    </div>
+    <button type="button" class="fd-search-trigger" data-fd-search-open title="Search">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><span>Search</span><kbd class="fd-kbd">/</kbd>
+    </button>
+  </div>
+
+  <nav class="fd-sidebar-nav">
+    <div class="fd-sidebar-group">
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../tutorial/first-device.html">
+      <span class="fd-link-text">Talk to a device without any hardware</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../tutorial/first-scan-run.html">
+      <span class="fd-link-text">Run a scan over many batches</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../how-to/find-a-device.html">
+      <span class="fd-link-text">How to find and check a device</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../how-to/move-data.html">
+      <span class="fd-link-text">How to move data to and from a device</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../how-to/run-scan-jobs.html">
+      <span class="fd-link-text">How to run scan jobs</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../how-to/allocate-device-storage.html">
+      <span class="fd-link-text">How to allocate device storage</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../how-to/arm-the-deadman.html">
+      <span class="fd-link-text">How to fence a PCIe operation with the deadman</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../how-to/develop.html">
+      <span class="fd-link-text">Develop and contribute</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="device-and-discovery.html">
+      <span class="fd-link-text">Device and discovery reference</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link fd-current" href="#">
+      <span class="fd-link-text">Execution contracts reference</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="stream-codec.html">
+      <span class="fd-link-text">Stream codec reference</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../explanation/transport-boundary.html">
+      <span class="fd-link-text">The transport boundary: why a driver owns almost nothing</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../explanation/overlapped-staging.html">
+      <span class="fd-link-text">Overlapped staging: why the runner ping-pongs, and when it stops</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../explanation/storage-handles.html">
+      <span class="fd-link-text">Storage handles: why a generation instead of a pointer</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <details class="fd-folder">
+      <summary class="fd-folder-summary" title="Toggle section: API Reference">
+        <a class="fd-link" href="../../../autoapi/index.html">
+          <span class="fd-link-text">API Reference</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/conftest/index.html">
+      <span class="fd-link-text">conftest</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_docs/index.html">
+      <span class="fd-link-text">test_docs</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <details class="fd-folder">
+      <summary class="fd-folder-summary" title="Toggle section: dau_driver">
+        <a class="fd-link" href="../../../autoapi/dau_driver/index.html">
+          <span class="fd-link-text">dau_driver</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/_lazy/index.html">
+      <span class="fd-link-text">dau_driver._lazy</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/capability_decode/index.html">
+      <span class="fd-link-text">dau_driver.capability_decode</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/device/index.html">
+      <span class="fd-link-text">dau_driver.device</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/discovery/index.html">
+      <span class="fd-link-text">dau_driver.discovery</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/errors/index.html">
+      <span class="fd-link-text">dau_driver.errors</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/extension/index.html">
+      <span class="fd-link-text">dau_driver.extension</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/fleet/index.html">
+      <span class="fd-link-text">dau_driver.fleet</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/handle_table/index.html">
+      <span class="fd-link-text">dau_driver.handle_table</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/linux_xdma/index.html">
+      <span class="fd-link-text">dau_driver.linux_xdma</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/macos_xdma/index.html">
+      <span class="fd-link-text">dau_driver.macos_xdma</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/native/index.html">
+      <span class="fd-link-text">dau_driver.native</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/pipeline_execution/index.html">
+      <span class="fd-link-text">dau_driver.pipeline_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/scan_execution/index.html">
+      <span class="fd-link-text">dau_driver.scan_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/status/index.html">
+      <span class="fd-link-text">dau_driver.status</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/storage/index.html">
+      <span class="fd-link-text">dau_driver.storage</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/stream_codec/index.html">
+      <span class="fd-link-text">dau_driver.stream_codec</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/stream_execution/index.html">
+      <span class="fd-link-text">dau_driver.stream_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/testing/index.html">
+      <span class="fd-link-text">dau_driver.testing</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/transfer/index.html">
+      <span class="fd-link-text">dau_driver.transfer</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/verify_advertisement/index.html">
+      <span class="fd-link-text">dau_driver.verify_advertisement</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/xdma_io/index.html">
+      <span class="fd-link-text">dau_driver.xdma_io</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_fleet/index.html">
+      <span class="fd-link-text">test_fleet</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_native/index.html">
+      <span class="fd-link-text">test_native</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_readme/index.html">
+      <span class="fd-link-text">test_readme</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_storage/index.html">
+      <span class="fd-link-text">test_storage</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_transfer/index.html">
+      <span class="fd-link-text">test_transfer</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_discovery/index.html">
+      <span class="fd-link-text">test_discovery</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_macos_xdma/index.html">
+      <span class="fd-link-text">test_macos_xdma</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_handle_table/index.html">
+      <span class="fd-link-text">test_handle_table</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_lazy_exports/index.html">
+      <span class="fd-link-text">test_lazy_exports</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_stream_codec/index.html">
+      <span class="fd-link-text">test_stream_codec</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_scan_execution/index.html">
+      <span class="fd-link-text">test_scan_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_register_write/index.html">
+      <span class="fd-link-text">test_register_write</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_xdma_poc_script/index.html">
+      <span class="fd-link-text">test_xdma_poc_script</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_stream_execution/index.html">
+      <span class="fd-link-text">test_stream_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_capability_decode/index.html">
+      <span class="fd-link-text">test_capability_decode</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_pipeline_execution/index.html">
+      <span class="fd-link-text">test_pipeline_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_record_batch_codec/index.html">
+      <span class="fd-link-text">test_record_batch_codec</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_macos_xdma_hardware/index.html">
+      <span class="fd-link-text">test_macos_xdma_hardware</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_linux_xdma_hardware/index.html">
+      <span class="fd-link-text">test_linux_xdma_hardware</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_verify_advertisement/index.html">
+      <span class="fd-link-text">test_verify_advertisement</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_no_board_geometry_constants/index.html">
+      <span class="fd-link-text">test_no_board_geometry_constants</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+</ul>
+    </div>
+  </nav>
+
+  <div class="fd-sidebar-footer">
+    <div class="fd-toolbar">
+      <a class="fd-toolbar-item" href="https://github.com/dau-dev/dau-driver" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <div class="fd-theme-switch" role="group" aria-label="Theme">
+        <button type="button" class="fd-theme-option" data-fd-theme="light" aria-label="Light theme" title="Light theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></button>
+        <button type="button" class="fd-theme-option" data-fd-theme="dark" aria-label="Dark theme" title="Dark theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg></button>
+      </div>
+    </div>
+  </div>
+</aside>
+<button type="button" id="fd-sidebar-restore" class="fd-icon-button" aria-label="Expand sidebar" title="Expand sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+<div class="fd-sidebar-scrim" hidden></div>
+  <div id="fd-toc-popover">
+    <button type="button" class="fd-toc-trigger" aria-expanded="false" aria-controls="fd-toc-mobile" title="On this page">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg><span>On this page</span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+    <div id="fd-toc-mobile" hidden><ul class="fd-toc-list">
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#single-stream-job">Single stream job</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#execute-scalar-operation">execute_scalar_operation</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#scan-jobs">Scan jobs</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#scanbatch">ScanBatch</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#run-scan-batches">run_scan_batches</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#run-resident-scan">run_resident_scan</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#key-partitioned-scan-batches">key_partitioned_scan_batches</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#key-range-scan-batches">key_range_scan_batches</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#fleet">Fleet</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#run-scan-batches-fleet">run_scan_batches_fleet</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#fleetscanresult">FleetScanResult</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#fleetscanerror">FleetScanError</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#keyed-pipeline-and-bar-jobs">Keyed pipeline and bar jobs</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#keyedpipelineconfig">KeyedPipelineConfig</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#keyed-pipeline-execution">Keyed pipeline execution</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#bar-jobs">Bar jobs</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#broadcast-noc-bar-shell">Broadcast-NoC bar shell</a>
+  </li>
+</ul>
+</div>
+  </div>
+
+  <main id="fd-main">
+    <article class="fd-page">
+      <div class="fd-prose">
+  <section class="tex2jax_ignore mathjax_ignore" id="execution-contracts-reference">
+<h1>Execution contracts reference<a class="headerlink" href="#execution-contracts-reference" title="Link to this heading">¶</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">dau_driver.stream_execution</span></code>, <code class="docutils literal notranslate"><span class="pre">dau_driver.scan_execution</span></code>,
+<code class="docutils literal notranslate"><span class="pre">dau_driver.pipeline_execution</span></code>, and <code class="docutils literal notranslate"><span class="pre">dau_driver.fleet</span></code>. Each module implements
+one shell’s register contract; register offsets and flags come from
+<code class="docutils literal notranslate"><span class="pre">dau_core.registers</span></code>.</p>
+<p>Every runner polls <code class="docutils literal notranslate"><span class="pre">JOB_STATUS</span></code> through one shared wait, so timeout and error
+semantics are identical across shells: <code class="docutils literal notranslate"><span class="pre">PipelineJobError</span></code> on timeout, and
+<code class="docutils literal notranslate"><span class="pre">PipelineJobError</span></code> including <code class="docutils literal notranslate"><span class="pre">LAST_ERROR</span></code> when the status carries the error flag.</p>
+<section id="single-stream-job">
+<h2>Single stream job<a class="headerlink" href="#single-stream-job" title="Link to this heading">¶</a></h2>
+<section id="execute-scalar-operation">
+<h3><code class="docutils literal notranslate"><span class="pre">execute_scalar_operation</span></code><a class="headerlink" href="#execute-scalar-operation" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">execute_scalar_operation</span><span class="p">(</span>
+    <span class="n">device</span><span class="p">:</span> <span class="n">DauDevice</span><span class="p">,</span>
+    <span class="n">logical_type</span><span class="p">:</span> <span class="n">LogicalType</span><span class="p">,</span>
+    <span class="n">payload</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">row_count</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">operation</span><span class="p">:</span> <span class="n">OperationDescriptor</span><span class="p">,</span>
+    <span class="n">input_device_address</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">output_device_address</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">output_byte_count</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">trigger</span><span class="p">:</span> <span class="n">StreamTrigger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DecodedStreamResult</span>
+</pre></div>
+</div>
+<p>Validate the operation against the device’s capabilities, encode the payload as a
+single-column stream batch, write it H2C, invoke <code class="docutils literal notranslate"><span class="pre">trigger</span></code>, read the result C2H,
+and decode it as a scalar.</p>
+<p>Raises <code class="docutils literal notranslate"><span class="pre">StreamExecutionError</span></code> before any DMA when the device advertises no
+operator for <code class="docutils literal notranslate"><span class="pre">(opcode,</span> <span class="pre">input</span> <span class="pre">type)</span></code>, or when the advertised output type differs
+from the descriptor’s.</p>
+<p><code class="docutils literal notranslate"><span class="pre">StreamTrigger</span></code> is <code class="docutils literal notranslate"><span class="pre">Callable[[DauDevice,</span> <span class="pre">bytes],</span> <span class="pre">None]</span></code>, called with the device
+and the encoded input.</p>
+</section>
+</section>
+<section id="scan-jobs">
+<h2>Scan jobs<a class="headerlink" href="#scan-jobs" title="Link to this heading">¶</a></h2>
+<section id="scanbatch">
+<h3><code class="docutils literal notranslate"><span class="pre">ScanBatch</span></code><a class="headerlink" href="#scanbatch" title="Link to this heading">¶</a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">payload</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bytes</span></code></p></td>
+<td><p>The packed row payload, exactly <code class="docutils literal notranslate"><span class="pre">row_count</span> <span class="pre">*</span> <span class="pre">row_bytes</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">row_count</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p></td>
+<td><p>Rows in the batch.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="run-scan-batches">
+<h3><code class="docutils literal notranslate"><span class="pre">run_scan_batches</span></code><a class="headerlink" href="#run-scan-batches" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">run_scan_batches</span><span class="p">(</span>
+    <span class="n">device</span><span class="p">,</span>
+    <span class="n">batches</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">ScanBatch</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">per_key_state</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">input_regions</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">row_bytes</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">collect</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="n">timeout_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">60.0</span><span class="p">,</span>
+    <span class="n">progress</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">poll_yield_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Run one job per batch with ping-pong input staging: batch <em>i + 1</em> DMAs into the
+alternate region (and, for a lazy iterable, is produced) while job <em>i</em> computes.
+Returns the <code class="docutils literal notranslate"><span class="pre">collect(device)</span></code> values in batch order.</p>
+<p>Per batch the runner writes <code class="docutils literal notranslate"><span class="pre">INPUT_ADDRESS_LOW</span></code>/<code class="docutils literal notranslate"><span class="pre">HIGH</span></code> and <code class="docutils literal notranslate"><span class="pre">INPUT_LENGTH_LOW</span></code>,
+sets <code class="docutils literal notranslate"><span class="pre">JOB_CONTROL</span></code> to <code class="docutils literal notranslate"><span class="pre">START</span></code>, waits for DONE, then calls <code class="docutils literal notranslate"><span class="pre">collect</span></code>. The DMA is
+padded to the 64-byte grid while <code class="docutils literal notranslate"><span class="pre">INPUT_LENGTH</span></code> stays exact.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">per_key_state</span></code></p></td>
+<td><p>Required. When True, <code class="docutils literal notranslate"><span class="pre">batches</span></code> must be the result of <code class="docutils literal notranslate"><span class="pre">key_partitioned_scan_batches</span></code> or <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> is raised.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">input_regions</span></code></p></td>
+<td><p>Two distinct device addresses. Equal addresses raise <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">row_bytes</span></code></p></td>
+<td><p>Must be positive.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">collect</span></code></p></td>
+<td><p>Called once per batch after DONE, with the device.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">progress</span></code></p></td>
+<td><p>Called with the running completion count after each batch.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">poll_yield_seconds</span></code></p></td>
+<td><p>Sleep per status poll. <code class="docutils literal notranslate"><span class="pre">None</span></code> spins.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> for a zero-row batch and for a payload whose length is not
+<code class="docutils literal notranslate"><span class="pre">row_count</span> <span class="pre">*</span> <span class="pre">row_bytes</span></code>.</p>
+<p>The caller owns everything shell-specific: lane output addresses and static
+configuration are written before the run, and <code class="docutils literal notranslate"><span class="pre">collect</span></code> reads the results. Output
+regions are disjoint from input staging, so collection overlaps the next DMA.</p>
+</section>
+<section id="run-resident-scan">
+<h3><code class="docutils literal notranslate"><span class="pre">run_resident_scan</span></code><a class="headerlink" href="#run-resident-scan" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">run_resident_scan</span><span class="p">(</span>
+    <span class="n">device</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">address</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">row_count</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">row_bytes</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">collect</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="n">repeats</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">timeout_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">60.0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Run the job over rows already on the device, uploading nothing. Per repeat the
+runner writes <code class="docutils literal notranslate"><span class="pre">INPUT_ADDRESS_LOW</span></code>/<code class="docutils literal notranslate"><span class="pre">HIGH</span></code> and <code class="docutils literal notranslate"><span class="pre">INPUT_LENGTH_LOW</span></code>, sets
+<code class="docutils literal notranslate"><span class="pre">JOB_CONTROL</span></code> to <code class="docutils literal notranslate"><span class="pre">START</span></code>, waits for DONE, and calls <code class="docutils literal notranslate"><span class="pre">collect</span></code>. Returns one
+<code class="docutils literal notranslate"><span class="pre">collect(device)</span></code> per repeat rather than one merged answer, so a caller can
+check that every run returns identical results instead of assuming it.</p>
+<p><code class="docutils literal notranslate"><span class="pre">row_count</span></code>, <code class="docutils literal notranslate"><span class="pre">row_bytes</span></code>, and <code class="docutils literal notranslate"><span class="pre">repeats</span></code> must be positive, and <code class="docutils literal notranslate"><span class="pre">address</span></code> must be
+on the <code class="docutils literal notranslate"><span class="pre">DMA_ALIGN_BYTES</span></code> grid, because an unaligned region returns wrong bytes on
+silicon without any error. All four raise <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">address</span></code> is raw, and a raw address outlives the allocation it came from.
+<code class="docutils literal notranslate"><span class="pre">HandleTable.run_resident_scan</span></code> is this same run with a generation-checked
+handle in its place; see
+the handle table in <a class="reference internal" href="device-and-discovery.html"><span class="std std-doc">device and discovery</span></a>.</p>
+</section>
+<section id="key-partitioned-scan-batches">
+<h3><code class="docutils literal notranslate"><span class="pre">key_partitioned_scan_batches</span></code><a class="headerlink" href="#key-partitioned-scan-batches" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">key_partitioned_scan_batches</span><span class="p">(</span>
+    <span class="n">records</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Record</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">batch_count</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">key</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Record</span><span class="p">],</span> <span class="n">Hashable</span><span class="p">],</span>
+    <span class="n">encode</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Iterable</span><span class="p">[</span><span class="n">Record</span><span class="p">]],</span> <span class="nb">bytes</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">ScanBatch</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Build key-confined batches by longest-processing-time-first greedy assignment:
+the largest key group goes into the currently smallest batch. Records must be
+ordered by key: a key appearing in more than one run raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>. Record
+order within each key is preserved.</p>
+<p>Creating the iterable consumes nothing. First iteration consumes one complete
+grouping pass, because LPT needs every group size before assignment; each batch’s
+payload is built only when that batch is requested. Key groups are indivisible,
+so one hot key can dominate a batch. <code class="docutils literal notranslate"><span class="pre">batch_count</span></code> must be positive.</p>
+<p>The number of batches produced is <code class="docutils literal notranslate"><span class="pre">min(batch_count,</span> <span class="pre">number</span> <span class="pre">of</span> <span class="pre">key</span> <span class="pre">groups)</span></code>.</p>
+</section>
+<section id="key-range-scan-batches">
+<h3><code class="docutils literal notranslate"><span class="pre">key_range_scan_batches</span></code><a class="headerlink" href="#key-range-scan-batches" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">key_range_scan_batches</span><span class="p">(</span>
+    <span class="n">records</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Record</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">key_capacity</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">key</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Record</span><span class="p">],</span> <span class="n">Hashable</span><span class="p">],</span>
+    <span class="n">encode</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Iterable</span><span class="p">[</span><span class="n">Record</span><span class="p">]],</span> <span class="nb">bytes</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">ScanBatch</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Split records into batches each holding at most <code class="docutils literal notranslate"><span class="pre">key_capacity</span></code> distinct keys, the
+host half of the hash-mode grouped tile’s overflow contract. The sorted key space
+is partitioned into ranges of <code class="docutils literal notranslate"><span class="pre">key_capacity</span></code> keys and one batch is emitted per
+range.</p>
+<p>Records need not arrive in key order, and arrival order is preserved within each
+batch. Each key lands in exactly one batch, so combining the per-batch group
+records is a concatenation; use <code class="docutils literal notranslate"><span class="pre">dau_core.operators.merge_hash_grouped</span></code> for the
+general additive merge when batches were produced some other way.</p>
+<p>Costs a counting pass over every key before the first batch. Row counts may be
+uneven: key ranges are equal in keys, not rows. <code class="docutils literal notranslate"><span class="pre">key_capacity</span></code> must be positive.</p>
+</section>
+</section>
+<section id="fleet">
+<h2>Fleet<a class="headerlink" href="#fleet" title="Link to this heading">¶</a></h2>
+<section id="run-scan-batches-fleet">
+<h3><code class="docutils literal notranslate"><span class="pre">run_scan_batches_fleet</span></code><a class="headerlink" href="#run-scan-batches-fleet" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">run_scan_batches_fleet</span><span class="p">(</span>
+    <span class="n">devices</span><span class="p">,</span>
+    <span class="n">batches</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">ScanBatch</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">per_key_state</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">input_regions</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">row_bytes</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">collect</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="n">timeout_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">60.0</span><span class="p">,</span>
+    <span class="n">progress</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">weights</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">poll_yield_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">FleetScanResult</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Run one independent <code class="docutils literal notranslate"><span class="pre">run_scan_batches</span></code> pipeline per device over one shared lazy
+input. Each batch is pulled exactly once by whichever pipeline demands it, so with
+<code class="docutils literal notranslate"><span class="pre">weights=None</span></code> scheduling is purely demand-driven and self-balances by device
+throughput. Results are returned in global batch order.</p>
+<p><code class="docutils literal notranslate"><span class="pre">input_regions</span></code> is reused as device-local addresses on every card, never shared
+memory.</p>
+<p><code class="docutils literal notranslate"><span class="pre">per_key_state</span></code> must be <code class="docutils literal notranslate"><span class="pre">False</span></code>; True raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>. A stateful composition
+has no fleet form: a key’s rows split across cards that never see each other’s
+state.</p>
+<p><code class="docutils literal notranslate"><span class="pre">weights</span></code> takes one positive, finite value per device and pre-biases each shared
+pull by weighted round-robin; batches remain lazy and are never partitioned or
+queued ahead. A length mismatch or a non-positive or non-finite weight raises
+<code class="docutils literal notranslate"><span class="pre">ValueError</span></code>.</p>
+<p>An empty batch iterable returns <code class="docutils literal notranslate"><span class="pre">[]</span></code>. An empty device sequence raises
+<code class="docutils literal notranslate"><span class="pre">ValueError</span></code>. A single device runs the same pipeline and adds ordered provenance.</p>
+<p>Known limitation: cancelling on a device failure wakes pipelines blocked pulling a
+batch, but one already inside its status wait runs to its own completion or
+timeout first, so an early failure can surface only after its peers finish.</p>
+</section>
+<section id="fleetscanresult">
+<h3><code class="docutils literal notranslate"><span class="pre">FleetScanResult</span></code><a class="headerlink" href="#fleetscanresult" title="Link to this heading">¶</a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">batch_index</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p></td>
+<td><p>Global batch index.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">device</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Any</span></code></p></td>
+<td><p>The exact device object that produced the value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">value</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Any</span></code></p></td>
+<td><p>The <code class="docutils literal notranslate"><span class="pre">collect</span></code> return value.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="fleetscanerror">
+<h3><code class="docutils literal notranslate"><span class="pre">FleetScanError</span></code><a class="headerlink" href="#fleetscanerror" title="Link to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> annotated with <code class="docutils literal notranslate"><span class="pre">batch_index</span></code> (<code class="docutils literal notranslate"><span class="pre">None</span></code> when the failure preceded any
+batch) and <code class="docutils literal notranslate"><span class="pre">device</span></code>.</p>
+</section>
+</section>
+<section id="keyed-pipeline-and-bar-jobs">
+<h2>Keyed pipeline and bar jobs<a class="headerlink" href="#keyed-pipeline-and-bar-jobs" title="Link to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">dau_mm_ohlcv_job</span></code> and bar shells run keyed <code class="docutils literal notranslate"><span class="pre">{value,</span> <span class="pre">key}</span></code> INT32 pair rows
+through filter, map, and ordered grouped aggregation, staging fixed-width records
+in the output region.</p>
+<section id="keyedpipelineconfig">
+<h3><code class="docutils literal notranslate"><span class="pre">KeyedPipelineConfig</span></code><a class="headerlink" href="#keyedpipelineconfig" title="Link to this heading">¶</a></h3>
+<p>A host-side mirror of the <code class="docutils literal notranslate"><span class="pre">PIPELINE_*</span></code> configuration registers, as a dataclass.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Default</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">predicate</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">FilterPredicate</span></code></p></td>
+<td><p>—</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">filter_on_key</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bool</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">map_config</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">MapConfig</span> <span class="pre">|</span> <span class="pre">None</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">map_on_key</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bool</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p><code class="docutils literal notranslate"><span class="pre">filter_op_word()</span></code>, <code class="docutils literal notranslate"><span class="pre">map_op_word()</span></code>, and <code class="docutils literal notranslate"><span class="pre">map_constant_word()</span></code> produce the packed
+register values. A <code class="docutils literal notranslate"><span class="pre">None</span></code> <code class="docutils literal notranslate"><span class="pre">map_config</span></code> packs as ADD 0 on the value lane, the
+identity.</p>
+<p><code class="docutils literal notranslate"><span class="pre">configure_pipeline(device,</span> <span class="pre">config)</span></code> writes all five <code class="docutils literal notranslate"><span class="pre">PIPELINE_*</span></code> registers.</p>
+</section>
+<section id="keyed-pipeline-execution">
+<h3>Keyed pipeline execution<a class="headerlink" href="#keyed-pipeline-execution" title="Link to this heading">¶</a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Function</p></th>
+<th class="head"><p>Behaviour</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pack_keyed_rows(rows)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(key,</span> <span class="pre">value)</span></code> pairs packed onto the 64-byte grid; the logical length stays <code class="docutils literal notranslate"><span class="pre">len(rows)</span> <span class="pre">*</span> <span class="pre">8</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">decode_group_records(data,</span> <span class="pre">count)</span></code></p></td>
+<td><p>40-byte group records as <code class="docutils literal notranslate"><span class="pre">GroupAggregate</span></code> values.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">execute_keyed_pipeline_job(device,</span> <span class="pre">rows,</span> <span class="pre">*,</span> <span class="pre">timeout_seconds=5.0,</span> <span class="pre">contract=None,</span> <span class="pre">max_rows=None)</span></code></p></td>
+<td><p>One batch through a configured pipeline. Returns <code class="docutils literal notranslate"><span class="pre">(group</span> <span class="pre">records,</span> <span class="pre">selected</span> <span class="pre">row</span> <span class="pre">count)</span></code>.</p></td>
+</tr>
+</tbody>
+</table>
+<p><code class="docutils literal notranslate"><span class="pre">DMA_ALIGN_BYTES</span> <span class="pre">=</span> <span class="pre">64</span></code> is a <strong>wire shape</strong>: fixed by the transfer format, not by
+the board. The record layouts and their sizes (<code class="docutils literal notranslate"><span class="pre">GROUP_RECORD_BYTES</span></code> is 40) are
+defined in <code class="docutils literal notranslate"><span class="pre">dau_core.records</span></code>, next to the tiles that produce them.</p>
+<p>Capacity is not a constant. <code class="docutils literal notranslate"><span class="pre">device_job_capacity(device)</span></code> reads the input row
+and output record capacities the shell advertises; exceeding them raises
+<code class="docutils literal notranslate"><span class="pre">PipelineJobError</span></code>. A module constant naming a capacity would be a second
+source of truth for something the platform already declares, and
+<code class="docutils literal notranslate"><span class="pre">dau_driver/tests/test_no_board_geometry_constants.py</span></code> asserts the allowed
+module-level constants exactly, in both directions.</p>
+</section>
+<section id="bar-jobs">
+<h3>Bar jobs<a class="headerlink" href="#bar-jobs" title="Link to this heading">¶</a></h3>
+<p>The bar wire layout is declared once, in <code class="docutils literal notranslate"><span class="pre">dau_core.records</span></code> as <code class="docutils literal notranslate"><span class="pre">BAR_ROW_FIELDS</span></code>
+and <code class="docutils literal notranslate"><span class="pre">BAR_RECORD_FIELDS</span></code>, with <code class="docutils literal notranslate"><span class="pre">struct_format(fields)</span></code> and
+<code class="docutils literal notranslate"><span class="pre">numpy_dtype_fields(fields)</span></code> deriving the two consumers’ views so a padding,
+signedness, or field-order change cannot make them read one bitstream
+differently. dau-core’s suite checks each layout’s size against the tile’s
+registry entry.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Function</p></th>
+<th class="head"><p>Behaviour</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pack_bar_rows(rows)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(key,</span> <span class="pre">price,</span> <span class="pre">shares,</span> <span class="pre">frac)</span></code> rows on the DMA grid.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">decode_bar_records(data,</span> <span class="pre">count)</span></code></p></td>
+<td><p>48-byte records as <code class="docutils literal notranslate"><span class="pre">BarAggregate</span></code> values.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">execute_bar_job(device,</span> <span class="pre">rows,</span> <span class="pre">*,</span> <span class="pre">timeout_seconds=5.0,</span> <span class="pre">contract=None,</span> <span class="pre">max_rows=None)</span></code></p></td>
+<td><p>One batch through the SRAM-staged fused bar shell.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">stage_bar_ddr_input(device,</span> <span class="pre">payload,</span> <span class="pre">row_count,</span> <span class="pre">*,</span> <span class="pre">staging,</span> <span class="pre">input_address=None)</span></code></p></td>
+<td><p>DMA one pre-packed batch into a memory input region.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">start_bar_ddr_job(device,</span> <span class="pre">row_count,</span> <span class="pre">*,</span> <span class="pre">staging,</span> <span class="pre">input_address=None,</span> <span class="pre">output_address=None)</span></code></p></td>
+<td><p>Program the addresses and length, then start.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">finish_bar_ddr_job(device,</span> <span class="pre">*,</span> <span class="pre">staging,</span> <span class="pre">output_address=None,</span> <span class="pre">timeout_seconds=60.0)</span></code></p></td>
+<td><p>Wait and read back. Returns <code class="docutils literal notranslate"><span class="pre">(raw</span> <span class="pre">record</span> <span class="pre">bytes,</span> <span class="pre">count)</span></code>; decoding stays with the caller so hosts can use vectorized decoders.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">execute_bar_ddr_packed(device,</span> <span class="pre">payload,</span> <span class="pre">row_count,</span> <span class="pre">*,</span> <span class="pre">staging,</span> <span class="pre">timeout_seconds=60.0)</span></code></p></td>
+<td><p>Stage, start, finish.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">bar_ddr_max_rows_per_job(staging)</span></code></p></td>
+<td><p>The row budget the given staging layout supports.</p></td>
+</tr>
+</tbody>
+</table>
+<p><code class="docutils literal notranslate"><span class="pre">BAR_ROW_BYTES</span></code> (16) and <code class="docutils literal notranslate"><span class="pre">BAR_RECORD_BYTES</span></code> (48) come from the same module.</p>
+<p><code class="docutils literal notranslate"><span class="pre">staging</span></code> is the board’s <code class="docutils literal notranslate"><span class="pre">DdrStaging</span></code> (its input regions, output region, sizes,
+and alignment), passed in from the composed platform. It is a keyword argument
+rather than a module constant because addresses and region sizes are board
+geometry, and a package-level default is how one board’s memory map ends up
+applied to another.</p>
+<p>Rows per job are bounded by the worst case of one record per row, so an output
+overrun is impossible by construction. Staging addresses must meet the layout’s
+declared alignment or <code class="docutils literal notranslate"><span class="pre">PipelineJobError</span></code> is raised.</p>
+</section>
+<section id="broadcast-noc-bar-shell">
+<h3>Broadcast-NoC bar shell<a class="headerlink" href="#broadcast-noc-bar-shell" title="Link to this heading">¶</a></h3>
+<p>One scan computes every lane’s partition concurrently, each lane writing its own
+slice of the output region.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Behaviour</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">device_lane_count(device)</span></code></p></td>
+<td><p>The lane count the shell advertises.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">bar_noc_lane_output_bytes(staging,</span> <span class="pre">lanes)</span></code>, <code class="docutils literal notranslate"><span class="pre">bar_noc_max_rows_per_job(staging,</span> <span class="pre">lanes)</span></code></p></td>
+<td><p>The per-lane output slice and row budget for a staging layout.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">bar_noc_lane_output_address(staging,</span> <span class="pre">lane,</span> <span class="pre">lanes)</span></code></p></td>
+<td><p>One lane’s output base.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">configure_bar_noc_lanes(device,</span> <span class="pre">*,</span> <span class="pre">staging,</span> <span class="pre">lanes=None)</span></code></p></td>
+<td><p>Point every lane’s writer at its slice.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">execute_bar_noc_packed(device,</span> <span class="pre">payload,</span> <span class="pre">row_count,</span> <span class="pre">*,</span> <span class="pre">staging,</span> <span class="pre">lanes=None,</span> <span class="pre">record_bytes=BAR_RECORD_BYTES,</span> <span class="pre">validate_record_count=True,</span> <span class="pre">timeout_seconds=60.0)</span></code></p></td>
+<td><p>One pre-packed batch through a configured NoC shell. Returns <code class="docutils literal notranslate"><span class="pre">(raw</span> <span class="pre">record</span> <span class="pre">bytes,</span> <span class="pre">count)</span></code> per lane.</p></td>
+</tr>
+</tbody>
+</table>
+<p>A <code class="docutils literal notranslate"><span class="pre">lanes</span></code> of <code class="docutils literal notranslate"><span class="pre">None</span></code> asks the device how many it has, rather than assuming. A
+host that assumed four lanes on a shell advertising its own count is the
+reason the constant is gone. <code class="docutils literal notranslate"><span class="pre">record_bytes</span></code> defaults to the fused bar shell’s
+record; key-partitioned scan shells reuse the runner with their own width. Pass
+<code class="docutils literal notranslate"><span class="pre">validate_record_count=False</span></code> for a lane whose count register latches an <em>input</em>
+row count and emits one fixed-width record. The <code class="docutils literal notranslate"><span class="pre">result_length</span> <span class="pre">==</span> <span class="pre">count</span> <span class="pre">*</span> <span class="pre">record_bytes</span></code> invariant does not hold there, so only <code class="docutils literal notranslate"><span class="pre">RESULT_LENGTH</span></code> is used.</p>
+</section>
+</section>
+</section>
+
+
+      </div>
+<nav class="fd-pagination" aria-label="Pagination">
+  <a class="fd-pagination-card fd-pagination-prev" href="device-and-discovery.html" title="Previous: Device and discovery reference">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m15 18-6-6 6-6"/></svg>
+    <span class="fd-pagination-text">
+      <span class="fd-pagination-label">Previous</span>
+      <span class="fd-pagination-title">Device and discovery reference</span>
+    </span>
+  </a>
+  <a class="fd-pagination-card fd-pagination-next" href="stream-codec.html" title="Next: Stream codec reference">
+    <span class="fd-pagination-text">
+      <span class="fd-pagination-label">Next</span>
+      <span class="fd-pagination-title">Stream codec reference</span>
+    </span>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
+  </a>
+</nav>
+<footer id="fd-footer">
+  <p class="fd-footer-meta"><span>&#169; the dau-driver authors</span><span>Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.</span>
+  </p>
+</footer>
+    </article>
+  </main>
+<nav id="fd-toc" aria-label="On this page">
+  <p class="fd-toc-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>On this page</p>
+  <div class="fd-toc-body"><svg class="fd-toc-rail" aria-hidden="true" preserveAspectRatio="none">
+      <path class="fd-toc-track" fill="none" />
+      <path class="fd-toc-thumb" fill="none" />
+    </svg><ul class="fd-toc-list">
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#single-stream-job">Single stream job</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#execute-scalar-operation">execute_scalar_operation</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#scan-jobs">Scan jobs</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#scanbatch">ScanBatch</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#run-scan-batches">run_scan_batches</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#run-resident-scan">run_resident_scan</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#key-partitioned-scan-batches">key_partitioned_scan_batches</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#key-range-scan-batches">key_range_scan_batches</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#fleet">Fleet</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#run-scan-batches-fleet">run_scan_batches_fleet</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#fleetscanresult">FleetScanResult</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#fleetscanerror">FleetScanError</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#keyed-pipeline-and-bar-jobs">Keyed pipeline and bar jobs</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#keyedpipelineconfig">KeyedPipelineConfig</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#keyed-pipeline-execution">Keyed pipeline execution</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#bar-jobs">Bar jobs</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#broadcast-noc-bar-shell">Broadcast-NoC bar shell</a>
+  </li>
+</ul>
+
+  </div>
+  <div class="fd-toc-actions">
+    <a class="fd-toc-action" href="https://github.com/dau-dev/dau-driver/edit/HEAD/docs/src/reference/execution-contracts.md" target="_blank" rel="noopener" title="Edit this page"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg><span>Edit this page</span></a>
+    <a class="fd-toc-action" href="../../../_sources/docs/src/reference/execution-contracts.md.txt" rel="nofollow" title="View source"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg><span>View source</span></a>
+  </div>
+</nav>
+</div>
+<dialog id="fd-search-dialog" aria-label="Search">
+  <form class="fd-search-panel" method="dialog" role="search">
+    <div class="fd-search-field">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="search" id="fd-search-input" autocomplete="off" spellcheck="false" placeholder="Search documentation..." aria-label="Search" />
+      <kbd class="fd-kbd">Esc</kbd>
+    </div>
+    <div id="fd-search-results" role="listbox" aria-label="Search results"></div>
+    <p id="fd-search-empty" class="fd-search-empty" hidden>No results found.</p>
+  </form>
+</dialog>
+  </body>
+</html>

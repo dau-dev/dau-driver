@@ -1,0 +1,50 @@
+dau_driver.stream_execution
+===========================
+
+.. py:module:: dau_driver.stream_execution
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   dau_driver.stream_execution.StreamTrigger
+
+
+Exceptions
+----------
+
+.. autoapisummary::
+
+   dau_driver.stream_execution.StreamExecutionError
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   dau_driver.stream_execution.execute_scalar_operation
+   dau_driver.stream_execution._validate_operation_supported
+
+
+Module Contents
+---------------
+
+.. py:exception:: StreamExecutionError
+
+   Bases: :py:obj:`ValueError`
+
+
+   Inappropriate argument value (of correct type).
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+.. py:data:: StreamTrigger
+
+.. py:function:: execute_scalar_operation(device: dau_driver.device.DauDevice, logical_type: dau_core.stream.LogicalType, payload: bytes, *, row_count: int, operation: dau_core.stream.OperationDescriptor, input_device_address: int, output_device_address: int, output_byte_count: int, trigger: StreamTrigger | None = None) -> dau_driver.stream_codec.DecodedStreamResult
+
+.. py:function:: _validate_operation_supported(capabilities: dau_core.capabilities.DeviceCapabilities, logical_type: dau_core.stream.LogicalType, operation: dau_core.stream.OperationDescriptor) -> None
+

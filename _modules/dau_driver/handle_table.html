@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>dau_driver.handle_table &#8212; dau-driver v0.1.0</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/fuma.css?v=9324ae27" />
+    <link rel="stylesheet" type="text/css" href="../../_static/fuma-code.css?v=a950e949" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/fonts/fuma-fonts.css?v=c2892c73" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/custom.css?v=88c24c6a" />
+    <script src="../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-searchlite-index="searchlite-index.json" defer="defer" src="../../_static/searchlite.js?v=a5320898"></script>
+    <script defer="defer" src="../../_static/fuma.js?v=88a16a98"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs"
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = "pre.mermaid {\n    /* Same as .mermaid-container > pre */\n    display: block;\n    width: 100%;\n}\n\npre.mermaid > svg {\n    /* Same as .mermaid-container > pre > svg */\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}";
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = ".mermaid-container {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    width: 100%;\n}\n\n.mermaid-container > pre {\n    display: block;\n    width: 100%;\n}\n\n.mermaid-container > pre > svg {\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}\n\n.mermaid-fullscreen-btn {\n    position: absolute;\n    width: 28px;\n    height: 28px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.3);\n    border-radius: 4px;\n    cursor: pointer;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transition: all 0.2s;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);\n    font-size: 14px;\n    line-height: 1;\n    padding: 0;\n    color: #333;\n}\n\n.mermaid-fullscreen-btn:hover {\n    opacity: 100% !important;\n    background: rgba(255, 255, 255, 1);\n    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-btn.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.3);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-btn.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal {\n    display: none;\n    position: fixed !important;\n    top: 0 !important;\n    left: 0 !important;\n    width: 95vw;\n    height: 100vh;\n    background: rgba(255, 255, 255, 0.98);\n    z-index: 9999;\n    padding: 20px;\n    overflow: auto;\n}\n\n.mermaid-fullscreen-modal.dark-theme {\n    background: rgba(0, 0, 0, 0.98);\n}\n\n.mermaid-fullscreen-modal.active {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen {\n    position: relative;\n    width: 95vw;\n    height: 90vh;\n    max-width: 95vw;\n    max-height: 90vh;\n    background: white;\n    border-radius: 8px;\n    padding: 20px;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);\n    overflow: auto;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen.dark-theme {\n    background: #1a1a1a;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);\n}\n\n.mermaid-container-fullscreen pre.mermaid {\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen .mermaid svg {\n    height: 100% !important;\n    width: 100% !important;\n    cursor: grab;\n}\n\n.mermaid-fullscreen-close {\n    position: fixed !important;\n    top: 20px !important;\n    right: 20px !important;\n    width: 40px;\n    height: 40px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.2);\n    border-radius: 50%;\n    cursor: pointer;\n    z-index: 10000;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n    transition: all 0.2s;\n    font-size: 24px;\n    line-height: 1;\n    color: #333;\n}\n\n.mermaid-fullscreen-close:hover {\n    background: white;\n    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-close.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.2);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-close.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal .mermaid-fullscreen-btn {\n    display: none !important;\n}";
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+let _lazyObserver = null;
+let _renderQueue = Promise.resolve();
+let closeModal = () => {};
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal?.classList.contains('active')) {
+        closeModal();
+    }
+});
+
+// Apply d3 zoom to each SVG. Idempotent: an SVG already wrapped is skipped,
+// so this is safe to call both for the initial batch and for diagrams that
+// render lazily once they become visible.
+const addZoomToSvgs = (svgs) => {
+    svgs.each(function() {
+        if (this.getAttribute('data-zoom-applied') === 'true') return;
+        var svg = d3.select(this);
+        svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+        var inner = svg.select("g");
+        var zoom = d3.zoom().on("zoom", function(event) {
+            inner.attr("transform", event.transform);
+        });
+        svg.call(zoom);
+        this.setAttribute('data-zoom-applied', 'true');
+    });
+};
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        // Disconnect any previous lazy rendering observer
+        if (_lazyObserver) {
+            _lazyObserver.disconnect();
+            _lazyObserver = null;
+        }
+
+        all_mermaids.forEach((el) => {
+            el.removeAttribute('data-mermaid-deferred');
+            el.removeAttribute('data-mermaid-render-failed');
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+
+        // Separate visible and hidden elements. Mermaid's layout engine measures
+        // text dimensions via the DOM, which fails for elements hidden by a parent
+        // (e.g., Reveal.js non-active slides, sphinx-design unopened tabs),
+        // producing broken SVGs. Render visible elements now, defer hidden ones.
+        const visible = [];
+        const hidden = [];
+        all_mermaids.forEach((el) => {
+            // offsetParent is null for display:none ancestors.
+            // getClientRects().length > 0 catches position:fixed elements
+            // (which also have null offsetParent but are still visible).
+            if (el.offsetParent !== null || el.getClientRects().length > 0) {
+                visible.push(el);
+            } else {
+                hidden.push(el);
+                el.setAttribute('data-mermaid-deferred', 'true');
+            }
+        });
+
+        if (visible.length > 0) {
+            try {
+                await mermaid.run({ nodes: visible });
+            } catch (e) {
+                console.error("Mermaid rendering failed:", e);
+            }
+        }
+
+        // Lazily render hidden elements when they become visible.
+        // Uses a promise chain (_renderQueue) to serialize rendering,
+        // since IntersectionObserver may report multiple entries at once
+        // and mermaid.run() is not safe to call concurrently.
+        if (hidden.length > 0) {
+            if (typeof IntersectionObserver === 'undefined') {
+                console.warn("IntersectionObserver not available; hidden mermaid diagrams will not render.");
+            } else {
+                _renderQueue = Promise.resolve();
+                _lazyObserver = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.isIntersecting && entry.target.getAttribute("data-processed") !== "true") {
+                            _lazyObserver.unobserve(entry.target);
+                            const el = entry.target;
+                            _renderQueue = _renderQueue.then(async () => {
+                                try {
+                                    await mermaid.run({ nodes: [el] });
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    // Apply zoom to the now-rendered diagram, matching
+                                    // the decoration visible diagrams receive.
+                                    if (true) {
+                                        addZoomToSvgs(d3.selectAll(".mermaid").select(function() {
+                                            return this.querySelector("svg");
+                                        }));
+                                    }
+                                } catch (e) {
+                                    console.error("Mermaid deferred rendering failed:", e);
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    el.setAttribute('data-mermaid-render-failed', 'true');
+                                }
+                            });
+                        }
+                    }
+                });
+                hidden.forEach((el) => _lazyObserver.observe(el));
+            }
+        }
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    // Exclude deferred (hidden) and render-failed elements from completion checks
+    const mermaids_active = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])");
+    const mermaids_processed = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])[data-processed='true']");
+
+    if (true) {
+        const mermaids_to_add_zoom = -1 === -1 ? mermaids_active.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll(".mermaid").select(function() {
+                return this.querySelector("svg");
+            });
+            // Wait until every active (visible) diagram has rendered. Deferred
+            // diagrams are excluded, so a fixed d3_node_count that counts a
+            // hidden diagram no longer loops forever waiting for its SVG.
+            if(mermaids_active.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            }
+            addZoomToSvgs(svgs);
+        }
+    } else if(mermaids_active.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if (!true) return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = "\u26f6";
+        fullscreenBtn.style.opacity = "50%";
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scrollX, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.display = 'block';
+
+                if (true) {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+
+// Resolves once the lazily-loaded zenuml plugin has registered (or immediately
+// when the page has no zenuml diagram). `load` awaits this before rendering.
+let zenumlReady = Promise.resolve();
+const pageHasZenuml = () => [...document.querySelectorAll(".mermaid")].some((el) => {
+    const code = el.getAttribute("data-original-code") || el.textContent || "";
+    const diagram = code
+        .replace(/^\s*---\s*\n[^]*?\n---\s*/, "")
+        .replace(/^\s*%%\{[^]*?\}%%\s*/, "");
+    return /^\s*zenuml\b/i.test(diagram);
+});
+
+
+const load = async () => {
+    initStyles();
+
+
+    // Wait for the zenuml plugin (loaded lazily below) to finish registering
+    // before rendering, so zenuml diagrams are recognised.
+    await zenumlReady;
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...{"startOnLoad": false},
+                ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+mermaid.registerLayoutLoaders(elkLayouts);
+
+
+
+// Only load and register the zenuml plugin when the page actually contains a
+// zenuml diagram. This avoids fetching the (large) zenuml bundle on every page,
+// and avoids its side effects where they are not needed. The import is kept off
+// the module's top level (no top-level await) so the "load" listener below is
+// still registered synchronously; `load` awaits `zenumlReady` before rendering.
+if (pageHasZenuml()) {
+    // The zenuml bundle injects a stylesheet that declares generic design tokens
+    // (--background, --border, --white, ...) on :root, clobbering identically-named
+    // tokens in the host theme (sphinxawesome, shibuya, ...) and causing a flash of
+    // restyled page content. Confine those declarations to the zenuml diagram
+    // subtree so they no longer leak onto the host page.
+    const descopeZenumlStyle = (node) => {
+        if (!node || node.tagName !== "STYLE" || node.hasAttribute("data-zenuml-descoped")) return;
+        const css = node.textContent || "";
+        if (!css.includes("--occurance-border")) return; // zenuml stylesheet signature
+        node.setAttribute("data-zenuml-descoped", "true");
+        node.textContent = css.replace(/:root\b/g, ".zenuml");
+    };
+    new MutationObserver((records) => {
+        for (const rec of records) {
+            for (const node of rec.addedNodes) descopeZenumlStyle(node);
+        }
+    }).observe(document.head, { childList: true });
+
+    zenumlReady = import("https://cdn.jsdelivr.net/npm/@mermaid-js/mermaid-zenuml@0.2.2/dist/mermaid-zenuml.esm.min.mjs").then(({ default: zenumlLayouts }) => {
+        mermaid.registerExternalDiagrams([zenumlLayouts]);
+    });
+}
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...{"startOnLoad": false},
+    ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script src="../../_static/js/custom.js?v=956e5d78"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <script>
+      (function () {
+        var root = document.documentElement;
+        try {
+          var stored = localStorage.getItem("fuma-theme");
+          if (stored) {
+            root.classList.add(stored === "dark" ? "dark" : "light");
+            root.style.colorScheme = stored === "dark" ? "dark" : "light";
+          }
+          if (localStorage.getItem("fuma-sidebar") === "collapsed") root.dataset.sidebarCollapsed = "true";
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+<body class="fd-body" data-layout="docs" data-toc-style="normal" data-open-level="0">
+<div id="fd-layout"><header id="fd-subnav">
+  <div class="fd-subnav-inner">
+    <button type="button" class="fd-icon-button fd-sidebar-toggle" aria-controls="fd-sidebar" aria-expanded="false" aria-label="Toggle navigation" title="Toggle navigation">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
+    </button><a class="fd-brand" href="../../index.html"><span class="fd-brand-name">dau-driver v0.1.0</span>
+</a>
+
+    <div class="fd-nav-actions">
+      <button type="button" class="fd-icon-button" data-fd-search-open aria-label="Search" title="Search"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
+      <a class="fd-icon-button" href="https://github.com/dau-dev/dau-driver" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <button type="button" class="fd-icon-button fd-theme-toggle" aria-label="Toggle theme" title="Toggle theme">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-light"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-dark"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<aside id="fd-sidebar" aria-label="Documentation">
+  <div class="fd-sidebar-header">
+    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../index.html"><span class="fd-brand-name">dau-driver v0.1.0</span>
+</a>
+      <button type="button" class="fd-icon-button fd-sidebar-collapse" aria-label="Collapse sidebar" title="Collapse sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+    </div>
+    <button type="button" class="fd-search-trigger" data-fd-search-open title="Search">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><span>Search</span><kbd class="fd-kbd">/</kbd>
+    </button>
+  </div>
+
+  <nav class="fd-sidebar-nav">
+    <div class="fd-sidebar-group">
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/tutorial/first-device.html">
+      <span class="fd-link-text">Talk to a device without any hardware</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/tutorial/first-scan-run.html">
+      <span class="fd-link-text">Run a scan over many batches</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/how-to/find-a-device.html">
+      <span class="fd-link-text">How to find and check a device</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/how-to/move-data.html">
+      <span class="fd-link-text">How to move data to and from a device</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/how-to/run-scan-jobs.html">
+      <span class="fd-link-text">How to run scan jobs</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/how-to/allocate-device-storage.html">
+      <span class="fd-link-text">How to allocate device storage</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/how-to/arm-the-deadman.html">
+      <span class="fd-link-text">How to fence a PCIe operation with the deadman</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/how-to/develop.html">
+      <span class="fd-link-text">Develop and contribute</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/reference/device-and-discovery.html">
+      <span class="fd-link-text">Device and discovery reference</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/reference/execution-contracts.html">
+      <span class="fd-link-text">Execution contracts reference</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/reference/stream-codec.html">
+      <span class="fd-link-text">Stream codec reference</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/explanation/transport-boundary.html">
+      <span class="fd-link-text">The transport boundary: why a driver owns almost nothing</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/explanation/overlapped-staging.html">
+      <span class="fd-link-text">Overlapped staging: why the runner ping-pongs, and when it stops</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/explanation/storage-handles.html">
+      <span class="fd-link-text">Storage handles: why a generation instead of a pointer</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <details class="fd-folder">
+      <summary class="fd-folder-summary" title="Toggle section: API Reference">
+        <a class="fd-link" href="../../autoapi/index.html">
+          <span class="fd-link-text">API Reference</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/conftest/index.html">
+      <span class="fd-link-text">conftest</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_docs/index.html">
+      <span class="fd-link-text">test_docs</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <details class="fd-folder">
+      <summary class="fd-folder-summary" title="Toggle section: dau_driver">
+        <a class="fd-link" href="../../autoapi/dau_driver/index.html">
+          <span class="fd-link-text">dau_driver</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/_lazy/index.html">
+      <span class="fd-link-text">dau_driver._lazy</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/capability_decode/index.html">
+      <span class="fd-link-text">dau_driver.capability_decode</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/device/index.html">
+      <span class="fd-link-text">dau_driver.device</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/discovery/index.html">
+      <span class="fd-link-text">dau_driver.discovery</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/errors/index.html">
+      <span class="fd-link-text">dau_driver.errors</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/extension/index.html">
+      <span class="fd-link-text">dau_driver.extension</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/fleet/index.html">
+      <span class="fd-link-text">dau_driver.fleet</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/handle_table/index.html">
+      <span class="fd-link-text">dau_driver.handle_table</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/linux_xdma/index.html">
+      <span class="fd-link-text">dau_driver.linux_xdma</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/macos_xdma/index.html">
+      <span class="fd-link-text">dau_driver.macos_xdma</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/native/index.html">
+      <span class="fd-link-text">dau_driver.native</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/pipeline_execution/index.html">
+      <span class="fd-link-text">dau_driver.pipeline_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/scan_execution/index.html">
+      <span class="fd-link-text">dau_driver.scan_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/status/index.html">
+      <span class="fd-link-text">dau_driver.status</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/storage/index.html">
+      <span class="fd-link-text">dau_driver.storage</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/stream_codec/index.html">
+      <span class="fd-link-text">dau_driver.stream_codec</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/stream_execution/index.html">
+      <span class="fd-link-text">dau_driver.stream_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/testing/index.html">
+      <span class="fd-link-text">dau_driver.testing</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/transfer/index.html">
+      <span class="fd-link-text">dau_driver.transfer</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/verify_advertisement/index.html">
+      <span class="fd-link-text">dau_driver.verify_advertisement</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/dau_driver/xdma_io/index.html">
+      <span class="fd-link-text">dau_driver.xdma_io</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_fleet/index.html">
+      <span class="fd-link-text">test_fleet</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_native/index.html">
+      <span class="fd-link-text">test_native</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_readme/index.html">
+      <span class="fd-link-text">test_readme</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_storage/index.html">
+      <span class="fd-link-text">test_storage</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_transfer/index.html">
+      <span class="fd-link-text">test_transfer</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_discovery/index.html">
+      <span class="fd-link-text">test_discovery</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_macos_xdma/index.html">
+      <span class="fd-link-text">test_macos_xdma</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_handle_table/index.html">
+      <span class="fd-link-text">test_handle_table</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_lazy_exports/index.html">
+      <span class="fd-link-text">test_lazy_exports</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_stream_codec/index.html">
+      <span class="fd-link-text">test_stream_codec</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_scan_execution/index.html">
+      <span class="fd-link-text">test_scan_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_register_write/index.html">
+      <span class="fd-link-text">test_register_write</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_xdma_poc_script/index.html">
+      <span class="fd-link-text">test_xdma_poc_script</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_stream_execution/index.html">
+      <span class="fd-link-text">test_stream_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_capability_decode/index.html">
+      <span class="fd-link-text">test_capability_decode</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_pipeline_execution/index.html">
+      <span class="fd-link-text">test_pipeline_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_record_batch_codec/index.html">
+      <span class="fd-link-text">test_record_batch_codec</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_macos_xdma_hardware/index.html">
+      <span class="fd-link-text">test_macos_xdma_hardware</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_linux_xdma_hardware/index.html">
+      <span class="fd-link-text">test_linux_xdma_hardware</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_verify_advertisement/index.html">
+      <span class="fd-link-text">test_verify_advertisement</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../autoapi/test_no_board_geometry_constants/index.html">
+      <span class="fd-link-text">test_no_board_geometry_constants</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+</ul>
+    </div>
+  </nav>
+
+  <div class="fd-sidebar-footer">
+    <div class="fd-toolbar">
+      <a class="fd-toolbar-item" href="https://github.com/dau-dev/dau-driver" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <div class="fd-theme-switch" role="group" aria-label="Theme">
+        <button type="button" class="fd-theme-option" data-fd-theme="light" aria-label="Light theme" title="Light theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></button>
+        <button type="button" class="fd-theme-option" data-fd-theme="dark" aria-label="Dark theme" title="Dark theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg></button>
+      </div>
+    </div>
+  </div>
+</aside>
+<button type="button" id="fd-sidebar-restore" class="fd-icon-button" aria-label="Expand sidebar" title="Expand sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+<div class="fd-sidebar-scrim" hidden></div>
+
+  <main id="fd-main">
+    <article class="fd-page">
+<nav class="fd-breadcrumbs" aria-label="Breadcrumbs">
+  <ol>
+    <li>
+      <a href="../index.html">Module code</a>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
+    </li>
+    <li aria-current="page">dau_driver.handle_table</li>
+  </ol>
+</nav>
+      <div class="fd-prose">
+  <h1>Source code for dau_driver.handle_table</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""The host end of the shell's handle table: the binding between the</span>
+<span class="sd">``StorageAllocator``'s bookkeeping and the device aperture that enforces it.</span>
+
+<span class="sd">:mod:`dau_driver.storage` hands out generation-checked handles, and</span>
+<span class="sd">:func:`dau_driver.scan_execution.run_resident_scan` runs jobs over rows already</span>
+<span class="sd">on the device -- but by RAW ADDRESS, which is the exposure the table exists to</span>
+<span class="sd">close. A raw address survives its allocation: free the region, hand the space</span>
+<span class="sd">to someone else, and the old address still reads perfectly. It just reads the</span>
+<span class="sd">new tenant's bytes, and no layer above can tell that from an answer.</span>
+
+<span class="sd">A handle cannot do that. The allocator's generation is programmed into the</span>
+<span class="sd">slot, a job names ``(id, generation)`` instead of an address, and a resolution</span>
+<span class="sd">that disagrees REFUSES the job -- the reader never issues a beat. That refusal</span>
+<span class="sd">arrives here as :class:`HandleFaultError`, never as results, so a caller cannot</span>
+<span class="sd">mistake it for a job that ran and summed nothing.</span>
+
+<span class="sd">TWO AUTHORITIES, deliberately different:</span>
+
+<span class="sd">* ``install`` trusts the HOST. The allocator's live record is what a slot is</span>
+<span class="sd">  programmed from, and a handle it will not resolve is a host bug -- installing</span>
+<span class="sd">  it would teach the device a grant the host does not believe in.</span>
+<span class="sd">* ``arm`` trusts NOTHING. A stale handle must reach the device, or the table</span>
+<span class="sd">  is never the thing that refuses it and the refusal is a host-side assertion</span>
+<span class="sd">  wearing hardware's name.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">concurrent.futures</span><span class="w"> </span><span class="kn">import</span> <span class="n">ThreadPoolExecutor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dau_core.registers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">HandleFaultCode</span><span class="p">,</span>
+    <span class="n">HandleTableControlFlag</span><span class="p">,</span>
+    <span class="n">HandleTableRegisterOffset</span><span class="p">,</span>
+    <span class="n">JobControlFlag</span><span class="p">,</span>
+    <span class="n">RegisterOffset</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.device</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_address</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.errors</span><span class="w"> </span><span class="kn">import</span> <span class="n">DauDriverError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.pipeline_execution</span><span class="w"> </span><span class="kn">import</span> <span class="n">DMA_ALIGN_BYTES</span><span class="p">,</span> <span class="n">PipelineJobError</span><span class="p">,</span> <span class="n">_wait_for_job_done</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.scan_execution</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScanBatch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.storage</span><span class="w"> </span><span class="kn">import</span> <span class="n">StorageAllocator</span><span class="p">,</span> <span class="n">StorageHandle</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"HandleFaultError"</span><span class="p">,</span> <span class="s2">"HandleTable"</span><span class="p">,</span> <span class="s2">"HandleTableError"</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_yielding</span><span class="p">(</span><span class="n">seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The poll callback that sleeps ``seconds`` between status reads, or</span>
+<span class="sd">    None for the spinning default."""</span>
+    <span class="k">if</span> <span class="n">seconds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">seconds</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="HandleTableError">
+<a class="viewcode-back" href="../../autoapi/dau_driver/handle_table/index.html#dau_driver.handle_table.HandleTableError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">HandleTableError</span><span class="p">(</span><span class="n">DauDriverError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A handle-table operation the host refused to perform."""</span></div>
+
+
+
+<div class="viewcode-block" id="HandleFaultError">
+<a class="viewcode-back" href="../../autoapi/dau_driver/handle_table/index.html#dau_driver.handle_table.HandleFaultError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">HandleFaultError</span><span class="p">(</span><span class="n">PipelineJobError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The shell REFUSED to start a job on the handle it was armed with.</span>
+
+<span class="sd">    A :class:`PipelineJobError` because it is one -- a caller that catches</span>
+<span class="sd">    every job failure still catches this -- but its own type because the whole</span>
+<span class="sd">    value of the table is that this case is distinguishable. The job did not</span>
+<span class="sd">    run: the reader was never started, so nothing was read, nothing was</span>
+<span class="sd">    written, and no result register moved. ``code`` says which of the three</span>
+<span class="sd">    refusals it was."""</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">handle_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">generation</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: the shell refused handle </span><span class="si">{</span><span class="n">handle_id</span><span class="si">}</span><span class="s2"> generation </span><span class="si">{</span><span class="n">generation</span><span class="si">}</span><span class="s2"> "</span>
+            <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="n">HandleFaultCode</span><span class="p">(</span><span class="n">code</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">, 0x</span><span class="si">{</span><span class="n">code</span><span class="si">:</span><span class="s2">02X</span><span class="si">}</span><span class="s2">): </span><span class="si">{</span><span class="n">_FAULT_REASONS</span><span class="p">[</span><span class="n">code</span><span class="p">]</span><span class="si">}</span><span class="s2">. "</span>
+            <span class="s2">"The job did not run -- nothing was read."</span><span class="p">,</span>
+            <span class="n">last_error</span><span class="o">=</span><span class="n">code</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">code</span> <span class="o">=</span> <span class="n">HandleFaultCode</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">handle_id</span> <span class="o">=</span> <span class="n">handle_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">generation</span> <span class="o">=</span> <span class="n">generation</span></div>
+
+
+
+<span class="c1"># the codes a REFUSAL can carry, and what each one means to a caller. Doubles</span>
+<span class="c1"># as the membership test that separates a refused job from every other job</span>
+<span class="c1"># error: a code outside this set came from the datapath, and the datapath ran.</span>
+<span class="n">_FAULT_REASONS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nb">int</span><span class="p">(</span><span class="n">HandleFaultCode</span><span class="o">.</span><span class="n">BAD_ID</span><span class="p">):</span> <span class="s2">"the table has no such slot; capacity is planned at build time, not grown at run time"</span><span class="p">,</span>
+    <span class="nb">int</span><span class="p">(</span><span class="n">HandleFaultCode</span><span class="o">.</span><span class="n">STALE</span><span class="p">):</span> <span class="s2">"the slot is freed or live at another generation -- that region belongs to someone else now"</span><span class="p">,</span>
+    <span class="nb">int</span><span class="p">(</span><span class="n">HandleFaultCode</span><span class="o">.</span><span class="n">OUT_OF_BOUNDS</span><span class="p">):</span> <span class="s2">"the job asks for more bytes than the grant"</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="HandleTable">
+<a class="viewcode-back" href="../../autoapi/dau_driver/handle_table/index.html#dau_driver.handle_table.HandleTable">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">HandleTable</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""One allocator's slots, mirrored into one device's handle table.</span>
+
+<span class="sd">    ``capacity`` is the built shell's ``handle_table_capacity``. It is not read</span>
+<span class="sd">    off the device: a table is hardware, planned into the design and priced</span>
+<span class="sd">    with it, and there is no register that advertises it -- an id past the end</span>
+<span class="sd">    is a fault (``BAD_ID``), not a discovery. Passing the design's number here</span>
+<span class="sd">    turns that fault into a refusal on the host, where the mistake still costs</span>
+<span class="sd">    nothing.</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">allocator</span><span class="p">:</span> <span class="n">StorageAllocator</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">capacity</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">capacity</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"capacity must be positive; a shell with no table has nothing to bind, got </span><span class="si">{</span><span class="n">capacity</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">allocator</span> <span class="o">=</span> <span class="n">allocator</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">capacity</span> <span class="o">=</span> <span class="n">capacity</span>
+
+<div class="viewcode-block" id="HandleTable.install">
+<a class="viewcode-back" href="../../autoapi/dau_driver/handle_table/index.html#dau_driver.handle_table.HandleTable.install">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">install</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handle</span><span class="p">:</span> <span class="n">StorageHandle</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Program ``handle``'s grant into slot ``handle.id``.</span>
+
+<span class="sd">        The allocator resolves the handle first and that resolution is the</span>
+<span class="sd">        authority: base, length and generation are taken from the LIVE record,</span>
+<span class="sd">        so a handle the host no longer believes in never becomes a grant the</span>
+<span class="sd">        device does. Raises :class:`~dau_driver.storage.StaleHandleError` if it</span>
+<span class="sd">        will not resolve -- that is a host bug, and papering over it would</span>
+<span class="sd">        install exactly the stale grant the table exists to refuse.</span>
+<span class="sd">        """</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">allocator</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>  <span class="c1"># raises on stale, forged, or foreign</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_slot</span><span class="p">(</span><span class="n">handle</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">base</span> <span class="o">%</span> <span class="n">DMA_ALIGN_BYTES</span><span class="p">:</span>
+            <span class="c1"># the same refusal run_resident_scan makes about a raw address, at</span>
+            <span class="c1"># the point a base becomes a grant: an unaligned region is a</span>
+            <span class="c1"># silent-wrong-bytes failure on silicon, and an allocator built at</span>
+            <span class="c1"># a finer alignment reaches it without ever writing an address down</span>
+            <span class="k">raise</span> <span class="n">HandleTableError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"handle </span><span class="si">{</span><span class="n">handle</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> is based at 0x</span><span class="si">{</span><span class="n">base</span><span class="si">:</span><span class="s2">X</span><span class="si">}</span><span class="s2">, which is not </span><span class="si">{</span><span class="n">DMA_ALIGN_BYTES</span><span class="si">}</span><span class="s2">-byte aligned"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">write_register</span><span class="p">(</span><span class="n">HandleTableRegisterOffset</span><span class="o">.</span><span class="n">INDEX</span><span class="p">,</span> <span class="n">handle</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="c1"># both halves, always: a slot left holding the previous entry's high</span>
+        <span class="c1"># half grants a region in the wrong 4 GiB</span>
+        <span class="n">write_address</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="n">HandleTableRegisterOffset</span><span class="o">.</span><span class="n">BASE_LOW</span><span class="p">,</span> <span class="n">HandleTableRegisterOffset</span><span class="o">.</span><span class="n">BASE_HIGH</span><span class="p">,</span> <span class="n">base</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">write_register</span><span class="p">(</span><span class="n">HandleTableRegisterOffset</span><span class="o">.</span><span class="n">LENGTH</span><span class="p">,</span> <span class="n">handle</span><span class="o">.</span><span class="n">capacity</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">write_register</span><span class="p">(</span><span class="n">HandleTableRegisterOffset</span><span class="o">.</span><span class="n">GENERATION</span><span class="p">,</span> <span class="n">handle</span><span class="o">.</span><span class="n">generation</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">write_register</span><span class="p">(</span><span class="n">HandleTableRegisterOffset</span><span class="o">.</span><span class="n">CONTROL</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">HandleTableControlFlag</span><span class="o">.</span><span class="n">INSTALL</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="HandleTable.free">
+<a class="viewcode-back" href="../../autoapi/dau_driver/handle_table/index.html#dau_driver.handle_table.HandleTable.free">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">free</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handle</span><span class="p">:</span> <span class="n">StorageHandle</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Drop slot ``handle.id`` out of liveness, so nothing resolves through</span>
+<span class="sd">        it until it is installed again.</span>
+
+<span class="sd">        Deliberately unconditional on the allocator: freeing a slot can only</span>
+<span class="sd">        make the table refuse MORE, so it is safe whether or not the host has</span>
+<span class="sd">        released the span yet. A version that demanded a live handle would</span>
+<span class="sd">        refuse the call from a caller who freed host-side first, and leave the</span>
+<span class="sd">        device answering for a region that has already been handed on.</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_slot</span><span class="p">(</span><span class="n">handle</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">write_register</span><span class="p">(</span><span class="n">HandleTableRegisterOffset</span><span class="o">.</span><span class="n">INDEX</span><span class="p">,</span> <span class="n">handle</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">write_register</span><span class="p">(</span><span class="n">HandleTableRegisterOffset</span><span class="o">.</span><span class="n">CONTROL</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">HandleTableControlFlag</span><span class="o">.</span><span class="n">FREE</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="HandleTable.arm">
+<a class="viewcode-back" href="../../autoapi/dau_driver/handle_table/index.html#dau_driver.handle_table.HandleTable.arm">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">arm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handle</span><span class="p">:</span> <span class="n">StorageHandle</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Name the handle the NEXT job resolves, in place of an input address.</span>
+
+<span class="sd">        Checked against nothing on purpose. A stale handle has to reach the</span>
+<span class="sd">        table or the table is never what refused it -- and a host that</span>
+<span class="sd">        pre-validates here proves only that the host agrees with itself.</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">write_register</span><span class="p">(</span><span class="n">HandleTableRegisterOffset</span><span class="o">.</span><span class="n">JOB_HANDLE_ID</span><span class="p">,</span> <span class="n">handle</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">write_register</span><span class="p">(</span><span class="n">HandleTableRegisterOffset</span><span class="o">.</span><span class="n">JOB_HANDLE_GENERATION</span><span class="p">,</span> <span class="n">handle</span><span class="o">.</span><span class="n">generation</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="HandleTable.run_resident_scan">
+<a class="viewcode-back" href="../../autoapi/dau_driver/handle_table/index.html#dau_driver.handle_table.HandleTable.run_resident_scan">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run_resident_scan</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">handle</span><span class="p">:</span> <span class="n">StorageHandle</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">row_count</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">row_bytes</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">collect</span><span class="p">,</span>
+        <span class="n">repeats</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">timeout_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">60.0</span><span class="p">,</span>
+        <span class="n">poll_yield_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">""":func:`~dau_driver.scan_execution.run_resident_scan` with the raw</span>
+<span class="sd">        address replaced by a handle: arm once, then run the job ``repeats``</span>
+<span class="sd">        times over rows already on the device, uploading nothing.</span>
+
+<span class="sd">        ``poll_yield_seconds`` sleeps that long between JOB_STATUS polls</span>
+<span class="sd">        instead of spinning. Measured on dpv1 (2026-09-27) it is the wrong</span>
+<span class="sd">        default for a Python caller: any sleep, ``0`` included, hands the</span>
+<span class="sd">        GIL to another thread and the poll waits out a full switch interval</span>
+<span class="sd">        per iteration, milliseconds on a job that runs for less; the</span>
+<span class="sd">        contention it was meant to</span>
+<span class="sd">        relieve was elsewhere. It stays for a caller whose other threads do</span>
+<span class="sd">        not hold the GIL.</span>
+
+<span class="sd">        Returns one ``collect(device)`` per repeat. Raises</span>
+<span class="sd">        :class:`HandleFaultError` the moment the shell refuses -- results for</span>
+<span class="sd">        the repeats that did run are dropped with it, because a run whose</span>
+<span class="sd">        dataset stopped being the caller's part way through is not a partial</span>
+<span class="sd">        answer.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">row_count</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"row_count must be positive, got </span><span class="si">{</span><span class="n">row_count</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">row_bytes</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"row_bytes must be positive, got </span><span class="si">{</span><span class="n">row_bytes</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">repeats</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"repeats must be positive, got </span><span class="si">{</span><span class="n">repeats</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="n">row_count</span> <span class="o">*</span> <span class="n">row_bytes</span>
+        <span class="k">if</span> <span class="n">length</span> <span class="o">%</span> <span class="n">DMA_ALIGN_BYTES</span><span class="p">:</span>
+            <span class="c1"># the shell's own 0xFE length gate fires before the table is even</span>
+            <span class="c1"># asked, so an off-grid length would arrive as a fault that says</span>
+            <span class="c1"># nothing about the handle</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">length</span><span class="si">}</span><span class="s2"> bytes is not a multiple of the </span><span class="si">{</span><span class="n">DMA_ALIGN_BYTES</span><span class="si">}</span><span class="s2">-byte DMA grid"</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">arm</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">repeats</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">write_register</span><span class="p">(</span><span class="n">RegisterOffset</span><span class="o">.</span><span class="n">INPUT_LENGTH_LOW</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">write_register</span><span class="p">(</span><span class="n">RegisterOffset</span><span class="o">.</span><span class="n">JOB_CONTROL</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">JobControlFlag</span><span class="o">.</span><span class="n">START</span><span class="p">))</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"handle scan job </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">"</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">_wait_for_job_done</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="n">timeout_seconds</span><span class="o">=</span><span class="n">timeout_seconds</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="n">poll</span><span class="o">=</span><span class="n">_yielding</span><span class="p">(</span><span class="n">poll_yield_seconds</span><span class="p">))</span>
+            <span class="k">except</span> <span class="n">PipelineJobError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">exc</span><span class="o">.</span><span class="n">last_error</span> <span class="ow">in</span> <span class="n">_FAULT_REASONS</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">HandleFaultError</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">last_error</span><span class="p">,</span> <span class="n">handle_id</span><span class="o">=</span><span class="n">handle</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">generation</span><span class="o">=</span><span class="n">handle</span><span class="o">.</span><span class="n">generation</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+                <span class="k">raise</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">collect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">results</span></div>
+
+
+<div class="viewcode-block" id="HandleTable.run_scan_batches">
+<a class="viewcode-back" href="../../autoapi/dau_driver/handle_table/index.html#dau_driver.handle_table.HandleTable.run_scan_batches">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run_scan_batches</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">batches</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">ScanBatch</span><span class="p">],</span>
+        <span class="n">handles</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">StorageHandle</span><span class="p">,</span> <span class="n">StorageHandle</span><span class="p">],</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">row_bytes</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">collect</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">],</span>
+        <span class="n">timeout_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">60.0</span><span class="p">,</span>
+        <span class="n">progress</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">int</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">poll_yield_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">""":func:`~dau_driver.scan_execution.run_scan_batches` with the two</span>
+<span class="sd">        raw input regions replaced by two installed handles: batch ``i + 1``</span>
+<span class="sd">        is staged into the alternate handle's grant (and, for a lazy</span>
+<span class="sd">        iterable, produced) while job ``i`` runs against the other. Returns</span>
+<span class="sd">        one ``collect(device)`` per batch, in batch order.</span>
+
+<span class="sd">        On a handle-table shell ``INPUT_ADDRESS`` feeds nothing, so this is</span>
+<span class="sd">        the only way streamed rows reach a job, and every batch goes through</span>
+<span class="sd">        the allocator's ``stage`` -- a grant that stopped being the caller's</span>
+<span class="sd">        refuses the bytes before they move, and the device refuses the job</span>
+<span class="sd">        if the slot moved under it. A batch's length must sit on the DMA</span>
+<span class="sd">        grid: the shell's length gate fires before the table is asked, so an</span>
+<span class="sd">        off-grid batch is refused here, where the message can say so.</span>
+
+<span class="sd">        A batch that fails to stage (a grant released mid-stream, a payload</span>
+<span class="sd">        past its grant) surfaces from the running job's poll, after that job</span>
+<span class="sd">        has been allowed to finish: the grants are the caller's to free once</span>
+<span class="sd">        this returns or raises, and a job still reading one must not be.</span>
+<span class="sd">        """</span>
+        <span class="n">first</span><span class="p">,</span> <span class="n">second</span> <span class="o">=</span> <span class="n">handles</span>
+        <span class="k">if</span> <span class="n">first</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">second</span><span class="o">.</span><span class="n">id</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"the two handles must name two slots; both are slot </span><span class="si">{</span><span class="n">first</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">row_bytes</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"row_bytes must be positive, got </span><span class="si">{</span><span class="n">row_bytes</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">iterator</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">batches</span><span class="p">)</span>
+        <span class="n">pair</span> <span class="o">=</span> <span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">second</span><span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">stage</span><span class="p">(</span><span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">StorageHandle</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">batch</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">iterator</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">batch</span><span class="o">.</span><span class="n">row_count</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"batch </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">: zero rows; a scan job needs a non-empty batch"</span><span class="p">)</span>
+            <span class="n">length</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">row_count</span> <span class="o">*</span> <span class="n">row_bytes</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">payload</span><span class="p">)</span> <span class="o">!=</span> <span class="n">length</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"batch </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">: payload of </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">payload</span><span class="p">)</span><span class="si">}</span><span class="s2"> bytes is not row_count </span><span class="si">{</span><span class="n">batch</span><span class="o">.</span><span class="n">row_count</span><span class="si">}</span><span class="s2"> * row_bytes </span><span class="si">{</span><span class="n">row_bytes</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">length</span> <span class="o">%</span> <span class="n">DMA_ALIGN_BYTES</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"batch </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">length</span><span class="si">}</span><span class="s2"> bytes is not a multiple of the </span><span class="si">{</span><span class="n">DMA_ALIGN_BYTES</span><span class="si">}</span><span class="s2">-byte DMA grid"</span><span class="p">)</span>
+            <span class="n">handle</span> <span class="o">=</span> <span class="n">pair</span><span class="p">[</span><span class="n">index</span> <span class="o">%</span> <span class="mi">2</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">allocator</span><span class="o">.</span><span class="n">stage</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="n">batch</span><span class="o">.</span><span class="n">payload</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">handle</span><span class="p">,</span> <span class="n">batch</span><span class="o">.</span><span class="n">row_count</span>
+
+        <span class="n">results</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">with</span> <span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
+            <span class="n">pending</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">stage</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="n">staged</span> <span class="o">=</span> <span class="n">pending</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">staged</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">break</span>
+                <span class="n">handle</span><span class="p">,</span> <span class="n">row_count</span> <span class="o">=</span> <span class="n">staged</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">arm</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">write_register</span><span class="p">(</span><span class="n">RegisterOffset</span><span class="o">.</span><span class="n">INPUT_LENGTH_LOW</span><span class="p">,</span> <span class="n">row_count</span> <span class="o">*</span> <span class="n">row_bytes</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">write_register</span><span class="p">(</span><span class="n">RegisterOffset</span><span class="o">.</span><span class="n">JOB_CONTROL</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">JobControlFlag</span><span class="o">.</span><span class="n">START</span><span class="p">))</span>
+                <span class="n">pending</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">stage</span><span class="p">,</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+                <span class="k">def</span><span class="w"> </span><span class="nf">surface_staging_failure</span><span class="p">(</span><span class="n">future</span><span class="o">=</span><span class="n">pending</span><span class="p">):</span>
+                    <span class="n">failure</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="n">exception</span><span class="p">()</span> <span class="k">if</span> <span class="n">future</span><span class="o">.</span><span class="n">done</span><span class="p">()</span> <span class="k">else</span> <span class="kc">None</span>
+                    <span class="k">if</span> <span class="n">failure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">failure</span>
+                    <span class="k">if</span> <span class="n">poll_yield_seconds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">poll_yield_seconds</span><span class="p">)</span>
+
+                <span class="n">label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"handle scan job </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">"</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">_wait_for_job_done</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="n">timeout_seconds</span><span class="o">=</span><span class="n">timeout_seconds</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="n">poll</span><span class="o">=</span><span class="n">surface_staging_failure</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">PipelineJobError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">exc</span><span class="o">.</span><span class="n">last_error</span> <span class="ow">in</span> <span class="n">_FAULT_REASONS</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">HandleFaultError</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">last_error</span><span class="p">,</span> <span class="n">handle_id</span><span class="o">=</span><span class="n">handle</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">generation</span><span class="o">=</span><span class="n">handle</span><span class="o">.</span><span class="n">generation</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+                    <span class="k">raise</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="c1"># the staging worker failed while job `index` was still</span>
+                    <span class="c1"># reading its grant. Let that job finish before the</span>
+                    <span class="c1"># failure escapes, or a caller freeing the grants on the</span>
+                    <span class="c1"># way out hands the device's live read to the next tenant</span>
+                    <span class="n">_wait_for_job_done</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="n">timeout_seconds</span><span class="o">=</span><span class="n">timeout_seconds</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> (draining after a staging failure)"</span><span class="p">)</span>
+                    <span class="k">raise</span>
+                <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">collect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">progress</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">progress</span><span class="p">(</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">results</span></div>
+
+
+<div class="viewcode-block" id="HandleTable._check_slot">
+<a class="viewcode-back" href="../../autoapi/dau_driver/handle_table/index.html#dau_driver.handle_table.HandleTable._check_slot">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_slot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handle_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">handle_id</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">capacity</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HandleTableError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"handle </span><span class="si">{</span><span class="n">handle_id</span><span class="si">}</span><span class="s2"> names no slot of a </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">capacity</span><span class="si">}</span><span class="s2">-slot table; "</span>
+                <span class="s2">"a table is built at a capacity and refuses past it, so size the design for the "</span>
+                <span class="s2">"concurrently live allocations the personality must hold"</span>
+            <span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+      </div>
+<footer id="fd-footer">
+  <p class="fd-footer-meta"><span>&#169; the dau-driver authors</span><span>Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.</span>
+  </p>
+</footer>
+    </article>
+  </main>
+<nav id="fd-toc" aria-label="On this page">
+  <div class="fd-toc-actions">
+    <a class="fd-toc-action" href="https://github.com/dau-dev/dau-driver/edit/HEAD/_modules/dau_driver/handle_table.md" target="_blank" rel="noopener" title="Edit this page"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg><span>Edit this page</span></a>
+  </div>
+</nav>
+</div>
+<dialog id="fd-search-dialog" aria-label="Search">
+  <form class="fd-search-panel" method="dialog" role="search">
+    <div class="fd-search-field">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="search" id="fd-search-input" autocomplete="off" spellcheck="false" placeholder="Search documentation..." aria-label="Search" />
+      <kbd class="fd-kbd">Esc</kbd>
+    </div>
+    <div id="fd-search-results" role="listbox" aria-label="Search results"></div>
+    <p id="fd-search-empty" class="fd-search-empty" hidden>No results found.</p>
+  </form>
+</dialog>
+  </body>
+</html>

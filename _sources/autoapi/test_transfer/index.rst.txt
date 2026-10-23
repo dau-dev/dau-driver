@@ -1,0 +1,51 @@
+test_transfer
+=============
+
+.. py:module:: test_transfer
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_transfer.test_transfer_validation_rejects_zero_length_and_unavailable_direction
+   test_transfer.test_transfer_validation_bounds_the_whole_span_by_device_memory
+   test_transfer.test_register_offsets_must_be_word_aligned_and_non_negative
+   test_transfer.test_the_fake_transport_refuses_a_short_read_like_the_real_one
+   test_transfer.test_blocking_dma_write_uses_h2c_channel_at_device_address
+   test_transfer.test_blocking_dma_read_uses_c2h_channel_at_device_address
+   test_transfer.test_blocking_dma_io_wraps_missing_channel_as_transfer_error
+   test_transfer.test_dma_short_read_error_includes_offset_expected_and_actual_bytes
+   test_transfer.test_dma_short_write_error_includes_offset_expected_and_actual_bytes
+   test_transfer.make_fake_device
+
+
+Module Contents
+---------------
+
+.. py:function:: test_transfer_validation_rejects_zero_length_and_unavailable_direction(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_transfer_validation_bounds_the_whole_span_by_device_memory(tmp_path: pathlib.Path) -> None
+
+   The DMA engine wraps an address past the end of memory to the bottom
+   instead of failing, so the END of a transfer has to be checked, not only
+   its start.
+
+
+.. py:function:: test_register_offsets_must_be_word_aligned_and_non_negative(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_the_fake_transport_refuses_a_short_read_like_the_real_one(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_blocking_dma_write_uses_h2c_channel_at_device_address(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_blocking_dma_read_uses_c2h_channel_at_device_address(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_blocking_dma_io_wraps_missing_channel_as_transfer_error(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_dma_short_read_error_includes_offset_expected_and_actual_bytes(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_dma_short_write_error_includes_offset_expected_and_actual_bytes(tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch) -> None
+
+.. py:function:: make_fake_device(tmp_path: pathlib.Path) -> dau_driver.DauDevice
+

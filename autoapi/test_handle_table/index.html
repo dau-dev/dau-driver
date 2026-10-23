@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>test_handle_table &#8212; dau-driver v0.1.0</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/fuma.css?v=9324ae27" />
+    <link rel="stylesheet" type="text/css" href="../../_static/fuma-code.css?v=a950e949" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/fonts/fuma-fonts.css?v=c2892c73" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/custom.css?v=88c24c6a" />
+    <script src="../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-searchlite-index="searchlite-index.json" defer="defer" src="../../_static/searchlite.js?v=a5320898"></script>
+    <script defer="defer" src="../../_static/fuma.js?v=88a16a98"></script>
+    <script src="../../_static/js/custom.js?v=956e5d78"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="test_lazy_exports" href="../test_lazy_exports/index.html" />
+    <link rel="prev" title="test_macos_xdma" href="../test_macos_xdma/index.html" />
+    <script>
+      (function () {
+        var root = document.documentElement;
+        try {
+          var stored = localStorage.getItem("fuma-theme");
+          if (stored) {
+            root.classList.add(stored === "dark" ? "dark" : "light");
+            root.style.colorScheme = stored === "dark" ? "dark" : "light";
+          }
+          if (localStorage.getItem("fuma-sidebar") === "collapsed") root.dataset.sidebarCollapsed = "true";
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+<body class="fd-body" data-layout="docs" data-toc-style="normal" data-open-level="0">
+<div id="fd-layout"><header id="fd-subnav">
+  <div class="fd-subnav-inner">
+    <button type="button" class="fd-icon-button fd-sidebar-toggle" aria-controls="fd-sidebar" aria-expanded="false" aria-label="Toggle navigation" title="Toggle navigation">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
+    </button><a class="fd-brand" href="../../index.html"><span class="fd-brand-name">dau-driver v0.1.0</span>
+</a>
+
+    <div class="fd-nav-actions">
+      <button type="button" class="fd-icon-button" data-fd-search-open aria-label="Search" title="Search"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
+      <a class="fd-icon-button" href="https://github.com/dau-dev/dau-driver" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <button type="button" class="fd-icon-button fd-theme-toggle" aria-label="Toggle theme" title="Toggle theme">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-light"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-dark"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<aside id="fd-sidebar" aria-label="Documentation">
+  <div class="fd-sidebar-header">
+    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../index.html"><span class="fd-brand-name">dau-driver v0.1.0</span>
+</a>
+      <button type="button" class="fd-icon-button fd-sidebar-collapse" aria-label="Collapse sidebar" title="Collapse sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+    </div>
+    <button type="button" class="fd-search-trigger" data-fd-search-open title="Search">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><span>Search</span><kbd class="fd-kbd">/</kbd>
+    </button>
+  </div>
+
+  <nav class="fd-sidebar-nav">
+    <div class="fd-sidebar-group">
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/tutorial/first-device.html">
+      <span class="fd-link-text">Talk to a device without any hardware</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/tutorial/first-scan-run.html">
+      <span class="fd-link-text">Run a scan over many batches</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/how-to/find-a-device.html">
+      <span class="fd-link-text">How to find and check a device</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/how-to/move-data.html">
+      <span class="fd-link-text">How to move data to and from a device</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/how-to/run-scan-jobs.html">
+      <span class="fd-link-text">How to run scan jobs</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/how-to/allocate-device-storage.html">
+      <span class="fd-link-text">How to allocate device storage</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/how-to/arm-the-deadman.html">
+      <span class="fd-link-text">How to fence a PCIe operation with the deadman</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/how-to/develop.html">
+      <span class="fd-link-text">Develop and contribute</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/reference/device-and-discovery.html">
+      <span class="fd-link-text">Device and discovery reference</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/reference/execution-contracts.html">
+      <span class="fd-link-text">Execution contracts reference</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/reference/stream-codec.html">
+      <span class="fd-link-text">Stream codec reference</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/explanation/transport-boundary.html">
+      <span class="fd-link-text">The transport boundary: why a driver owns almost nothing</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/explanation/overlapped-staging.html">
+      <span class="fd-link-text">Overlapped staging: why the runner ping-pongs, and when it stops</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../docs/src/explanation/storage-handles.html">
+      <span class="fd-link-text">Storage handles: why a generation instead of a pointer</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <details class="fd-folder" open>
+      <summary class="fd-folder-summary" title="Toggle section: API Reference">
+        <a class="fd-link" href="../index.html">
+          <span class="fd-link-text">API Reference</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../conftest/index.html">
+      <span class="fd-link-text">conftest</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_docs/index.html">
+      <span class="fd-link-text">test_docs</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <details class="fd-folder">
+      <summary class="fd-folder-summary" title="Toggle section: dau_driver">
+        <a class="fd-link" href="../dau_driver/index.html">
+          <span class="fd-link-text">dau_driver</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/_lazy/index.html">
+      <span class="fd-link-text">dau_driver._lazy</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/capability_decode/index.html">
+      <span class="fd-link-text">dau_driver.capability_decode</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/device/index.html">
+      <span class="fd-link-text">dau_driver.device</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/discovery/index.html">
+      <span class="fd-link-text">dau_driver.discovery</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/errors/index.html">
+      <span class="fd-link-text">dau_driver.errors</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/extension/index.html">
+      <span class="fd-link-text">dau_driver.extension</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/fleet/index.html">
+      <span class="fd-link-text">dau_driver.fleet</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/handle_table/index.html">
+      <span class="fd-link-text">dau_driver.handle_table</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/linux_xdma/index.html">
+      <span class="fd-link-text">dau_driver.linux_xdma</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/macos_xdma/index.html">
+      <span class="fd-link-text">dau_driver.macos_xdma</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/native/index.html">
+      <span class="fd-link-text">dau_driver.native</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/pipeline_execution/index.html">
+      <span class="fd-link-text">dau_driver.pipeline_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/scan_execution/index.html">
+      <span class="fd-link-text">dau_driver.scan_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/status/index.html">
+      <span class="fd-link-text">dau_driver.status</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/storage/index.html">
+      <span class="fd-link-text">dau_driver.storage</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/stream_codec/index.html">
+      <span class="fd-link-text">dau_driver.stream_codec</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/stream_execution/index.html">
+      <span class="fd-link-text">dau_driver.stream_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/testing/index.html">
+      <span class="fd-link-text">dau_driver.testing</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/transfer/index.html">
+      <span class="fd-link-text">dau_driver.transfer</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/verify_advertisement/index.html">
+      <span class="fd-link-text">dau_driver.verify_advertisement</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../dau_driver/xdma_io/index.html">
+      <span class="fd-link-text">dau_driver.xdma_io</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_fleet/index.html">
+      <span class="fd-link-text">test_fleet</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_native/index.html">
+      <span class="fd-link-text">test_native</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_readme/index.html">
+      <span class="fd-link-text">test_readme</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_storage/index.html">
+      <span class="fd-link-text">test_storage</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_transfer/index.html">
+      <span class="fd-link-text">test_transfer</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_discovery/index.html">
+      <span class="fd-link-text">test_discovery</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_macos_xdma/index.html">
+      <span class="fd-link-text">test_macos_xdma</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link fd-current" href="#">
+      <span class="fd-link-text">test_handle_table</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_lazy_exports/index.html">
+      <span class="fd-link-text">test_lazy_exports</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_stream_codec/index.html">
+      <span class="fd-link-text">test_stream_codec</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_scan_execution/index.html">
+      <span class="fd-link-text">test_scan_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_register_write/index.html">
+      <span class="fd-link-text">test_register_write</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_xdma_poc_script/index.html">
+      <span class="fd-link-text">test_xdma_poc_script</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_stream_execution/index.html">
+      <span class="fd-link-text">test_stream_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_capability_decode/index.html">
+      <span class="fd-link-text">test_capability_decode</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_pipeline_execution/index.html">
+      <span class="fd-link-text">test_pipeline_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_record_batch_codec/index.html">
+      <span class="fd-link-text">test_record_batch_codec</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_macos_xdma_hardware/index.html">
+      <span class="fd-link-text">test_macos_xdma_hardware</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_linux_xdma_hardware/index.html">
+      <span class="fd-link-text">test_linux_xdma_hardware</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_verify_advertisement/index.html">
+      <span class="fd-link-text">test_verify_advertisement</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_no_board_geometry_constants/index.html">
+      <span class="fd-link-text">test_no_board_geometry_constants</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+</ul>
+    </div>
+  </nav>
+
+  <div class="fd-sidebar-footer">
+    <div class="fd-toolbar">
+      <a class="fd-toolbar-item" href="https://github.com/dau-dev/dau-driver" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <div class="fd-theme-switch" role="group" aria-label="Theme">
+        <button type="button" class="fd-theme-option" data-fd-theme="light" aria-label="Light theme" title="Light theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></button>
+        <button type="button" class="fd-theme-option" data-fd-theme="dark" aria-label="Dark theme" title="Dark theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg></button>
+      </div>
+    </div>
+  </div>
+</aside>
+<button type="button" id="fd-sidebar-restore" class="fd-icon-button" aria-label="Expand sidebar" title="Expand sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+<div class="fd-sidebar-scrim" hidden></div>
+  <div id="fd-toc-popover">
+    <button type="button" class="fd-toc-trigger" aria-expanded="false" aria-controls="fd-toc-mobile" title="On this page">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg><span>On this page</span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+    <div id="fd-toc-mobile" hidden><ul class="fd-toc-list">
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#attributes">Attributes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#classes">Classes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#functions">Functions</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#module-contents">Module Contents</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.CAPACITY">CAPACITY</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.ROW_BYTES">ROW_BYTES</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.ROWS">ROWS</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.HandleTableTransport">HandleTableTransport</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_handle_table.HandleTableTransport.capacity">HandleTableTransport.capacity</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_handle_table.HandleTableTransport.entries">HandleTableTransport.entries</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_handle_table.HandleTableTransport.runs">HandleTableTransport.runs</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_handle_table.HandleTableTransport.datapath_error">HandleTableTransport.datapath_error</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_handle_table.HandleTableTransport.write_u32">HandleTableTransport.write_u32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_handle_table.HandleTableTransport.read_u32">HandleTableTransport.read_u32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_handle_table.HandleTableTransport._staged">HandleTableTransport._staged()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_handle_table.HandleTableTransport._commit">HandleTableTransport._commit()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_handle_table.HandleTableTransport._start">HandleTableTransport._start()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table._table">_table()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table._run">_run()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_a_live_handle_resolves_to_its_region">test_a_live_handle_resolves_to_its_region()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_a_freed_handle_is_refused">test_a_freed_handle_is_refused()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_a_recycled_slot_refuses_the_previous_generation">test_a_recycled_slot_refuses_the_previous_generation()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_an_unarmed_job_handle_is_refused">test_an_unarmed_job_handle_is_refused()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_a_job_longer_than_the_grant_is_refused">test_a_job_longer_than_the_grant_is_refused()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_an_id_past_the_table_is_refused_before_the_device_sees_it">test_an_id_past_the_table_is_refused_before_the_device_sees_it()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_installing_a_stale_handle_is_a_host_bug_not_a_device_refusal">test_installing_a_stale_handle_is_a_host_bug_not_a_device_refusal()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_freeing_a_slot_works_after_the_allocator_released_the_span">test_freeing_a_slot_works_after_the_allocator_released_the_span()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_the_install_sequence_stages_the_whole_grant_before_committing">test_the_install_sequence_stages_the_whole_grant_before_committing()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_a_datapath_error_is_not_reported_as_a_handle_fault">test_a_datapath_error_is_not_reported_as_a_handle_fault()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_repeats_amortize_one_staging_over_many_jobs">test_repeats_amortize_one_staging_over_many_jobs()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_an_off_grid_length_is_refused_before_it_becomes_a_length_gate_fault">test_an_off_grid_length_is_refused_before_it_becomes_a_length_gate_fault()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_an_unaligned_grant_never_becomes_a_slot">test_an_unaligned_grant_never_becomes_a_slot()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_a_capacity_of_zero_is_not_a_table">test_a_capacity_of_zero_is_not_a_table()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.OverlappingHandleTransport">OverlappingHandleTransport</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_handle_table.OverlappingHandleTransport.total">OverlappingHandleTransport.total</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_handle_table.OverlappingHandleTransport.finish_current">OverlappingHandleTransport.finish_current</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_handle_table.OverlappingHandleTransport.status_polls">OverlappingHandleTransport.status_polls</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_handle_table.OverlappingHandleTransport.read_u32">OverlappingHandleTransport.read_u32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table._batches">_batches()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table._pair">_pair()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_batches_ping_pong_between_two_grants_and_overlap_staging">test_batches_ping_pong_between_two_grants_and_overlap_staging()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_a_lazy_batch_iterator_is_consumed_one_ahead">test_a_lazy_batch_iterator_is_consumed_one_ahead()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_a_batch_the_shell_would_refuse_is_refused_before_it_moves">test_a_batch_the_shell_would_refuse_is_refused_before_it_moves()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_one_grant_is_not_a_pair">test_one_grant_is_not_a_pair()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_a_batch_past_its_grant_is_refused_by_the_allocator_before_the_dma">test_a_batch_past_its_grant_is_refused_by_the_allocator_before_the_dma()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_a_grant_released_mid_stream_stops_the_stream">test_a_grant_released_mid_stream_stops_the_stream()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_a_staging_failure_waits_for_the_running_job_before_it_escapes">test_a_staging_failure_waits_for_the_running_job_before_it_escapes()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_a_slot_freed_on_the_device_refuses_its_batch">test_a_slot_freed_on_the_device_refuses_its_batch()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_a_yielding_poll_sleeps_between_status_reads_instead_of_spinning">test_a_yielding_poll_sleeps_between_status_reads_instead_of_spinning()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_a_resident_scan_whose_rows_run_past_memory_is_refused">test_a_resident_scan_whose_rows_run_past_memory_is_refused()</a>
+  </li>
+</ul>
+</div>
+  </div>
+
+  <main id="fd-main">
+    <article class="fd-page">
+<nav class="fd-breadcrumbs" aria-label="Breadcrumbs">
+  <ol>
+    <li>
+      <a href="../index.html">API Reference</a>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
+    </li>
+    <li aria-current="page">test_handle_table</li>
+  </ol>
+</nav>
+      <div class="fd-prose">
+  <section id="module-test_handle_table">
+<span id="test-handle-table"></span><h1>test_handle_table<a class="headerlink" href="#module-test_handle_table" title="Link to this heading">¶</a></h1>
+<p>The host end of the handle table, against a transport that models the
+shell’s.</p>
+<p><code class="docutils literal notranslate"><span class="pre">dau_build.tests.test_handle_table_sim</span></code> asserts these same four claims from
+inside the RTL, driving the table’s ports directly. This asserts them from the
+other end of the wire: the only thing the host may do is write the aperture,
+and a live handle has to resolve, a freed one has to be refused, a recycled
+slot has to refuse the previous generation, and an unarmed job has to be
+refused – all of it produced by the register sequence the driver actually
+emits, not by a host-side check standing in for the device.</p>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_handle_table.CAPACITY" title="test_handle_table.CAPACITY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CAPACITY</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_handle_table.ROW_BYTES" title="test_handle_table.ROW_BYTES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ROW_BYTES</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_handle_table.ROWS" title="test_handle_table.ROWS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ROWS</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_handle_table.HandleTableTransport" title="test_handle_table.HandleTableTransport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HandleTableTransport</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">dau_shell_handle_table</span></code> plus the shell's job close-out, in Python.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_handle_table.OverlappingHandleTransport" title="test_handle_table.OverlappingHandleTransport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OverlappingHandleTransport</span></code></a></p></td>
+<td><p>JOB_STATUS reports DONE only once the NEXT batch's H2C write has</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_handle_table._table" title="test_handle_table._table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_table</span></code></a>(tmp_path[, transport, capacity, tier_bytes])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_handle_table._run" title="test_handle_table._run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_run</span></code></a>(table, handle, **kwargs)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_handle_table.test_a_live_handle_resolves_to_its_region" title="test_handle_table.test_a_live_handle_resolves_to_its_region"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_live_handle_resolves_to_its_region</span></code></a>(→ None)</p></td>
+<td><p>The baseline the refusals are measured against: the allocator's grant</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_handle_table.test_a_freed_handle_is_refused" title="test_handle_table.test_a_freed_handle_is_refused"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_freed_handle_is_refused</span></code></a>(→ None)</p></td>
+<td><p>Freeing the slot stops it resolving even though the memory is untouched</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_handle_table.test_a_recycled_slot_refuses_the_previous_generation" title="test_handle_table.test_a_recycled_slot_refuses_the_previous_generation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_recycled_slot_refuses_the_previous_generation</span></code></a>(→ None)</p></td>
+<td><p>THE CASE THE TABLE EXISTS FOR. The allocator recycles the id, so the</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_handle_table.test_an_unarmed_job_handle_is_refused" title="test_handle_table.test_an_unarmed_job_handle_is_refused"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_an_unarmed_job_handle_is_refused</span></code></a>(→ None)</p></td>
+<td><p>Generation zero is one the allocator never issues, so a host that</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_handle_table.test_a_job_longer_than_the_grant_is_refused" title="test_handle_table.test_a_job_longer_than_the_grant_is_refused"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_job_longer_than_the_grant_is_refused</span></code></a>(→ None)</p></td>
+<td><p>The grant bounds the read: asking past it would walk into whatever</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_handle_table.test_an_id_past_the_table_is_refused_before_the_device_sees_it" title="test_handle_table.test_an_id_past_the_table_is_refused_before_the_device_sees_it"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_an_id_past_the_table_is_refused_before_the_device_sees_it</span></code></a>(→ None)</p></td>
+<td><p>A slot the built table does not have is a fault on silicon (BAD_ID) and</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_handle_table.test_installing_a_stale_handle_is_a_host_bug_not_a_device_refusal" title="test_handle_table.test_installing_a_stale_handle_is_a_host_bug_not_a_device_refusal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_installing_a_stale_handle_is_a_host_bug_not_a_device_refusal</span></code></a>(→ None)</p></td>
+<td><p>The host allocator's generation is the authority for what a slot is</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_handle_table.test_freeing_a_slot_works_after_the_allocator_released_the_span" title="test_handle_table.test_freeing_a_slot_works_after_the_allocator_released_the_span"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_freeing_a_slot_works_after_the_allocator_released_the_span</span></code></a>(→ None)</p></td>
+<td><p>Freeing a slot can only make the table refuse more, so it must not</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_handle_table.test_the_install_sequence_stages_the_whole_grant_before_committing" title="test_handle_table.test_the_install_sequence_stages_the_whole_grant_before_committing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_install_sequence_stages_the_whole_grant_before_committing</span></code></a>(→ None)</p></td>
+<td><p>A commit is a pulse over whatever is staged, so every field has to be</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_handle_table.test_a_datapath_error_is_not_reported_as_a_handle_fault" title="test_handle_table.test_a_datapath_error_is_not_reported_as_a_handle_fault"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_datapath_error_is_not_reported_as_a_handle_fault</span></code></a>(→ None)</p></td>
+<td><p>The refusal type is only worth having if it means what it says: a code</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_handle_table.test_repeats_amortize_one_staging_over_many_jobs" title="test_handle_table.test_repeats_amortize_one_staging_over_many_jobs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_repeats_amortize_one_staging_over_many_jobs</span></code></a>(→ None)</p></td>
+<td><p>The residency claim itself, through a handle: the rows are staged once</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_handle_table.test_an_off_grid_length_is_refused_before_it_becomes_a_length_gate_fault" title="test_handle_table.test_an_off_grid_length_is_refused_before_it_becomes_a_length_gate_fault"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_an_off_grid_length_is_refused_before_it_becomes_a_length_gate_fault</span></code></a>(→ None)</p></td>
+<td><p>The shell's 0xFE length gate fires before the table is asked, so an</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_handle_table.test_an_unaligned_grant_never_becomes_a_slot" title="test_handle_table.test_an_unaligned_grant_never_becomes_a_slot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_an_unaligned_grant_never_becomes_a_slot</span></code></a>(→ None)</p></td>
+<td><p>A finer-grained allocator can hand out a base the DMA path cannot read</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_handle_table.test_a_capacity_of_zero_is_not_a_table" title="test_handle_table.test_a_capacity_of_zero_is_not_a_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_capacity_of_zero_is_not_a_table</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_handle_table._batches" title="test_handle_table._batches"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_batches</span></code></a>(rows_per_batch[, row_bytes])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_handle_table._pair" title="test_handle_table._pair"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_pair</span></code></a>(table, allocator[, grant_rows])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_handle_table.test_batches_ping_pong_between_two_grants_and_overlap_staging" title="test_handle_table.test_batches_ping_pong_between_two_grants_and_overlap_staging"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_batches_ping_pong_between_two_grants_and_overlap_staging</span></code></a>(→ None)</p></td>
+<td><p>Each batch is staged into its grant's region through the allocator,</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_handle_table.test_a_lazy_batch_iterator_is_consumed_one_ahead" title="test_handle_table.test_a_lazy_batch_iterator_is_consumed_one_ahead"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_lazy_batch_iterator_is_consumed_one_ahead</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_handle_table.test_a_batch_the_shell_would_refuse_is_refused_before_it_moves" title="test_handle_table.test_a_batch_the_shell_would_refuse_is_refused_before_it_moves"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_batch_the_shell_would_refuse_is_refused_before_it_moves</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_handle_table.test_one_grant_is_not_a_pair" title="test_handle_table.test_one_grant_is_not_a_pair"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_one_grant_is_not_a_pair</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_handle_table.test_a_batch_past_its_grant_is_refused_by_the_allocator_before_the_dma" title="test_handle_table.test_a_batch_past_its_grant_is_refused_by_the_allocator_before_the_dma"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_batch_past_its_grant_is_refused_by_the_allocator_before_the_dma</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_handle_table.test_a_grant_released_mid_stream_stops_the_stream" title="test_handle_table.test_a_grant_released_mid_stream_stops_the_stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_grant_released_mid_stream_stops_the_stream</span></code></a>(→ None)</p></td>
+<td><p>The host frees the second grant while the first job runs. Staging</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_handle_table.test_a_staging_failure_waits_for_the_running_job_before_it_escapes" title="test_handle_table.test_a_staging_failure_waits_for_the_running_job_before_it_escapes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_staging_failure_waits_for_the_running_job_before_it_escapes</span></code></a>(→ None)</p></td>
+<td><p>The failure is raised from the running job's poll, but only once</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_handle_table.test_a_slot_freed_on_the_device_refuses_its_batch" title="test_handle_table.test_a_slot_freed_on_the_device_refuses_its_batch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_slot_freed_on_the_device_refuses_its_batch</span></code></a>(→ None)</p></td>
+<td><p>The device side of the same story: the slot is freed on the table but</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_handle_table.test_a_yielding_poll_sleeps_between_status_reads_instead_of_spinning" title="test_handle_table.test_a_yielding_poll_sleeps_between_status_reads_instead_of_spinning"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_yielding_poll_sleeps_between_status_reads_instead_of_spinning</span></code></a>(→ None)</p></td>
+<td><p>A spinning poll holds a core the host arm of a split is using; with</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_handle_table.test_a_resident_scan_whose_rows_run_past_memory_is_refused" title="test_handle_table.test_a_resident_scan_whose_rows_run_past_memory_is_refused"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_resident_scan_whose_rows_run_past_memory_is_refused</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="test_handle_table.CAPACITY">
+<span class="sig-prename descclassname"><span class="pre">test_handle_table.</span></span><span class="sig-name descname"><span class="pre">CAPACITY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#test_handle_table.CAPACITY" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="test_handle_table.ROW_BYTES">
+<span class="sig-prename descclassname"><span class="pre">test_handle_table.</span></span><span class="sig-name descname"><span class="pre">ROW_BYTES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></em><a class="headerlink" href="#test_handle_table.ROW_BYTES" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="test_handle_table.ROWS">
+<span class="sig-prename descclassname"><span class="pre">test_handle_table.</span></span><span class="sig-name descname"><span class="pre">ROWS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></em><a class="headerlink" href="#test_handle_table.ROWS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="test_handle_table.HandleTableTransport">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">test_handle_table.</span></span><span class="sig-name descname"><span class="pre">HandleTableTransport</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">CAPACITY</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">datapath_error</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#test_handle_table.HandleTableTransport" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../dau_driver/testing/index.html#dau_driver.testing.FakeTransport" title="dau_driver.testing.FakeTransport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dau_driver.testing.FakeTransport</span></code></a></p>
+<p><code class="docutils literal notranslate"><span class="pre">dau_shell_handle_table</span></code> plus the shell’s job close-out, in Python.</p>
+<p>Entries live exactly as the RTL’s do – a live bit, a base, a length, a
+generation – and a job start resolves <code class="docutils literal notranslate"><span class="pre">JOB_HANDLE_*</span></code> against them before
+anything else happens. A refused job sets ERROR with the fault code in
+LAST_ERROR and records NO run, which is how a test can tell a refusal from
+a job that ran and produced nothing.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="test_handle_table.HandleTableTransport.capacity">
+<span class="sig-name descname"><span class="pre">capacity</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#test_handle_table.HandleTableTransport.capacity" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="test_handle_table.HandleTableTransport.entries">
+<span class="sig-name descname"><span class="pre">entries</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#test_handle_table.HandleTableTransport.entries" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="test_handle_table.HandleTableTransport.runs">
+<span class="sig-name descname"><span class="pre">runs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#test_handle_table.HandleTableTransport.runs" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="test_handle_table.HandleTableTransport.datapath_error">
+<span class="sig-name descname"><span class="pre">datapath_error</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#test_handle_table.HandleTableTransport.datapath_error" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="test_handle_table.HandleTableTransport.write_u32">
+<span class="sig-name descname"><span class="pre">write_u32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_handle_table.HandleTableTransport.write_u32" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="test_handle_table.HandleTableTransport.read_u32">
+<span class="sig-name descname"><span class="pre">read_u32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#test_handle_table.HandleTableTransport.read_u32" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="test_handle_table.HandleTableTransport._staged">
+<span class="sig-name descname"><span class="pre">_staged</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#test_handle_table.HandleTableTransport._staged" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="test_handle_table.HandleTableTransport._commit">
+<span class="sig-name descname"><span class="pre">_commit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">control</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_handle_table.HandleTableTransport._commit" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="test_handle_table.HandleTableTransport._start">
+<span class="sig-name descname"><span class="pre">_start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_handle_table.HandleTableTransport._start" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_handle_table._table">
+<span class="sig-prename descclassname"><span class="pre">test_handle_table.</span></span><span class="sig-name descname"><span class="pre">_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transport</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">CAPACITY</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tier_bytes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span> <span class="pre">&lt;&lt;</span> <span class="pre">20</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#test_handle_table._table" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_handle_table._run">
+<span class="sig-prename descclassname"><span class="pre">test_handle_table.</span></span><span class="sig-name descname"><span class="pre">_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">handle</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#test_handle_table._run" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_handle_table.test_a_live_handle_resolves_to_its_region">
+<span class="sig-prename descclassname"><span class="pre">test_handle_table.</span></span><span class="sig-name descname"><span class="pre">test_a_live_handle_resolves_to_its_region</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_handle_table.test_a_live_handle_resolves_to_its_region" title="Link to this definition">¶</a></dt>
+<dd><p>The baseline the refusals are measured against: the allocator’s grant
+is programmed into the slot, the job names the handle instead of an
+address, and the read lands on the region the allocator handed out.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_handle_table.test_a_freed_handle_is_refused">
+<span class="sig-prename descclassname"><span class="pre">test_handle_table.</span></span><span class="sig-name descname"><span class="pre">test_a_freed_handle_is_refused</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_handle_table.test_a_freed_handle_is_refused" title="Link to this definition">¶</a></dt>
+<dd><p>Freeing the slot stops it resolving even though the memory is untouched
+and the base the handle used to mean still reads fine.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_handle_table.test_a_recycled_slot_refuses_the_previous_generation">
+<span class="sig-prename descclassname"><span class="pre">test_handle_table.</span></span><span class="sig-name descname"><span class="pre">test_a_recycled_slot_refuses_the_previous_generation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_handle_table.test_a_recycled_slot_refuses_the_previous_generation" title="Link to this definition">¶</a></dt>
+<dd><p>THE CASE THE TABLE EXISTS FOR. The allocator recycles the id, so the
+second allocation lands in the same SLOT over a different region. The first
+caller’s handle is byte-for-byte what it always was and its base still
+reads – the generation is the only thing that can refuse it. It does, and
+the reissued handle reaches the new tenant’s region, proving the slot was
+really reused underneath.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_handle_table.test_an_unarmed_job_handle_is_refused">
+<span class="sig-prename descclassname"><span class="pre">test_handle_table.</span></span><span class="sig-name descname"><span class="pre">test_an_unarmed_job_handle_is_refused</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_handle_table.test_an_unarmed_job_handle_is_refused" title="Link to this definition">¶</a></dt>
+<dd><p>Generation zero is one the allocator never issues, so a host that
+starts a job without arming a handle is refused rather than quietly
+reading slot zero – which is live here, and would otherwise answer.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_handle_table.test_a_job_longer_than_the_grant_is_refused">
+<span class="sig-prename descclassname"><span class="pre">test_handle_table.</span></span><span class="sig-name descname"><span class="pre">test_a_job_longer_than_the_grant_is_refused</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_handle_table.test_a_job_longer_than_the_grant_is_refused" title="Link to this definition">¶</a></dt>
+<dd><p>The grant bounds the read: asking past it would walk into whatever
+follows the region, the same wrong answer by a different route.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_handle_table.test_an_id_past_the_table_is_refused_before_the_device_sees_it">
+<span class="sig-prename descclassname"><span class="pre">test_handle_table.</span></span><span class="sig-name descname"><span class="pre">test_an_id_past_the_table_is_refused_before_the_device_sees_it</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_handle_table.test_an_id_past_the_table_is_refused_before_the_device_sees_it" title="Link to this definition">¶</a></dt>
+<dd><p>A slot the built table does not have is a fault on silicon (BAD_ID) and
+a refusal here, because capacity is a design fact the host was told, not
+one it discovers – and the cheapest place to learn a personality is too
+small is before the run.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_handle_table.test_installing_a_stale_handle_is_a_host_bug_not_a_device_refusal">
+<span class="sig-prename descclassname"><span class="pre">test_handle_table.</span></span><span class="sig-name descname"><span class="pre">test_installing_a_stale_handle_is_a_host_bug_not_a_device_refusal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_handle_table.test_installing_a_stale_handle_is_a_host_bug_not_a_device_refusal" title="Link to this definition">¶</a></dt>
+<dd><p>The host allocator’s generation is the authority for what a slot is
+programmed from. Installing a handle it will not resolve would teach the
+device a grant the host does not believe in – the one direction the
+generation check cannot catch, since the device would then agree.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_handle_table.test_freeing_a_slot_works_after_the_allocator_released_the_span">
+<span class="sig-prename descclassname"><span class="pre">test_handle_table.</span></span><span class="sig-name descname"><span class="pre">test_freeing_a_slot_works_after_the_allocator_released_the_span</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_handle_table.test_freeing_a_slot_works_after_the_allocator_released_the_span" title="Link to this definition">¶</a></dt>
+<dd><p>Freeing a slot can only make the table refuse more, so it must not
+depend on the allocator still holding the handle: a caller who released
+host-side first would otherwise be unable to close the device-side hole at
+all, which is the exposure inverted.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_handle_table.test_the_install_sequence_stages_the_whole_grant_before_committing">
+<span class="sig-prename descclassname"><span class="pre">test_handle_table.</span></span><span class="sig-name descname"><span class="pre">test_the_install_sequence_stages_the_whole_grant_before_committing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_handle_table.test_the_install_sequence_stages_the_whole_grant_before_committing" title="Link to this definition">¶</a></dt>
+<dd><p>A commit is a pulse over whatever is staged, so every field has to be
+written first. A half-staged entry commits a grant made of one allocation’s
+base and another’s length.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_handle_table.test_a_datapath_error_is_not_reported_as_a_handle_fault">
+<span class="sig-prename descclassname"><span class="pre">test_handle_table.</span></span><span class="sig-name descname"><span class="pre">test_a_datapath_error_is_not_reported_as_a_handle_fault</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_handle_table.test_a_datapath_error_is_not_reported_as_a_handle_fault" title="Link to this definition">¶</a></dt>
+<dd><p>The refusal type is only worth having if it means what it says: a code
+from a tile is a job that RAN, and calling that a stale handle would send
+a caller looking for an allocation bug that is not there.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_handle_table.test_repeats_amortize_one_staging_over_many_jobs">
+<span class="sig-prename descclassname"><span class="pre">test_handle_table.</span></span><span class="sig-name descname"><span class="pre">test_repeats_amortize_one_staging_over_many_jobs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_handle_table.test_repeats_amortize_one_staging_over_many_jobs" title="Link to this definition">¶</a></dt>
+<dd><p>The residency claim itself, through a handle: the rows are staged once
+and the job runs against the same grant repeatedly, arming it once.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_handle_table.test_an_off_grid_length_is_refused_before_it_becomes_a_length_gate_fault">
+<span class="sig-prename descclassname"><span class="pre">test_handle_table.</span></span><span class="sig-name descname"><span class="pre">test_an_off_grid_length_is_refused_before_it_becomes_a_length_gate_fault</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_handle_table.test_an_off_grid_length_is_refused_before_it_becomes_a_length_gate_fault" title="Link to this definition">¶</a></dt>
+<dd><p>The shell’s 0xFE length gate fires before the table is asked, so an
+off-grid length would arrive as a fault that says nothing about the
+handle.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_handle_table.test_an_unaligned_grant_never_becomes_a_slot">
+<span class="sig-prename descclassname"><span class="pre">test_handle_table.</span></span><span class="sig-name descname"><span class="pre">test_an_unaligned_grant_never_becomes_a_slot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_handle_table.test_an_unaligned_grant_never_becomes_a_slot" title="Link to this definition">¶</a></dt>
+<dd><p>A finer-grained allocator can hand out a base the DMA path cannot read
+from, and through a handle nobody ever writes that address down to notice.
+Refuse it where the mistake is still cheap, as the raw-address runner
+does.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_handle_table.test_a_capacity_of_zero_is_not_a_table">
+<span class="sig-prename descclassname"><span class="pre">test_handle_table.</span></span><span class="sig-name descname"><span class="pre">test_a_capacity_of_zero_is_not_a_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_handle_table.test_a_capacity_of_zero_is_not_a_table" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="test_handle_table.OverlappingHandleTransport">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">test_handle_table.</span></span><span class="sig-name descname"><span class="pre">OverlappingHandleTransport</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">total_batches</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#test_handle_table.OverlappingHandleTransport" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#test_handle_table.HandleTableTransport" title="test_handle_table.HandleTableTransport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HandleTableTransport</span></code></a></p>
+<p>JOB_STATUS reports DONE only once the NEXT batch’s H2C write has
+landed (the last job completes unconditionally), as the raw-address
+runner’s test does: a runner that staged only after the job finished
+would time out here, so a green run proves the two grants ping-pong.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="test_handle_table.OverlappingHandleTransport.total">
+<span class="sig-name descname"><span class="pre">total</span></span><a class="headerlink" href="#test_handle_table.OverlappingHandleTransport.total" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="test_handle_table.OverlappingHandleTransport.finish_current">
+<span class="sig-name descname"><span class="pre">finish_current</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#test_handle_table.OverlappingHandleTransport.finish_current" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="test_handle_table.OverlappingHandleTransport.status_polls">
+<span class="sig-name descname"><span class="pre">status_polls</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#test_handle_table.OverlappingHandleTransport.status_polls" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="test_handle_table.OverlappingHandleTransport.read_u32">
+<span class="sig-name descname"><span class="pre">read_u32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#test_handle_table.OverlappingHandleTransport.read_u32" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_handle_table._batches">
+<span class="sig-prename descclassname"><span class="pre">test_handle_table.</span></span><span class="sig-name descname"><span class="pre">_batches</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows_per_batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">row_bytes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ROW_BYTES</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#test_handle_table._batches" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_handle_table._pair">
+<span class="sig-prename descclassname"><span class="pre">test_handle_table.</span></span><span class="sig-name descname"><span class="pre">_pair</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allocator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grant_rows</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">64</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#test_handle_table._pair" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_handle_table.test_batches_ping_pong_between_two_grants_and_overlap_staging">
+<span class="sig-prename descclassname"><span class="pre">test_handle_table.</span></span><span class="sig-name descname"><span class="pre">test_batches_ping_pong_between_two_grants_and_overlap_staging</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_handle_table.test_batches_ping_pong_between_two_grants_and_overlap_staging" title="Link to this definition">¶</a></dt>
+<dd><p>Each batch is staged into its grant’s region through the allocator,
+the job names that grant (never an address), the next batch lands while
+the job runs, and the results come back in batch order.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_handle_table.test_a_lazy_batch_iterator_is_consumed_one_ahead">
+<span class="sig-prename descclassname"><span class="pre">test_handle_table.</span></span><span class="sig-name descname"><span class="pre">test_a_lazy_batch_iterator_is_consumed_one_ahead</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_handle_table.test_a_lazy_batch_iterator_is_consumed_one_ahead" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_handle_table.test_a_batch_the_shell_would_refuse_is_refused_before_it_moves">
+<span class="sig-prename descclassname"><span class="pre">test_handle_table.</span></span><span class="sig-name descname"><span class="pre">test_a_batch_the_shell_would_refuse_is_refused_before_it_moves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batches</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_handle_table.test_a_batch_the_shell_would_refuse_is_refused_before_it_moves" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_handle_table.test_one_grant_is_not_a_pair">
+<span class="sig-prename descclassname"><span class="pre">test_handle_table.</span></span><span class="sig-name descname"><span class="pre">test_one_grant_is_not_a_pair</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_handle_table.test_one_grant_is_not_a_pair" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_handle_table.test_a_batch_past_its_grant_is_refused_by_the_allocator_before_the_dma">
+<span class="sig-prename descclassname"><span class="pre">test_handle_table.</span></span><span class="sig-name descname"><span class="pre">test_a_batch_past_its_grant_is_refused_by_the_allocator_before_the_dma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_handle_table.test_a_batch_past_its_grant_is_refused_by_the_allocator_before_the_dma" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_handle_table.test_a_grant_released_mid_stream_stops_the_stream">
+<span class="sig-prename descclassname"><span class="pre">test_handle_table.</span></span><span class="sig-name descname"><span class="pre">test_a_grant_released_mid_stream_stops_the_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_handle_table.test_a_grant_released_mid_stream_stops_the_stream" title="Link to this definition">¶</a></dt>
+<dd><p>The host frees the second grant while the first job runs. Staging
+into it goes through the allocator, which no longer resolves the handle,
+and the failure surfaces from the running job’s wait rather than after a
+timeout – with nothing collected for the batches that did run.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_handle_table.test_a_staging_failure_waits_for_the_running_job_before_it_escapes">
+<span class="sig-prename descclassname"><span class="pre">test_handle_table.</span></span><span class="sig-name descname"><span class="pre">test_a_staging_failure_waits_for_the_running_job_before_it_escapes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_handle_table.test_a_staging_failure_waits_for_the_running_job_before_it_escapes" title="Link to this definition">¶</a></dt>
+<dd><p>The failure is raised from the running job’s poll, but only once
+that job is DONE: the caller frees the grants on the way out, and a job
+still reading one would then read the next tenant’s bytes.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_handle_table.test_a_slot_freed_on_the_device_refuses_its_batch">
+<span class="sig-prename descclassname"><span class="pre">test_handle_table.</span></span><span class="sig-name descname"><span class="pre">test_a_slot_freed_on_the_device_refuses_its_batch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_handle_table.test_a_slot_freed_on_the_device_refuses_its_batch" title="Link to this definition">¶</a></dt>
+<dd><p>The device side of the same story: the slot is freed on the table but
+the host still holds the handle, so the bytes land (the allocator still
+believes in the grant) and the JOB is refused, as HandleFaultError.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_handle_table.test_a_yielding_poll_sleeps_between_status_reads_instead_of_spinning">
+<span class="sig-prename descclassname"><span class="pre">test_handle_table.</span></span><span class="sig-name descname"><span class="pre">test_a_yielding_poll_sleeps_between_status_reads_instead_of_spinning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monkeypatch</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_handle_table.test_a_yielding_poll_sleeps_between_status_reads_instead_of_spinning" title="Link to this definition">¶</a></dt>
+<dd><p>A spinning poll holds a core the host arm of a split is using; with
+<code class="docutils literal notranslate"><span class="pre">poll_yield_seconds</span></code> the runner sleeps between JOB_STATUS reads. Both
+runners take it; the fake finishes the job after a few polls so the
+sleeps are counted, not just possible.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_handle_table.test_a_resident_scan_whose_rows_run_past_memory_is_refused">
+<span class="sig-prename descclassname"><span class="pre">test_handle_table.</span></span><span class="sig-name descname"><span class="pre">test_a_resident_scan_whose_rows_run_past_memory_is_refused</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_handle_table.test_a_resident_scan_whose_rows_run_past_memory_is_refused" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+      </div>
+<nav class="fd-pagination" aria-label="Pagination">
+  <a class="fd-pagination-card fd-pagination-prev" href="../test_macos_xdma/index.html" title="Previous: test_macos_xdma">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m15 18-6-6 6-6"/></svg>
+    <span class="fd-pagination-text">
+      <span class="fd-pagination-label">Previous</span>
+      <span class="fd-pagination-title">test_macos_xdma</span>
+    </span>
+  </a>
+  <a class="fd-pagination-card fd-pagination-next" href="../test_lazy_exports/index.html" title="Next: test_lazy_exports">
+    <span class="fd-pagination-text">
+      <span class="fd-pagination-label">Next</span>
+      <span class="fd-pagination-title">test_lazy_exports</span>
+    </span>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
+  </a>
+</nav>
+<footer id="fd-footer">
+  <p class="fd-footer-meta"><span>&#169; the dau-driver authors</span><span>Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.</span>
+  </p>
+</footer>
+    </article>
+  </main>
+<nav id="fd-toc" aria-label="On this page">
+  <p class="fd-toc-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>On this page</p>
+  <div class="fd-toc-body"><svg class="fd-toc-rail" aria-hidden="true" preserveAspectRatio="none">
+      <path class="fd-toc-track" fill="none" />
+      <path class="fd-toc-thumb" fill="none" />
+    </svg><ul class="fd-toc-list">
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#attributes">Attributes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#classes">Classes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#functions">Functions</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#module-contents">Module Contents</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.CAPACITY">CAPACITY</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.ROW_BYTES">ROW_BYTES</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.ROWS">ROWS</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.HandleTableTransport">HandleTableTransport</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_handle_table.HandleTableTransport.capacity">HandleTableTransport.capacity</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_handle_table.HandleTableTransport.entries">HandleTableTransport.entries</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_handle_table.HandleTableTransport.runs">HandleTableTransport.runs</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_handle_table.HandleTableTransport.datapath_error">HandleTableTransport.datapath_error</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_handle_table.HandleTableTransport.write_u32">HandleTableTransport.write_u32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_handle_table.HandleTableTransport.read_u32">HandleTableTransport.read_u32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_handle_table.HandleTableTransport._staged">HandleTableTransport._staged()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_handle_table.HandleTableTransport._commit">HandleTableTransport._commit()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_handle_table.HandleTableTransport._start">HandleTableTransport._start()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table._table">_table()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table._run">_run()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_a_live_handle_resolves_to_its_region">test_a_live_handle_resolves_to_its_region()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_a_freed_handle_is_refused">test_a_freed_handle_is_refused()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_a_recycled_slot_refuses_the_previous_generation">test_a_recycled_slot_refuses_the_previous_generation()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_an_unarmed_job_handle_is_refused">test_an_unarmed_job_handle_is_refused()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_a_job_longer_than_the_grant_is_refused">test_a_job_longer_than_the_grant_is_refused()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_an_id_past_the_table_is_refused_before_the_device_sees_it">test_an_id_past_the_table_is_refused_before_the_device_sees_it()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_installing_a_stale_handle_is_a_host_bug_not_a_device_refusal">test_installing_a_stale_handle_is_a_host_bug_not_a_device_refusal()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_freeing_a_slot_works_after_the_allocator_released_the_span">test_freeing_a_slot_works_after_the_allocator_released_the_span()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_the_install_sequence_stages_the_whole_grant_before_committing">test_the_install_sequence_stages_the_whole_grant_before_committing()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_a_datapath_error_is_not_reported_as_a_handle_fault">test_a_datapath_error_is_not_reported_as_a_handle_fault()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_repeats_amortize_one_staging_over_many_jobs">test_repeats_amortize_one_staging_over_many_jobs()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_an_off_grid_length_is_refused_before_it_becomes_a_length_gate_fault">test_an_off_grid_length_is_refused_before_it_becomes_a_length_gate_fault()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_an_unaligned_grant_never_becomes_a_slot">test_an_unaligned_grant_never_becomes_a_slot()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_a_capacity_of_zero_is_not_a_table">test_a_capacity_of_zero_is_not_a_table()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.OverlappingHandleTransport">OverlappingHandleTransport</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_handle_table.OverlappingHandleTransport.total">OverlappingHandleTransport.total</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_handle_table.OverlappingHandleTransport.finish_current">OverlappingHandleTransport.finish_current</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_handle_table.OverlappingHandleTransport.status_polls">OverlappingHandleTransport.status_polls</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#test_handle_table.OverlappingHandleTransport.read_u32">OverlappingHandleTransport.read_u32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table._batches">_batches()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table._pair">_pair()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_batches_ping_pong_between_two_grants_and_overlap_staging">test_batches_ping_pong_between_two_grants_and_overlap_staging()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_a_lazy_batch_iterator_is_consumed_one_ahead">test_a_lazy_batch_iterator_is_consumed_one_ahead()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_a_batch_the_shell_would_refuse_is_refused_before_it_moves">test_a_batch_the_shell_would_refuse_is_refused_before_it_moves()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_one_grant_is_not_a_pair">test_one_grant_is_not_a_pair()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_a_batch_past_its_grant_is_refused_by_the_allocator_before_the_dma">test_a_batch_past_its_grant_is_refused_by_the_allocator_before_the_dma()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_a_grant_released_mid_stream_stops_the_stream">test_a_grant_released_mid_stream_stops_the_stream()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_a_staging_failure_waits_for_the_running_job_before_it_escapes">test_a_staging_failure_waits_for_the_running_job_before_it_escapes()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_a_slot_freed_on_the_device_refuses_its_batch">test_a_slot_freed_on_the_device_refuses_its_batch()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_a_yielding_poll_sleeps_between_status_reads_instead_of_spinning">test_a_yielding_poll_sleeps_between_status_reads_instead_of_spinning()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_handle_table.test_a_resident_scan_whose_rows_run_past_memory_is_refused">test_a_resident_scan_whose_rows_run_past_memory_is_refused()</a>
+  </li>
+</ul>
+
+  </div>
+  <div class="fd-toc-actions">
+    <a class="fd-toc-action" href="https://github.com/dau-dev/dau-driver/edit/HEAD/autoapi/test_handle_table/index.rst" target="_blank" rel="noopener" title="Edit this page"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg><span>Edit this page</span></a>
+    <a class="fd-toc-action" href="../../_sources/autoapi/test_handle_table/index.rst.txt" rel="nofollow" title="View source"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg><span>View source</span></a>
+  </div>
+</nav>
+</div>
+<dialog id="fd-search-dialog" aria-label="Search">
+  <form class="fd-search-panel" method="dialog" role="search">
+    <div class="fd-search-field">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="search" id="fd-search-input" autocomplete="off" spellcheck="false" placeholder="Search documentation..." aria-label="Search" />
+      <kbd class="fd-kbd">Esc</kbd>
+    </div>
+    <div id="fd-search-results" role="listbox" aria-label="Search results"></div>
+    <p id="fd-search-empty" class="fd-search-empty" hidden>No results found.</p>
+  </form>
+</dialog>
+  </body>
+</html>

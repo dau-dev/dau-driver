@@ -1,0 +1,111 @@
+dau_driver.testing
+==================
+
+.. py:module:: dau_driver.testing
+
+.. autoapi-nested-parse::
+
+   Shared test doubles for DAU driver consumers.
+
+   Used by the dau-driver, dau, and dau-polars test suites so the fake device's
+   semantics cannot drift between packages. Not imported by production code.
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   dau_driver.testing.FakeTransport
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   dau_driver.testing.default_int32_capabilities
+   dau_driver.testing.fake_device
+   dau_driver.testing.golden_aggregation_trigger
+
+
+Module Contents
+---------------
+
+.. py:class:: FakeTransport
+
+   In-memory DeviceTransport: records DMA traffic and register writes.
+
+   Advertises a current (register map 0.3) shell by default, including the
+   job capacity a host batches against — an all-zero register file models a
+   shell nobody builds any more, and every job test would be exercising the
+   not-advertised refusal instead of the path it means to test. Tests that
+   want an older shell clear or lower these.
+
+
+   .. py:attribute:: DEFAULT_INPUT_ROW_CAPACITY
+      :value: 16384
+
+
+
+   .. py:attribute:: DEFAULT_OUTPUT_RECORD_CAPACITY
+      :value: 819
+
+
+
+   .. py:attribute:: h2c_writes
+      :type:  list[tuple[int, bytes]]
+      :value: []
+
+
+
+   .. py:attribute:: c2h_reads
+      :type:  list[tuple[int, int]]
+      :value: []
+
+
+
+   .. py:attribute:: c2h_payloads
+      :type:  dict[int, bytes]
+
+
+   .. py:attribute:: registers
+      :type:  dict[int, int]
+
+
+   .. py:attribute:: register_reads
+      :type:  list[int]
+      :value: []
+
+
+
+   .. py:method:: read_u32(offset: int) -> int
+
+
+   .. py:method:: write_u32(offset: int, value: int) -> None
+
+
+   .. py:method:: read_dma(device_address: int, byte_count: int) -> bytes
+
+
+   .. py:method:: write_dma(device_address: int, data: bytes | bytearray | memoryview) -> int
+
+
+.. py:function:: default_int32_capabilities(operators: tuple[dau_core.capabilities.OperatorCapability, ...] | None = None, *, max_transfer_bytes: int = 4096) -> dau_core.capabilities.DeviceCapabilities
+
+   The standard fake INT32 aggregation device capability set.
+
+
+.. py:function:: fake_device(tmp_path: pathlib.Path, transport: FakeTransport, *, capabilities: dau_core.capabilities.DeviceCapabilities | None = None) -> dau_driver.device.DauDevice
+
+   A DauDevice backed by a FakeTransport (paths are never opened).
+
+
+.. py:function:: golden_aggregation_trigger(transport: FakeTransport, output_address: int)
+
+   A StreamTrigger that emulates the aggregation hardware: decode the
+   encoded input batch, compute the golden scalar, stage the result stream
+   at ``output_address`` for the subsequent C2H read.
+
+

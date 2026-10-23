@@ -1,0 +1,25 @@
+dau_driver.xdma_io
+==================
+
+.. py:module:: dau_driver.xdma_io
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   dau_driver.xdma_io.read_exact_at
+   dau_driver.xdma_io.write_all_at
+   dau_driver.xdma_io._open
+
+
+Module Contents
+---------------
+
+.. py:function:: read_exact_at(path: pathlib.Path, offset: int, byte_count: int) -> bytes
+
+.. py:function:: write_all_at(path: pathlib.Path, offset: int, data: bytes | bytearray | memoryview) -> int
+
+.. py:function:: _open(path: pathlib.Path, flags: int) -> int
+

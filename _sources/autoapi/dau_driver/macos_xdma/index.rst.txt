@@ -1,0 +1,375 @@
+dau_driver.macos_xdma
+=====================
+
+.. py:module:: dau_driver.macos_xdma
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   dau_driver.macos_xdma.DEFAULT_BACKEND
+   dau_driver.macos_xdma.CANONICAL_SERVICE_NAME
+   dau_driver.macos_xdma.DEFAULT_SERVICE_NAMES
+   dau_driver.macos_xdma.REGISTER_BAR_INDICES
+   dau_driver.macos_xdma.K_METHOD_READ_BAR
+   dau_driver.macos_xdma.K_METHOD_WRITE_BAR
+   dau_driver.macos_xdma.K_METHOD_DMA_WRITE
+   dau_driver.macos_xdma.K_METHOD_DMA_READ
+   dau_driver.macos_xdma.K_METHOD_GET_INFO
+   dau_driver.macos_xdma.DMA_CHUNK_BYTES
+   dau_driver.macos_xdma.MACOS_XDMA_DMA_CONSTRAINTS
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   dau_driver.macos_xdma.MacOSXDMAServiceProbe
+   dau_driver.macos_xdma.MacOSXDMAProbeResult
+   dau_driver.macos_xdma.MacOSXDMAClientProtocol
+   dau_driver.macos_xdma.MacOSXDMADeviceInfo
+   dau_driver.macos_xdma.MacOSXDMATransport
+   dau_driver.macos_xdma.MacOSXDMAClient
+   dau_driver.macos_xdma._IOKitBindings
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   dau_driver.macos_xdma._check_bar_access
+   dau_driver.macos_xdma.discover_devices
+   dau_driver.macos_xdma.probe_devices
+   dau_driver.macos_xdma._normalize_service_names
+   dau_driver.macos_xdma._probe_status
+   dau_driver.macos_xdma._probe_result
+   dau_driver.macos_xdma._probe_message
+   dau_driver.macos_xdma._format_service_probe_details
+   dau_driver.macos_xdma.identify_device
+   dau_driver.macos_xdma._find_register_window
+   dau_driver.macos_xdma._read_register_block_snapshot
+   dau_driver.macos_xdma._read_register
+   dau_driver.macos_xdma.main
+
+
+Module Contents
+---------------
+
+.. py:data:: DEFAULT_BACKEND
+   :value: 'macos-xdma'
+
+
+.. py:data:: CANONICAL_SERVICE_NAME
+   :value: 'com.dau-dev.xdma'
+
+
+.. py:data:: DEFAULT_SERVICE_NAMES
+
+.. py:data:: REGISTER_BAR_INDICES
+   :value: (0, 1, 2, 3, 4, 5)
+
+
+.. py:data:: K_METHOD_READ_BAR
+   :value: 0
+
+
+.. py:data:: K_METHOD_WRITE_BAR
+   :value: 1
+
+
+.. py:data:: K_METHOD_DMA_WRITE
+   :value: 2
+
+
+.. py:data:: K_METHOD_DMA_READ
+   :value: 3
+
+
+.. py:data:: K_METHOD_GET_INFO
+   :value: 4
+
+
+.. py:data:: DMA_CHUNK_BYTES
+   :value: 8388608
+
+
+.. py:data:: MACOS_XDMA_DMA_CONSTRAINTS
+
+.. py:class:: MacOSXDMAServiceProbe
+
+   .. py:attribute:: service_name
+      :type:  str
+
+
+   .. py:attribute:: matched_services
+      :type:  int
+      :value: 0
+
+
+
+   .. py:attribute:: opened_clients
+      :type:  int
+      :value: 0
+
+
+
+   .. py:attribute:: error
+      :type:  str | None
+      :value: None
+
+
+
+.. py:class:: MacOSXDMAProbeResult
+
+   .. py:attribute:: status
+      :type:  str
+
+
+   .. py:attribute:: devices
+      :type:  tuple[dau_driver.device.DauDevice, ...]
+
+
+   .. py:attribute:: service_names
+      :type:  tuple[str, ...]
+
+
+   .. py:attribute:: service_probes
+      :type:  tuple[MacOSXDMAServiceProbe, ...]
+
+
+   .. py:attribute:: failures
+      :type:  tuple[str, ...]
+
+
+   .. py:attribute:: message
+      :type:  str
+
+
+.. py:function:: _check_bar_access(bar_index: int, offset: int) -> None
+
+   The user client hands these to the dext as unsigned 64-bit scalars; a
+   negative offset would wrap to a huge one and address BAR space the caller
+   never meant to touch.
+
+
+.. py:class:: MacOSXDMAClientProtocol
+
+   Bases: :py:obj:`Protocol`
+
+
+   Base class for protocol classes.
+
+   Protocol classes are defined as::
+
+       class Proto(Protocol):
+           def meth(self) -> int:
+               ...
+
+   Such classes are primarily used with static type checkers that recognize
+   structural subtyping (static duck-typing).
+
+   For example::
+
+       class C:
+           def meth(self) -> int:
+               return 0
+
+       def func(x: Proto) -> int:
+           return x.meth()
+
+       func(C())  # Passes static type check
+
+   See PEP 544 for details. Protocol classes decorated with
+   @typing.runtime_checkable act as simple-minded runtime protocols that check
+   only the presence of given attributes, ignoring their type signatures.
+   Protocol classes can be generic, they are defined as::
+
+       class GenProto[T](Protocol):
+           def meth(self) -> T:
+               ...
+
+
+   .. py:method:: read_bar_u32(bar_index: int, offset: int) -> int
+
+
+   .. py:method:: write_bar_u32(bar_index: int, offset: int, value: int) -> None
+
+
+   .. py:method:: get_info() -> MacOSXDMADeviceInfo
+
+
+   .. py:method:: dma_read(device_offset: int, length: int) -> bytes
+
+
+   .. py:method:: dma_write(device_offset: int, data: bytes | bytearray | memoryview) -> int
+
+
+   .. py:method:: close() -> None
+
+
+.. py:class:: MacOSXDMADeviceInfo
+
+   .. py:attribute:: vendor_id
+      :type:  int
+
+
+   .. py:attribute:: device_id
+      :type:  int
+
+
+   .. py:attribute:: subsystem_vendor_id
+      :type:  int
+
+
+   .. py:attribute:: subsystem_device_id
+      :type:  int
+
+
+.. py:class:: MacOSXDMATransport
+
+   .. py:attribute:: client
+      :type:  MacOSXDMAClientProtocol
+
+
+   .. py:attribute:: bar_index
+      :type:  int
+
+
+   .. py:method:: read_u32(offset: int) -> int
+
+
+   .. py:method:: write_u32(offset: int, value: int) -> None
+
+
+   .. py:method:: read_dma(device_address: int, byte_count: int) -> bytes
+
+
+   .. py:method:: write_dma(device_address: int, data: bytes | bytearray | memoryview) -> int
+
+
+   .. py:method:: close() -> None
+
+
+.. py:class:: MacOSXDMAClient
+
+   .. py:attribute:: connection
+      :type:  int
+
+
+   .. py:attribute:: service
+      :type:  int
+
+
+   .. py:attribute:: bindings
+      :type:  _IOKitBindings
+
+
+   .. py:method:: open_all(*, service_name: str | None = None, service_names: collections.abc.Sequence[str] | None = None) -> tuple[MacOSXDMAClient, ...]
+      :classmethod:
+
+
+
+   .. py:method:: open_candidates(*, service_name: str | None = None, service_names: collections.abc.Sequence[str] | None = None) -> tuple[tuple[MacOSXDMAClient, ...], tuple[MacOSXDMAServiceProbe, ...]]
+      :classmethod:
+
+
+
+   .. py:method:: _open_service_name(bindings: _IOKitBindings, service_name: str, seen_services: set[int]) -> tuple[tuple[MacOSXDMAClient, ...], MacOSXDMAServiceProbe]
+      :classmethod:
+
+
+
+   .. py:method:: read_bar_u32(bar_index: int, offset: int) -> int
+
+
+   .. py:method:: write_bar_u32(bar_index: int, offset: int, value: int) -> None
+
+
+   .. py:method:: get_info() -> MacOSXDMADeviceInfo
+
+
+   .. py:method:: dma_read(device_offset: int, length: int) -> bytes
+
+
+   .. py:method:: dma_write(device_offset: int, data: bytes | bytearray | memoryview) -> int
+
+
+   .. py:method:: close() -> None
+
+
+.. py:class:: _IOKitBindings
+
+   .. py:attribute:: iokit
+      :type:  ctypes.CDLL
+
+
+   .. py:attribute:: libsystem
+      :type:  ctypes.CDLL
+
+
+   .. py:method:: load() -> _IOKitBindings
+      :classmethod:
+
+
+
+   .. py:method:: _configure_signatures() -> None
+
+
+   .. py:method:: call_struct_in(connection: int, selector: int, scalars: collections.abc.Sequence[int], data: bytes | bytearray | memoryview) -> None
+
+
+   .. py:method:: call_struct_out(connection: int, selector: int, scalars: collections.abc.Sequence[int], output_size: int) -> bytes
+
+
+   .. py:method:: matching_iterators(service_name: str) -> tuple[int, ...]
+
+
+   .. py:method:: _matching_iterator(matcher_name: str, service_name: str) -> int
+
+
+   .. py:method:: next_service(iterator: int) -> int
+
+
+   .. py:method:: open_service(service: int) -> int
+
+
+   .. py:method:: call_scalar(connection: int, selector: int, inputs: collections.abc.Sequence[int], output_count: int) -> tuple[int, ...]
+
+
+   .. py:method:: close(connection: int) -> None
+
+
+   .. py:method:: release(obj: int) -> None
+
+
+   .. py:method:: mach_task_self() -> int
+
+
+.. py:function:: discover_devices(client_factory: collections.abc.Callable[[], collections.abc.Iterable[MacOSXDMAClientProtocol]] | None = None) -> list[dau_driver.device.DauDevice]
+
+.. py:function:: probe_devices(client_factory: collections.abc.Callable[[], collections.abc.Iterable[MacOSXDMAClientProtocol]] | None = None, *, service_names: collections.abc.Sequence[str] = DEFAULT_SERVICE_NAMES, service_probes: collections.abc.Sequence[MacOSXDMAServiceProbe] = ()) -> MacOSXDMAProbeResult
+
+.. py:function:: _normalize_service_names(*, service_name: str | None = None, service_names: collections.abc.Sequence[str] | None = None) -> tuple[str, ...]
+
+.. py:function:: _probe_status(devices: tuple[dau_driver.device.DauDevice, ...], clients: tuple[MacOSXDMAClientProtocol, ...], service_probes: tuple[MacOSXDMAServiceProbe, ...], failures: tuple[str, ...]) -> str
+
+.. py:function:: _probe_result(*, status: str, devices: tuple[dau_driver.device.DauDevice, ...], service_names: tuple[str, ...], service_probes: tuple[MacOSXDMAServiceProbe, ...], failures: tuple[str, ...]) -> MacOSXDMAProbeResult
+
+.. py:function:: _probe_message(status: str, devices: tuple[dau_driver.device.DauDevice, ...], service_names: tuple[str, ...], service_probes: tuple[MacOSXDMAServiceProbe, ...], failures: tuple[str, ...]) -> str
+
+.. py:function:: _format_service_probe_details(service_probes: collections.abc.Sequence[MacOSXDMAServiceProbe]) -> str
+
+.. py:function:: identify_device(client: MacOSXDMAClientProtocol, *, index: int = 0) -> dau_driver.device.DauDevice
+
+.. py:function:: _find_register_window(client: MacOSXDMAClientProtocol) -> tuple[int, int, int]
+
+.. py:function:: _read_register_block_snapshot(client: MacOSXDMAClientProtocol, bar_index: int, register_window_offset: int) -> dau_core.registers.RegisterBlockSnapshot
+
+.. py:function:: _read_register(client: MacOSXDMAClientProtocol, bar_index: int, register_window_offset: int, offset: dau_core.registers.RegisterOffset) -> int
+
+.. py:function:: main(argv: collections.abc.Sequence[str] | None = None) -> int
+

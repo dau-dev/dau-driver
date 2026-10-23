@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Overlapped staging: why the runner ping-pongs, and when it stops &#8212; dau-driver v0.1.0</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/fuma.css?v=9324ae27" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/fuma-code.css?v=a950e949" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/fonts/fuma-fonts.css?v=c2892c73" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/custom.css?v=88c24c6a" />
+    <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-searchlite-index="searchlite-index.json" defer="defer" src="../../../_static/searchlite.js?v=a5320898"></script>
+    <script defer="defer" src="../../../_static/fuma.js?v=88a16a98"></script>
+    <script src="../../../_static/js/custom.js?v=956e5d78"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Storage handles: why a generation instead of a pointer" href="storage-handles.html" />
+    <link rel="prev" title="The transport boundary: why a driver owns almost nothing" href="transport-boundary.html" />
+    <script>
+      (function () {
+        var root = document.documentElement;
+        try {
+          var stored = localStorage.getItem("fuma-theme");
+          if (stored) {
+            root.classList.add(stored === "dark" ? "dark" : "light");
+            root.style.colorScheme = stored === "dark" ? "dark" : "light";
+          }
+          if (localStorage.getItem("fuma-sidebar") === "collapsed") root.dataset.sidebarCollapsed = "true";
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+<body class="fd-body" data-layout="docs" data-toc-style="normal" data-open-level="0">
+<div id="fd-layout"><header id="fd-subnav">
+  <div class="fd-subnav-inner">
+    <button type="button" class="fd-icon-button fd-sidebar-toggle" aria-controls="fd-sidebar" aria-expanded="false" aria-label="Toggle navigation" title="Toggle navigation">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
+    </button><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau-driver v0.1.0</span>
+</a>
+
+    <div class="fd-nav-actions">
+      <button type="button" class="fd-icon-button" data-fd-search-open aria-label="Search" title="Search"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
+      <a class="fd-icon-button" href="https://github.com/dau-dev/dau-driver" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <button type="button" class="fd-icon-button fd-theme-toggle" aria-label="Toggle theme" title="Toggle theme">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-light"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-dark"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<aside id="fd-sidebar" aria-label="Documentation">
+  <div class="fd-sidebar-header">
+    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau-driver v0.1.0</span>
+</a>
+      <button type="button" class="fd-icon-button fd-sidebar-collapse" aria-label="Collapse sidebar" title="Collapse sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+    </div>
+    <button type="button" class="fd-search-trigger" data-fd-search-open title="Search">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><span>Search</span><kbd class="fd-kbd">/</kbd>
+    </button>
+  </div>
+
+  <nav class="fd-sidebar-nav">
+    <div class="fd-sidebar-group">
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../tutorial/first-device.html">
+      <span class="fd-link-text">Talk to a device without any hardware</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../tutorial/first-scan-run.html">
+      <span class="fd-link-text">Run a scan over many batches</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../how-to/find-a-device.html">
+      <span class="fd-link-text">How to find and check a device</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../how-to/move-data.html">
+      <span class="fd-link-text">How to move data to and from a device</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../how-to/run-scan-jobs.html">
+      <span class="fd-link-text">How to run scan jobs</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../how-to/allocate-device-storage.html">
+      <span class="fd-link-text">How to allocate device storage</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../how-to/arm-the-deadman.html">
+      <span class="fd-link-text">How to fence a PCIe operation with the deadman</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../how-to/develop.html">
+      <span class="fd-link-text">Develop and contribute</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../reference/device-and-discovery.html">
+      <span class="fd-link-text">Device and discovery reference</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../reference/execution-contracts.html">
+      <span class="fd-link-text">Execution contracts reference</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../reference/stream-codec.html">
+      <span class="fd-link-text">Stream codec reference</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="transport-boundary.html">
+      <span class="fd-link-text">The transport boundary: why a driver owns almost nothing</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link fd-current" href="#">
+      <span class="fd-link-text">Overlapped staging: why the runner ping-pongs, and when it stops</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="storage-handles.html">
+      <span class="fd-link-text">Storage handles: why a generation instead of a pointer</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <details class="fd-folder">
+      <summary class="fd-folder-summary" title="Toggle section: API Reference">
+        <a class="fd-link" href="../../../autoapi/index.html">
+          <span class="fd-link-text">API Reference</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/conftest/index.html">
+      <span class="fd-link-text">conftest</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_docs/index.html">
+      <span class="fd-link-text">test_docs</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <details class="fd-folder">
+      <summary class="fd-folder-summary" title="Toggle section: dau_driver">
+        <a class="fd-link" href="../../../autoapi/dau_driver/index.html">
+          <span class="fd-link-text">dau_driver</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/_lazy/index.html">
+      <span class="fd-link-text">dau_driver._lazy</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/capability_decode/index.html">
+      <span class="fd-link-text">dau_driver.capability_decode</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/device/index.html">
+      <span class="fd-link-text">dau_driver.device</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/discovery/index.html">
+      <span class="fd-link-text">dau_driver.discovery</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/errors/index.html">
+      <span class="fd-link-text">dau_driver.errors</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/extension/index.html">
+      <span class="fd-link-text">dau_driver.extension</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/fleet/index.html">
+      <span class="fd-link-text">dau_driver.fleet</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/handle_table/index.html">
+      <span class="fd-link-text">dau_driver.handle_table</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/linux_xdma/index.html">
+      <span class="fd-link-text">dau_driver.linux_xdma</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/macos_xdma/index.html">
+      <span class="fd-link-text">dau_driver.macos_xdma</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/native/index.html">
+      <span class="fd-link-text">dau_driver.native</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/pipeline_execution/index.html">
+      <span class="fd-link-text">dau_driver.pipeline_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/scan_execution/index.html">
+      <span class="fd-link-text">dau_driver.scan_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/status/index.html">
+      <span class="fd-link-text">dau_driver.status</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/storage/index.html">
+      <span class="fd-link-text">dau_driver.storage</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/stream_codec/index.html">
+      <span class="fd-link-text">dau_driver.stream_codec</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/stream_execution/index.html">
+      <span class="fd-link-text">dau_driver.stream_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/testing/index.html">
+      <span class="fd-link-text">dau_driver.testing</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/transfer/index.html">
+      <span class="fd-link-text">dau_driver.transfer</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/verify_advertisement/index.html">
+      <span class="fd-link-text">dau_driver.verify_advertisement</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/xdma_io/index.html">
+      <span class="fd-link-text">dau_driver.xdma_io</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_fleet/index.html">
+      <span class="fd-link-text">test_fleet</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_native/index.html">
+      <span class="fd-link-text">test_native</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_readme/index.html">
+      <span class="fd-link-text">test_readme</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_storage/index.html">
+      <span class="fd-link-text">test_storage</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_transfer/index.html">
+      <span class="fd-link-text">test_transfer</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_discovery/index.html">
+      <span class="fd-link-text">test_discovery</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_macos_xdma/index.html">
+      <span class="fd-link-text">test_macos_xdma</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_handle_table/index.html">
+      <span class="fd-link-text">test_handle_table</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_lazy_exports/index.html">
+      <span class="fd-link-text">test_lazy_exports</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_stream_codec/index.html">
+      <span class="fd-link-text">test_stream_codec</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_scan_execution/index.html">
+      <span class="fd-link-text">test_scan_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_register_write/index.html">
+      <span class="fd-link-text">test_register_write</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_xdma_poc_script/index.html">
+      <span class="fd-link-text">test_xdma_poc_script</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_stream_execution/index.html">
+      <span class="fd-link-text">test_stream_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_capability_decode/index.html">
+      <span class="fd-link-text">test_capability_decode</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_pipeline_execution/index.html">
+      <span class="fd-link-text">test_pipeline_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_record_batch_codec/index.html">
+      <span class="fd-link-text">test_record_batch_codec</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_macos_xdma_hardware/index.html">
+      <span class="fd-link-text">test_macos_xdma_hardware</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_linux_xdma_hardware/index.html">
+      <span class="fd-link-text">test_linux_xdma_hardware</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_verify_advertisement/index.html">
+      <span class="fd-link-text">test_verify_advertisement</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_no_board_geometry_constants/index.html">
+      <span class="fd-link-text">test_no_board_geometry_constants</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+</ul>
+    </div>
+  </nav>
+
+  <div class="fd-sidebar-footer">
+    <div class="fd-toolbar">
+      <a class="fd-toolbar-item" href="https://github.com/dau-dev/dau-driver" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <div class="fd-theme-switch" role="group" aria-label="Theme">
+        <button type="button" class="fd-theme-option" data-fd-theme="light" aria-label="Light theme" title="Light theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></button>
+        <button type="button" class="fd-theme-option" data-fd-theme="dark" aria-label="Dark theme" title="Dark theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg></button>
+      </div>
+    </div>
+  </div>
+</aside>
+<button type="button" id="fd-sidebar-restore" class="fd-icon-button" aria-label="Expand sidebar" title="Expand sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+<div class="fd-sidebar-scrim" hidden></div>
+  <div id="fd-toc-popover">
+    <button type="button" class="fd-toc-trigger" aria-expanded="false" aria-controls="fd-toc-mobile" title="On this page">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg><span>On this page</span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+    <div id="fd-toc-mobile" hidden><ul class="fd-toc-list">
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#the-serial-version-and-what-it-wastes">The serial version, and what it wastes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#the-overlap-is-a-claim-so-it-is-tested-as-one">The overlap is a claim, so it is tested as one</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#how-much-it-saves">How much it saves</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#the-per-key-state-guard">The per_key_state guard</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#two-batching-contracts">Two batching contracts</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#why-a-fleet-cannot-be-stateful-at-all">Why a fleet cannot be stateful at all</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#the-gil-detail-that-only-shows-up-in-tests">The GIL detail that only shows up in tests</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#what-the-fleet-does-not-do">What the fleet does not do</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#related">Related</a>
+  </li>
+</ul>
+</div>
+  </div>
+
+  <main id="fd-main">
+    <article class="fd-page">
+      <div class="fd-prose">
+  <section class="tex2jax_ignore mathjax_ignore" id="overlapped-staging-why-the-runner-ping-pongs-and-when-it-stops">
+<h1>Overlapped staging: why the runner ping-pongs, and when it stops<a class="headerlink" href="#overlapped-staging-why-the-runner-ping-pongs-and-when-it-stops" title="Link to this heading">¶</a></h1>
+<p>A scan over a large table is not one job. It is many, and how the host feeds them
+decides how much of the device’s time is spent computing rather than waiting.
+This page explains the shape <code class="docutils literal notranslate"><span class="pre">run_scan_batches</span></code> takes and the two cases it
+refuses to run.</p>
+<section id="the-serial-version-and-what-it-wastes">
+<h2>The serial version, and what it wastes<a class="headerlink" href="#the-serial-version-and-what-it-wastes" title="Link to this heading">¶</a></h2>
+<p>The obvious loop is: stage a batch, start the job, wait, collect, repeat. Its
+problem is that DMA and compute are two independent engines and this loop runs
+exactly one of them at a time. Half the wall clock is a busy PCIe link with an
+idle datapath, then an idle link with a busy datapath.</p>
+<p>The fix is a ping-pong: two input regions in device memory, alternating. While job
+<em>i</em> computes out of region A, batch <em>i + 1</em>’s DMA fills region B. That is all
+<code class="docutils literal notranslate"><span class="pre">input_regions</span></code> is, two distinct addresses, and it is why passing the same
+address twice raises rather than serializing without telling you.</p>
+<p>The overlap extends further than the DMA. <code class="docutils literal notranslate"><span class="pre">batches</span></code> may be a lazy iterable, and
+the runner pulls the next batch on a worker thread while the current job runs, so
+whatever work the iterator does (encoding rows, reading a file) overlaps compute
+too. And because output regions are disjoint from input staging, the <code class="docutils literal notranslate"><span class="pre">collect</span></code>
+callback reading one job’s results also overlaps the next batch’s DMA.</p>
+</section>
+<section id="the-overlap-is-a-claim-so-it-is-tested-as-one">
+<h2>The overlap is a claim, so it is tested as one<a class="headerlink" href="#the-overlap-is-a-claim-so-it-is-tested-as-one" title="Link to this heading">¶</a></h2>
+<p>An overlap that degraded into serial execution would go unnoticed: the results
+would still be correct, only slower. So the test suite pins it with a
+transport that reports DONE only once the <em>next</em> batch’s H2C write has landed. A
+serial stage-after-finish runner deadlocks into the timeout against that fake; a
+green run is proof the staging overlapped.</p>
+<p>This is the general pattern for testing a concurrency property. Asserting on
+timings is flaky; making the fake refuse to complete unless the property holds is
+not.</p>
+</section>
+<section id="how-much-it-saves">
+<h2>How much it saves<a class="headerlink" href="#how-much-it-saves" title="Link to this heading">¶</a></h2>
+<p>Less than the arithmetic suggests, and the module says so rather than implying
+otherwise. Host writes and the job’s own burst reads share one memory controller
+on the reference board, so the gain is bounded by the bandwidth left over, not by
+the ratio of DMA time to job time.</p>
+<p>That is why the batch count is not a constant in the driver. Splitting a table
+into more batches hides more of the tail but adds per-job overhead; the crossover
+is measured on silicon for a given workload, not derived. The runner takes whatever
+batches you hand it and the decision stays with the caller.</p>
+</section>
+<section id="the-per-key-state-guard">
+<h2>The <code class="docutils literal notranslate"><span class="pre">per_key_state</span></code> guard<a class="headerlink" href="#the-per-key-state-guard" title="Link to this heading">¶</a></h2>
+<p>Some scan compositions keep state per key across the rows of a batch, such as a
+grouped aggregation holding a running total per key. Slice such a workload by
+row position and a key’s rows land in two different jobs, each producing a partial
+the host has no way to know it must merge. The results look right and are
+incomplete.</p>
+<p>So <code class="docutils literal notranslate"><span class="pre">per_key_state</span></code> is a required keyword, and when it is True the runner checks
+that <code class="docutils literal notranslate"><span class="pre">batches</span></code> is the object <code class="docutils literal notranslate"><span class="pre">key_partitioned_scan_batches</span></code> returns. The check
+is on the type of the iterable, not on a flag or a docstring.</p>
+<p>This choice has a cost. It makes the runner aware of one specific batch producer, which is a coupling you would
+normally avoid. The alternative is a boolean the caller sets correctly and one
+day does not, on a failure mode that produces plausible numbers. Coupling one
+function to one other function is the cheaper mistake.</p>
+<p><code class="docutils literal notranslate"><span class="pre">key_partitioned_scan_batches</span></code> assigns longest-processing-time-first: the largest
+key group goes into the currently smallest batch. That needs every group’s size
+before it can assign anything, so the first iteration consumes a full grouping
+pass, the one place the lazy pipeline is not lazy. Key groups are indivisible, so
+one hot key can still dominate a batch. LPT bounds the imbalance by the largest
+group; it cannot beat it.</p>
+</section>
+<section id="two-batching-contracts">
+<h2>Two batching contracts<a class="headerlink" href="#two-batching-contracts" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">key_range_scan_batches</span></code> looks like the same idea but is a different contract. It bounds the number
+of <em>distinct keys</em> in a batch, because the hash-mode grouped tile’s table is a
+fixed-size hardware fact: a batch presenting more keys than it holds closes out
+<code class="docutils literal notranslate"><span class="pre">GROUP_CAPACITY_EXCEEDED</span></code> and is invalidated.</p>
+<p>The host could react to that close-out. Sizing the batches so it cannot happen is
+better: partition the key space into ranges of <code class="docutils literal notranslate"><span class="pre">key_capacity</span></code> keys and emit one
+batch per range.</p>
+<p>The interesting difference is what each function <em>does not</em> require.
+<code class="docutils literal notranslate"><span class="pre">key_partitioned_scan_batches</span></code> needs records ordered by key, because it groups
+them with a single pass. <code class="docutils literal notranslate"><span class="pre">key_range_scan_batches</span></code> does not, and preserves arrival
+order within each batch. The hash table needs no key ordering, and imposing one
+would give up the staging freedom that tile exists to provide.</p>
+<p>Both give the same strong property: each key lands in one batch, so merging the
+per-batch group records is a concatenation rather than an additive merge. The
+general merge still exists in <code class="docutils literal notranslate"><span class="pre">dau_core.operators.merge_hash_grouped</span></code> for batches
+produced some other way. The device’s close-out remains the safety net for a
+caller whose <code class="docutils literal notranslate"><span class="pre">key_capacity</span></code> does not match the built design.</p>
+</section>
+<section id="why-a-fleet-cannot-be-stateful-at-all">
+<h2>Why a fleet cannot be stateful at all<a class="headerlink" href="#why-a-fleet-cannot-be-stateful-at-all" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">run_scan_batches_fleet</span></code> runs one pipeline per device over one shared lazy input,
+with each batch pulled exactly once by whichever pipeline demands it. That is what
+makes it self-balancing: a faster card asks for more batches, with no
+pre-partitioning and no throughput model.</p>
+<p>It also makes <code class="docutils literal notranslate"><span class="pre">per_key_state=True</span></code> impossible, so the function raises on it
+rather than running with split state. A key’s rows would go to whichever cards happen to be idle, and
+per-key state would split across devices that never see each other’s rows.
+Key-partitioning the input does not help: the affinity would have to be
+device-wide, which is the pre-partitioning that demand-driven scheduling exists
+to avoid. It is the same guard <code class="docutils literal notranslate"><span class="pre">run_scan_batches</span></code> applies to position-sliced
+batches, one level up.</p>
+<p><code class="docutils literal notranslate"><span class="pre">weights</span></code> biases the shared pull toward requested relative shares by weighted
+round-robin. It is a bias on <em>pull order</em>, not a partition: batches stay lazy and
+are never queued ahead. Demand still wins if a weighted device turns out to be
+slow.</p>
+</section>
+<section id="the-gil-detail-that-only-shows-up-in-tests">
+<h2>The GIL detail that only shows up in tests<a class="headerlink" href="#the-gil-detail-that-only-shows-up-in-tests" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">poll_yield_seconds</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>, meaning the status poll spins. That is
+right for the real transports, which release the GIL in their register read
+(<code class="docutils literal notranslate"><span class="pre">os.pread</span></code> on Linux, <code class="docutils literal notranslate"><span class="pre">ctypes</span></code> on macOS), so concurrent pipelines interleave freely
+and a sleep would only add latency per poll.</p>
+<p>It is wrong for a pure-Python transport, which is what a concurrent test uses.
+There the spin holds the GIL and flattens self-balancing toward an even split
+regardless of device speed: on fakes with a large speed gap the spinning split was
+close to even and took twice as long as the yielding one, which followed the gap.
+The parameter exists for that case only.</p>
+</section>
+<section id="what-the-fleet-does-not-do">
+<h2>What the fleet does not do<a class="headerlink" href="#what-the-fleet-does-not-do" title="Link to this heading">¶</a></h2>
+<p>Cancellation is incomplete, and the docstring says so rather than leaving you to
+discover it. A device failure wakes pipelines blocked pulling a batch, but one
+already inside its status wait runs to its own completion or timeout first, so an
+early failure can surface only after its peers finish.</p>
+<p>Naming a limitation is cheaper than a caller building a timeout budget on an
+assumption that does not hold.</p>
+</section>
+<section id="related">
+<h2>Related<a class="headerlink" href="#related" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../tutorial/first-scan-run.html"><span class="std std-doc">Run a scan over many batches</span></a>: the runner and
+its guards, hands on.</p></li>
+<li><p><a class="reference internal" href="../how-to/run-scan-jobs.html"><span class="std std-doc">Run scan jobs</span></a>: choosing a strategy for real work.</p></li>
+<li><p><a class="reference internal" href="../reference/execution-contracts.html"><span class="std std-doc">Execution contracts reference</span></a>: every
+signature and constant.</p></li>
+</ul>
+</section>
+</section>
+
+
+      </div>
+<nav class="fd-pagination" aria-label="Pagination">
+  <a class="fd-pagination-card fd-pagination-prev" href="transport-boundary.html" title="Previous: The transport boundary: why a driver owns almost nothing">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m15 18-6-6 6-6"/></svg>
+    <span class="fd-pagination-text">
+      <span class="fd-pagination-label">Previous</span>
+      <span class="fd-pagination-title">The transport boundary: why a driver owns almost nothing</span>
+    </span>
+  </a>
+  <a class="fd-pagination-card fd-pagination-next" href="storage-handles.html" title="Next: Storage handles: why a generation instead of a pointer">
+    <span class="fd-pagination-text">
+      <span class="fd-pagination-label">Next</span>
+      <span class="fd-pagination-title">Storage handles: why a generation instead of a pointer</span>
+    </span>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
+  </a>
+</nav>
+<footer id="fd-footer">
+  <p class="fd-footer-meta"><span>&#169; the dau-driver authors</span><span>Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.</span>
+  </p>
+</footer>
+    </article>
+  </main>
+<nav id="fd-toc" aria-label="On this page">
+  <p class="fd-toc-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>On this page</p>
+  <div class="fd-toc-body"><svg class="fd-toc-rail" aria-hidden="true" preserveAspectRatio="none">
+      <path class="fd-toc-track" fill="none" />
+      <path class="fd-toc-thumb" fill="none" />
+    </svg><ul class="fd-toc-list">
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#the-serial-version-and-what-it-wastes">The serial version, and what it wastes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#the-overlap-is-a-claim-so-it-is-tested-as-one">The overlap is a claim, so it is tested as one</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#how-much-it-saves">How much it saves</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#the-per-key-state-guard">The per_key_state guard</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#two-batching-contracts">Two batching contracts</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#why-a-fleet-cannot-be-stateful-at-all">Why a fleet cannot be stateful at all</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#the-gil-detail-that-only-shows-up-in-tests">The GIL detail that only shows up in tests</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#what-the-fleet-does-not-do">What the fleet does not do</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#related">Related</a>
+  </li>
+</ul>
+
+  </div>
+  <div class="fd-toc-actions">
+    <a class="fd-toc-action" href="https://github.com/dau-dev/dau-driver/edit/HEAD/docs/src/explanation/overlapped-staging.md" target="_blank" rel="noopener" title="Edit this page"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg><span>Edit this page</span></a>
+    <a class="fd-toc-action" href="../../../_sources/docs/src/explanation/overlapped-staging.md.txt" rel="nofollow" title="View source"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg><span>View source</span></a>
+  </div>
+</nav>
+</div>
+<dialog id="fd-search-dialog" aria-label="Search">
+  <form class="fd-search-panel" method="dialog" role="search">
+    <div class="fd-search-field">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="search" id="fd-search-input" autocomplete="off" spellcheck="false" placeholder="Search documentation..." aria-label="Search" />
+      <kbd class="fd-kbd">Esc</kbd>
+    </div>
+    <div id="fd-search-results" role="listbox" aria-label="Search results"></div>
+    <p id="fd-search-empty" class="fd-search-empty" hidden>No results found.</p>
+  </form>
+</dialog>
+  </body>
+</html>

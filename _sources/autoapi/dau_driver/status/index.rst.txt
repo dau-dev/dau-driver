@@ -1,0 +1,50 @@
+dau_driver.status
+=================
+
+.. py:module:: dau_driver.status
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   dau_driver.status.DeviceStatus
+   dau_driver.status.DeviceCounters
+
+
+Module Contents
+---------------
+
+.. py:class:: DeviceStatus
+
+   .. py:attribute:: raw_status
+      :type:  int
+
+
+   .. py:attribute:: last_error
+      :type:  int
+
+
+.. py:class:: DeviceCounters
+
+   .. py:attribute:: h2c_bytes
+      :type:  int
+
+
+   .. py:attribute:: c2h_bytes
+      :type:  int
+
+
+   .. py:attribute:: rows
+      :type:  int
+
+
+   .. py:attribute:: batches
+      :type:  int
+
+
+   .. py:attribute:: stalls
+      :type:  int
+
+

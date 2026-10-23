@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Run a scan over many batches &#8212; dau-driver v0.1.0</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/fuma.css?v=9324ae27" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/fuma-code.css?v=a950e949" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/fonts/fuma-fonts.css?v=c2892c73" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/custom.css?v=88c24c6a" />
+    <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-searchlite-index="searchlite-index.json" defer="defer" src="../../../_static/searchlite.js?v=a5320898"></script>
+    <script defer="defer" src="../../../_static/fuma.js?v=88a16a98"></script>
+    <script src="../../../_static/js/custom.js?v=956e5d78"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="How to find and check a device" href="../how-to/find-a-device.html" />
+    <link rel="prev" title="Talk to a device without any hardware" href="first-device.html" />
+    <script>
+      (function () {
+        var root = document.documentElement;
+        try {
+          var stored = localStorage.getItem("fuma-theme");
+          if (stored) {
+            root.classList.add(stored === "dark" ? "dark" : "light");
+            root.style.colorScheme = stored === "dark" ? "dark" : "light";
+          }
+          if (localStorage.getItem("fuma-sidebar") === "collapsed") root.dataset.sidebarCollapsed = "true";
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+<body class="fd-body" data-layout="docs" data-toc-style="normal" data-open-level="0">
+<div id="fd-layout"><header id="fd-subnav">
+  <div class="fd-subnav-inner">
+    <button type="button" class="fd-icon-button fd-sidebar-toggle" aria-controls="fd-sidebar" aria-expanded="false" aria-label="Toggle navigation" title="Toggle navigation">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
+    </button><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau-driver v0.1.0</span>
+</a>
+
+    <div class="fd-nav-actions">
+      <button type="button" class="fd-icon-button" data-fd-search-open aria-label="Search" title="Search"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
+      <a class="fd-icon-button" href="https://github.com/dau-dev/dau-driver" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <button type="button" class="fd-icon-button fd-theme-toggle" aria-label="Toggle theme" title="Toggle theme">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-light"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-dark"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<aside id="fd-sidebar" aria-label="Documentation">
+  <div class="fd-sidebar-header">
+    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau-driver v0.1.0</span>
+</a>
+      <button type="button" class="fd-icon-button fd-sidebar-collapse" aria-label="Collapse sidebar" title="Collapse sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+    </div>
+    <button type="button" class="fd-search-trigger" data-fd-search-open title="Search">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><span>Search</span><kbd class="fd-kbd">/</kbd>
+    </button>
+  </div>
+
+  <nav class="fd-sidebar-nav">
+    <div class="fd-sidebar-group">
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="first-device.html">
+      <span class="fd-link-text">Talk to a device without any hardware</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link fd-current" href="#">
+      <span class="fd-link-text">Run a scan over many batches</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../how-to/find-a-device.html">
+      <span class="fd-link-text">How to find and check a device</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../how-to/move-data.html">
+      <span class="fd-link-text">How to move data to and from a device</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../how-to/run-scan-jobs.html">
+      <span class="fd-link-text">How to run scan jobs</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../how-to/allocate-device-storage.html">
+      <span class="fd-link-text">How to allocate device storage</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../how-to/arm-the-deadman.html">
+      <span class="fd-link-text">How to fence a PCIe operation with the deadman</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../how-to/develop.html">
+      <span class="fd-link-text">Develop and contribute</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../reference/device-and-discovery.html">
+      <span class="fd-link-text">Device and discovery reference</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../reference/execution-contracts.html">
+      <span class="fd-link-text">Execution contracts reference</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../reference/stream-codec.html">
+      <span class="fd-link-text">Stream codec reference</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../explanation/transport-boundary.html">
+      <span class="fd-link-text">The transport boundary: why a driver owns almost nothing</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../explanation/overlapped-staging.html">
+      <span class="fd-link-text">Overlapped staging: why the runner ping-pongs, and when it stops</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../explanation/storage-handles.html">
+      <span class="fd-link-text">Storage handles: why a generation instead of a pointer</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <details class="fd-folder">
+      <summary class="fd-folder-summary" title="Toggle section: API Reference">
+        <a class="fd-link" href="../../../autoapi/index.html">
+          <span class="fd-link-text">API Reference</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/conftest/index.html">
+      <span class="fd-link-text">conftest</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_docs/index.html">
+      <span class="fd-link-text">test_docs</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <details class="fd-folder">
+      <summary class="fd-folder-summary" title="Toggle section: dau_driver">
+        <a class="fd-link" href="../../../autoapi/dau_driver/index.html">
+          <span class="fd-link-text">dau_driver</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/_lazy/index.html">
+      <span class="fd-link-text">dau_driver._lazy</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/capability_decode/index.html">
+      <span class="fd-link-text">dau_driver.capability_decode</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/device/index.html">
+      <span class="fd-link-text">dau_driver.device</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/discovery/index.html">
+      <span class="fd-link-text">dau_driver.discovery</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/errors/index.html">
+      <span class="fd-link-text">dau_driver.errors</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/extension/index.html">
+      <span class="fd-link-text">dau_driver.extension</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/fleet/index.html">
+      <span class="fd-link-text">dau_driver.fleet</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/handle_table/index.html">
+      <span class="fd-link-text">dau_driver.handle_table</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/linux_xdma/index.html">
+      <span class="fd-link-text">dau_driver.linux_xdma</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/macos_xdma/index.html">
+      <span class="fd-link-text">dau_driver.macos_xdma</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/native/index.html">
+      <span class="fd-link-text">dau_driver.native</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/pipeline_execution/index.html">
+      <span class="fd-link-text">dau_driver.pipeline_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/scan_execution/index.html">
+      <span class="fd-link-text">dau_driver.scan_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/status/index.html">
+      <span class="fd-link-text">dau_driver.status</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/storage/index.html">
+      <span class="fd-link-text">dau_driver.storage</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/stream_codec/index.html">
+      <span class="fd-link-text">dau_driver.stream_codec</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/stream_execution/index.html">
+      <span class="fd-link-text">dau_driver.stream_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/testing/index.html">
+      <span class="fd-link-text">dau_driver.testing</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/transfer/index.html">
+      <span class="fd-link-text">dau_driver.transfer</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/verify_advertisement/index.html">
+      <span class="fd-link-text">dau_driver.verify_advertisement</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/dau_driver/xdma_io/index.html">
+      <span class="fd-link-text">dau_driver.xdma_io</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_fleet/index.html">
+      <span class="fd-link-text">test_fleet</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_native/index.html">
+      <span class="fd-link-text">test_native</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_readme/index.html">
+      <span class="fd-link-text">test_readme</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_storage/index.html">
+      <span class="fd-link-text">test_storage</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_transfer/index.html">
+      <span class="fd-link-text">test_transfer</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_discovery/index.html">
+      <span class="fd-link-text">test_discovery</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_macos_xdma/index.html">
+      <span class="fd-link-text">test_macos_xdma</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_handle_table/index.html">
+      <span class="fd-link-text">test_handle_table</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_lazy_exports/index.html">
+      <span class="fd-link-text">test_lazy_exports</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_stream_codec/index.html">
+      <span class="fd-link-text">test_stream_codec</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_scan_execution/index.html">
+      <span class="fd-link-text">test_scan_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_register_write/index.html">
+      <span class="fd-link-text">test_register_write</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_xdma_poc_script/index.html">
+      <span class="fd-link-text">test_xdma_poc_script</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_stream_execution/index.html">
+      <span class="fd-link-text">test_stream_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_capability_decode/index.html">
+      <span class="fd-link-text">test_capability_decode</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_pipeline_execution/index.html">
+      <span class="fd-link-text">test_pipeline_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_record_batch_codec/index.html">
+      <span class="fd-link-text">test_record_batch_codec</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_macos_xdma_hardware/index.html">
+      <span class="fd-link-text">test_macos_xdma_hardware</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_linux_xdma_hardware/index.html">
+      <span class="fd-link-text">test_linux_xdma_hardware</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_verify_advertisement/index.html">
+      <span class="fd-link-text">test_verify_advertisement</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../autoapi/test_no_board_geometry_constants/index.html">
+      <span class="fd-link-text">test_no_board_geometry_constants</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+</ul>
+    </div>
+  </nav>
+
+  <div class="fd-sidebar-footer">
+    <div class="fd-toolbar">
+      <a class="fd-toolbar-item" href="https://github.com/dau-dev/dau-driver" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <div class="fd-theme-switch" role="group" aria-label="Theme">
+        <button type="button" class="fd-theme-option" data-fd-theme="light" aria-label="Light theme" title="Light theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></button>
+        <button type="button" class="fd-theme-option" data-fd-theme="dark" aria-label="Dark theme" title="Dark theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg></button>
+      </div>
+    </div>
+  </div>
+</aside>
+<button type="button" id="fd-sidebar-restore" class="fd-icon-button" aria-label="Expand sidebar" title="Expand sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+<div class="fd-sidebar-scrim" hidden></div>
+  <div id="fd-toc-popover">
+    <button type="button" class="fd-toc-trigger" aria-expanded="false" aria-controls="fd-toc-mobile" title="On this page">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg><span>On this page</span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+    <div id="fd-toc-mobile" hidden><ul class="fd-toc-list">
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#step-1-build-some-batches">Step 1: Build some batches</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#step-2-run-them">Step 2: Run them</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#step-3-confine-each-key-to-one-batch">Step 3: Confine each key to one batch</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#step-4-meet-the-guard">Step 4: Meet the guard</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#step-5-bound-the-distinct-keys-per-batch">Step 5: Bound the distinct keys per batch</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#what-you-have-done">What you have done</a>
+  </li>
+</ul>
+</div>
+  </div>
+
+  <main id="fd-main">
+    <article class="fd-page">
+      <div class="fd-prose">
+  <section class="tex2jax_ignore mathjax_ignore" id="run-a-scan-over-many-batches">
+<h1>Run a scan over many batches<a class="headerlink" href="#run-a-scan-over-many-batches" title="Link to this heading">¶</a></h1>
+<p>In this tutorial we will run a multi-batch scan job: build batches, hand them to
+the streaming runner, and watch it ping-pong between two device regions so each
+batch’s DMA overlaps the previous batch’s compute. Then we will meet the guard
+that stops a stateful composition from being fed the wrong kind of batch.</p>
+<p>As in <a class="reference internal" href="first-device.html"><span class="std std-doc">Talk to a device without any hardware</span></a>, everything runs
+against the fake transport, with no board required. Work in a Python session with
+<code class="docutils literal notranslate"><span class="pre">dau-driver</span></code> installed.</p>
+<section id="step-1-build-some-batches">
+<h2>Step 1: Build some batches<a class="headerlink" href="#step-1-build-some-batches" title="Link to this heading">¶</a></h2>
+<p>A <code class="docutils literal notranslate"><span class="pre">ScanBatch</span></code> is a packed row payload and its row count. Here each row is four
+int32 fields: a symbol id and a price, with two fields unused. Run:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">struct</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dau_driver.scan_execution</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScanBatch</span>
+
+<span class="n">ROW_BYTES</span> <span class="o">=</span> <span class="mi">16</span>
+<span class="n">SYMBOL_IDS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"AAA"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"BBB"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"CCC"</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+
+<span class="n">readings</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="s2">"AAA"</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="p">(</span><span class="s2">"AAA"</span><span class="p">,</span> <span class="mi">11</span><span class="p">),</span> <span class="p">(</span><span class="s2">"AAA"</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"BBB"</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"CCC"</span><span class="p">,</span> <span class="mi">30</span><span class="p">),</span> <span class="p">(</span><span class="s2">"CCC"</span><span class="p">,</span> <span class="mi">31</span><span class="p">),</span>
+<span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">encode</span><span class="p">(</span><span class="n">rows</span><span class="p">):</span>
+    <span class="k">return</span> <span class="sa">b</span><span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">"&lt;4i"</span><span class="p">,</span> <span class="n">SYMBOL_IDS</span><span class="p">[</span><span class="n">symbol</span><span class="p">],</span> <span class="n">price</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">symbol</span><span class="p">,</span> <span class="n">price</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">)</span>
+
+
+<span class="n">batches</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">ScanBatch</span><span class="p">(</span><span class="n">payload</span><span class="o">=</span><span class="n">encode</span><span class="p">(</span><span class="n">readings</span><span class="p">[:</span><span class="mi">3</span><span class="p">]),</span> <span class="n">row_count</span><span class="o">=</span><span class="mi">3</span><span class="p">),</span>
+    <span class="n">ScanBatch</span><span class="p">(</span><span class="n">payload</span><span class="o">=</span><span class="n">encode</span><span class="p">(</span><span class="n">readings</span><span class="p">[</span><span class="mi">3</span><span class="p">:]),</span> <span class="n">row_count</span><span class="o">=</span><span class="mi">3</span><span class="p">),</span>
+<span class="p">]</span>
+
+<span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">batches</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">row_count</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">payload</span><span class="p">))</span>
+</pre></div>
+</div>
+<p><strong>Output:</strong></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>3 48
+3 48
+</pre></div>
+</div>
+<p>Three rows at 16 bytes each is 48 bytes. Note that 48 is not a multiple of the
+64-byte DMA grid; Step 2 comes back to that.</p>
+</section>
+<section id="step-2-run-them">
+<h2>Step 2: Run them<a class="headerlink" href="#step-2-run-them" title="Link to this heading">¶</a></h2>
+<p>The runner needs two distinct device addresses to alternate between, the row
+width, and a <code class="docutils literal notranslate"><span class="pre">collect</span></code> callback that reads each job’s results off the device once
+it completes. Run:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dau_core.registers</span><span class="w"> </span><span class="kn">import</span> <span class="n">JobStatusFlag</span><span class="p">,</span> <span class="n">RegisterOffset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dau_driver.scan_execution</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_scan_batches</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dau_driver.testing</span><span class="w"> </span><span class="kn">import</span> <span class="n">FakeTransport</span><span class="p">,</span> <span class="n">fake_device</span>
+
+<span class="n">transport</span> <span class="o">=</span> <span class="n">FakeTransport</span><span class="p">()</span>
+<span class="n">transport</span><span class="o">.</span><span class="n">registers</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">RegisterOffset</span><span class="o">.</span><span class="n">JOB_STATUS</span><span class="p">)]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">JobStatusFlag</span><span class="o">.</span><span class="n">DONE</span><span class="p">)</span>
+<span class="n">device</span> <span class="o">=</span> <span class="n">fake_device</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">"/tmp"</span><span class="p">),</span> <span class="n">transport</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">collect</span><span class="p">(</span><span class="n">device</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">device</span><span class="o">.</span><span class="n">read_register</span><span class="p">(</span><span class="n">RegisterOffset</span><span class="o">.</span><span class="n">INPUT_LENGTH_LOW</span><span class="p">)</span>
+
+
+<span class="n">results</span> <span class="o">=</span> <span class="n">run_scan_batches</span><span class="p">(</span>
+    <span class="n">device</span><span class="p">,</span>
+    <span class="n">batches</span><span class="p">,</span>
+    <span class="n">per_key_state</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">input_regions</span><span class="o">=</span><span class="p">(</span><span class="mh">0x0000_0000</span><span class="p">,</span> <span class="mh">0x0800_0000</span><span class="p">),</span>
+    <span class="n">row_bytes</span><span class="o">=</span><span class="n">ROW_BYTES</span><span class="p">,</span>
+    <span class="n">collect</span><span class="o">=</span><span class="n">collect</span><span class="p">,</span>
+    <span class="n">timeout_seconds</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"results:"</span><span class="p">,</span> <span class="n">results</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"regions:"</span><span class="p">,</span> <span class="p">[</span><span class="nb">hex</span><span class="p">(</span><span class="n">address</span><span class="p">)</span> <span class="k">for</span> <span class="n">address</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">transport</span><span class="o">.</span><span class="n">h2c_writes</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"bytes:  "</span><span class="p">,</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">payload</span> <span class="ow">in</span> <span class="n">transport</span><span class="o">.</span><span class="n">h2c_writes</span><span class="p">])</span>
+</pre></div>
+</div>
+<p><strong>Output:</strong></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>results: [48, 48]
+regions: ['0x0', '0x8000000']
+bytes:   [64, 64]
+</pre></div>
+</div>
+<p>Three things happened here.</p>
+<p>The two batches landed in <em>different</em> regions, <code class="docutils literal notranslate"><span class="pre">0x0</span></code> then <code class="docutils literal notranslate"><span class="pre">0x8000000</span></code>. That is
+the ping-pong: while job 0 computes out of region A, batch 1’s DMA is already
+filling region B. Batch 2 would go back to region A, and so on.</p>
+<p>The payloads went out as 64 bytes, not 48. The runner pads the DMA up to the
+64-byte grid, while <code class="docutils literal notranslate"><span class="pre">INPUT_LENGTH</span></code>, which is what the device reads, stays exact
+at 48. That is why <code class="docutils literal notranslate"><span class="pre">collect</span></code> returned 48 for each batch.</p>
+<p><code class="docutils literal notranslate"><span class="pre">collect</span></code> was called once per batch, after that batch’s job reported DONE, and the
+results came back in batch order.</p>
+<p>Because <code class="docutils literal notranslate"><span class="pre">batches</span></code> here is a list, all the encoding happened before the run. Pass a
+generator instead and the runner will pull each batch just before it stages it,
+so the encoding work overlaps compute too.</p>
+</section>
+<section id="step-3-confine-each-key-to-one-batch">
+<h2>Step 3: Confine each key to one batch<a class="headerlink" href="#step-3-confine-each-key-to-one-batch" title="Link to this heading">¶</a></h2>
+<p>Some scan compositions keep per-key state across a batch, a grouped aggregation
+for instance. Slicing rows by position would then split a key’s state across two
+jobs. <code class="docutils literal notranslate"><span class="pre">key_partitioned_scan_batches</span></code> builds batches where each key lands in
+exactly one. Run:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dau_driver.scan_execution</span><span class="w"> </span><span class="kn">import</span> <span class="n">key_partitioned_scan_batches</span>
+
+<span class="n">transport</span> <span class="o">=</span> <span class="n">FakeTransport</span><span class="p">()</span>
+<span class="n">transport</span><span class="o">.</span><span class="n">registers</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">RegisterOffset</span><span class="o">.</span><span class="n">JOB_STATUS</span><span class="p">)]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">JobStatusFlag</span><span class="o">.</span><span class="n">DONE</span><span class="p">)</span>
+<span class="n">device</span> <span class="o">=</span> <span class="n">fake_device</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">"/tmp"</span><span class="p">),</span> <span class="n">transport</span><span class="p">)</span>
+
+<span class="n">partitioned</span> <span class="o">=</span> <span class="n">key_partitioned_scan_batches</span><span class="p">(</span>
+    <span class="n">readings</span><span class="p">,</span>
+    <span class="n">batch_count</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">reading</span><span class="p">:</span> <span class="n">reading</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+    <span class="n">encode</span><span class="o">=</span><span class="n">encode</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="n">run_scan_batches</span><span class="p">(</span>
+    <span class="n">device</span><span class="p">,</span>
+    <span class="n">partitioned</span><span class="p">,</span>
+    <span class="n">per_key_state</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">input_regions</span><span class="o">=</span><span class="p">(</span><span class="mh">0x0000_0000</span><span class="p">,</span> <span class="mh">0x0800_0000</span><span class="p">),</span>
+    <span class="n">row_bytes</span><span class="o">=</span><span class="n">ROW_BYTES</span><span class="p">,</span>
+    <span class="n">collect</span><span class="o">=</span><span class="n">collect</span><span class="p">,</span>
+    <span class="n">timeout_seconds</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"results:"</span><span class="p">,</span> <span class="n">results</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Output:</strong></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>results: [48, 48]
+</pre></div>
+</div>
+<p>Six rows across three key groups, balanced into two batches of three. The
+assignment is longest-processing-time-first: the largest key group goes into the
+currently smallest batch. Records must arrive ordered by key, and record order
+within each key is preserved.</p>
+</section>
+<section id="step-4-meet-the-guard">
+<h2>Step 4: Meet the guard<a class="headerlink" href="#step-4-meet-the-guard" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">per_key_state</span></code> is not advisory. Try running the plain list of batches from Step 1
+with it set:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">try</span><span class="p">:</span>
+    <span class="n">run_scan_batches</span><span class="p">(</span>
+        <span class="n">device</span><span class="p">,</span>
+        <span class="n">batches</span><span class="p">,</span>
+        <span class="n">per_key_state</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">input_regions</span><span class="o">=</span><span class="p">(</span><span class="mh">0x0000_0000</span><span class="p">,</span> <span class="mh">0x0800_0000</span><span class="p">),</span>
+        <span class="n">row_bytes</span><span class="o">=</span><span class="n">ROW_BYTES</span><span class="p">,</span>
+        <span class="n">collect</span><span class="o">=</span><span class="n">collect</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"ValueError:"</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Output:</strong></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>ValueError: scan composition has cross-batch per-key state; batches must be key-partitioned with key_partitioned_scan_batches
+</pre></div>
+</div>
+<p>A stateful composition only accepts batches that came from
+<code class="docutils literal notranslate"><span class="pre">key_partitioned_scan_batches</span></code>. The check is on the batch iterable’s identity, not
+on a flag you could get wrong, so a position-sliced batch cannot reach a stateful
+job by accident.</p>
+</section>
+<section id="step-5-bound-the-distinct-keys-per-batch">
+<h2>Step 5: Bound the distinct keys per batch<a class="headerlink" href="#step-5-bound-the-distinct-keys-per-batch" title="Link to this heading">¶</a></h2>
+<p>A different constraint applies to the hash-mode grouped tile: its table holds a
+fixed number of <em>distinct keys</em>, and a batch presenting more is invalidated by the
+device. Rather than react to that, size the batches so it cannot happen. Run:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dau_driver.scan_execution</span><span class="w"> </span><span class="kn">import</span> <span class="n">key_range_scan_batches</span>
+
+<span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">key_range_scan_batches</span><span class="p">(</span><span class="n">readings</span><span class="p">,</span> <span class="n">key_capacity</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">reading</span><span class="p">:</span> <span class="n">reading</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">encode</span><span class="o">=</span><span class="n">encode</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">row_count</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Output:</strong></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>4
+2
+</pre></div>
+</div>
+<p>Two batches: the first holds keys <code class="docutils literal notranslate"><span class="pre">AAA</span></code> and <code class="docutils literal notranslate"><span class="pre">BBB</span></code> (four rows), the second holds
+<code class="docutils literal notranslate"><span class="pre">CCC</span></code> (two). The key ranges are equal in <em>keys</em>, not in rows, which is why the row
+counts differ.</p>
+<p>Because each key lands in exactly one batch, combining the per-batch group records
+is a plain concatenation. And unlike Step 3, records need not arrive in key
+order: the hash table needs no key ordering, so arrival order is preserved within
+each batch.</p>
+</section>
+<section id="what-you-have-done">
+<h2>What you have done<a class="headerlink" href="#what-you-have-done" title="Link to this heading">¶</a></h2>
+<p>You have run a multi-batch scan with overlapped staging, built key-confined
+batches two different ways, and seen the guard that keeps a stateful composition
+from reading half its state.</p>
+<p>From here:</p>
+<ul class="simple">
+<li><p>For choosing between these batching strategies on real work, and for spreading
+batches across several cards, see
+<a class="reference internal" href="../how-to/run-scan-jobs.html"><span class="std std-doc">Run scan jobs</span></a>.</p></li>
+<li><p>For the full signature of every runner, see the
+<a class="reference internal" href="../reference/execution-contracts.html"><span class="std std-doc">execution contracts reference</span></a>.</p></li>
+<li><p>For why the overlap is shaped this way, read
+<a class="reference internal" href="../explanation/overlapped-staging.html"><span class="std std-doc">Overlapped staging</span></a>.</p></li>
+</ul>
+</section>
+</section>
+
+
+      </div>
+<nav class="fd-pagination" aria-label="Pagination">
+  <a class="fd-pagination-card fd-pagination-prev" href="first-device.html" title="Previous: Talk to a device without any hardware">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m15 18-6-6 6-6"/></svg>
+    <span class="fd-pagination-text">
+      <span class="fd-pagination-label">Previous</span>
+      <span class="fd-pagination-title">Talk to a device without any hardware</span>
+    </span>
+  </a>
+  <a class="fd-pagination-card fd-pagination-next" href="../how-to/find-a-device.html" title="Next: How to find and check a device">
+    <span class="fd-pagination-text">
+      <span class="fd-pagination-label">Next</span>
+      <span class="fd-pagination-title">How to find and check a device</span>
+    </span>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
+  </a>
+</nav>
+<footer id="fd-footer">
+  <p class="fd-footer-meta"><span>&#169; the dau-driver authors</span><span>Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.</span>
+  </p>
+</footer>
+    </article>
+  </main>
+<nav id="fd-toc" aria-label="On this page">
+  <p class="fd-toc-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>On this page</p>
+  <div class="fd-toc-body"><svg class="fd-toc-rail" aria-hidden="true" preserveAspectRatio="none">
+      <path class="fd-toc-track" fill="none" />
+      <path class="fd-toc-thumb" fill="none" />
+    </svg><ul class="fd-toc-list">
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#step-1-build-some-batches">Step 1: Build some batches</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#step-2-run-them">Step 2: Run them</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#step-3-confine-each-key-to-one-batch">Step 3: Confine each key to one batch</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#step-4-meet-the-guard">Step 4: Meet the guard</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#step-5-bound-the-distinct-keys-per-batch">Step 5: Bound the distinct keys per batch</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#what-you-have-done">What you have done</a>
+  </li>
+</ul>
+
+  </div>
+  <div class="fd-toc-actions">
+    <a class="fd-toc-action" href="https://github.com/dau-dev/dau-driver/edit/HEAD/docs/src/tutorial/first-scan-run.md" target="_blank" rel="noopener" title="Edit this page"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg><span>Edit this page</span></a>
+    <a class="fd-toc-action" href="../../../_sources/docs/src/tutorial/first-scan-run.md.txt" rel="nofollow" title="View source"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg><span>View source</span></a>
+  </div>
+</nav>
+</div>
+<dialog id="fd-search-dialog" aria-label="Search">
+  <form class="fd-search-panel" method="dialog" role="search">
+    <div class="fd-search-field">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="search" id="fd-search-input" autocomplete="off" spellcheck="false" placeholder="Search documentation..." aria-label="Search" />
+      <kbd class="fd-kbd">Esc</kbd>
+    </div>
+    <div id="fd-search-results" role="listbox" aria-label="Search results"></div>
+    <p id="fd-search-empty" class="fd-search-empty" hidden>No results found.</p>
+  </form>
+</dialog>
+  </body>
+</html>

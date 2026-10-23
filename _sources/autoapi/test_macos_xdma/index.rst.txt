@@ -1,0 +1,132 @@
+test_macos_xdma
+===============
+
+.. py:module:: test_macos_xdma
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   test_macos_xdma.FakeMacOSXDMAClient
+   test_macos_xdma.FakeIOKitBindings
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_macos_xdma.test_macos_xdma_client_open_all_probes_only_the_canonical_service
+   test_macos_xdma.test_identify_macos_xdma_device_finds_dau_register_window
+   test_macos_xdma.test_identify_macos_xdma_device_rejects_non_dau_bitstream
+   test_macos_xdma.test_discover_macos_xdma_devices_skips_unhealthy_or_wrong_bitstreams
+   test_macos_xdma.test_discover_macos_xdma_devices_reports_no_user_client_as_no_devices
+   test_macos_xdma.test_probe_macos_xdma_reports_services_tried_when_no_driverkit_service_is_visible
+   test_macos_xdma.test_probe_macos_xdma_reports_matched_service_without_open_user_client
+   test_macos_xdma.test_probe_macos_xdma_reports_visible_service_with_wrong_bitstream
+   test_macos_xdma.test_macos_xdma_dma_roundtrip_carries_buffers
+   test_macos_xdma.test_macos_xdma_device_close_releases_user_client
+   test_macos_xdma.test_the_real_client_checks_bar_index_and_offset_before_calling_the_dext
+
+
+Module Contents
+---------------
+
+.. py:class:: FakeMacOSXDMAClient
+
+   .. py:attribute:: values
+      :type:  dict[tuple[int, int], int]
+
+
+   .. py:attribute:: info
+      :type:  dau_driver.macos_xdma.MacOSXDMADeviceInfo
+
+
+   .. py:attribute:: closed
+      :type:  bool
+      :value: False
+
+
+
+   .. py:attribute:: memory
+      :type:  bytearray
+
+
+   .. py:method:: read_bar_u32(bar_index: int, offset: int) -> int
+
+
+   .. py:method:: write_bar_u32(bar_index: int, offset: int, value: int) -> None
+
+
+   .. py:method:: get_info() -> dau_driver.macos_xdma.MacOSXDMADeviceInfo
+
+
+   .. py:method:: _ensure_memory(end: int) -> None
+
+
+   .. py:method:: dma_read(device_offset: int, length: int) -> bytes
+
+
+   .. py:method:: dma_write(device_offset: int, data: bytes | bytearray | memoryview) -> int
+
+
+   .. py:method:: close() -> None
+
+
+.. py:class:: FakeIOKitBindings
+
+   .. py:attribute:: requests
+      :type:  list[str]
+      :value: []
+
+
+
+   .. py:attribute:: _iterated
+      :value: False
+
+
+
+   .. py:method:: matching_iterators(service_name: str) -> tuple[int, ...]
+
+
+   .. py:method:: next_service(iterator: int) -> int
+
+
+   .. py:method:: open_service(service: int) -> int
+
+
+   .. py:method:: release(obj: int) -> None
+
+
+   .. py:method:: close(connection: int) -> None
+
+
+.. py:function:: test_macos_xdma_client_open_all_probes_only_the_canonical_service(monkeypatch: pytest.MonkeyPatch) -> None
+
+.. py:function:: test_identify_macos_xdma_device_finds_dau_register_window() -> None
+
+.. py:function:: test_identify_macos_xdma_device_rejects_non_dau_bitstream() -> None
+
+.. py:function:: test_discover_macos_xdma_devices_skips_unhealthy_or_wrong_bitstreams() -> None
+
+.. py:function:: test_discover_macos_xdma_devices_reports_no_user_client_as_no_devices() -> None
+
+.. py:function:: test_probe_macos_xdma_reports_services_tried_when_no_driverkit_service_is_visible() -> None
+
+.. py:function:: test_probe_macos_xdma_reports_matched_service_without_open_user_client() -> None
+
+.. py:function:: test_probe_macos_xdma_reports_visible_service_with_wrong_bitstream() -> None
+
+.. py:function:: test_macos_xdma_dma_roundtrip_carries_buffers() -> None
+
+.. py:function:: test_macos_xdma_device_close_releases_user_client() -> None
+
+.. py:function:: test_the_real_client_checks_bar_index_and_offset_before_calling_the_dext() -> None
+
+   The user client hands the scalars to the dext as unsigned 64-bit values;
+   a negative offset would wrap to a huge one. The check runs before any
+   binding is touched, so a bindings object that cannot be called proves it.
+
+

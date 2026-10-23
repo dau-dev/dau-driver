@@ -1,0 +1,25 @@
+dau_driver.discovery
+====================
+
+.. py:module:: dau_driver.discovery
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   dau_driver.discovery.discover_devices
+   dau_driver.discovery.identify_device
+   dau_driver.discovery._discover_macos_devices
+
+
+Module Contents
+---------------
+
+.. py:function:: discover_devices(root: str | pathlib.Path = linux_xdma.DEFAULT_DEV_ROOT) -> list[dau_driver.device.DauDevice]
+
+.. py:function:: identify_device(user_path: str | pathlib.Path, *, h2c_path: str | pathlib.Path | None = None, c2h_path: str | pathlib.Path | None = None) -> dau_driver.device.DauDevice
+
+.. py:function:: _discover_macos_devices() -> list[dau_driver.device.DauDevice]
+

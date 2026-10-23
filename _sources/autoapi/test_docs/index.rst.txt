@@ -1,0 +1,61 @@
+test_docs
+=========
+
+.. py:module:: test_docs
+
+.. autoapi-nested-parse::
+
+   Every python block in the tutorials runs as written, in order.
+
+   The tutorials are the pages that promise to work without a board, against the
+   fake transport, so they are the ones run here; the how-to and reference pages
+   show fragments for a real device. A page is one session: its blocks share a
+   namespace, the way a reader typing them into one prompt would, and it runs in
+   a scratch directory. Where a page shows what a block prints (an untagged or
+   ``text`` fence right after it, with at most a lead-in line such as
+   "**Output:**" between), the output must match. A block marked with an
+   ``<!-- excerpt -->`` comment is skipped.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   test_docs.DOCS
+   test_docs.PAGES
+   test_docs.FENCE
+   test_docs.LEAD_IN
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_docs._runs
+   test_docs.test_the_tutorials_are_found_and_check_output
+   test_docs.test_the_page_runs_as_written
+
+
+Module Contents
+---------------
+
+.. py:data:: DOCS
+
+.. py:data:: PAGES
+
+.. py:data:: FENCE
+
+.. py:data:: LEAD_IN
+
+.. py:function:: _runs(page: pathlib.Path) -> list[tuple[str, str | None]]
+
+   The page's runnable python blocks, each with the output shown after it.
+
+
+.. py:function:: test_the_tutorials_are_found_and_check_output() -> None
+
+.. py:function:: test_the_page_runs_as_written(page: pathlib.Path, tmp_path, monkeypatch) -> None
+

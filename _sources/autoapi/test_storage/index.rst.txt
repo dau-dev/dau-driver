@@ -1,0 +1,53 @@
+test_storage
+============
+
+.. py:module:: test_storage
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_storage.test_allocate_respects_alignment_and_reserved_regions
+   test_storage.test_free_bumps_the_generation_so_stale_handles_fault
+   test_storage.test_double_free_is_refused
+   test_storage.test_exhaustion_raises_before_anything_is_staged
+   test_storage.test_freed_space_is_reusable
+   test_storage.test_stage_writes_through_the_device_and_checks_bounds
+   test_storage.test_a_handle_from_another_allocator_is_refused
+   test_storage.test_a_forged_handle_never_frees_live_space
+   test_storage.test_reserved_regions_must_be_positive_and_inside_the_tier
+   test_storage.test_recycled_ids_carry_bumped_generations
+   test_storage.test_allocator_tokens_are_never_reused_within_a_process
+
+
+Module Contents
+---------------
+
+.. py:function:: test_allocate_respects_alignment_and_reserved_regions() -> None
+
+.. py:function:: test_free_bumps_the_generation_so_stale_handles_fault() -> None
+
+.. py:function:: test_double_free_is_refused() -> None
+
+.. py:function:: test_exhaustion_raises_before_anything_is_staged() -> None
+
+.. py:function:: test_freed_space_is_reusable() -> None
+
+.. py:function:: test_stage_writes_through_the_device_and_checks_bounds() -> None
+
+.. py:function:: test_a_handle_from_another_allocator_is_refused() -> None
+
+.. py:function:: test_a_forged_handle_never_frees_live_space() -> None
+
+.. py:function:: test_reserved_regions_must_be_positive_and_inside_the_tier() -> None
+
+.. py:function:: test_recycled_ids_carry_bumped_generations() -> None
+
+.. py:function:: test_allocator_tokens_are_never_reused_within_a_process() -> None
+
+   The id of a discarded object can be handed to the next allocation, which
+   would let a handle from a dead allocator pass as one of ours.
+
+

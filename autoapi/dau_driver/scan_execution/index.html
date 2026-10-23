@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>dau_driver.scan_execution &#8212; dau-driver v0.1.0</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/fuma.css?v=9324ae27" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/fuma-code.css?v=a950e949" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/fonts/fuma-fonts.css?v=c2892c73" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/custom.css?v=88c24c6a" />
+    <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-searchlite-index="searchlite-index.json" defer="defer" src="../../../_static/searchlite.js?v=a5320898"></script>
+    <script defer="defer" src="../../../_static/fuma.js?v=88a16a98"></script>
+    <script src="../../../_static/js/custom.js?v=956e5d78"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="dau_driver.status" href="../status/index.html" />
+    <link rel="prev" title="dau_driver.pipeline_execution" href="../pipeline_execution/index.html" />
+    <script>
+      (function () {
+        var root = document.documentElement;
+        try {
+          var stored = localStorage.getItem("fuma-theme");
+          if (stored) {
+            root.classList.add(stored === "dark" ? "dark" : "light");
+            root.style.colorScheme = stored === "dark" ? "dark" : "light";
+          }
+          if (localStorage.getItem("fuma-sidebar") === "collapsed") root.dataset.sidebarCollapsed = "true";
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+<body class="fd-body" data-layout="docs" data-toc-style="normal" data-open-level="0">
+<div id="fd-layout"><header id="fd-subnav">
+  <div class="fd-subnav-inner">
+    <button type="button" class="fd-icon-button fd-sidebar-toggle" aria-controls="fd-sidebar" aria-expanded="false" aria-label="Toggle navigation" title="Toggle navigation">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
+    </button><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau-driver v0.1.0</span>
+</a>
+
+    <div class="fd-nav-actions">
+      <button type="button" class="fd-icon-button" data-fd-search-open aria-label="Search" title="Search"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
+      <a class="fd-icon-button" href="https://github.com/dau-dev/dau-driver" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <button type="button" class="fd-icon-button fd-theme-toggle" aria-label="Toggle theme" title="Toggle theme">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-light"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-dark"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<aside id="fd-sidebar" aria-label="Documentation">
+  <div class="fd-sidebar-header">
+    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau-driver v0.1.0</span>
+</a>
+      <button type="button" class="fd-icon-button fd-sidebar-collapse" aria-label="Collapse sidebar" title="Collapse sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+    </div>
+    <button type="button" class="fd-search-trigger" data-fd-search-open title="Search">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><span>Search</span><kbd class="fd-kbd">/</kbd>
+    </button>
+  </div>
+
+  <nav class="fd-sidebar-nav">
+    <div class="fd-sidebar-group">
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/tutorial/first-device.html">
+      <span class="fd-link-text">Talk to a device without any hardware</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/tutorial/first-scan-run.html">
+      <span class="fd-link-text">Run a scan over many batches</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/how-to/find-a-device.html">
+      <span class="fd-link-text">How to find and check a device</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/how-to/move-data.html">
+      <span class="fd-link-text">How to move data to and from a device</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/how-to/run-scan-jobs.html">
+      <span class="fd-link-text">How to run scan jobs</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/how-to/allocate-device-storage.html">
+      <span class="fd-link-text">How to allocate device storage</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/how-to/arm-the-deadman.html">
+      <span class="fd-link-text">How to fence a PCIe operation with the deadman</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/how-to/develop.html">
+      <span class="fd-link-text">Develop and contribute</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/reference/device-and-discovery.html">
+      <span class="fd-link-text">Device and discovery reference</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/reference/execution-contracts.html">
+      <span class="fd-link-text">Execution contracts reference</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/reference/stream-codec.html">
+      <span class="fd-link-text">Stream codec reference</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/explanation/transport-boundary.html">
+      <span class="fd-link-text">The transport boundary: why a driver owns almost nothing</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/explanation/overlapped-staging.html">
+      <span class="fd-link-text">Overlapped staging: why the runner ping-pongs, and when it stops</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../../docs/src/explanation/storage-handles.html">
+      <span class="fd-link-text">Storage handles: why a generation instead of a pointer</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <details class="fd-folder" open>
+      <summary class="fd-folder-summary" title="Toggle section: API Reference">
+        <a class="fd-link" href="../../index.html">
+          <span class="fd-link-text">API Reference</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../conftest/index.html">
+      <span class="fd-link-text">conftest</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_docs/index.html">
+      <span class="fd-link-text">test_docs</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <details class="fd-folder" open>
+      <summary class="fd-folder-summary" title="Toggle section: dau_driver">
+        <a class="fd-link" href="../index.html">
+          <span class="fd-link-text">dau_driver</span>
+        </a>
+        <span class="fd-folder-marker" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../_lazy/index.html">
+      <span class="fd-link-text">dau_driver._lazy</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../capability_decode/index.html">
+      <span class="fd-link-text">dau_driver.capability_decode</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../device/index.html">
+      <span class="fd-link-text">dau_driver.device</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../discovery/index.html">
+      <span class="fd-link-text">dau_driver.discovery</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../errors/index.html">
+      <span class="fd-link-text">dau_driver.errors</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../extension/index.html">
+      <span class="fd-link-text">dau_driver.extension</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../fleet/index.html">
+      <span class="fd-link-text">dau_driver.fleet</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../handle_table/index.html">
+      <span class="fd-link-text">dau_driver.handle_table</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../linux_xdma/index.html">
+      <span class="fd-link-text">dau_driver.linux_xdma</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../macos_xdma/index.html">
+      <span class="fd-link-text">dau_driver.macos_xdma</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../native/index.html">
+      <span class="fd-link-text">dau_driver.native</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../pipeline_execution/index.html">
+      <span class="fd-link-text">dau_driver.pipeline_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link fd-current" href="#">
+      <span class="fd-link-text">dau_driver.scan_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../status/index.html">
+      <span class="fd-link-text">dau_driver.status</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../storage/index.html">
+      <span class="fd-link-text">dau_driver.storage</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../stream_codec/index.html">
+      <span class="fd-link-text">dau_driver.stream_codec</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../stream_execution/index.html">
+      <span class="fd-link-text">dau_driver.stream_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../testing/index.html">
+      <span class="fd-link-text">dau_driver.testing</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../transfer/index.html">
+      <span class="fd-link-text">dau_driver.transfer</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../verify_advertisement/index.html">
+      <span class="fd-link-text">dau_driver.verify_advertisement</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../xdma_io/index.html">
+      <span class="fd-link-text">dau_driver.xdma_io</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_fleet/index.html">
+      <span class="fd-link-text">test_fleet</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_native/index.html">
+      <span class="fd-link-text">test_native</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_readme/index.html">
+      <span class="fd-link-text">test_readme</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_storage/index.html">
+      <span class="fd-link-text">test_storage</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_transfer/index.html">
+      <span class="fd-link-text">test_transfer</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_discovery/index.html">
+      <span class="fd-link-text">test_discovery</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_macos_xdma/index.html">
+      <span class="fd-link-text">test_macos_xdma</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_handle_table/index.html">
+      <span class="fd-link-text">test_handle_table</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_lazy_exports/index.html">
+      <span class="fd-link-text">test_lazy_exports</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_stream_codec/index.html">
+      <span class="fd-link-text">test_stream_codec</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_scan_execution/index.html">
+      <span class="fd-link-text">test_scan_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_register_write/index.html">
+      <span class="fd-link-text">test_register_write</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_xdma_poc_script/index.html">
+      <span class="fd-link-text">test_xdma_poc_script</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_stream_execution/index.html">
+      <span class="fd-link-text">test_stream_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_capability_decode/index.html">
+      <span class="fd-link-text">test_capability_decode</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_pipeline_execution/index.html">
+      <span class="fd-link-text">test_pipeline_execution</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_record_batch_codec/index.html">
+      <span class="fd-link-text">test_record_batch_codec</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_macos_xdma_hardware/index.html">
+      <span class="fd-link-text">test_macos_xdma_hardware</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_linux_xdma_hardware/index.html">
+      <span class="fd-link-text">test_linux_xdma_hardware</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_verify_advertisement/index.html">
+      <span class="fd-link-text">test_verify_advertisement</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_no_board_geometry_constants/index.html">
+      <span class="fd-link-text">test_no_board_geometry_constants</span>
+    </a>
+  </li>
+</ul>
+    </details>
+  </li>
+</ul>
+    </div>
+  </nav>
+
+  <div class="fd-sidebar-footer">
+    <div class="fd-toolbar">
+      <a class="fd-toolbar-item" href="https://github.com/dau-dev/dau-driver" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <div class="fd-theme-switch" role="group" aria-label="Theme">
+        <button type="button" class="fd-theme-option" data-fd-theme="light" aria-label="Light theme" title="Light theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></button>
+        <button type="button" class="fd-theme-option" data-fd-theme="dark" aria-label="Dark theme" title="Dark theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg></button>
+      </div>
+    </div>
+  </div>
+</aside>
+<button type="button" id="fd-sidebar-restore" class="fd-icon-button" aria-label="Expand sidebar" title="Expand sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+<div class="fd-sidebar-scrim" hidden></div>
+  <div id="fd-toc-popover">
+    <button type="button" class="fd-toc-trigger" aria-expanded="false" aria-controls="fd-toc-mobile" title="On this page">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg><span>On this page</span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+    <div id="fd-toc-mobile" hidden><ul class="fd-toc-list">
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#classes">Classes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#functions">Functions</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#module-contents">Module Contents</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.scan_execution.ScanBatch">ScanBatch</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.scan_execution.ScanBatch.payload">ScanBatch.payload</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.scan_execution.ScanBatch.row_count">ScanBatch.row_count</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.scan_execution._KeyPartitionedScanBatches">_KeyPartitionedScanBatches</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.scan_execution._KeyPartitionedScanBatches._records">_KeyPartitionedScanBatches._records</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.scan_execution._KeyPartitionedScanBatches._batch_count">_KeyPartitionedScanBatches._batch_count</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.scan_execution._KeyPartitionedScanBatches._key">_KeyPartitionedScanBatches._key</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.scan_execution._KeyPartitionedScanBatches._encode">_KeyPartitionedScanBatches._encode</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.scan_execution._KeyPartitionedScanBatches._batches">_KeyPartitionedScanBatches._batches</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.scan_execution._KeyPartitionedScanBatches.__next__">_KeyPartitionedScanBatches.__next__()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.scan_execution._KeyPartitionedScanBatches._build_batches">_KeyPartitionedScanBatches._build_batches()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.scan_execution.key_partitioned_scan_batches">key_partitioned_scan_batches()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.scan_execution._KeyRangeScanBatches">_KeyRangeScanBatches</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.scan_execution._KeyRangeScanBatches._records">_KeyRangeScanBatches._records</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.scan_execution._KeyRangeScanBatches._key_capacity">_KeyRangeScanBatches._key_capacity</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.scan_execution._KeyRangeScanBatches._key">_KeyRangeScanBatches._key</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.scan_execution._KeyRangeScanBatches._encode">_KeyRangeScanBatches._encode</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.scan_execution._KeyRangeScanBatches.__iter__">_KeyRangeScanBatches.__iter__()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.scan_execution.key_range_scan_batches">key_range_scan_batches()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.scan_execution.run_scan_batches">run_scan_batches()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.scan_execution.run_resident_scan">run_resident_scan()</a>
+  </li>
+</ul>
+</div>
+  </div>
+
+  <main id="fd-main">
+    <article class="fd-page">
+<nav class="fd-breadcrumbs" aria-label="Breadcrumbs">
+  <ol>
+    <li>
+      <a href="../../index.html">API Reference</a>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
+    </li>
+    <li>
+      <a href="../index.html">dau_driver</a>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
+    </li>
+    <li aria-current="page">dau_driver.scan_execution</li>
+  </ol>
+</nav>
+      <div class="fd-prose">
+  <section id="module-dau_driver.scan_execution">
+<span id="dau-driver-scan-execution"></span><h1>dau_driver.scan_execution<a class="headerlink" href="#module-dau_driver.scan_execution" title="Link to this heading">¶</a></h1>
+<p>Streaming scan-job runner: ping-pong staging over two DDR input
+regions so the next batch’s H2C DMA overlaps the current job’s compute —
+the OHLCV bar-DDR overlap pattern generalized to the scan-composition
+register contract (INPUT_ADDRESS/INPUT_LENGTH + JOB_CONTROL/JOB_STATUS).</p>
+<p>The caller owns everything shell-specific: lane output addresses and
+any static configuration are written before the run, and <code class="docutils literal notranslate"><span class="pre">collect</span></code>
+reads each job’s results (lane registers + output regions, which are
+disjoint from input staging, so collection also overlaps the next DMA).</p>
+<p>Overlap caveat: H2C writes and the job’s burst reads share one DDR
+controller on dpv1, so the measured win is bounded by DDR bandwidth
+headroom — the silicon A/B decides the batch split, not this module.</p>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.scan_execution.ScanBatch" title="dau_driver.scan_execution.ScanBatch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ScanBatch</span></code></a></p></td>
+<td><p>One staged scan batch: the packed row payload and its row count.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.scan_execution._KeyPartitionedScanBatches" title="dau_driver.scan_execution._KeyPartitionedScanBatches"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_KeyPartitionedScanBatches</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.scan_execution._KeyRangeScanBatches" title="dau_driver.scan_execution._KeyRangeScanBatches"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_KeyRangeScanBatches</span></code></a></p></td>
+<td><p>Lazily materialized capacity-bounded batches (see</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.scan_execution.key_partitioned_scan_batches" title="dau_driver.scan_execution.key_partitioned_scan_batches"><code class="xref py py-obj docutils literal notranslate"><span class="pre">key_partitioned_scan_batches</span></code></a>(...)</p></td>
+<td><p>Build key-confined batches using longest-processing-time-first</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.scan_execution.key_range_scan_batches" title="dau_driver.scan_execution.key_range_scan_batches"><code class="xref py py-obj docutils literal notranslate"><span class="pre">key_range_scan_batches</span></code></a>(...)</p></td>
+<td><p>Split records into batches each holding at most <code class="docutils literal notranslate"><span class="pre">key_capacity</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.scan_execution.run_scan_batches" title="dau_driver.scan_execution.run_scan_batches"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_scan_batches</span></code></a>(→ list[Any])</p></td>
+<td><p>Run scan jobs over <code class="docutils literal notranslate"><span class="pre">batches</span></code> with ping-pong input staging: batch</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.scan_execution.run_resident_scan" title="dau_driver.scan_execution.run_resident_scan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_resident_scan</span></code></a>(→ list[Any])</p></td>
+<td><p>Run the job over rows ALREADY on the device, uploading nothing.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_driver.scan_execution.ScanBatch">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_driver.scan_execution.</span></span><span class="sig-name descname"><span class="pre">ScanBatch</span></span><a class="reference internal" href="../../../_modules/dau_driver/scan_execution.html#ScanBatch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.scan_execution.ScanBatch" title="Link to this definition">¶</a></dt>
+<dd><p>One staged scan batch: the packed row payload and its row count.</p>
+<p>The payload is <code class="docutils literal notranslate"><span class="pre">row_count</span> <span class="pre">*</span> <span class="pre">row_bytes</span></code> bytes; the runner pads the DMA
+to the 64-byte grid while <code class="docutils literal notranslate"><span class="pre">INPUT_LENGTH</span></code> stays exact.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_driver.scan_execution.ScanBatch.payload">
+<span class="sig-name descname"><span class="pre">payload</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bytes</span></em><a class="headerlink" href="#dau_driver.scan_execution.ScanBatch.payload" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_driver.scan_execution.ScanBatch.row_count">
+<span class="sig-name descname"><span class="pre">row_count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dau_driver.scan_execution.ScanBatch.row_count" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_driver.scan_execution._KeyPartitionedScanBatches">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_driver.scan_execution.</span></span><span class="sig-name descname"><span class="pre">_KeyPartitionedScanBatches</span></span><span class="sig-paren">[</span><em class="sig-param"><span class="n"><span class="pre">Record</span></span></em><span class="sig-paren">]</span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">records</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Record</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Record</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">collections.abc.Hashable</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Record</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bytes</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/dau_driver/scan_execution.html#_KeyPartitionedScanBatches"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.scan_execution._KeyPartitionedScanBatches" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">collections.abc.Iterator</span></code>[<a class="reference internal" href="#dau_driver.scan_execution.ScanBatch" title="dau_driver.scan_execution.ScanBatch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ScanBatch</span></code></a>]</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_driver.scan_execution._KeyPartitionedScanBatches._records">
+<span class="sig-name descname"><span class="pre">_records</span></span><a class="headerlink" href="#dau_driver.scan_execution._KeyPartitionedScanBatches._records" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_driver.scan_execution._KeyPartitionedScanBatches._batch_count">
+<span class="sig-name descname"><span class="pre">_batch_count</span></span><a class="headerlink" href="#dau_driver.scan_execution._KeyPartitionedScanBatches._batch_count" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_driver.scan_execution._KeyPartitionedScanBatches._key">
+<span class="sig-name descname"><span class="pre">_key</span></span><a class="headerlink" href="#dau_driver.scan_execution._KeyPartitionedScanBatches._key" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_driver.scan_execution._KeyPartitionedScanBatches._encode">
+<span class="sig-name descname"><span class="pre">_encode</span></span><a class="headerlink" href="#dau_driver.scan_execution._KeyPartitionedScanBatches._encode" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_driver.scan_execution._KeyPartitionedScanBatches._batches">
+<span class="sig-name descname"><span class="pre">_batches</span></span><a class="headerlink" href="#dau_driver.scan_execution._KeyPartitionedScanBatches._batches" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_driver.scan_execution._KeyPartitionedScanBatches.__next__">
+<span class="sig-name descname"><span class="pre">__next__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dau_driver.scan_execution.ScanBatch" title="dau_driver.scan_execution.ScanBatch"><span class="pre">ScanBatch</span></a></span></span><a class="reference internal" href="../../../_modules/dau_driver/scan_execution.html#_KeyPartitionedScanBatches.__next__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.scan_execution._KeyPartitionedScanBatches.__next__" title="Link to this definition">¶</a></dt>
+<dd><p>Return the next item from the iterator. When exhausted, raise StopIteration</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_driver.scan_execution._KeyPartitionedScanBatches._build_batches">
+<span class="sig-name descname"><span class="pre">_build_batches</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">collections.abc.Iterator</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#dau_driver.scan_execution.ScanBatch" title="dau_driver.scan_execution.ScanBatch"><span class="pre">ScanBatch</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_driver/scan_execution.html#_KeyPartitionedScanBatches._build_batches"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.scan_execution._KeyPartitionedScanBatches._build_batches" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_driver.scan_execution.key_partitioned_scan_batches">
+<span class="sig-prename descclassname"><span class="pre">dau_driver.scan_execution.</span></span><span class="sig-name descname"><span class="pre">key_partitioned_scan_batches</span></span><span class="sig-paren">[</span><em class="sig-param"><span class="n"><span class="pre">Record</span></span></em><span class="sig-paren">]</span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">records</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Record</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Record</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">collections.abc.Hashable</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Record</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bytes</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">collections.abc.Iterator</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#dau_driver.scan_execution.ScanBatch" title="dau_driver.scan_execution.ScanBatch"><span class="pre">ScanBatch</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_driver/scan_execution.html#key_partitioned_scan_batches"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.scan_execution.key_partitioned_scan_batches" title="Link to this definition">¶</a></dt>
+<dd><p>Build key-confined batches using longest-processing-time-first
+greedy assignment: largest key group goes into the currently-smallest
+batch. Records must be ordered by key, and record order within each key
+is preserved.</p>
+<p>LPT requires every key-group size before assignment, so first iteration
+consumes one complete grouping pass. Creating this iterable consumes
+nothing, and each batch’s flattened records and encoded payload are
+constructed only when that batch is requested. Since key groups are
+indivisible, the largest group bounds the difference between batch
+sizes; one hot key can therefore dominate a batch.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_driver.scan_execution._KeyRangeScanBatches">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_driver.scan_execution.</span></span><span class="sig-name descname"><span class="pre">_KeyRangeScanBatches</span></span><span class="sig-paren">[</span><em class="sig-param"><span class="n"><span class="pre">Record</span></span></em><span class="sig-paren">]</span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">records</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Record</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">key_capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Record</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">collections.abc.Hashable</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Record</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bytes</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/dau_driver/scan_execution.html#_KeyRangeScanBatches"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.scan_execution._KeyRangeScanBatches" title="Link to this definition">¶</a></dt>
+<dd><p>Lazily materialized capacity-bounded batches (see
+<a class="reference internal" href="#dau_driver.scan_execution.key_range_scan_batches" title="dau_driver.scan_execution.key_range_scan_batches"><code class="xref py py-func docutils literal notranslate"><span class="pre">key_range_scan_batches()</span></code></a>).</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_driver.scan_execution._KeyRangeScanBatches._records">
+<span class="sig-name descname"><span class="pre">_records</span></span><a class="headerlink" href="#dau_driver.scan_execution._KeyRangeScanBatches._records" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_driver.scan_execution._KeyRangeScanBatches._key_capacity">
+<span class="sig-name descname"><span class="pre">_key_capacity</span></span><a class="headerlink" href="#dau_driver.scan_execution._KeyRangeScanBatches._key_capacity" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_driver.scan_execution._KeyRangeScanBatches._key">
+<span class="sig-name descname"><span class="pre">_key</span></span><a class="headerlink" href="#dau_driver.scan_execution._KeyRangeScanBatches._key" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_driver.scan_execution._KeyRangeScanBatches._encode">
+<span class="sig-name descname"><span class="pre">_encode</span></span><a class="headerlink" href="#dau_driver.scan_execution._KeyRangeScanBatches._encode" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_driver.scan_execution._KeyRangeScanBatches.__iter__">
+<span class="sig-name descname"><span class="pre">__iter__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">collections.abc.Iterator</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#dau_driver.scan_execution.ScanBatch" title="dau_driver.scan_execution.ScanBatch"><span class="pre">ScanBatch</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_driver/scan_execution.html#_KeyRangeScanBatches.__iter__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.scan_execution._KeyRangeScanBatches.__iter__" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_driver.scan_execution.key_range_scan_batches">
+<span class="sig-prename descclassname"><span class="pre">dau_driver.scan_execution.</span></span><span class="sig-name descname"><span class="pre">key_range_scan_batches</span></span><span class="sig-paren">[</span><em class="sig-param"><span class="n"><span class="pre">Record</span></span></em><span class="sig-paren">]</span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">records</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Record</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">key_capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Record</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">collections.abc.Hashable</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Record</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bytes</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#dau_driver.scan_execution.ScanBatch" title="dau_driver.scan_execution.ScanBatch"><span class="pre">ScanBatch</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_driver/scan_execution.html#key_range_scan_batches"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.scan_execution.key_range_scan_batches" title="Link to this definition">¶</a></dt>
+<dd><p>Split records into batches each holding at most <code class="docutils literal notranslate"><span class="pre">key_capacity</span></code>
+DISTINCT keys — the host half of the hash-mode grouped tile’s overflow
+contract.</p>
+<p>The tile’s table is a hardware fact: a batch presenting more distinct
+keys than it holds closes out <code class="docutils literal notranslate"><span class="pre">GROUP_CAPACITY_EXCEEDED</span></code> and is
+invalidated. Rather than react to that, size the batches so it cannot
+happen: partition the key space into ranges of <code class="docutils literal notranslate"><span class="pre">key_capacity</span></code> keys
+and emit one batch per range. Each key therefore lands in exactly ONE
+batch, so no per-key state spans a batch boundary and combining the
+per-batch group records is a concatenation — a stronger property than
+the general additive merge
+(<code class="docutils literal notranslate"><span class="pre">dau_core.operators.merge_hash_grouped</span></code>), which remains correct and
+is what a caller should use when batches were produced some other way.</p>
+<p>Unlike <a class="reference internal" href="#dau_driver.scan_execution.key_partitioned_scan_batches" title="dau_driver.scan_execution.key_partitioned_scan_batches"><code class="xref py py-func docutils literal notranslate"><span class="pre">key_partitioned_scan_batches()</span></code></a>, records need NOT arrive in
+key order and arrival order is preserved within each batch: the
+hash-mode table needs no key ordering, and imposing one here would give
+back the staging freedom the tile exists to provide. The trade is a
+counting pass over every key before the first batch is produced, and
+batches whose ROW counts may be uneven — key ranges are equal in keys,
+not in rows. The device’s error close-out remains the safety net for a
+caller whose <code class="docutils literal notranslate"><span class="pre">key_capacity</span></code> does not match the built design.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_driver.scan_execution.run_scan_batches">
+<span class="sig-prename descclassname"><span class="pre">dau_driver.scan_execution.</span></span><span class="sig-name descname"><span class="pre">run_scan_batches</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batches</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#dau_driver.scan_execution.ScanBatch" title="dau_driver.scan_execution.ScanBatch"><span class="pre">ScanBatch</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">per_key_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_regions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">row_bytes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collect</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">60.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poll_yield_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_driver/scan_execution.html#run_scan_batches"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.scan_execution.run_scan_batches" title="Link to this definition">¶</a></dt>
+<dd><p>Run scan jobs over <code class="docutils literal notranslate"><span class="pre">batches</span></code> with ping-pong input staging: batch
+<code class="docutils literal notranslate"><span class="pre">i</span> <span class="pre">+</span> <span class="pre">1</span></code> DMAs into the alternate region (and, for a lazy iterable,
+is produced) while job <code class="docutils literal notranslate"><span class="pre">i</span></code> computes. Returns <code class="docutils literal notranslate"><span class="pre">collect(device)</span></code>
+results in batch order. <code class="docutils literal notranslate"><span class="pre">batches</span></code> may be lazy — encoding work in
+the iterator overlaps compute too. <code class="docutils literal notranslate"><span class="pre">per_key_state</span></code> is required so a
+stateful composition cannot silently run position-sliced batches; such
+jobs accept only the result of <a class="reference internal" href="#dau_driver.scan_execution.key_partitioned_scan_batches" title="dau_driver.scan_execution.key_partitioned_scan_batches"><code class="xref py py-func docutils literal notranslate"><span class="pre">key_partitioned_scan_batches()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_driver.scan_execution.run_resident_scan">
+<span class="sig-prename descclassname"><span class="pre">dau_driver.scan_execution.</span></span><span class="sig-name descname"><span class="pre">run_resident_scan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">row_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">row_bytes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collect</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">60.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_driver/scan_execution.html#run_resident_scan"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.scan_execution.run_resident_scan" title="Link to this definition">¶</a></dt>
+<dd><p>Run the job over rows ALREADY on the device, uploading nothing.</p>
+<p><a class="reference internal" href="#dau_driver.scan_execution.run_scan_batches" title="dau_driver.scan_execution.run_scan_batches"><code class="xref py py-func docutils literal notranslate"><span class="pre">run_scan_batches()</span></code></a> re-stages every batch, which is right when the
+host owns the data and wrong when the device already holds it. A resident
+dataset is staged once and queried many times, so the DMA belongs outside
+the loop – and on the measured platform that DMA is the larger term: the
+q6 device path is 40.0 ms of which the feed is most of it, against a job
+of about 10.4 ms.</p>
+<p>This is deliberately the smallest thing that proves the idea, and it
+proves it WITHOUT the shell handle table: the caller uploads once and
+passes the address it uploaded to. What the handle table adds later is
+safety (a generation-checked identity instead of a raw address a caller
+can get wrong) and the ability for the DEVICE to name its own allocations
+– not speed. Keeping those separable is what lets the amortization be
+measured before any bitstream changes.</p>
+<p>Returns one <code class="docutils literal notranslate"><span class="pre">collect(device)</span></code> per repeat, so a caller can assert every
+run is bit-identical rather than trusting that a rerun of the same bytes
+must be.</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+      </div>
+<nav class="fd-pagination" aria-label="Pagination">
+  <a class="fd-pagination-card fd-pagination-prev" href="../pipeline_execution/index.html" title="Previous: dau_driver.pipeline_execution">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m15 18-6-6 6-6"/></svg>
+    <span class="fd-pagination-text">
+      <span class="fd-pagination-label">Previous</span>
+      <span class="fd-pagination-title">dau_driver.pipeline_execution</span>
+    </span>
+  </a>
+  <a class="fd-pagination-card fd-pagination-next" href="../status/index.html" title="Next: dau_driver.status">
+    <span class="fd-pagination-text">
+      <span class="fd-pagination-label">Next</span>
+      <span class="fd-pagination-title">dau_driver.status</span>
+    </span>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
+  </a>
+</nav>
+<footer id="fd-footer">
+  <p class="fd-footer-meta"><span>&#169; the dau-driver authors</span><span>Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.</span>
+  </p>
+</footer>
+    </article>
+  </main>
+<nav id="fd-toc" aria-label="On this page">
+  <p class="fd-toc-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>On this page</p>
+  <div class="fd-toc-body"><svg class="fd-toc-rail" aria-hidden="true" preserveAspectRatio="none">
+      <path class="fd-toc-track" fill="none" />
+      <path class="fd-toc-thumb" fill="none" />
+    </svg><ul class="fd-toc-list">
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#classes">Classes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#functions">Functions</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#module-contents">Module Contents</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.scan_execution.ScanBatch">ScanBatch</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.scan_execution.ScanBatch.payload">ScanBatch.payload</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.scan_execution.ScanBatch.row_count">ScanBatch.row_count</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.scan_execution._KeyPartitionedScanBatches">_KeyPartitionedScanBatches</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.scan_execution._KeyPartitionedScanBatches._records">_KeyPartitionedScanBatches._records</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.scan_execution._KeyPartitionedScanBatches._batch_count">_KeyPartitionedScanBatches._batch_count</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.scan_execution._KeyPartitionedScanBatches._key">_KeyPartitionedScanBatches._key</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.scan_execution._KeyPartitionedScanBatches._encode">_KeyPartitionedScanBatches._encode</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.scan_execution._KeyPartitionedScanBatches._batches">_KeyPartitionedScanBatches._batches</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.scan_execution._KeyPartitionedScanBatches.__next__">_KeyPartitionedScanBatches.__next__()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.scan_execution._KeyPartitionedScanBatches._build_batches">_KeyPartitionedScanBatches._build_batches()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.scan_execution.key_partitioned_scan_batches">key_partitioned_scan_batches()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.scan_execution._KeyRangeScanBatches">_KeyRangeScanBatches</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.scan_execution._KeyRangeScanBatches._records">_KeyRangeScanBatches._records</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.scan_execution._KeyRangeScanBatches._key_capacity">_KeyRangeScanBatches._key_capacity</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.scan_execution._KeyRangeScanBatches._key">_KeyRangeScanBatches._key</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.scan_execution._KeyRangeScanBatches._encode">_KeyRangeScanBatches._encode</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.scan_execution._KeyRangeScanBatches.__iter__">_KeyRangeScanBatches.__iter__()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.scan_execution.key_range_scan_batches">key_range_scan_batches()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.scan_execution.run_scan_batches">run_scan_batches()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.scan_execution.run_resident_scan">run_resident_scan()</a>
+  </li>
+</ul>
+
+  </div>
+  <div class="fd-toc-actions">
+    <a class="fd-toc-action" href="https://github.com/dau-dev/dau-driver/edit/HEAD/autoapi/dau_driver/scan_execution/index.rst" target="_blank" rel="noopener" title="Edit this page"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg><span>Edit this page</span></a>
+    <a class="fd-toc-action" href="../../../_sources/autoapi/dau_driver/scan_execution/index.rst.txt" rel="nofollow" title="View source"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg><span>View source</span></a>
+  </div>
+</nav>
+</div>
+<dialog id="fd-search-dialog" aria-label="Search">
+  <form class="fd-search-panel" method="dialog" role="search">
+    <div class="fd-search-field">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="search" id="fd-search-input" autocomplete="off" spellcheck="false" placeholder="Search documentation..." aria-label="Search" />
+      <kbd class="fd-kbd">Esc</kbd>
+    </div>
+    <div id="fd-search-results" role="listbox" aria-label="Search results"></div>
+    <p id="fd-search-empty" class="fd-search-empty" hidden>No results found.</p>
+  </form>
+</dialog>
+  </body>
+</html>

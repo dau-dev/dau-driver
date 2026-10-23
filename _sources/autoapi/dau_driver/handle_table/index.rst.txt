@@ -1,0 +1,196 @@
+dau_driver.handle_table
+=======================
+
+.. py:module:: dau_driver.handle_table
+
+.. autoapi-nested-parse::
+
+   The host end of the shell's handle table: the binding between the
+   ``StorageAllocator``'s bookkeeping and the device aperture that enforces it.
+
+   :mod:`dau_driver.storage` hands out generation-checked handles, and
+   :func:`dau_driver.scan_execution.run_resident_scan` runs jobs over rows already
+   on the device -- but by RAW ADDRESS, which is the exposure the table exists to
+   close. A raw address survives its allocation: free the region, hand the space
+   to someone else, and the old address still reads perfectly. It just reads the
+   new tenant's bytes, and no layer above can tell that from an answer.
+
+   A handle cannot do that. The allocator's generation is programmed into the
+   slot, a job names ``(id, generation)`` instead of an address, and a resolution
+   that disagrees REFUSES the job -- the reader never issues a beat. That refusal
+   arrives here as :class:`HandleFaultError`, never as results, so a caller cannot
+   mistake it for a job that ran and summed nothing.
+
+   TWO AUTHORITIES, deliberately different:
+
+   * ``install`` trusts the HOST. The allocator's live record is what a slot is
+     programmed from, and a handle it will not resolve is a host bug -- installing
+     it would teach the device a grant the host does not believe in.
+   * ``arm`` trusts NOTHING. A stale handle must reach the device, or the table
+     is never the thing that refuses it and the refusal is a host-side assertion
+     wearing hardware's name.
+
+
+
+Exceptions
+----------
+
+.. autoapisummary::
+
+   dau_driver.handle_table.HandleTableError
+   dau_driver.handle_table.HandleFaultError
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   dau_driver.handle_table.HandleTable
+
+
+Module Contents
+---------------
+
+.. py:exception:: HandleTableError
+
+   Bases: :py:obj:`dau_driver.errors.DauDriverError`
+
+
+   A handle-table operation the host refused to perform.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+.. py:exception:: HandleFaultError(code: int, *, handle_id: int, generation: int, label: str)
+
+   Bases: :py:obj:`dau_driver.pipeline_execution.PipelineJobError`
+
+
+   The shell REFUSED to start a job on the handle it was armed with.
+
+   A :class:`PipelineJobError` because it is one -- a caller that catches
+   every job failure still catches this -- but its own type because the whole
+   value of the table is that this case is distinguishable. The job did not
+   run: the reader was never started, so nothing was read, nothing was
+   written, and no result register moved. ``code`` says which of the three
+   refusals it was.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+   .. py:attribute:: code
+
+
+   .. py:attribute:: handle_id
+
+
+   .. py:attribute:: generation
+
+
+.. py:class:: HandleTable(device, allocator: dau_driver.storage.StorageAllocator, *, capacity: int)
+
+   One allocator's slots, mirrored into one device's handle table.
+
+   ``capacity`` is the built shell's ``handle_table_capacity``. It is not read
+   off the device: a table is hardware, planned into the design and priced
+   with it, and there is no register that advertises it -- an id past the end
+   is a fault (``BAD_ID``), not a discovery. Passing the design's number here
+   turns that fault into a refusal on the host, where the mistake still costs
+   nothing.
+
+
+   .. py:attribute:: device
+
+
+   .. py:attribute:: allocator
+
+
+   .. py:attribute:: capacity
+
+
+   .. py:method:: install(handle: dau_driver.storage.StorageHandle) -> None
+
+      Program ``handle``'s grant into slot ``handle.id``.
+
+      The allocator resolves the handle first and that resolution is the
+      authority: base, length and generation are taken from the LIVE record,
+      so a handle the host no longer believes in never becomes a grant the
+      device does. Raises :class:`~dau_driver.storage.StaleHandleError` if it
+      will not resolve -- that is a host bug, and papering over it would
+      install exactly the stale grant the table exists to refuse.
+
+
+
+   .. py:method:: free(handle: dau_driver.storage.StorageHandle) -> None
+
+      Drop slot ``handle.id`` out of liveness, so nothing resolves through
+      it until it is installed again.
+
+      Deliberately unconditional on the allocator: freeing a slot can only
+      make the table refuse MORE, so it is safe whether or not the host has
+      released the span yet. A version that demanded a live handle would
+      refuse the call from a caller who freed host-side first, and leave the
+      device answering for a region that has already been handed on.
+
+
+
+   .. py:method:: arm(handle: dau_driver.storage.StorageHandle) -> None
+
+      Name the handle the NEXT job resolves, in place of an input address.
+
+      Checked against nothing on purpose. A stale handle has to reach the
+      table or the table is never what refused it -- and a host that
+      pre-validates here proves only that the host agrees with itself.
+
+
+
+   .. py:method:: run_resident_scan(handle: dau_driver.storage.StorageHandle, *, row_count: int, row_bytes: int, collect, repeats: int = 1, timeout_seconds: float = 60.0, poll_yield_seconds: float | None = None) -> list
+
+      :func:`~dau_driver.scan_execution.run_resident_scan` with the raw
+      address replaced by a handle: arm once, then run the job ``repeats``
+      times over rows already on the device, uploading nothing.
+
+      ``poll_yield_seconds`` sleeps that long between JOB_STATUS polls
+      instead of spinning. Measured on dpv1 (2026-09-27) it is the wrong
+      default for a Python caller: any sleep, ``0`` included, hands the
+      GIL to another thread and the poll waits out a full switch interval
+      per iteration, milliseconds on a job that runs for less; the
+      contention it was meant to
+      relieve was elsewhere. It stays for a caller whose other threads do
+      not hold the GIL.
+
+      Returns one ``collect(device)`` per repeat. Raises
+      :class:`HandleFaultError` the moment the shell refuses -- results for
+      the repeats that did run are dropped with it, because a run whose
+      dataset stopped being the caller's part way through is not a partial
+      answer.
+
+
+
+   .. py:method:: run_scan_batches(batches: collections.abc.Iterable[dau_driver.scan_execution.ScanBatch], handles: tuple[dau_driver.storage.StorageHandle, dau_driver.storage.StorageHandle], *, row_bytes: int, collect: collections.abc.Callable[[Any], Any], timeout_seconds: float = 60.0, progress: collections.abc.Callable[[int], None] | None = None, poll_yield_seconds: float | None = None) -> list[Any]
+
+      :func:`~dau_driver.scan_execution.run_scan_batches` with the two
+      raw input regions replaced by two installed handles: batch ``i + 1``
+      is staged into the alternate handle's grant (and, for a lazy
+      iterable, produced) while job ``i`` runs against the other. Returns
+      one ``collect(device)`` per batch, in batch order.
+
+      On a handle-table shell ``INPUT_ADDRESS`` feeds nothing, so this is
+      the only way streamed rows reach a job, and every batch goes through
+      the allocator's ``stage`` -- a grant that stopped being the caller's
+      refuses the bytes before they move, and the device refuses the job
+      if the slot moved under it. A batch's length must sit on the DMA
+      grid: the shell's length gate fires before the table is asked, so an
+      off-grid batch is refused here, where the message can say so.
+
+      A batch that fails to stage (a grant released mid-stream, a payload
+      past its grant) surfaces from the running job's poll, after that job
+      has been allowed to finish: the grants are the caller's to free once
+      this returns or raises, and a job still reading one must not be.
+
+
+
+   .. py:method:: _check_slot(handle_id: int) -> None
+
+

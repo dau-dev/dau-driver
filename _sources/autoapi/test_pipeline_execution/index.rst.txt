@@ -1,0 +1,217 @@
+test_pipeline_execution
+=======================
+
+.. py:module:: test_pipeline_execution
+
+.. autoapi-nested-parse::
+
+   Owning tests for the pipeline job runners and their struct decoders.
+
+   The runners are driven through the in-memory ``FakeTransport`` (a
+   dict-backed register map plus DMA payloads) so the wait/read control flow
+   and the record struct layouts are guarded here directly, not only
+   indirectly through the dau-polars/cocotb suites. No hardware.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   test_pipeline_execution._STAGING
+   test_pipeline_execution.BAR_DDR_OUTPUT_ADDRESS
+   test_pipeline_execution.GROUPS
+   test_pipeline_execution.BARS
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_pipeline_execution._pad64
+   test_pipeline_execution._pack_group_records
+   test_pipeline_execution._pack_bar_records
+   test_pipeline_execution._stage_done
+   test_pipeline_execution.test_group_record_round_trip
+   test_pipeline_execution.test_bar_record_round_trip
+   test_pipeline_execution.test_execute_bar_job_done
+   test_pipeline_execution.test_execute_bar_job_empty
+   test_pipeline_execution.test_execute_bar_job_no_records
+   test_pipeline_execution.test_execute_bar_job_error
+   test_pipeline_execution.test_execute_bar_job_result_length_mismatch
+   test_pipeline_execution.test_execute_bar_job_timeout
+   test_pipeline_execution.test_execute_keyed_pipeline_job_done
+   test_pipeline_execution.test_execute_keyed_pipeline_job_empty
+   test_pipeline_execution.test_execute_keyed_pipeline_job_no_groups
+   test_pipeline_execution.test_execute_keyed_pipeline_job_error
+   test_pipeline_execution.test_execute_keyed_pipeline_job_result_length_mismatch
+   test_pipeline_execution.test_finish_bar_ddr_job_done
+   test_pipeline_execution.test_finish_bar_ddr_job_empty
+   test_pipeline_execution.test_finish_bar_ddr_job_result_length_mismatch
+   test_pipeline_execution._advertise_lane_count
+   test_pipeline_execution._stage_noc_lane
+   test_pipeline_execution.test_execute_bar_noc_packed_done
+   test_pipeline_execution.test_execute_bar_noc_packed_scan_shell_reuse
+   test_pipeline_execution.test_execute_bar_noc_packed_q6_aggregate_lanes
+   test_pipeline_execution.test_execute_bar_noc_packed_q6_shape_rejected_by_default_validation
+   test_pipeline_execution.test_execute_bar_noc_packed_empty
+   test_pipeline_execution.test_execute_bar_noc_packed_lane_mismatch
+   test_pipeline_execution.test_execute_bar_noc_packed_error
+   test_pipeline_execution.test_addresses_are_programmed_across_both_halves
+   test_pipeline_execution.test_an_address_past_the_end_of_memory_is_refused
+   test_pipeline_execution.test_a_duck_typed_device_can_program_addresses
+   test_pipeline_execution.test_a_shell_that_does_not_advertise_capacity_is_refused
+   test_pipeline_execution.test_the_job_runners_batch_against_what_the_shell_advertises
+   test_pipeline_execution.test_the_keyed_pipeline_config_refuses_fields_that_overflow_their_word
+   test_pipeline_execution.test_bar_ddr_staging_refuses_a_non_positive_row_count
+   test_pipeline_execution.test_the_keyed_pipeline_flags_must_be_bool
+
+
+Module Contents
+---------------
+
+.. py:data:: _STAGING
+
+.. py:data:: BAR_DDR_OUTPUT_ADDRESS
+
+.. py:function:: _pad64(payload: bytes) -> bytes
+
+.. py:function:: _pack_group_records(groups: list[dau_core.operators.GroupAggregate]) -> bytes
+
+   Golden encoder mirroring the documented 40-byte group record layout
+   (``<iiiiiiqQ``: key, first, last, min, max, pad, total, count).
+
+
+.. py:function:: _pack_bar_records(bars: list[dau_core.operators.BarAggregate]) -> bytes
+
+   Golden encoder mirroring the documented 48-byte bar record layout
+   (``<iiiiiiqqQ``: key, open, close, low, high, pad, shares, frac,
+   count).
+
+
+.. py:function:: _stage_done(transport: dau_driver.testing.FakeTransport, *, result_length: int, count: int, selected: int | None = None) -> None
+
+.. py:data:: GROUPS
+
+.. py:data:: BARS
+
+.. py:function:: test_group_record_round_trip()
+
+.. py:function:: test_bar_record_round_trip()
+
+.. py:function:: test_execute_bar_job_done(tmp_path)
+
+.. py:function:: test_execute_bar_job_empty(tmp_path)
+
+.. py:function:: test_execute_bar_job_no_records(tmp_path)
+
+.. py:function:: test_execute_bar_job_error(tmp_path)
+
+.. py:function:: test_execute_bar_job_result_length_mismatch(tmp_path)
+
+.. py:function:: test_execute_bar_job_timeout(tmp_path)
+
+.. py:function:: test_execute_keyed_pipeline_job_done(tmp_path)
+
+.. py:function:: test_execute_keyed_pipeline_job_empty(tmp_path)
+
+.. py:function:: test_execute_keyed_pipeline_job_no_groups(tmp_path)
+
+.. py:function:: test_execute_keyed_pipeline_job_error(tmp_path)
+
+.. py:function:: test_execute_keyed_pipeline_job_result_length_mismatch(tmp_path)
+
+.. py:function:: test_finish_bar_ddr_job_done(tmp_path)
+
+.. py:function:: test_finish_bar_ddr_job_empty(tmp_path)
+
+.. py:function:: test_finish_bar_ddr_job_result_length_mismatch(tmp_path)
+
+.. py:function:: _advertise_lane_count(transport: dau_driver.testing.FakeTransport, lanes: int) -> None
+
+   A bar-NoC shell publishes its lane count; the host reads it rather
+   than assuming one, so a fake standing in for that shell must too.
+
+
+.. py:function:: _stage_noc_lane(transport: dau_driver.testing.FakeTransport, lane: int, *, records: bytes, count: int, record_bytes: int, lanes: int = 4) -> None
+
+.. py:function:: test_execute_bar_noc_packed_done(tmp_path)
+
+.. py:function:: test_execute_bar_noc_packed_scan_shell_reuse(tmp_path)
+
+   The runner is reused for a key-partitioned scan shell: 2 lanes and a
+   40-byte group record, decoded with the group decoder.
+
+
+.. py:function:: test_execute_bar_noc_packed_q6_aggregate_lanes(tmp_path)
+
+   q6's aggregate shell latches an input row count in RECORD_COUNT_LOW
+   and emits one fixed 16-byte [sum, count] record per live lane, so the
+   ``result_length == count * record_bytes`` invariant does not hold; the
+   runner reuses this shell with ``validate_record_count=False``.
+
+
+.. py:function:: test_execute_bar_noc_packed_q6_shape_rejected_by_default_validation(tmp_path)
+
+   The default (bar/q1) validation must reject the q6 count/length
+   shape, proving ``validate_record_count`` is load-bearing.
+
+
+.. py:function:: test_execute_bar_noc_packed_empty(tmp_path)
+
+.. py:function:: test_execute_bar_noc_packed_lane_mismatch(tmp_path)
+
+.. py:function:: test_execute_bar_noc_packed_error(tmp_path)
+
+.. py:function:: test_addresses_are_programmed_across_both_halves() -> None
+
+   A wide design keeps the high half across a LOW write, so a host that
+   wrote only LOW would inherit whatever the previous job left there and
+   address the wrong region. Both halves go every time, zero included.
+
+
+.. py:function:: test_an_address_past_the_end_of_memory_is_refused() -> None
+
+   The reader and writer advance modulo the master's width, so a
+   transfer starting near the end of the mapped region WRAPS to the bottom
+   and silently reads or overwrites unrelated memory. Hardware does not
+   bound it — the length check only tests alignment — so the host is the
+   only place this can be caught.
+
+
+.. py:function:: test_a_duck_typed_device_can_program_addresses() -> None
+
+   Devices here are DUCK-TYPED: test fakes and alternative transports
+   implement `write_register` without subclassing DauDevice. Making the
+   paired address write a method silently broke every one of them — the
+   dau-polars emulated devices among them — so the callable path must need
+   nothing but `write_register`.
+
+
+.. py:function:: test_a_shell_that_does_not_advertise_capacity_is_refused(tmp_path)
+
+   The whole point of moving the depths onto the shell: a host facing a
+   shell that cannot state its capacity must stop, not fall back on the
+   numbers that used to be compiled in. Both the pre-0.3 case and the
+   advertises-zero case.
+
+
+.. py:function:: test_the_job_runners_batch_against_what_the_shell_advertises(tmp_path)
+
+   A shell with a smaller staging depth must reject a batch the previous
+   shell's constant would have accepted.
+
+
+.. py:function:: test_the_keyed_pipeline_config_refuses_fields_that_overflow_their_word() -> None
+
+   The register words pack op, shift and flags into fixed fields; a value
+   outside its field lands in a neighbour's bits with no error from the
+   device.
+
+
+.. py:function:: test_bar_ddr_staging_refuses_a_non_positive_row_count(tmp_path) -> None
+
+.. py:function:: test_the_keyed_pipeline_flags_must_be_bool() -> None
+

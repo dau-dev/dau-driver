@@ -1,0 +1,19 @@
+dau_driver.extension
+====================
+
+.. py:module:: dau_driver.extension
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   dau_driver.extension.add
+
+
+Module Contents
+---------------
+
+.. py:function:: add(i: int, j: int) -> int
+
