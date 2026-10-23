@@ -30,7 +30,8 @@ classifiers = [
 ]
 
 dependencies = [
-    "dau-core @ git+https://github.com/dau-dev/dau-core.git",
+    # 0.2.0 is the first release with the record layouts and wire facts this reads
+    "dau-core>=0.2",
     # read directly by verify_advertisement; it arrives transitively through
     # ccflow today, but a package should declare what it imports
     "pyyaml",
@@ -124,10 +125,6 @@ exclude_also = [
 ]
 ignore_errors = true
 fail_under = 50
-
-[tool.hatch.metadata]
-# private dau packages install from GitHub (no PyPI releases)
-allow-direct-references = true
 
 [tool.hatch.build]
 artifacts = [
