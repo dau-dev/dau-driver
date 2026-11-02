@@ -16,18 +16,18 @@ This page contains auto-generated API reference documentation [#f1]_.
    /autoapi/test_transfer/index
    /autoapi/test_discovery/index
    /autoapi/test_macos_xdma/index
-   /autoapi/test_handle_table/index
    /autoapi/test_lazy_exports/index
    /autoapi/test_stream_codec/index
+   /autoapi/test_handle_table/index
    /autoapi/test_scan_execution/index
    /autoapi/test_register_write/index
    /autoapi/test_xdma_poc_script/index
    /autoapi/test_stream_execution/index
    /autoapi/test_capability_decode/index
-   /autoapi/test_pipeline_execution/index
    /autoapi/test_record_batch_codec/index
-   /autoapi/test_macos_xdma_hardware/index
+   /autoapi/test_pipeline_execution/index
    /autoapi/test_linux_xdma_hardware/index
+   /autoapi/test_macos_xdma_hardware/index
    /autoapi/test_verify_advertisement/index
    /autoapi/test_no_board_geometry_constants/index
 

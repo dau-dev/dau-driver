@@ -7,7 +7,7 @@
 
     <title>dau_driver.pipeline_execution &#8212; dau-driver v0.1.0</title>
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/fuma.css?v=9324ae27" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/fuma.css?v=ca04d621" />
     <link rel="stylesheet" type="text/css" href="../../../_static/fuma-code.css?v=a950e949" />
     <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -23,7 +23,7 @@
     <script src="../../../_static/copybutton.js?v=f281be69"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
     <script data-searchlite-index="searchlite-index.json" defer="defer" src="../../../_static/searchlite.js?v=a5320898"></script>
-    <script defer="defer" src="../../../_static/fuma.js?v=88a16a98"></script>
+    <script defer="defer" src="../../../_static/fuma.js?v=9c325f6c"></script>
     <script src="../../../_static/js/custom.js?v=956e5d78"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -39,6 +39,7 @@
             root.style.colorScheme = stored === "dark" ? "dark" : "light";
           }
           if (localStorage.getItem("fuma-sidebar") === "collapsed") root.dataset.sidebarCollapsed = "true";
+          if (localStorage.getItem("fuma-toc") === "collapsed") root.dataset.tocCollapsed = "true";
         } catch (e) {}
       })();
     </script>
@@ -320,11 +321,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_handle_table/index.html">
-      <span class="fd-link-text">test_handle_table</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../test_lazy_exports/index.html">
       <span class="fd-link-text">test_lazy_exports</span>
     </a>
@@ -332,6 +328,11 @@
   <li class="fd-tree-item">
     <a class="fd-link" href="../../test_stream_codec/index.html">
       <span class="fd-link-text">test_stream_codec</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_handle_table/index.html">
+      <span class="fd-link-text">test_handle_table</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -360,23 +361,23 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_pipeline_execution/index.html">
-      <span class="fd-link-text">test_pipeline_execution</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../../test_record_batch_codec/index.html">
       <span class="fd-link-text">test_record_batch_codec</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../../test_macos_xdma_hardware/index.html">
-      <span class="fd-link-text">test_macos_xdma_hardware</span>
+    <a class="fd-link" href="../../test_pipeline_execution/index.html">
+      <span class="fd-link-text">test_pipeline_execution</span>
     </a>
   </li>
   <li class="fd-tree-item">
     <a class="fd-link" href="../../test_linux_xdma_hardware/index.html">
       <span class="fd-link-text">test_linux_xdma_hardware</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../../test_macos_xdma_hardware/index.html">
+      <span class="fd-link-text">test_macos_xdma_hardware</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -591,25 +592,25 @@ generate_mm_ohlcv_job_top_sv and the PIPELINE_* register contract).</p>
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.pack_keyed_rows" title="dau_driver.pipeline_execution.pack_keyed_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pack_keyed_rows</span></code></a>(→ bytes)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.pack_keyed_rows" title="dau_driver.pipeline_execution.pack_keyed_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pack_keyed_rows</span></code></a>(rows) → bytes</p></td>
 <td><p>{value, key} pair rows on the 64-byte DMA grid; the logical length</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.decode_group_records" title="dau_driver.pipeline_execution.decode_group_records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decode_group_records</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.decode_group_records" title="dau_driver.pipeline_execution.decode_group_records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decode_group_records</span></code></a>(data, count) → list[dau_core.operators.GroupAggregate]</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.configure_pipeline" title="dau_driver.pipeline_execution.configure_pipeline"><code class="xref py py-obj docutils literal notranslate"><span class="pre">configure_pipeline</span></code></a>(→ None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.configure_pipeline" title="dau_driver.pipeline_execution.configure_pipeline"><code class="xref py py-obj docutils literal notranslate"><span class="pre">configure_pipeline</span></code></a>(device, config) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution._wait_for_job_done" title="dau_driver.pipeline_execution._wait_for_job_done"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_wait_for_job_done</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution._wait_for_job_done" title="dau_driver.pipeline_execution._wait_for_job_done"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_wait_for_job_done</span></code></a>(device, *, timeout_seconds, label) → None</p></td>
 <td><p>Poll JOB_STATUS until DONE, raising on timeout or a hardware error</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution._read_aligned_records" title="dau_driver.pipeline_execution._read_aligned_records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_read_aligned_records</span></code></a>(→ bytes)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution._read_aligned_records" title="dau_driver.pipeline_execution._read_aligned_records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_read_aligned_records</span></code></a>(device, *, address, ...[, ...]) → bytes</p></td>
 <td><p>Read the 64-byte-aligned record block that RESULT_LENGTH describes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.execute_keyed_pipeline_job" title="dau_driver.pipeline_execution.execute_keyed_pipeline_job"><code class="xref py py-obj docutils literal notranslate"><span class="pre">execute_keyed_pipeline_job</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.execute_keyed_pipeline_job" title="dau_driver.pipeline_execution.execute_keyed_pipeline_job"><code class="xref py py-obj docutils literal notranslate"><span class="pre">execute_keyed_pipeline_job</span></code></a>(device, rows, *[, ...]) → tuple[list[dau_core.operators.GroupAggregate], int]</p></td>
 <td><p>Run one batch of (key, value) rows; the pipeline must already be</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.pack_bar_rows" title="dau_driver.pipeline_execution.pack_bar_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pack_bar_rows</span></code></a>(→ bytes)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.pack_bar_rows" title="dau_driver.pipeline_execution.pack_bar_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pack_bar_rows</span></code></a>(rows) → bytes</p></td>
 <td><p>(key, price, shares, frac) rows for the fused bar tile, on the DMA</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.decode_bar_records" title="dau_driver.pipeline_execution.decode_bar_records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decode_bar_records</span></code></a>(data, count)</p></td>
@@ -618,43 +619,43 @@ generate_mm_ohlcv_job_top_sv and the PIPELINE_* register contract).</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.execute_bar_job" title="dau_driver.pipeline_execution.execute_bar_job"><code class="xref py py-obj docutils literal notranslate"><span class="pre">execute_bar_job</span></code></a>(device, rows, *[, timeout_seconds, ...])</p></td>
 <td><p>Run one batch of (key, price, shares, frac) rows through the fused</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.bar_ddr_max_rows_per_job" title="dau_driver.pipeline_execution.bar_ddr_max_rows_per_job"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bar_ddr_max_rows_per_job</span></code></a>(→ int)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.bar_ddr_max_rows_per_job" title="dau_driver.pipeline_execution.bar_ddr_max_rows_per_job"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bar_ddr_max_rows_per_job</span></code></a>(staging) → int</p></td>
 <td><p>Rows per job, bounded by the worst case of one record per row so an</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.stage_bar_ddr_input" title="dau_driver.pipeline_execution.stage_bar_ddr_input"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stage_bar_ddr_input</span></code></a>(→ None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.stage_bar_ddr_input" title="dau_driver.pipeline_execution.stage_bar_ddr_input"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stage_bar_ddr_input</span></code></a>(device, payload, row_count, *, staging) → None</p></td>
 <td><p>DMA one pre-packed batch of bar rows into a DDR input region.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.start_bar_ddr_job" title="dau_driver.pipeline_execution.start_bar_ddr_job"><code class="xref py py-obj docutils literal notranslate"><span class="pre">start_bar_ddr_job</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.start_bar_ddr_job" title="dau_driver.pipeline_execution.start_bar_ddr_job"><code class="xref py py-obj docutils literal notranslate"><span class="pre">start_bar_ddr_job</span></code></a>(device, row_count, *, staging[, ...]) → None</p></td>
 <td><p>Kick a job over rows already staged in DDR.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.finish_bar_ddr_job" title="dau_driver.pipeline_execution.finish_bar_ddr_job"><code class="xref py py-obj docutils literal notranslate"><span class="pre">finish_bar_ddr_job</span></code></a>(→ tuple[bytes, int])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.finish_bar_ddr_job" title="dau_driver.pipeline_execution.finish_bar_ddr_job"><code class="xref py py-obj docutils literal notranslate"><span class="pre">finish_bar_ddr_job</span></code></a>(device, *, staging[, ...]) → tuple[bytes, int]</p></td>
 <td><p>Wait for the running job and read its records back. Returns the raw</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.execute_bar_ddr_packed" title="dau_driver.pipeline_execution.execute_bar_ddr_packed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">execute_bar_ddr_packed</span></code></a>(→ tuple[bytes, int])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.execute_bar_ddr_packed" title="dau_driver.pipeline_execution.execute_bar_ddr_packed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">execute_bar_ddr_packed</span></code></a>(device, payload, row_count, *, ...) → tuple[bytes, int]</p></td>
 <td><p>Run one pre-packed batch of bar rows through the DDR-staged fused</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.bar_noc_lane_output_bytes" title="dau_driver.pipeline_execution.bar_noc_lane_output_bytes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bar_noc_lane_output_bytes</span></code></a>(→ int)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.bar_noc_lane_output_bytes" title="dau_driver.pipeline_execution.bar_noc_lane_output_bytes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bar_noc_lane_output_bytes</span></code></a>(staging, lanes) → int</p></td>
 <td><p>Each lane gets an equal slice of the board's result region.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.bar_noc_max_rows_per_job" title="dau_driver.pipeline_execution.bar_noc_max_rows_per_job"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bar_noc_max_rows_per_job</span></code></a>(→ int)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.bar_noc_max_rows_per_job" title="dau_driver.pipeline_execution.bar_noc_max_rows_per_job"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bar_noc_max_rows_per_job</span></code></a>(staging, lanes) → int</p></td>
 <td><p>Bounded by the worst case of every record landing in ONE lane, so no</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.device_lane_count" title="dau_driver.pipeline_execution.device_lane_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_lane_count</span></code></a>(→ int)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.device_lane_count" title="dau_driver.pipeline_execution.device_lane_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_lane_count</span></code></a>(device) → int</p></td>
 <td><p>The number of NoC lanes the RESIDENT shell advertises.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution._advertised" title="dau_driver.pipeline_execution._advertised"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_advertised</span></code></a>(→ int)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution._advertised" title="dau_driver.pipeline_execution._advertised"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_advertised</span></code></a>(value) → int</p></td>
 <td><p>All-ones is a word nobody decoded, not a four-billion-row capacity —</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.device_job_capacity" title="dau_driver.pipeline_execution.device_job_capacity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_job_capacity</span></code></a>(→ tuple[int, int])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.device_job_capacity" title="dau_driver.pipeline_execution.device_job_capacity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_job_capacity</span></code></a>(device) → tuple[int, int]</p></td>
 <td><p>(input rows, output records) ONE job may stage on the RESIDENT shell.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.bar_noc_lane_output_address" title="dau_driver.pipeline_execution.bar_noc_lane_output_address"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bar_noc_lane_output_address</span></code></a>(→ int)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.bar_noc_lane_output_address" title="dau_driver.pipeline_execution.bar_noc_lane_output_address"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bar_noc_lane_output_address</span></code></a>(staging, lane, lanes) → int</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.configure_bar_noc_lanes" title="dau_driver.pipeline_execution.configure_bar_noc_lanes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">configure_bar_noc_lanes</span></code></a>(→ None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.configure_bar_noc_lanes" title="dau_driver.pipeline_execution.configure_bar_noc_lanes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">configure_bar_noc_lanes</span></code></a>(device, *, staging[, lanes]) → None</p></td>
 <td><p>Point every lane's writer at its slice of the output region.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.execute_bar_noc_packed" title="dau_driver.pipeline_execution.execute_bar_noc_packed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">execute_bar_noc_packed</span></code></a>(→ list[tuple[bytes, int]])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.execute_bar_noc_packed" title="dau_driver.pipeline_execution.execute_bar_noc_packed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">execute_bar_noc_packed</span></code></a>(device, payload, row_count, *, ...) → list[tuple[bytes, int]]</p></td>
 <td><p>Run one pre-packed batch through a broadcast-NoC shell: one scan</p></td>
 </tr>
 </tbody>
@@ -953,7 +954,10 @@ fixed-width [sum, count] record per lane, so it passes
     </article>
   </main>
 <nav id="fd-toc" aria-label="On this page">
-  <p class="fd-toc-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>On this page</p>
+  <div class="fd-toc-header">
+    <p class="fd-toc-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>On this page</p>
+    <button type="button" class="fd-icon-button fd-toc-collapse" aria-label="Collapse page navigation" title="Collapse page navigation" aria-controls="fd-toc" aria-expanded="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M15 3v18"/></svg></button>
+  </div>
   <div class="fd-toc-body"><svg class="fd-toc-rail" aria-hidden="true" preserveAspectRatio="none">
       <path class="fd-toc-track" fill="none" />
       <path class="fd-toc-thumb" fill="none" />
@@ -1083,6 +1087,7 @@ fixed-width [sum, count] record per lane, so it passes
     <a class="fd-toc-action" href="../../../_sources/autoapi/dau_driver/pipeline_execution/index.rst.txt" rel="nofollow" title="View source"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg><span>View source</span></a>
   </div>
 </nav>
+<button type="button" id="fd-toc-restore" class="fd-icon-button" aria-label="Expand page navigation" title="Expand page navigation" aria-controls="fd-toc" aria-expanded="false"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M15 3v18"/></svg></button>
 </div>
 <dialog id="fd-search-dialog" aria-label="Search">
   <form class="fd-search-panel" method="dialog" role="search">

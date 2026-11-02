@@ -7,7 +7,7 @@
 
     <title>test_verify_advertisement &#8212; dau-driver v0.1.0</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
-    <link rel="stylesheet" type="text/css" href="../../_static/fuma.css?v=9324ae27" />
+    <link rel="stylesheet" type="text/css" href="../../_static/fuma.css?v=ca04d621" />
     <link rel="stylesheet" type="text/css" href="../../_static/fuma-code.css?v=a950e949" />
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -23,12 +23,12 @@
     <script src="../../_static/copybutton.js?v=f281be69"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script data-searchlite-index="searchlite-index.json" defer="defer" src="../../_static/searchlite.js?v=a5320898"></script>
-    <script defer="defer" src="../../_static/fuma.js?v=88a16a98"></script>
+    <script defer="defer" src="../../_static/fuma.js?v=9c325f6c"></script>
     <script src="../../_static/js/custom.js?v=956e5d78"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="test_no_board_geometry_constants" href="../test_no_board_geometry_constants/index.html" />
-    <link rel="prev" title="test_linux_xdma_hardware" href="../test_linux_xdma_hardware/index.html" />
+    <link rel="prev" title="test_macos_xdma_hardware" href="../test_macos_xdma_hardware/index.html" />
     <script>
       (function () {
         var root = document.documentElement;
@@ -39,6 +39,7 @@
             root.style.colorScheme = stored === "dark" ? "dark" : "light";
           }
           if (localStorage.getItem("fuma-sidebar") === "collapsed") root.dataset.sidebarCollapsed = "true";
+          if (localStorage.getItem("fuma-toc") === "collapsed") root.dataset.tocCollapsed = "true";
         } catch (e) {}
       })();
     </script>
@@ -320,11 +321,6 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../test_handle_table/index.html">
-      <span class="fd-link-text">test_handle_table</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../test_lazy_exports/index.html">
       <span class="fd-link-text">test_lazy_exports</span>
     </a>
@@ -332,6 +328,11 @@
   <li class="fd-tree-item">
     <a class="fd-link" href="../test_stream_codec/index.html">
       <span class="fd-link-text">test_stream_codec</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_handle_table/index.html">
+      <span class="fd-link-text">test_handle_table</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -360,23 +361,23 @@
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../test_pipeline_execution/index.html">
-      <span class="fd-link-text">test_pipeline_execution</span>
-    </a>
-  </li>
-  <li class="fd-tree-item">
     <a class="fd-link" href="../test_record_batch_codec/index.html">
       <span class="fd-link-text">test_record_batch_codec</span>
     </a>
   </li>
   <li class="fd-tree-item">
-    <a class="fd-link" href="../test_macos_xdma_hardware/index.html">
-      <span class="fd-link-text">test_macos_xdma_hardware</span>
+    <a class="fd-link" href="../test_pipeline_execution/index.html">
+      <span class="fd-link-text">test_pipeline_execution</span>
     </a>
   </li>
   <li class="fd-tree-item">
     <a class="fd-link" href="../test_linux_xdma_hardware/index.html">
       <span class="fd-link-text">test_linux_xdma_hardware</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="../test_macos_xdma_hardware/index.html">
+      <span class="fd-link-text">test_macos_xdma_hardware</span>
     </a>
   </li>
   <li class="fd-tree-item">
@@ -590,82 +591,82 @@
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement._manifest" title="test_verify_advertisement._manifest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_manifest</span></code></a>(→ pathlib.Path)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement._manifest" title="test_verify_advertisement._manifest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_manifest</span></code></a>(tmp_path[, contract]) → pathlib.Path</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement.test_a_matching_device_reports_no_mismatches" title="test_verify_advertisement.test_a_matching_device_reports_no_mismatches"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_matching_device_reports_no_mismatches</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement.test_a_matching_device_reports_no_mismatches" title="test_verify_advertisement.test_a_matching_device_reports_no_mismatches"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_matching_device_reports_no_mismatches</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement.test_the_resident_design_that_fooled_the_flash_is_caught" title="test_verify_advertisement.test_the_resident_design_that_fooled_the_flash_is_caught"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_resident_design_that_fooled_the_flash_is_caught</span></code></a>(→ None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement.test_the_resident_design_that_fooled_the_flash_is_caught" title="test_verify_advertisement.test_the_resident_design_that_fooled_the_flash_is_caught"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_resident_design_that_fooled_the_flash_is_caught</span></code></a>() → None</p></td>
 <td><p>The case this exists for. A volatile program that does not take</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement.test_every_mismatch_is_reported_not_just_the_first" title="test_verify_advertisement.test_every_mismatch_is_reported_not_just_the_first"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_every_mismatch_is_reported_not_just_the_first</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement.test_every_mismatch_is_reported_not_just_the_first" title="test_verify_advertisement.test_every_mismatch_is_reported_not_just_the_first"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_every_mismatch_is_reported_not_just_the_first</span></code></a>() → None</p></td>
 <td><p>A caller staring at a failed flash wants all of them: 'lane count</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement.test_hex_and_int_spellings_of_a_word_compare_equal" title="test_verify_advertisement.test_hex_and_int_spellings_of_a_word_compare_equal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_hex_and_int_spellings_of_a_word_compare_equal</span></code></a>(→ None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement.test_hex_and_int_spellings_of_a_word_compare_equal" title="test_verify_advertisement.test_hex_and_int_spellings_of_a_word_compare_equal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_hex_and_int_spellings_of_a_word_compare_equal</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement.test_a_word_the_manifest_does_not_record_is_skipped" title="test_verify_advertisement.test_a_word_the_manifest_does_not_record_is_skipped"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_word_the_manifest_does_not_record_is_skipped</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement.test_a_word_the_manifest_does_not_record_is_skipped" title="test_verify_advertisement.test_a_word_the_manifest_does_not_record_is_skipped"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_word_the_manifest_does_not_record_is_skipped</span></code></a>() → None</p></td>
 <td><p>An older manifest predating a word must not fail a device that</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement.test_contract_is_read_from_a_manifest" title="test_verify_advertisement.test_contract_is_read_from_a_manifest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_contract_is_read_from_a_manifest</span></code></a>(→ None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement.test_contract_is_read_from_a_manifest" title="test_verify_advertisement.test_contract_is_read_from_a_manifest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_contract_is_read_from_a_manifest</span></code></a>(tmp_path) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement.test_a_manifest_without_a_contract_refuses" title="test_verify_advertisement.test_a_manifest_without_a_contract_refuses"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_manifest_without_a_contract_refuses</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement.test_a_manifest_without_a_contract_refuses" title="test_verify_advertisement.test_a_manifest_without_a_contract_refuses"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_manifest_without_a_contract_refuses</span></code></a>(tmp_path) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement.test_a_contract_that_advertises_nothing_is_refused" title="test_verify_advertisement.test_a_contract_that_advertises_nothing_is_refused"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_contract_that_advertises_nothing_is_refused</span></code></a>(→ None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement.test_a_contract_that_advertises_nothing_is_refused" title="test_verify_advertisement.test_a_contract_that_advertises_nothing_is_refused"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_contract_that_advertises_nothing_is_refused</span></code></a>() → None</p></td>
 <td><p>All-zero is exactly what a dead or undecoded aperture reads back as,</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement.test_a_zero_device_word_means_not_advertised_not_zero" title="test_verify_advertisement.test_a_zero_device_word_means_not_advertised_not_zero"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_zero_device_word_means_not_advertised_not_zero</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement.test_a_zero_device_word_means_not_advertised_not_zero" title="test_verify_advertisement.test_a_zero_device_word_means_not_advertised_not_zero"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_zero_device_word_means_not_advertised_not_zero</span></code></a>() → None</p></td>
 <td><p>Fixed binding tops place no NoC lane block, so they advertise</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement.test_a_dead_board_is_caught_by_the_required_identity_not_by_the_words" title="test_verify_advertisement.test_a_dead_board_is_caught_by_the_required_identity_not_by_the_words"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_dead_board_is_caught_by_the_required_identity_not_by_the_words</span></code></a>(→ None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement.test_a_dead_board_is_caught_by_the_required_identity_not_by_the_words" title="test_verify_advertisement.test_a_dead_board_is_caught_by_the_required_identity_not_by_the_words"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_dead_board_is_caught_by_the_required_identity_not_by_the_words</span></code></a>() → None</p></td>
 <td><p>The consequence of the rule above: a board answering nothing at all</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement.test_an_unreadable_word_is_a_mismatch_not_a_skip_and_never_raises" title="test_verify_advertisement.test_an_unreadable_word_is_a_mismatch_not_a_skip_and_never_raises"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_an_unreadable_word_is_a_mismatch_not_a_skip_and_never_raises</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement.test_an_unreadable_word_is_a_mismatch_not_a_skip_and_never_raises" title="test_verify_advertisement.test_an_unreadable_word_is_a_mismatch_not_a_skip_and_never_raises"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_an_unreadable_word_is_a_mismatch_not_a_skip_and_never_raises</span></code></a>(bad) → None</p></td>
 <td><p>Fail CLOSED. A word the manifest records in a form this cannot read</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement.test_a_float_lane_count_does_not_pass_a_mismatched_device" title="test_verify_advertisement.test_a_float_lane_count_does_not_pass_a_mismatched_device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_float_lane_count_does_not_pass_a_mismatched_device</span></code></a>(→ None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement.test_a_float_lane_count_does_not_pass_a_mismatched_device" title="test_verify_advertisement.test_a_float_lane_count_does_not_pass_a_mismatched_device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_float_lane_count_does_not_pass_a_mismatched_device</span></code></a>() → None</p></td>
 <td><p>The concrete fail-open case: 4.0 parsed as 'absent' let a device</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement.test_device_name_for_endpoint_resolves_through_sysfs" title="test_verify_advertisement.test_device_name_for_endpoint_resolves_through_sysfs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_device_name_for_endpoint_resolves_through_sysfs</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement.test_device_name_for_endpoint_resolves_through_sysfs" title="test_verify_advertisement.test_device_name_for_endpoint_resolves_through_sysfs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_device_name_for_endpoint_resolves_through_sysfs</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement.test_an_endpoint_that_did_not_re_enumerate_refuses" title="test_verify_advertisement.test_an_endpoint_that_did_not_re_enumerate_refuses"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_an_endpoint_that_did_not_re_enumerate_refuses</span></code></a>(→ None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement.test_an_endpoint_that_did_not_re_enumerate_refuses" title="test_verify_advertisement.test_an_endpoint_that_did_not_re_enumerate_refuses"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_an_endpoint_that_did_not_re_enumerate_refuses</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement._stamped" title="test_verify_advertisement._stamped"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_stamped</span></code></a>(→ _StampedSnapshot)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement._stamped" title="test_verify_advertisement._stamped"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_stamped</span></code></a>(build_id) → _StampedSnapshot</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement.test_a_matching_build_id_is_the_exact_check" title="test_verify_advertisement.test_a_matching_build_id_is_the_exact_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_matching_build_id_is_the_exact_check</span></code></a>(→ None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement.test_a_matching_build_id_is_the_exact_check" title="test_verify_advertisement.test_a_matching_build_id_is_the_exact_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_matching_build_id_is_the_exact_check</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement.test_build_id_catches_what_the_capability_words_cannot" title="test_verify_advertisement.test_build_id_catches_what_the_capability_words_cannot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_build_id_catches_what_the_capability_words_cannot</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement.test_build_id_catches_what_the_capability_words_cannot" title="test_verify_advertisement.test_build_id_catches_what_the_capability_words_cannot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_build_id_catches_what_the_capability_words_cannot</span></code></a>() → None</p></td>
 <td><p>The incident's own pair: q19-scan and q19-packed-wide advertise</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement.test_a_board_built_under_a_superseded_palette_still_verifies" title="test_verify_advertisement.test_a_board_built_under_a_superseded_palette_still_verifies"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_board_built_under_a_superseded_palette_still_verifies</span></code></a>(→ None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement.test_a_board_built_under_a_superseded_palette_still_verifies" title="test_verify_advertisement.test_a_board_built_under_a_superseded_palette_still_verifies"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_board_built_under_a_superseded_palette_still_verifies</span></code></a>(...) → None</p></td>
 <td><p>Verification is registry-INDEPENDENT, and it has to stay that way.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement.test_an_unstamped_shell_does_not_fail_the_exact_check" title="test_verify_advertisement.test_an_unstamped_shell_does_not_fail_the_exact_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_an_unstamped_shell_does_not_fail_the_exact_check</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement.test_an_unstamped_shell_does_not_fail_the_exact_check" title="test_verify_advertisement.test_an_unstamped_shell_does_not_fail_the_exact_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_an_unstamped_shell_does_not_fail_the_exact_check</span></code></a>() → None</p></td>
 <td><p>Every shell built before stamping existed advertises 0. That is a</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement.test_a_manifest_without_a_spec_hash_does_not_fail_the_exact_check" title="test_verify_advertisement.test_a_manifest_without_a_spec_hash_does_not_fail_the_exact_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_manifest_without_a_spec_hash_does_not_fail_the_exact_check</span></code></a>(→ None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement.test_a_manifest_without_a_spec_hash_does_not_fail_the_exact_check" title="test_verify_advertisement.test_a_manifest_without_a_spec_hash_does_not_fail_the_exact_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_manifest_without_a_spec_hash_does_not_fail_the_exact_check</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement.test_the_snapshot_actually_reads_build_id_back_from_the_registers" title="test_verify_advertisement.test_the_snapshot_actually_reads_build_id_back_from_the_registers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_snapshot_actually_reads_build_id_back_from_the_registers</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement.test_the_snapshot_actually_reads_build_id_back_from_the_registers" title="test_verify_advertisement.test_the_snapshot_actually_reads_build_id_back_from_the_registers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_snapshot_actually_reads_build_id_back_from_the_registers</span></code></a>() → None</p></td>
 <td><p>Without this the exact check is decorative: <cite>build_id</cite> would sit at</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement.test_a_dead_aperture_reads_back_as_unstamped_not_as_an_identity" title="test_verify_advertisement.test_a_dead_aperture_reads_back_as_unstamped_not_as_an_identity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_dead_aperture_reads_back_as_unstamped_not_as_an_identity</span></code></a>(→ None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement.test_a_dead_aperture_reads_back_as_unstamped_not_as_an_identity" title="test_verify_advertisement.test_a_dead_aperture_reads_back_as_unstamped_not_as_an_identity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_dead_aperture_reads_back_as_unstamped_not_as_an_identity</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement.test_a_json_boolean_is_not_a_capability_word" title="test_verify_advertisement.test_a_json_boolean_is_not_a_capability_word"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_json_boolean_is_not_a_capability_word</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement.test_a_json_boolean_is_not_a_capability_word" title="test_verify_advertisement.test_a_json_boolean_is_not_a_capability_word"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_json_boolean_is_not_a_capability_word</span></code></a>() → None</p></td>
 <td><p>int(True) == 1 would quietly satisfy a device advertising one lane.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement.test_an_unreadable_only_contract_reports_the_reason_not_the_all_zero_guard" title="test_verify_advertisement.test_an_unreadable_only_contract_reports_the_reason_not_the_all_zero_guard"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_an_unreadable_only_contract_reports_the_reason_not_the_all_zero_guard</span></code></a>(→ None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement.test_an_unreadable_only_contract_reports_the_reason_not_the_all_zero_guard" title="test_verify_advertisement.test_an_unreadable_only_contract_reports_the_reason_not_the_all_zero_guard"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_an_unreadable_only_contract_reports_the_reason_not_the_all_zero_guard</span></code></a>() → None</p></td>
 <td><p>Guard ordering: the all-zero refusal must not swallow an unreadable</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement.test_the_command_reports_a_missing_or_malformed_manifest_in_one_line" title="test_verify_advertisement.test_the_command_reports_a_missing_or_malformed_manifest_in_one_line"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_command_reports_a_missing_or_malformed_manifest_in_one_line</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement.test_the_command_reports_a_missing_or_malformed_manifest_in_one_line" title="test_verify_advertisement.test_the_command_reports_a_missing_or_malformed_manifest_in_one_line"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_command_reports_a_missing_or_malformed_manifest_in_one_line</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -929,11 +930,11 @@ word and raise, which loses the specific reason a caller needs.</p>
 
       </div>
 <nav class="fd-pagination" aria-label="Pagination">
-  <a class="fd-pagination-card fd-pagination-prev" href="../test_linux_xdma_hardware/index.html" title="Previous: test_linux_xdma_hardware">
+  <a class="fd-pagination-card fd-pagination-prev" href="../test_macos_xdma_hardware/index.html" title="Previous: test_macos_xdma_hardware">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m15 18-6-6 6-6"/></svg>
     <span class="fd-pagination-text">
       <span class="fd-pagination-label">Previous</span>
-      <span class="fd-pagination-title">test_linux_xdma_hardware</span>
+      <span class="fd-pagination-title">test_macos_xdma_hardware</span>
     </span>
   </a>
   <a class="fd-pagination-card fd-pagination-next" href="../test_no_board_geometry_constants/index.html" title="Next: test_no_board_geometry_constants">
@@ -951,7 +952,10 @@ word and raise, which loses the specific reason a caller needs.</p>
     </article>
   </main>
 <nav id="fd-toc" aria-label="On this page">
-  <p class="fd-toc-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>On this page</p>
+  <div class="fd-toc-header">
+    <p class="fd-toc-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>On this page</p>
+    <button type="button" class="fd-icon-button fd-toc-collapse" aria-label="Collapse page navigation" title="Collapse page navigation" aria-controls="fd-toc" aria-expanded="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M15 3v18"/></svg></button>
+  </div>
   <div class="fd-toc-body"><svg class="fd-toc-rail" aria-hidden="true" preserveAspectRatio="none">
       <path class="fd-toc-track" fill="none" />
       <path class="fd-toc-thumb" fill="none" />
@@ -1093,6 +1097,7 @@ word and raise, which loses the specific reason a caller needs.</p>
     <a class="fd-toc-action" href="../../_sources/autoapi/test_verify_advertisement/index.rst.txt" rel="nofollow" title="View source"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg><span>View source</span></a>
   </div>
 </nav>
+<button type="button" id="fd-toc-restore" class="fd-icon-button" aria-label="Expand page navigation" title="Expand page navigation" aria-controls="fd-toc" aria-expanded="false"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M15 3v18"/></svg></button>
 </div>
 <dialog id="fd-search-dialog" aria-label="Search">
   <form class="fd-search-panel" method="dialog" role="search">
