@@ -51,7 +51,7 @@ develop = [
     "hatch-cpp",
     "hatchling",
     "mdformat",
-    "mdformat-frontmatter",
+    "mdformat-myst",
     "mdformat-tables>=1",
     "nanobind",
     "pyarrow",
