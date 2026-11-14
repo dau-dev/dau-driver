@@ -18,9 +18,10 @@ dau_driver.verify_advertisement
 
    Two things distinguish them, and they are not equally strong.
 
-   BUILD_ID is exact. A shell stamps the leading 64 bits of its composition's
-   spec hash into its identity block, the manifest carries the same hash, and
-   they either agree or the board is running something else.
+   BUILD_ID is exact. A shell stamps the build id of its composition's spec on
+   its platform (``dau_core.composition.build_id``) into its identity block, the
+   manifest records the spec hash and the platform, and they either agree or the
+   board is running something else.
 
    The composed capability words — lane count, operator bitmap, host-opcode
    bitmap, sort capacity — are a coarse projection and must not be mistaken
@@ -65,20 +66,22 @@ Module Contents
    :value: (('lane_count', 'lane_count'), ('operator_bitmap', 'operator_bitmap'), ('host_opcode_bitmap',...
 
 
-.. py:function:: contract_from_manifest_path(path: pathlib.Path, *, with_spec_hash: bool = False) -> Any
+.. py:function:: contract_from_manifest_path(path: pathlib.Path, *, with_identity: bool = False) -> Any
 
    The capability contract a shell-build manifest carries, as plain data,
-   and optionally the spec hash beside it.
+   and optionally the spec hash and platform beside it, which together make
+   the build id the shell stamps.
 
    Reads the manifest as text and pulls the embedded JSON rather than
    importing the build package: this runs on a bench host where only the
    driver may be installed.
 
 
-.. py:function:: build_id_mismatch(snapshot, spec_hash: str | None, *, required: bool = False) -> str | None
+.. py:function:: build_id_mismatch(snapshot, spec_hash: str | None, platform: str | None, *, required: bool = False) -> str | None
 
    The EXACT check, when both sides carry it: does the shell's BUILD_ID
-   match the spec hash of the design the manifest describes?
+   match the build id of the design the manifest describes, its spec on the
+   platform it was built for?
 
    This is what the advertised capability words cannot do. They are a
    coarse projection — most designs share a word tuple with several others,
@@ -86,9 +89,9 @@ Module Contents
    word-level match is consistent with the board running a different
    design. A BUILD_ID match is not.
 
-   Returns None when the check does not apply: no spec hash in the
-   manifest, or a shell that advertises BUILD_ID 0 (unstamped, which every
-   shell built before stamping existed does). Absence is reported by the
+   Returns None when the check does not apply: no spec hash or platform in
+   the manifest, or a shell that advertises BUILD_ID 0 (unstamped, which
+   every shell built before stamping existed does). Absence is reported by the
    caller rather than treated as agreement — an unstamped shell is a weaker
    verification, not a passing one.
 

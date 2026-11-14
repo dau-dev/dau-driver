@@ -11,6 +11,7 @@ Attributes
 
    test_verify_advertisement._CONTRACT
    test_verify_advertisement._SPEC_HASH
+   test_verify_advertisement._PLATFORM
 
 
 Classes
@@ -48,6 +49,8 @@ Functions
    test_verify_advertisement.test_a_board_built_under_a_superseded_palette_still_verifies
    test_verify_advertisement.test_an_unstamped_shell_does_not_fail_the_exact_check
    test_verify_advertisement.test_a_manifest_without_a_spec_hash_does_not_fail_the_exact_check
+   test_verify_advertisement.test_the_same_spec_built_for_another_board_is_a_mismatch
+   test_verify_advertisement.test_a_manifest_without_a_platform_does_not_fail_the_exact_check
    test_verify_advertisement.test_the_snapshot_actually_reads_build_id_back_from_the_registers
    test_verify_advertisement.test_a_dead_aperture_reads_back_as_unstamped_not_as_an_identity
    test_verify_advertisement.test_a_json_boolean_is_not_a_capability_word
@@ -179,6 +182,10 @@ Module Contents
    :value: '5:cbbe0c39ca6857cf1854804711d7abac7c301b620d4a478185ca0686dedd5575'
 
 
+.. py:data:: _PLATFORM
+   :value: 'dpv1'
+
+
 .. py:function:: _stamped(build_id: int) -> _StampedSnapshot
 
 .. py:function:: test_a_matching_build_id_is_the_exact_check() -> None
@@ -215,6 +222,14 @@ Module Contents
 
 
 .. py:function:: test_a_manifest_without_a_spec_hash_does_not_fail_the_exact_check() -> None
+
+.. py:function:: test_the_same_spec_built_for_another_board_is_a_mismatch() -> None
+
+   A dpv2 image of the manifest's spec is not the dpv1 image the
+   manifest describes.
+
+
+.. py:function:: test_a_manifest_without_a_platform_does_not_fail_the_exact_check() -> None
 
 .. py:function:: test_the_snapshot_actually_reads_build_id_back_from_the_registers() -> None
 
