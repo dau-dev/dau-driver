@@ -114,8 +114,8 @@ def test_a_dead_board_is_caught_by_the_required_identity_not_by_the_words() -> N
 
     dead = _StampedSnapshot(lane_count=0, operator_bitmap=0, host_opcode_bitmap=0, sort_capacity=0, build_id=0)
     assert advertisement_mismatches(dead, _CONTRACT) == ()  # words are blind to it
-    assert build_id_mismatch(dead, _SPEC_HASH, required=True) is not None  # identity is not
-    assert build_id_mismatch(dead, _SPEC_HASH) is None  # and only when required
+    assert build_id_mismatch(dead, _SPEC_HASH, _PLATFORM, required=True) is not None  # identity is not
+    assert build_id_mismatch(dead, _SPEC_HASH, _PLATFORM) is None  # and only when required
 
 
 @pytest.mark.parametrize("bad", [1.0, [1], "", "018", {"a": 1}])
@@ -163,6 +163,7 @@ class _StampedSnapshot:
 
 
 _SPEC_HASH = "5:cbbe0c39ca6857cf1854804711d7abac7c301b620d4a478185ca0686dedd5575"
+_PLATFORM = "dpv1"
 
 
 def _stamped(build_id: int) -> _StampedSnapshot:
@@ -170,11 +171,11 @@ def _stamped(build_id: int) -> _StampedSnapshot:
 
 
 def test_a_matching_build_id_is_the_exact_check() -> None:
-    from dau_core.composition import build_id_from_spec_hash
+    from dau_core.composition import build_id
 
     from dau_driver.verify_advertisement import build_id_mismatch
 
-    assert build_id_mismatch(_stamped(build_id_from_spec_hash(_SPEC_HASH)), _SPEC_HASH) is None
+    assert build_id_mismatch(_stamped(build_id(_SPEC_HASH, _PLATFORM)), _SPEC_HASH, _PLATFORM) is None
 
 
 def test_build_id_catches_what_the_capability_words_cannot() -> None:
@@ -186,7 +187,7 @@ def test_build_id_catches_what_the_capability_words_cannot() -> None:
 
     other_design = _stamped(0xDEADBEEFCAFEF00D)
     assert advertisement_mismatches(other_design, _CONTRACT) == ()  # words agree
-    mismatch = build_id_mismatch(other_design, _SPEC_HASH)  # identity does not
+    mismatch = build_id_mismatch(other_design, _SPEC_HASH, _PLATFORM)  # identity does not
     assert mismatch is not None and "build_id" in mismatch
 
 
@@ -208,14 +209,14 @@ def test_a_board_built_under_a_superseded_palette_still_verifies(tmp_path: Path)
     from dau_driver.verify_advertisement import build_id_mismatch
 
     pre_rename = {**_CONTRACT, "lanes": [{"tile": {"core": "int32-field-sum-aggregation", "module": "dau_int32_field_sum_aggregation"}}]}
-    contract, spec_hash = contract_from_manifest_path(_manifest(tmp_path, pre_rename), with_spec_hash=True)
+    contract, spec_hash, platform = contract_from_manifest_path(_manifest(tmp_path, pre_rename), with_identity=True)
     assert contract["lanes"][0]["tile"]["core"] == "int32-field-sum-aggregation"  # read back verbatim
     assert advertisement_mismatches(_stamped(0x1234), contract) == ()
-    assert spec_hash is None  # this fixture records none; the words are all there is
+    assert spec_hash is None and platform is None  # this fixture records neither; the words are all there is
 
-    from dau_core.composition import build_id_from_spec_hash
+    from dau_core.composition import build_id
 
-    assert build_id_mismatch(_stamped(build_id_from_spec_hash(_SPEC_HASH)), _SPEC_HASH) is None
+    assert build_id_mismatch(_stamped(build_id(_SPEC_HASH, _PLATFORM)), _SPEC_HASH, _PLATFORM) is None
 
 
 def test_an_unstamped_shell_does_not_fail_the_exact_check() -> None:
@@ -223,13 +224,30 @@ def test_an_unstamped_shell_does_not_fail_the_exact_check() -> None:
     weaker verification, not a failing one -- main() says so on stderr."""
     from dau_driver.verify_advertisement import build_id_mismatch
 
-    assert build_id_mismatch(_stamped(0), _SPEC_HASH) is None
+    assert build_id_mismatch(_stamped(0), _SPEC_HASH, _PLATFORM) is None
 
 
 def test_a_manifest_without_a_spec_hash_does_not_fail_the_exact_check() -> None:
     from dau_driver.verify_advertisement import build_id_mismatch
 
-    assert build_id_mismatch(_stamped(0x1234), None) is None
+    assert build_id_mismatch(_stamped(0x1234), None, _PLATFORM) is None
+
+
+def test_the_same_spec_built_for_another_board_is_a_mismatch() -> None:
+    """A dpv2 image of the manifest's spec is not the dpv1 image the
+    manifest describes."""
+    from dau_core.composition import build_id
+
+    from dau_driver.verify_advertisement import build_id_mismatch
+
+    mismatch = build_id_mismatch(_stamped(build_id(_SPEC_HASH, "dpv2")), _SPEC_HASH, "dpv1")
+    assert mismatch is not None and "on dpv1" in mismatch
+
+
+def test_a_manifest_without_a_platform_does_not_fail_the_exact_check() -> None:
+    from dau_driver.verify_advertisement import build_id_mismatch
+
+    assert build_id_mismatch(_stamped(0x1234), _SPEC_HASH, None) is None
 
 
 def test_the_snapshot_actually_reads_build_id_back_from_the_registers() -> None:

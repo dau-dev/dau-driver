@@ -84,7 +84,7 @@ dau-driver-verify-advertisement --manifest <output_root>/shell-build.artifacts.y
 ```
 
 Add `--require-build-id` to fail, rather than warn, on a device whose build id
-does not match the manifest's spec hash.
+does not match the manifest's spec on the platform it records.
 
 ## Next
 

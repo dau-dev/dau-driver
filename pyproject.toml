@@ -31,7 +31,7 @@ classifiers = [
 
 dependencies = [
     # 0.2.0 is the first release with the record layouts and wire facts this reads
-    "dau-core>=0.2",
+    "dau-core>=0.5",
     # read directly by verify_advertisement; it arrives transitively through
     # ccflow today, but a package should declare what it imports
     "pyyaml",
