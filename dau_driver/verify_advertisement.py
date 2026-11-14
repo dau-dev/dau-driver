@@ -11,9 +11,10 @@ running the previous design.
 
 Two things distinguish them, and they are not equally strong.
 
-BUILD_ID is exact. A shell stamps the leading 64 bits of its composition's
-spec hash into its identity block, the manifest carries the same hash, and
-they either agree or the board is running something else.
+BUILD_ID is exact. A shell stamps the build id of its composition's spec on
+its platform (``dau_core.composition.build_id``) into its identity block, the
+manifest records the spec hash and the platform, and they either agree or the
+board is running something else.
 
 The composed capability words — lane count, operator bitmap, host-opcode
 bitmap, sort capacity — are a coarse projection and must not be mistaken
@@ -84,9 +85,10 @@ def _as_int(value: Any) -> Any:
     return _UNREADABLE
 
 
-def contract_from_manifest_path(path: Path, *, with_spec_hash: bool = False) -> Any:
+def contract_from_manifest_path(path: Path, *, with_identity: bool = False) -> Any:
     """The capability contract a shell-build manifest carries, as plain data,
-    and optionally the spec hash beside it.
+    and optionally the spec hash and platform beside it, which together make
+    the build id the shell stamps.
 
     Reads the manifest as text and pulls the embedded JSON rather than
     importing the build package: this runs on a bench host where only the
@@ -102,14 +104,15 @@ def contract_from_manifest_path(path: Path, *, with_spec_hash: bool = False) -> 
     if not serialized:
         raise ValueError(f"{path} carries no capability_contract; nothing to verify against")
     contract = json.loads(serialized)
-    if with_spec_hash:
-        return contract, metadata.get("spec_hash")
+    if with_identity:
+        return contract, metadata.get("spec_hash"), metadata.get("platform")
     return contract
 
 
-def build_id_mismatch(snapshot, spec_hash: str | None, *, required: bool = False) -> str | None:
+def build_id_mismatch(snapshot, spec_hash: str | None, platform: str | None, *, required: bool = False) -> str | None:
     """The EXACT check, when both sides carry it: does the shell's BUILD_ID
-    match the spec hash of the design the manifest describes?
+    match the build id of the design the manifest describes, its spec on the
+    platform it was built for?
 
     This is what the advertised capability words cannot do. They are a
     coarse projection — most designs share a word tuple with several others,
@@ -117,15 +120,15 @@ def build_id_mismatch(snapshot, spec_hash: str | None, *, required: bool = False
     word-level match is consistent with the board running a different
     design. A BUILD_ID match is not.
 
-    Returns None when the check does not apply: no spec hash in the
-    manifest, or a shell that advertises BUILD_ID 0 (unstamped, which every
-    shell built before stamping existed does). Absence is reported by the
+    Returns None when the check does not apply: no spec hash or platform in
+    the manifest, or a shell that advertises BUILD_ID 0 (unstamped, which
+    every shell built before stamping existed does). Absence is reported by the
     caller rather than treated as agreement — an unstamped shell is a weaker
     verification, not a passing one.
     """
-    if not spec_hash:
+    if not spec_hash or not platform:
         return None
-    from dau_core.composition import build_id_from_spec_hash
+    from dau_core.composition import build_id
 
     advertised = getattr(snapshot, "build_id", None)
     if not advertised:  # 0 or absent: not stamped
@@ -137,9 +140,9 @@ def build_id_mismatch(snapshot, spec_hash: str | None, *, required: bool = False
             # should pass. All-zero is also what a dead aperture reads.
             return "build_id: device advertises none, but the manifest's design stamps one; the program did not take or the board is not answering"
         return None
-    expected = build_id_from_spec_hash(spec_hash)
+    expected = build_id(spec_hash, platform)
     if advertised != expected:
-        return f"build_id: device advertises 0x{advertised:016x}, manifest's spec hash gives 0x{expected:016x}"
+        return f"build_id: device advertises 0x{advertised:016x}, the manifest's spec on {platform} gives 0x{expected:016x}"
     return None
 
 
@@ -238,7 +241,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 def _verify(args: argparse.Namespace) -> int:
     from dau_driver.discovery import discover_devices
 
-    contract, spec_hash = contract_from_manifest_path(args.manifest, with_spec_hash=True)
+    contract, spec_hash, platform = contract_from_manifest_path(args.manifest, with_identity=True)
     devices = discover_devices() if args.device_root is None else discover_devices(args.device_root)
     if not devices:
         print("no DAU device found to verify", file=sys.stderr)
@@ -263,7 +266,7 @@ def _verify(args: argparse.Namespace) -> int:
     snapshot = device.read_register_block_snapshot()
 
     mismatches = list(advertisement_mismatches(snapshot, contract))
-    exact = build_id_mismatch(snapshot, spec_hash, required=args.require_build_id)
+    exact = build_id_mismatch(snapshot, spec_hash, platform, required=args.require_build_id)
     if exact is not None:
         mismatches.append(exact)
     mismatches = tuple(mismatches)
@@ -274,7 +277,7 @@ def _verify(args: argparse.Namespace) -> int:
         print("the endpoint enumerating does not mean the program took: an FPGA falls back to its flash-resident design", file=sys.stderr)
         return 1
     checked = [field for field, key in ADVERTISED_WORDS if isinstance(_as_int(contract.get(key)), int)]
-    stamped = bool(spec_hash) and bool(getattr(snapshot, "build_id", 0))
+    stamped = bool(spec_hash) and bool(platform) and bool(getattr(snapshot, "build_id", 0))
     if stamped:
         checked.append("build_id")
     print(f"device advertisement matches {args.manifest} ({', '.join(checked)})")
