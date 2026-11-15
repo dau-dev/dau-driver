@@ -2,8 +2,11 @@ from __future__ import annotations
 
 import os
 import struct
+import threading
+import weakref
 from collections.abc import Sequence
 from dataclasses import dataclass
+from functools import cached_property
 from pathlib import Path
 from typing import Protocol, cast
 
@@ -27,17 +30,52 @@ class DeviceTransport(Protocol):
     def write_dma(self, device_address: int, data: bytes | bytearray | memoryview) -> int: ...
 
 
-@dataclass(frozen=True)
 class PathDeviceTransport:
-    user_path: Path
-    h2c_path: Path
-    c2h_path: Path
+    """A device's devnodes, with the register node held open.
+
+    A register access is one ``pread`` or ``pwrite`` on a descriptor opened
+    at first use. Opening and closing the node around every access made each
+    one three system calls, and a resident query makes ~175 of them, most
+    while polling for the job to finish. Reads and writes keep the separate
+    read-only and write-only descriptors the per-access path opened, so a
+    caller allowed only to read the node still can. :meth:`close` releases
+    them, as does the transport being collected.
+    """
+
+    def __init__(self, user_path: Path, h2c_path: Path, c2h_path: Path) -> None:
+        self.user_path = Path(user_path)
+        self.h2c_path = Path(h2c_path)
+        self.c2h_path = Path(c2h_path)
+        self._descriptors: dict[int, int] = {}
+        self._lock = threading.Lock()
+        self._release = weakref.finalize(self, _close_descriptors, self._descriptors)
+
+    def _descriptor(self, flags: int, failure: str) -> int:
+        descriptor = self._descriptors.get(flags)
+        if descriptor is not None:
+            return descriptor
+        with self._lock:
+            descriptor = self._descriptors.get(flags)
+            if descriptor is None:
+                try:
+                    descriptor = os.open(self.user_path, flags)
+                except OSError as exc:
+                    raise RegisterAccessError(failure) from exc
+                self._descriptors[flags] = descriptor
+            return descriptor
 
     def read_u32(self, offset: int) -> int:
-        return read_u32(self.user_path, offset)
+        offset_name = _offset_name(offset)
+        failure = f"could not read {offset_name} from {self.user_path}"
+        register_bytes = _pread_register(self._descriptor(os.O_RDONLY, failure), self.user_path, int(offset), 4, offset_name)
+        return struct.unpack("<I", register_bytes)[0]
 
     def write_u32(self, offset: int, value: int) -> None:
-        _write_register_bytes(self.user_path, offset, struct.pack("<I", value))
+        failure = f"could not write 0x{offset:x} to {self.user_path}"
+        _pwrite_register(self._descriptor(os.O_WRONLY, failure), self.user_path, offset, struct.pack("<I", value))
+
+    def close(self) -> None:
+        self._release()
 
     def read_dma(self, device_address: int, byte_count: int) -> bytes:
         return read_exact_at(self.c2h_path, device_address, byte_count)
@@ -103,6 +141,12 @@ class DauDevice:
     def resolved_transport(self) -> DeviceTransport:
         if self.transport is not None:
             return self.transport
+        return self._path_transport
+
+    @cached_property
+    def _path_transport(self) -> PathDeviceTransport:
+        """One transport for the device's lifetime, so its register node
+        stays open between accesses."""
         return PathDeviceTransport(self.user_path, self.h2c_path, self.c2h_path)
 
     def read_register(self, offset: RegisterOffset | int) -> int:
@@ -169,9 +213,10 @@ class DauDevice:
         return low | (high << 32)
 
     def close(self) -> None:
-        if self.transport is None:
+        transport = self.transport if self.transport is not None else self.__dict__.get("_path_transport")
+        if transport is None:
             return
-        close = getattr(self.transport, "close", None)
+        close = getattr(transport, "close", None)
         if close is not None:
             close()
 
@@ -217,34 +262,35 @@ def _read_register_bytes(path: Path, offset: int, byte_count: int, offset_name: 
         file_descriptor = os.open(path, os.O_RDONLY)
     except OSError as exc:
         raise RegisterAccessError(f"could not read {offset_name} from {path}") from exc
+    try:
+        return _pread_register(file_descriptor, path, offset, byte_count, offset_name)
+    finally:
+        os.close(file_descriptor)
 
+
+def _pread_register(file_descriptor: int, path: Path, offset: int, byte_count: int, offset_name: str) -> bytes:
     try:
         register_bytes = os.pread(file_descriptor, byte_count, offset)
     except OSError as exc:
         raise RegisterAccessError(f"could not read {offset_name} from {path}") from exc
-    finally:
-        os.close(file_descriptor)
-
     if len(register_bytes) != byte_count:
         raise RegisterAccessError(f"short read for {offset_name} from {path}")
     return register_bytes
 
 
-def _write_register_bytes(path: Path, offset: int, data: bytes) -> None:
-    try:
-        file_descriptor = os.open(path, os.O_WRONLY)
-    except OSError as exc:
-        raise RegisterAccessError(f"could not write 0x{offset:x} to {path}") from exc
-
+def _pwrite_register(file_descriptor: int, path: Path, offset: int, data: bytes) -> None:
     try:
         written = os.pwrite(file_descriptor, data, offset)
     except OSError as exc:
         raise RegisterAccessError(f"could not write 0x{offset:x} to {path}") from exc
-    finally:
-        os.close(file_descriptor)
-
     if written != len(data):
         raise RegisterAccessError(f"short write for 0x{offset:x} to {path}")
+
+
+def _close_descriptors(descriptors: dict[int, int]) -> None:
+    for descriptor in descriptors.values():
+        os.close(descriptor)
+    descriptors.clear()
 
 
 def _checked_offset(offset: RegisterOffset | int) -> int:
