@@ -31,6 +31,7 @@ Functions
    test_discovery.test_device_reads_register_block_snapshot_from_dau_core_contract
    test_discovery.test_read_u64_uses_two_u32_register_reads_for_xdma_user_bar
    test_discovery.test_device_bar_health_check_reports_all_ones_for_selected_register
+   test_discovery.test_a_device_holds_its_register_node_open
    test_discovery.test_device_validates_dma_transfer_shape_before_real_xdma_io
    test_discovery._sysfs_owner
    test_discovery.test_a_fake_device_is_identified_by_its_node_and_says_so
@@ -96,6 +97,12 @@ Module Contents
 .. py:function:: test_read_u64_uses_two_u32_register_reads_for_xdma_user_bar(tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch) -> None
 
 .. py:function:: test_device_bar_health_check_reports_all_ones_for_selected_register(tmp_path: pathlib.Path) -> None
+
+.. py:function:: test_a_device_holds_its_register_node_open(tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch) -> None
+
+   One open per access mode for the device's lifetime, not one per
+   register access; close releases them, and the next access reopens.
+
 
 .. py:function:: test_device_validates_dma_transfer_shape_before_real_xdma_io(tmp_path: pathlib.Path) -> None
 

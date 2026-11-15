@@ -478,6 +478,9 @@
     <a href="#test_discovery.test_device_bar_health_check_reports_all_ones_for_selected_register">test_device_bar_health_check_reports_all_ones_for_selected_register()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
+    <a href="#test_discovery.test_a_device_holds_its_register_node_open">test_a_device_holds_its_register_node_open()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
     <a href="#test_discovery.test_device_validates_dma_transfer_shape_before_real_xdma_io">test_device_validates_dma_transfer_shape_before_real_xdma_io()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
@@ -575,28 +578,31 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#test_discovery.test_device_bar_health_check_reports_all_ones_for_selected_register" title="test_discovery.test_device_bar_health_check_reports_all_ones_for_selected_register"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_device_bar_health_check_reports_all_ones_for_selected_register</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_discovery.test_device_validates_dma_transfer_shape_before_real_xdma_io" title="test_discovery.test_device_validates_dma_transfer_shape_before_real_xdma_io"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_device_validates_dma_transfer_shape_before_real_xdma_io</span></code></a>(...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_discovery.test_a_device_holds_its_register_node_open" title="test_discovery.test_a_device_holds_its_register_node_open"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_device_holds_its_register_node_open</span></code></a>(tmp_path, ...) → None</p></td>
+<td><p>One open per access mode for the device's lifetime, not one per</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_discovery.test_device_validates_dma_transfer_shape_before_real_xdma_io" title="test_discovery.test_device_validates_dma_transfer_shape_before_real_xdma_io"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_device_validates_dma_transfer_shape_before_real_xdma_io</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_discovery._sysfs_owner" title="test_discovery._sysfs_owner"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_sysfs_owner</span></code></a>(root, bdf, node) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_discovery._sysfs_owner" title="test_discovery._sysfs_owner"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_sysfs_owner</span></code></a>(root, bdf, node) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_discovery.test_a_fake_device_is_identified_by_its_node_and_says_so" title="test_discovery.test_a_fake_device_is_identified_by_its_node_and_says_so"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_fake_device_is_identified_by_its_node_and_says_so</span></code></a>(...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_discovery.test_a_fake_device_is_identified_by_its_node_and_says_so" title="test_discovery.test_a_fake_device_is_identified_by_its_node_and_says_so"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_fake_device_is_identified_by_its_node_and_says_so</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_discovery.test_endpoint_for_devnode_reads_the_owning_pci_device_from_sysfs" title="test_discovery.test_endpoint_for_devnode_reads_the_owning_pci_device_from_sysfs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_endpoint_for_devnode_reads_the_owning_pci_device_from_sysfs</span></code></a>(...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_discovery.test_endpoint_for_devnode_reads_the_owning_pci_device_from_sysfs" title="test_discovery.test_endpoint_for_devnode_reads_the_owning_pci_device_from_sysfs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_endpoint_for_devnode_reads_the_owning_pci_device_from_sysfs</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_discovery.test_a_discovered_linux_device_is_identified_by_its_pci_endpoint" title="test_discovery.test_a_discovered_linux_device_is_identified_by_its_pci_endpoint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_discovered_linux_device_is_identified_by_its_pci_endpoint</span></code></a>(...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_discovery.test_a_discovered_linux_device_is_identified_by_its_pci_endpoint" title="test_discovery.test_a_discovered_linux_device_is_identified_by_its_pci_endpoint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_discovered_linux_device_is_identified_by_its_pci_endpoint</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_discovery.write_fake_xdma_device" title="test_discovery.write_fake_xdma_device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_fake_xdma_device</span></code></a>(root, *[, index, magic, ...]) → FakeXdmaPaths</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_discovery.write_fake_xdma_device" title="test_discovery.write_fake_xdma_device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_fake_xdma_device</span></code></a>(root, *[, index, magic, ...]) → FakeXdmaPaths</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_discovery.write_u32" title="test_discovery.write_u32"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_u32</span></code></a>(register_image, register_window_offset, ...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_discovery.write_u32" title="test_discovery.write_u32"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_u32</span></code></a>(register_image, register_window_offset, ...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_discovery.write_u64" title="test_discovery.write_u64"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_u64</span></code></a>(register_image, register_window_offset, ...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_discovery.write_u64" title="test_discovery.write_u64"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_u64</span></code></a>(register_image, register_window_offset, ...) → None</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -700,6 +706,13 @@ submitted to a device. Silence is the only honest decode.</p>
 <dt class="sig sig-object py" id="test_discovery.test_device_bar_health_check_reports_all_ones_for_selected_register">
 <span class="sig-prename descclassname"><span class="pre">test_discovery.</span></span><span class="sig-name descname"><span class="pre">test_device_bar_health_check_reports_all_ones_for_selected_register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_discovery.test_device_bar_health_check_reports_all_ones_for_selected_register" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_discovery.test_a_device_holds_its_register_node_open">
+<span class="sig-prename descclassname"><span class="pre">test_discovery.</span></span><span class="sig-name descname"><span class="pre">test_a_device_holds_its_register_node_open</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monkeypatch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytest.MonkeyPatch</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_discovery.test_a_device_holds_its_register_node_open" title="Link to this definition">¶</a></dt>
+<dd><p>One open per access mode for the device’s lifetime, not one per
+register access; close releases them, and the next access reopens.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="test_discovery.test_device_validates_dma_transfer_shape_before_real_xdma_io">
@@ -839,6 +852,9 @@ submitted to a device. Silence is the only honest decode.</p>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_discovery.test_device_bar_health_check_reports_all_ones_for_selected_register">test_device_bar_health_check_reports_all_ones_for_selected_register()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_discovery.test_a_device_holds_its_register_node_open">test_a_device_holds_its_register_node_open()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_discovery.test_device_validates_dma_transfer_shape_before_real_xdma_io">test_device_validates_dma_transfer_shape_before_real_xdma_io()</a>

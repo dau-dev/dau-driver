@@ -31,7 +31,9 @@ Functions
    dau_driver.device.read_u32
    dau_driver.device.read_u64
    dau_driver.device._read_register_bytes
-   dau_driver.device._write_register_bytes
+   dau_driver.device._pread_register
+   dau_driver.device._pwrite_register
+   dau_driver.device._close_descriptors
    dau_driver.device._checked_offset
    dau_driver.device._offset_name
    dau_driver.device.write_address
@@ -89,24 +91,48 @@ Module Contents
    .. py:method:: write_dma(device_address: int, data: bytes | bytearray | memoryview) -> int
 
 
-.. py:class:: PathDeviceTransport
+.. py:class:: PathDeviceTransport(user_path: pathlib.Path, h2c_path: pathlib.Path, c2h_path: pathlib.Path)
+
+   A device's devnodes, with the register node held open.
+
+   A register access is one ``pread`` or ``pwrite`` on a descriptor opened
+   at first use. Opening and closing the node around every access made each
+   one three system calls, and a resident query makes ~175 of them, most
+   while polling for the job to finish. Reads and writes keep the separate
+   read-only and write-only descriptors the per-access path opened, so a
+   caller allowed only to read the node still can. :meth:`close` releases
+   them, as does the transport being collected.
+
 
    .. py:attribute:: user_path
-      :type:  pathlib.Path
 
 
    .. py:attribute:: h2c_path
-      :type:  pathlib.Path
 
 
    .. py:attribute:: c2h_path
-      :type:  pathlib.Path
+
+
+   .. py:attribute:: _descriptors
+      :type:  dict[int, int]
+
+
+   .. py:attribute:: _lock
+
+
+   .. py:attribute:: _release
+
+
+   .. py:method:: _descriptor(flags: int, failure: str) -> int
 
 
    .. py:method:: read_u32(offset: int) -> int
 
 
    .. py:method:: write_u32(offset: int, value: int) -> None
+
+
+   .. py:method:: close() -> None
 
 
    .. py:method:: read_dma(device_address: int, byte_count: int) -> bytes
@@ -199,6 +225,14 @@ Module Contents
 
 
 
+   .. py:property:: _path_transport
+      :type: PathDeviceTransport
+
+
+      One transport for the device's lifetime, so its register node
+      stays open between accesses.
+
+
    .. py:method:: read_register(offset: dau_core.registers.RegisterOffset | int) -> int
 
 
@@ -244,7 +278,11 @@ Module Contents
 
 .. py:function:: _read_register_bytes(path: pathlib.Path, offset: int, byte_count: int, offset_name: str) -> bytes
 
-.. py:function:: _write_register_bytes(path: pathlib.Path, offset: int, data: bytes) -> None
+.. py:function:: _pread_register(file_descriptor: int, path: pathlib.Path, offset: int, byte_count: int, offset_name: str) -> bytes
+
+.. py:function:: _pwrite_register(file_descriptor: int, path: pathlib.Path, offset: int, data: bytes) -> None
+
+.. py:function:: _close_descriptors(descriptors: dict[int, int]) -> None
 
 .. py:function:: _checked_offset(offset: dau_core.registers.RegisterOffset | int) -> int
 

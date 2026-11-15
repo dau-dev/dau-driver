@@ -454,10 +454,25 @@
     <a href="#dau_driver.device.PathDeviceTransport.c2h_path">PathDeviceTransport.c2h_path</a>
   </li>
   <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.device.PathDeviceTransport._descriptors">PathDeviceTransport._descriptors</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.device.PathDeviceTransport._lock">PathDeviceTransport._lock</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.device.PathDeviceTransport._release">PathDeviceTransport._release</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.device.PathDeviceTransport._descriptor">PathDeviceTransport._descriptor()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
     <a href="#dau_driver.device.PathDeviceTransport.read_u32">PathDeviceTransport.read_u32()</a>
   </li>
   <li class="fd-toc-item" data-depth="3">
     <a href="#dau_driver.device.PathDeviceTransport.write_u32">PathDeviceTransport.write_u32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.device.PathDeviceTransport.close">PathDeviceTransport.close()</a>
   </li>
   <li class="fd-toc-item" data-depth="3">
     <a href="#dau_driver.device.PathDeviceTransport.read_dma">PathDeviceTransport.read_dma()</a>
@@ -514,6 +529,9 @@
     <a href="#dau_driver.device.DauDevice.resolved_transport">DauDevice.resolved_transport</a>
   </li>
   <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.device.DauDevice._path_transport">DauDevice._path_transport</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
     <a href="#dau_driver.device.DauDevice.read_register">DauDevice.read_register()</a>
   </li>
   <li class="fd-toc-item" data-depth="3">
@@ -559,7 +577,13 @@
     <a href="#dau_driver.device._read_register_bytes">_read_register_bytes()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#dau_driver.device._write_register_bytes">_write_register_bytes()</a>
+    <a href="#dau_driver.device._pread_register">_pread_register()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.device._pwrite_register">_pwrite_register()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.device._close_descriptors">_close_descriptors()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_driver.device._checked_offset">_checked_offset()</a>
@@ -613,7 +637,7 @@
 <td><p>Base class for protocol classes.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.device.PathDeviceTransport" title="dau_driver.device.PathDeviceTransport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PathDeviceTransport</span></code></a></p></td>
-<td><p></p></td>
+<td><p>A device's devnodes, with the register node held open.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.device.DeviceIdentity" title="dau_driver.device.DeviceIdentity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DeviceIdentity</span></code></a></p></td>
 <td><p>What a device is called for keying purposes, and how stable that is.</p></td>
@@ -637,7 +661,13 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.device._read_register_bytes" title="dau_driver.device._read_register_bytes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_read_register_bytes</span></code></a>(path, offset, byte_count, offset_name) → bytes</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.device._write_register_bytes" title="dau_driver.device._write_register_bytes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_write_register_bytes</span></code></a>(path, offset, data) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.device._pread_register" title="dau_driver.device._pread_register"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_pread_register</span></code></a>(file_descriptor, path, offset, ...) → bytes</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.device._pwrite_register" title="dau_driver.device._pwrite_register"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_pwrite_register</span></code></a>(file_descriptor, path, offset, data) → None</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.device._close_descriptors" title="dau_driver.device._close_descriptors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_close_descriptors</span></code></a>(descriptors) → None</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.device._checked_offset" title="dau_driver.device._checked_offset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_checked_offset</span></code></a>(offset) → int</p></td>
@@ -711,20 +741,48 @@ Protocol classes can be generic, they are defined as:</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="dau_driver.device.PathDeviceTransport">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_driver.device.</span></span><span class="sig-name descname"><span class="pre">PathDeviceTransport</span></span><a class="reference internal" href="../../../_modules/dau_driver/device.html#PathDeviceTransport"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.device.PathDeviceTransport" title="Link to this definition">¶</a></dt>
-<dd><dl class="py attribute">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_driver.device.</span></span><span class="sig-name descname"><span class="pre">PathDeviceTransport</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h2c_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c2h_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/dau_driver/device.html#PathDeviceTransport"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.device.PathDeviceTransport" title="Link to this definition">¶</a></dt>
+<dd><p>A device’s devnodes, with the register node held open.</p>
+<p>A register access is one <code class="docutils literal notranslate"><span class="pre">pread</span></code> or <code class="docutils literal notranslate"><span class="pre">pwrite</span></code> on a descriptor opened
+at first use. Opening and closing the node around every access made each
+one three system calls, and a resident query makes ~175 of them, most
+while polling for the job to finish. Reads and writes keep the separate
+read-only and write-only descriptors the per-access path opened, so a
+caller allowed only to read the node still can. <a class="reference internal" href="#dau_driver.device.PathDeviceTransport.close" title="dau_driver.device.PathDeviceTransport.close"><code class="xref py py-meth docutils literal notranslate"><span class="pre">close()</span></code></a> releases
+them, as does the transport being collected.</p>
+<dl class="py attribute">
 <dt class="sig sig-object py" id="dau_driver.device.PathDeviceTransport.user_path">
-<span class="sig-name descname"><span class="pre">user_path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pathlib.Path</span></em><a class="headerlink" href="#dau_driver.device.PathDeviceTransport.user_path" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">user_path</span></span><a class="headerlink" href="#dau_driver.device.PathDeviceTransport.user_path" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dau_driver.device.PathDeviceTransport.h2c_path">
-<span class="sig-name descname"><span class="pre">h2c_path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pathlib.Path</span></em><a class="headerlink" href="#dau_driver.device.PathDeviceTransport.h2c_path" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">h2c_path</span></span><a class="headerlink" href="#dau_driver.device.PathDeviceTransport.h2c_path" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dau_driver.device.PathDeviceTransport.c2h_path">
-<span class="sig-name descname"><span class="pre">c2h_path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pathlib.Path</span></em><a class="headerlink" href="#dau_driver.device.PathDeviceTransport.c2h_path" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">c2h_path</span></span><a class="headerlink" href="#dau_driver.device.PathDeviceTransport.c2h_path" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_driver.device.PathDeviceTransport._descriptors">
+<span class="sig-name descname"><span class="pre">_descriptors</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#dau_driver.device.PathDeviceTransport._descriptors" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_driver.device.PathDeviceTransport._lock">
+<span class="sig-name descname"><span class="pre">_lock</span></span><a class="headerlink" href="#dau_driver.device.PathDeviceTransport._lock" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dau_driver.device.PathDeviceTransport._release">
+<span class="sig-name descname"><span class="pre">_release</span></span><a class="headerlink" href="#dau_driver.device.PathDeviceTransport._release" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_driver.device.PathDeviceTransport._descriptor">
+<span class="sig-name descname"><span class="pre">_descriptor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flags</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">failure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/device.html#PathDeviceTransport._descriptor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.device.PathDeviceTransport._descriptor" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -735,6 +793,11 @@ Protocol classes can be generic, they are defined as:</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dau_driver.device.PathDeviceTransport.write_u32">
 <span class="sig-name descname"><span class="pre">write_u32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/device.html#PathDeviceTransport.write_u32"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.device.PathDeviceTransport.write_u32" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_driver.device.PathDeviceTransport.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/device.html#PathDeviceTransport.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.device.PathDeviceTransport.close" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -839,6 +902,13 @@ devnode name, and says so through <code class="docutils literal notranslate"><sp
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">resolved_transport</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#dau_driver.device.DeviceTransport" title="dau_driver.device.DeviceTransport"><span class="pre">DeviceTransport</span></a></em><a class="headerlink" href="#dau_driver.device.DauDevice.resolved_transport" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="dau_driver.device.DauDevice._path_transport">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_path_transport</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#dau_driver.device.PathDeviceTransport" title="dau_driver.device.PathDeviceTransport"><span class="pre">PathDeviceTransport</span></a></em><a class="headerlink" href="#dau_driver.device.DauDevice._path_transport" title="Link to this definition">¶</a></dt>
+<dd><p>One transport for the device’s lifetime, so its register node
+stays open between accesses.</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="dau_driver.device.DauDevice.read_register">
 <span class="sig-name descname"><span class="pre">read_register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dau_core.registers.RegisterOffset</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/device.html#DauDevice.read_register"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.device.DauDevice.read_register" title="Link to this definition">¶</a></dt>
@@ -918,8 +988,18 @@ devnode name, and says so through <code class="docutils literal notranslate"><sp
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="dau_driver.device._write_register_bytes">
-<span class="sig-prename descclassname"><span class="pre">dau_driver.device.</span></span><span class="sig-name descname"><span class="pre">_write_register_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/device.html#_write_register_bytes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.device._write_register_bytes" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="dau_driver.device._pread_register">
+<span class="sig-prename descclassname"><span class="pre">dau_driver.device.</span></span><span class="sig-name descname"><span class="pre">_pread_register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_descriptor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">byte_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/device.html#_pread_register"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.device._pread_register" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_driver.device._pwrite_register">
+<span class="sig-prename descclassname"><span class="pre">dau_driver.device.</span></span><span class="sig-name descname"><span class="pre">_pwrite_register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_descriptor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/device.html#_pwrite_register"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.device._pwrite_register" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_driver.device._close_descriptors">
+<span class="sig-prename descclassname"><span class="pre">dau_driver.device.</span></span><span class="sig-name descname"><span class="pre">_close_descriptors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">descriptors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/device.html#_close_descriptors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.device._close_descriptors" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -1041,10 +1121,25 @@ Pass an explicit value to override, or <cite>None</cite> to disable the check.</
     <a href="#dau_driver.device.PathDeviceTransport.c2h_path">PathDeviceTransport.c2h_path</a>
   </li>
   <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.device.PathDeviceTransport._descriptors">PathDeviceTransport._descriptors</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.device.PathDeviceTransport._lock">PathDeviceTransport._lock</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.device.PathDeviceTransport._release">PathDeviceTransport._release</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.device.PathDeviceTransport._descriptor">PathDeviceTransport._descriptor()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
     <a href="#dau_driver.device.PathDeviceTransport.read_u32">PathDeviceTransport.read_u32()</a>
   </li>
   <li class="fd-toc-item" data-depth="3">
     <a href="#dau_driver.device.PathDeviceTransport.write_u32">PathDeviceTransport.write_u32()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.device.PathDeviceTransport.close">PathDeviceTransport.close()</a>
   </li>
   <li class="fd-toc-item" data-depth="3">
     <a href="#dau_driver.device.PathDeviceTransport.read_dma">PathDeviceTransport.read_dma()</a>
@@ -1101,6 +1196,9 @@ Pass an explicit value to override, or <cite>None</cite> to disable the check.</
     <a href="#dau_driver.device.DauDevice.resolved_transport">DauDevice.resolved_transport</a>
   </li>
   <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.device.DauDevice._path_transport">DauDevice._path_transport</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
     <a href="#dau_driver.device.DauDevice.read_register">DauDevice.read_register()</a>
   </li>
   <li class="fd-toc-item" data-depth="3">
@@ -1146,7 +1244,13 @@ Pass an explicit value to override, or <cite>None</cite> to disable the check.</
     <a href="#dau_driver.device._read_register_bytes">_read_register_bytes()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#dau_driver.device._write_register_bytes">_write_register_bytes()</a>
+    <a href="#dau_driver.device._pread_register">_pread_register()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.device._pwrite_register">_pwrite_register()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.device._close_descriptors">_close_descriptors()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_driver.device._checked_offset">_checked_offset()</a>

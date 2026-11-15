@@ -831,8 +831,11 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">struct</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">weakref</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">cached_property</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Protocol</span><span class="p">,</span> <span class="n">cast</span>
 
@@ -873,22 +876,63 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="PathDeviceTransport">
 <a class="viewcode-back" href="../../autoapi/dau_driver/device/index.html#dau_driver.device.PathDeviceTransport">[docs]</a>
-<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">PathDeviceTransport</span><span class="p">:</span>
-    <span class="n">user_path</span><span class="p">:</span> <span class="n">Path</span>
-    <span class="n">h2c_path</span><span class="p">:</span> <span class="n">Path</span>
-    <span class="n">c2h_path</span><span class="p">:</span> <span class="n">Path</span>
+<span class="w">    </span><span class="sd">"""A device's devnodes, with the register node held open.</span>
+
+<span class="sd">    A register access is one ``pread`` or ``pwrite`` on a descriptor opened</span>
+<span class="sd">    at first use. Opening and closing the node around every access made each</span>
+<span class="sd">    one three system calls, and a resident query makes ~175 of them, most</span>
+<span class="sd">    while polling for the job to finish. Reads and writes keep the separate</span>
+<span class="sd">    read-only and write-only descriptors the per-access path opened, so a</span>
+<span class="sd">    caller allowed only to read the node still can. :meth:`close` releases</span>
+<span class="sd">    them, as does the transport being collected.</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">h2c_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">c2h_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">user_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">user_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h2c_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">h2c_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">c2h_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">c2h_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_descriptors</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_release</span> <span class="o">=</span> <span class="n">weakref</span><span class="o">.</span><span class="n">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_close_descriptors</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_descriptors</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PathDeviceTransport._descriptor">
+<a class="viewcode-back" href="../../autoapi/dau_driver/device/index.html#dau_driver.device.PathDeviceTransport._descriptor">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_descriptor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flags</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">failure</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="n">descriptor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_descriptors</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">flags</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">descriptor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">descriptor</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
+            <span class="n">descriptor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_descriptors</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">flags</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">descriptor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">descriptor</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">user_path</span><span class="p">,</span> <span class="n">flags</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">RegisterAccessError</span><span class="p">(</span><span class="n">failure</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_descriptors</span><span class="p">[</span><span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">descriptor</span>
+            <span class="k">return</span> <span class="n">descriptor</span></div>
+
 
 <div class="viewcode-block" id="PathDeviceTransport.read_u32">
 <a class="viewcode-back" href="../../autoapi/dau_driver/device/index.html#dau_driver.device.PathDeviceTransport.read_u32">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">read_u32</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">read_u32</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">user_path</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span></div>
+        <span class="n">offset_name</span> <span class="o">=</span> <span class="n">_offset_name</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span>
+        <span class="n">failure</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"could not read </span><span class="si">{</span><span class="n">offset_name</span><span class="si">}</span><span class="s2"> from </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">user_path</span><span class="si">}</span><span class="s2">"</span>
+        <span class="n">register_bytes</span> <span class="o">=</span> <span class="n">_pread_register</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_descriptor</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">O_RDONLY</span><span class="p">,</span> <span class="n">failure</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_path</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">offset</span><span class="p">),</span> <span class="mi">4</span><span class="p">,</span> <span class="n">offset_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">"&lt;I"</span><span class="p">,</span> <span class="n">register_bytes</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="PathDeviceTransport.write_u32">
 <a class="viewcode-back" href="../../autoapi/dau_driver/device/index.html#dau_driver.device.PathDeviceTransport.write_u32">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">write_u32</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">_write_register_bytes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">user_path</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">"&lt;I"</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span></div>
+        <span class="n">failure</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"could not write 0x</span><span class="si">{</span><span class="n">offset</span><span class="si">:</span><span class="s2">x</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">user_path</span><span class="si">}</span><span class="s2">"</span>
+        <span class="n">_pwrite_register</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_descriptor</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">O_WRONLY</span><span class="p">,</span> <span class="n">failure</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_path</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">"&lt;I"</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="PathDeviceTransport.close">
+<a class="viewcode-back" href="../../autoapi/dau_driver/device/index.html#dau_driver.device.PathDeviceTransport.close">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_release</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="PathDeviceTransport.read_dma">
@@ -970,6 +1014,12 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="nf">resolved_transport</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DeviceTransport</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">transport</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transport</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_transport</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_path_transport</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PathDeviceTransport</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""One transport for the device's lifetime, so its register node</span>
+<span class="sd">        stays open between accesses."""</span>
         <span class="k">return</span> <span class="n">PathDeviceTransport</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">user_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">h2c_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">c2h_path</span><span class="p">)</span>
 
 <div class="viewcode-block" id="DauDevice.read_register">
@@ -1062,9 +1112,10 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="DauDevice.close">
 <a class="viewcode-back" href="../../autoapi/dau_driver/device/index.html#dau_driver.device.DauDevice.close">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">transport</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">transport</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transport</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">transport</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"_path_transport"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">transport</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
-        <span class="n">close</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transport</span><span class="p">,</span> <span class="s2">"close"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">close</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">transport</span><span class="p">,</span> <span class="s2">"close"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">close</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">close</span><span class="p">()</span></div>
 
@@ -1129,37 +1180,44 @@ window.runMermaid = runMermaid;</script>
         <span class="n">file_descriptor</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">O_RDONLY</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">RegisterAccessError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"could not read </span><span class="si">{</span><span class="n">offset_name</span><span class="si">}</span><span class="s2"> from </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_pread_register</span><span class="p">(</span><span class="n">file_descriptor</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">byte_count</span><span class="p">,</span> <span class="n">offset_name</span><span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">file_descriptor</span><span class="p">)</span></div>
 
+
+
+<div class="viewcode-block" id="_pread_register">
+<a class="viewcode-back" href="../../autoapi/dau_driver/device/index.html#dau_driver.device._pread_register">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_pread_register</span><span class="p">(</span><span class="n">file_descriptor</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">byte_count</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">offset_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">register_bytes</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">pread</span><span class="p">(</span><span class="n">file_descriptor</span><span class="p">,</span> <span class="n">byte_count</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">RegisterAccessError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"could not read </span><span class="si">{</span><span class="n">offset_name</span><span class="si">}</span><span class="s2"> from </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
-    <span class="k">finally</span><span class="p">:</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">file_descriptor</span><span class="p">)</span>
-
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">register_bytes</span><span class="p">)</span> <span class="o">!=</span> <span class="n">byte_count</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">RegisterAccessError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"short read for </span><span class="si">{</span><span class="n">offset_name</span><span class="si">}</span><span class="s2"> from </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">register_bytes</span></div>
 
 
 
-<div class="viewcode-block" id="_write_register_bytes">
-<a class="viewcode-back" href="../../autoapi/dau_driver/device/index.html#dau_driver.device._write_register_bytes">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_write_register_bytes</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">file_descriptor</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">O_WRONLY</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">RegisterAccessError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"could not write 0x</span><span class="si">{</span><span class="n">offset</span><span class="si">:</span><span class="s2">x</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
-
+<div class="viewcode-block" id="_pwrite_register">
+<a class="viewcode-back" href="../../autoapi/dau_driver/device/index.html#dau_driver.device._pwrite_register">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_pwrite_register</span><span class="p">(</span><span class="n">file_descriptor</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">written</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">pwrite</span><span class="p">(</span><span class="n">file_descriptor</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">RegisterAccessError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"could not write 0x</span><span class="si">{</span><span class="n">offset</span><span class="si">:</span><span class="s2">x</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
-    <span class="k">finally</span><span class="p">:</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">file_descriptor</span><span class="p">)</span>
-
     <span class="k">if</span> <span class="n">written</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">RegisterAccessError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"short write for 0x</span><span class="si">{</span><span class="n">offset</span><span class="si">:</span><span class="s2">x</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_close_descriptors">
+<a class="viewcode-back" href="../../autoapi/dau_driver/device/index.html#dau_driver.device._close_descriptors">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_close_descriptors</span><span class="p">(</span><span class="n">descriptors</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">descriptor</span> <span class="ow">in</span> <span class="n">descriptors</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">descriptor</span><span class="p">)</span>
+    <span class="n">descriptors</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>
 
 
 
