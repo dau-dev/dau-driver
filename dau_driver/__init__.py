@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from .stream_execution import StreamExecutionError, execute_scalar_operation
     from .transfer import DmaDirection, DmaTransfer
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 
 # {submodule: the names it exports}. ``__all__`` and the lazy resolver both
 # come from this one declaration, so a name cannot be in one and missing
