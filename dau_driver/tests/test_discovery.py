@@ -279,6 +279,33 @@ def test_device_bar_health_check_reports_all_ones_for_selected_register(tmp_path
         device.check_bar_health(offsets=(RegisterOffset.STATUS,))
 
 
+def test_a_device_holds_its_register_node_open(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """One open per access mode for the device's lifetime, not one per
+    register access; close releases them, and the next access reopens."""
+    import os
+
+    paths = write_fake_xdma_device(tmp_path)
+    device = identify_device(paths.user)
+    opened: list[int] = []
+    real_open = os.open
+
+    def counting_open(path, flags, *args):
+        if Path(path) == paths.user:
+            opened.append(flags)
+        return real_open(path, flags, *args)
+
+    monkeypatch.setattr(device_module.os, "open", counting_open)
+    for _ in range(5):
+        device.read_register(RegisterOffset.MAGIC)
+        device.write_register(RegisterOffset.JOB_CONTROL, 0)
+    assert device.resolved_transport is device.resolved_transport
+    assert sorted(opened) == sorted([os.O_RDONLY, os.O_WRONLY])
+
+    device.close()
+    device.read_register(RegisterOffset.MAGIC)
+    assert opened.count(os.O_RDONLY) == 2
+
+
 def test_device_validates_dma_transfer_shape_before_real_xdma_io(tmp_path: Path) -> None:
     write_fake_xdma_device(tmp_path)
     device = discover_devices(tmp_path)[0]
