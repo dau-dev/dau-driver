@@ -7,12 +7,14 @@ the backends (they were verbatim copies before, and had already drifted).
 
 from __future__ import annotations
 
-from collections.abc import Callable, Mapping
+import time
+from collections.abc import Callable, Mapping, Sequence
 
 from dau_core.capabilities import OperatorCapability
 from dau_core.capability_contract import CapabilityContract
 from dau_core.registers import (
     CAPABILITY_WORDS_REGISTER_MAP_VERSION,
+    DAU_MAGIC_WORD,
     DEFAULT_STREAM_JOB_REGISTER_CONTRACT,
     JOB_CAPACITY_REGISTER_MAP_VERSION,
     RegisterBlockSnapshot,
@@ -22,12 +24,48 @@ from dau_core.registers import (
 )
 from dau_core.stream import LogicalType, OperationCode, output_type_for
 
+from .errors import RegisterAccessError
+
 # the register-level type claim of the bitmap words — every
 # opcode-driven tile in the palette is INT32 (per-tile types travel in the
 # manifest capability contract, not in registers)
 REGISTER_BITMAP_INPUT_TYPES = (LogicalType.INT32,)
 # identity window candidates: shell base, then the stream-job contract window
 REGISTER_WINDOW_OFFSETS = (0x0, DEFAULT_STREAM_JOB_REGISTER_CONTRACT.register_window_offset)
+
+
+# The first AXI-Lite reads after a PCIe rescan can transiently return 0/stale
+# data before the link settles, so a single-shot magic probe can misread a
+# healthy DAU shell as the wrong bitstream. Re-probe a few times before giving
+# up so a transient does not masquerade as a real mismatch.
+_MAGIC_PROBE_ATTEMPTS = 5
+_MAGIC_PROBE_DELAY_S = 0.01
+
+
+def find_register_window(read_u32: Callable[[int, int], int], bar_indices: Sequence[int]) -> tuple[int, int, int]:
+    """(BAR index, window offset, magic) of the DAU identity window.
+
+    ``read_u32(bar_index, offset)`` is the backend's raw BAR read. Every
+    candidate BAR and window is probed for MAGIC, the whole sweep retried
+    while the link settles. When no candidate reads MAGIC the first value
+    read comes back, so the caller can tell an all-ones (unhealthy) path
+    from a different bitstream.
+    """
+    first_magic: int | None = None
+    for attempt in range(_MAGIC_PROBE_ATTEMPTS):
+        for bar_index in bar_indices:
+            for register_window_offset in REGISTER_WINDOW_OFFSETS:
+                try:
+                    magic = read_u32(bar_index, register_window_offset + int(RegisterOffset.MAGIC))
+                except RegisterAccessError:
+                    continue
+                if first_magic is None:
+                    first_magic = magic
+                if magic == DAU_MAGIC_WORD:
+                    return bar_index, register_window_offset, magic
+        if attempt + 1 < _MAGIC_PROBE_ATTEMPTS:
+            time.sleep(_MAGIC_PROBE_DELAY_S)
+    return 0, 0, 0 if first_magic is None else first_magic
 
 
 def decode_platform_id(value: int) -> str:
@@ -172,11 +210,18 @@ def _capability_words(read_register: Callable[[RegisterOffset], int], register_m
     return words
 
 
+def _counter(read_register: Callable[[RegisterOffset], int], low: RegisterOffset, high: RegisterOffset) -> int:
+    # two 32-bit reads, never one 8-byte access: the XDMA user BAR can
+    # short-read those
+    return read_register(low) | (read_register(high) << 32)
+
+
 def read_register_block_snapshot(read_register: Callable[[RegisterOffset], int]) -> RegisterBlockSnapshot:
-    """Discovery-time identity snapshot; ``read_register`` abstracts the
-    backend-specific window access (dev-node pread vs DriverKit BAR read).
-    The composed-capability words are only read on register map >= 0.2 —
-    older shells do not decode those offsets."""
+    """The register-block snapshot every reader takes, at discovery and on a
+    live device; ``read_register`` abstracts the backend-specific window
+    access (dev-node pread vs DriverKit BAR read). The composed-capability
+    words are only read on register map >= 0.2 — older shells do not decode
+    those offsets."""
     register_map_version = decode_register_map_version(read_register(RegisterOffset.REGISTER_MAP_VERSION))
     capability_words = _capability_words(read_register, register_map_version)
     return RegisterBlockSnapshot(
@@ -188,5 +233,12 @@ def read_register_block_snapshot(read_register: Callable[[RegisterOffset], int])
         # hardware, which this module states must never be submitted.
         operator_bitmap=_capability_word(read_register, RegisterOffset.OPERATOR_BITMAP),
         build_id=_build_id(read_register),
+        status=read_register(RegisterOffset.STATUS),
+        last_error=read_register(RegisterOffset.LAST_ERROR),
+        h2c_bytes=_counter(read_register, RegisterOffset.H2C_BYTES_LOW, RegisterOffset.H2C_BYTES_HIGH),
+        c2h_bytes=_counter(read_register, RegisterOffset.C2H_BYTES_LOW, RegisterOffset.C2H_BYTES_HIGH),
+        rows=_counter(read_register, RegisterOffset.ROWS_LOW, RegisterOffset.ROWS_HIGH),
+        batches=read_register(RegisterOffset.BATCHES),
+        stalls=read_register(RegisterOffset.STALLS),
         **capability_words,
     )

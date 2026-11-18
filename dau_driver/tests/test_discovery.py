@@ -66,8 +66,15 @@ def test_identify_device_reports_unhealthy_bar_when_magic_reads_all_ones(tmp_pat
 
 
 @pytest.mark.posix_only
-def test_discover_devices_reports_one_matching_fake_device(tmp_path: Path) -> None:
+def test_discover_devices_reports_one_matching_fake_device(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    from dau_driver import linux_xdma
+
     write_fake_xdma_device(tmp_path)
+    sysfs = tmp_path / "sys"
+    _sysfs_owner(sysfs, "0000:04:00.0", "xdma0_user")
+    (sysfs / "0000:04:00.0" / "vendor").write_text("0x10ee\n")
+    (sysfs / "0000:04:00.0" / "device").write_text("0x7011\n")
+    monkeypatch.setattr(linux_xdma, "DEFAULT_SYSFS_PCI_ROOT", sysfs)
 
     devices = discover_devices(tmp_path)
 
@@ -88,6 +95,20 @@ def test_discover_devices_reports_one_matching_fake_device(tmp_path: Path) -> No
     # in the manifest capability contract, not in registers
     assert device.capabilities.supports(OperationCode.AVERAGE, LogicalType.INT32)
     assert not device.capabilities.supports(OperationCode.AVERAGE, LogicalType.FLOAT32)
+
+
+@pytest.mark.posix_only
+def test_a_device_sysfs_does_not_place_reports_no_pci_ids(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """The ids are the endpoint's, read from sysfs; a node no endpoint owns
+    is not given some board's ids."""
+    from dau_driver import linux_xdma
+
+    write_fake_xdma_device(tmp_path)
+    monkeypatch.setattr(linux_xdma, "DEFAULT_SYSFS_PCI_ROOT", tmp_path / "absent")
+
+    [device] = discover_devices(tmp_path)
+
+    assert (device.capabilities.pci_vendor_id, device.capabilities.pci_device_id) == (0, 0)
 
 
 @pytest.mark.posix_only
@@ -134,6 +155,7 @@ def test_identify_device_retries_transient_zero_magic_read(tmp_path: Path, monke
     # before the link settles; the window probe must retry rather than raise
     # WrongBitstreamError on a healthy shell
     from dau_driver import linux_xdma
+    from dau_driver.capability_decode import REGISTER_WINDOW_OFFSETS
 
     paths = write_fake_xdma_device(tmp_path, register_window_offset=0x1000)
     real_read_u32 = linux_xdma.read_u32
@@ -142,7 +164,7 @@ def test_identify_device_retries_transient_zero_magic_read(tmp_path: Path, monke
     def flaky_read_u32(path: Path, offset: int) -> int:
         reads["n"] += 1
         # zero out the first full window sweep, then read for real
-        if reads["n"] <= len(linux_xdma.REGISTER_WINDOW_OFFSETS):
+        if reads["n"] <= len(REGISTER_WINDOW_OFFSETS):
             return 0
         return real_read_u32(path, offset)
 

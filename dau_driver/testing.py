@@ -7,16 +7,18 @@ semantics cannot drift between packages. Not imported by production code.
 from __future__ import annotations
 
 import struct
+from dataclasses import replace
 from pathlib import Path
 
-from dau_core.capabilities import DeviceCapabilities, DmaConstraints, OperatorCapability
+from dau_core.capabilities import DeviceCapabilities, OperatorCapability
 from dau_core.operators import aggregate_values
-from dau_core.registers import CURRENT_REGISTER_MAP_VERSION, RegisterMapVersion, RegisterOffset, StreamProtocolVersion
+from dau_core.registers import CURRENT_REGISTER_MAP_VERSION, RegisterOffset, StreamProtocolVersion
 from dau_core.stream import InvalidStreamError, LogicalType, OperationCode
 
 from .device import DauDevice
 from .errors import TransferIoError
 from .stream_codec import StreamDecoder, StreamEncoder
+from .transfer import XDMA_DMA_CONSTRAINTS
 
 
 class FakeTransport:
@@ -84,9 +86,9 @@ def default_int32_capabilities(
         platform_id="DPV1",
         pci_vendor_id=0x10EE,
         pci_device_id=0x7011,
-        register_map_version=RegisterMapVersion(0, 2),
+        register_map_version=CURRENT_REGISTER_MAP_VERSION,
         stream_protocol_version=StreamProtocolVersion(0, 1),
-        dma=DmaConstraints(alignment_bytes=64, descriptor_bytes=32, max_transfer_bytes=max_transfer_bytes, read_channels=1, write_channels=1),
+        dma=replace(XDMA_DMA_CONSTRAINTS, max_transfer_bytes=max_transfer_bytes),
         operators=operators,
     )
 

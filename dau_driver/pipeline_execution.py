@@ -394,12 +394,6 @@ def device_lane_count(device) -> int:
     return lanes
 
 
-def _advertised(value: int) -> int:
-    """All-ones is a word nobody decoded, not a four-billion-row capacity —
-    the same normalization every capability reader applies."""
-    return 0 if value == 0xFFFF_FFFF else value
-
-
 def device_job_capacity(device) -> tuple[int, int]:
     """(input rows, output records) ONE job may stage on the RESIDENT shell.
 
@@ -422,7 +416,7 @@ def device_job_capacity(device) -> tuple[int, int]:
     """
     from dau_core.registers import JOB_CAPACITY_REGISTER_MAP_VERSION
 
-    from .capability_decode import decode_register_map_version
+    from .capability_decode import _capability_word, decode_register_map_version
 
     version = decode_register_map_version(device.read_register(RegisterOffset.REGISTER_MAP_VERSION))
     if version < JOB_CAPACITY_REGISTER_MAP_VERSION:
@@ -430,8 +424,8 @@ def device_job_capacity(device) -> tuple[int, int]:
             f"the resident shell reports register map {version.major}.{version.minor}, which predates the job "
             "capacity words (0.3); rebuild and reflash it, or pass max_rows explicitly"
         )
-    rows = _advertised(device.read_register(RegisterOffset.INPUT_ROW_CAPACITY))
-    records = _advertised(device.read_register(RegisterOffset.OUTPUT_RECORD_CAPACITY))
+    rows = _capability_word(device.read_register, RegisterOffset.INPUT_ROW_CAPACITY)
+    records = _capability_word(device.read_register, RegisterOffset.OUTPUT_RECORD_CAPACITY)
     if not rows or not records:
         raise ValueError(
             f"the resident shell advertises no job capacity (INPUT_ROW_CAPACITY={rows}, "

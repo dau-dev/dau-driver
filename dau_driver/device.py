@@ -11,9 +11,9 @@ from pathlib import Path
 from typing import Protocol, cast
 
 from dau_core.capabilities import DeviceCapabilities
-from dau_core.registers import RegisterBlockSnapshot, RegisterOffset, StreamProtocolVersion
+from dau_core.registers import RegisterBlockSnapshot, RegisterOffset
 
-from .capability_decode import decode_platform_id
+from .capability_decode import read_register_block_snapshot
 from .errors import RegisterAccessError, UnhealthyBarError
 from .status import DeviceCounters, DeviceStatus
 from .transfer import DmaDirection, DmaTransfer, validate_transfer
@@ -174,29 +174,7 @@ class DauDevice:
         )
 
     def read_register_block_snapshot(self) -> RegisterBlockSnapshot:
-        from .capability_decode import _capability_words, decode_register_map_version
-
-        # the SHARED decoder: reading this word two ways is how the two
-        # readers came to disagree on an all-ones result
-        register_map_version = decode_register_map_version(self.read_register(RegisterOffset.REGISTER_MAP_VERSION))
-        # all-ones = word not decoded -> not advertised, same normalization
-        # as the discovery-time snapshot
-        capability_words = _capability_words(self.read_register, register_map_version)
-        return RegisterBlockSnapshot(
-            register_map_version=register_map_version,
-            stream_protocol_version=StreamProtocolVersion.from_u32(self.read_register(RegisterOffset.STREAM_PROTOCOL_VERSION)),
-            platform_id=decode_platform_id(self.read_register(RegisterOffset.PLATFORM_ID)),
-            build_id=self._read_u64(RegisterOffset.BUILD_ID_LOW),
-            status=self.read_register(RegisterOffset.STATUS),
-            operator_bitmap=self.read_register(RegisterOffset.OPERATOR_BITMAP),
-            last_error=self.read_register(RegisterOffset.LAST_ERROR),
-            h2c_bytes=self._read_u64(RegisterOffset.H2C_BYTES_LOW),
-            c2h_bytes=self._read_u64(RegisterOffset.C2H_BYTES_LOW),
-            rows=self._read_u64(RegisterOffset.ROWS_LOW),
-            batches=self.read_register(RegisterOffset.BATCHES),
-            stalls=self.read_register(RegisterOffset.STALLS),
-            **capability_words,
-        )
+        return read_register_block_snapshot(self.read_register)
 
     def read_counters(self) -> DeviceCounters:
         return DeviceCounters(

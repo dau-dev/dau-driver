@@ -99,3 +99,30 @@ def test_device_snapshot_normalizes_undecoded_capability_words(tmp_path) -> None
     snapshot = discover_devices(tmp_path)[0].read_register_block_snapshot()
     assert snapshot.lane_count == 4
     assert snapshot.sort_capacity == 0  # all-ones = not decoded = not advertised
+
+
+def test_a_device_on_a_dead_aperture_advertises_no_opcode_and_no_build_id(tmp_path) -> None:
+    """The device's own snapshot and discovery's are one reader. Read raw,
+    an all-ones aperture claims every opcode the bitmap has a bit for
+    (AVERAGE included, which must never be submitted) and a BUILD_ID of
+    0xFFFF_FFFF_FFFF_FFFF that no build stamps."""
+    from dau_driver.testing import FakeTransport, fake_device
+
+    class DeadAperture(FakeTransport):
+        def read_u32(self, offset: int) -> int:
+            return 0xFFFF_FFFF
+
+    snapshot = fake_device(tmp_path, DeadAperture()).read_register_block_snapshot()
+
+    assert snapshot.operator_bitmap == 0
+    assert snapshot.host_opcode_bitmap == 0
+    assert snapshot.build_id == 0
+    assert operators_from_snapshot(snapshot) == ((), ())
+
+
+def test_the_fake_device_advertises_the_shell_its_registers_describe(tmp_path) -> None:
+    from dau_driver.testing import FakeTransport, fake_device
+
+    device = fake_device(tmp_path, FakeTransport())
+
+    assert device.capabilities.register_map_version == device.read_register_block_snapshot().register_map_version
