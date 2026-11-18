@@ -17,19 +17,6 @@ from dau_core.stream import (
     validate_record_batch,
 )
 
-_ALIGNMENT_BYTES = 64
-_SCALAR_RESULT_STRUCTS = {
-    LogicalType.INT8: struct.Struct("<b"),
-    LogicalType.INT16: struct.Struct("<h"),
-    LogicalType.INT32: struct.Struct("<i"),
-    LogicalType.INT64: struct.Struct("<q"),
-    LogicalType.UINT8: struct.Struct("<B"),
-    LogicalType.UINT16: struct.Struct("<H"),
-    LogicalType.UINT32: struct.Struct("<I"),
-    LogicalType.UINT64: struct.Struct("<Q"),
-    LogicalType.FLOAT32: struct.Struct("<f"),
-    LogicalType.FLOAT64: struct.Struct("<d"),
-}
 _STRUCT_CODES = {
     LogicalType.INT8: "b",
     LogicalType.INT16: "h",
@@ -138,7 +125,8 @@ class StreamEncoder:
 
         descriptor_table_offset = BatchHeader.SIZE_BYTES
         descriptor_table_length = ColumnDescriptor.SIZE_BYTES + len(operation_descriptors) * OperationDescriptor.SIZE_BYTES
-        payload_offset = _align_up(descriptor_table_offset + descriptor_table_length, _ALIGNMENT_BYTES)
+        alignment = DEFAULT_RECORD_BATCH_LIMITS.alignment_bytes
+        payload_offset = _align_up(descriptor_table_offset + descriptor_table_length, alignment)
         column = ColumnDescriptor(
             field_id=field_id,
             logical_type=normalized_type,
@@ -164,7 +152,7 @@ class StreamEncoder:
         encoded += b"".join(operation.pack() for operation in operation_descriptors)
         encoded += b"\x00" * (payload_offset - len(encoded))
         encoded += payload_bytes
-        encoded += b"\x00" * (_align_up(len(encoded), _ALIGNMENT_BYTES) - len(encoded))
+        encoded += b"\x00" * (_align_up(len(encoded), alignment) - len(encoded))
         return encoded
 
     @staticmethod
@@ -186,7 +174,7 @@ class StreamEncoder:
 
         descriptor_table_offset = BatchHeader.SIZE_BYTES
         descriptor_table_length = len(columns) * ColumnDescriptor.SIZE_BYTES + len(operation_descriptors) * OperationDescriptor.SIZE_BYTES
-        first_payload_offset = _align_up(descriptor_table_offset + descriptor_table_length, _ALIGNMENT_BYTES)
+        first_payload_offset = _align_up(descriptor_table_offset + descriptor_table_length, limits.alignment_bytes)
 
         descriptors: list[ColumnDescriptor] = []
         offset = first_payload_offset
@@ -210,7 +198,7 @@ class StreamEncoder:
                     payload_length=len(payload_bytes),
                 )
             )
-            offset = _align_up(offset + len(payload_bytes), _ALIGNMENT_BYTES)
+            offset = _align_up(offset + len(payload_bytes), limits.alignment_bytes)
 
         header = BatchHeader(
             schema_hash=schema_hash,
@@ -232,7 +220,7 @@ class StreamEncoder:
         for descriptor, column in zip(descriptors, columns):
             encoded += b"\x00" * (descriptor.payload_offset - len(encoded))
             encoded += bytes(column.payload)
-        encoded += b"\x00" * (_align_up(len(encoded), _ALIGNMENT_BYTES) - len(encoded))
+        encoded += b"\x00" * (_align_up(len(encoded), limits.alignment_bytes) - len(encoded))
         return encoded
 
     @staticmethod
@@ -365,7 +353,7 @@ class StreamDecoder:
             raise InvalidStreamError("scalar result decode expects exactly one row")
         result_type = _normalize_supported_type(decoded.column.logical_type)
         try:
-            scalar_struct = _SCALAR_RESULT_STRUCTS[result_type]
+            scalar_struct = struct.Struct(f"<{_STRUCT_CODES[result_type]}")
         except KeyError as exc:
             raise InvalidStreamError(f"unsupported scalar result type {result_type.name.lower()}") from exc
         if len(decoded.payload) != scalar_struct.size:
@@ -381,8 +369,9 @@ def _validate_header(header: BatchHeader, encoded_length: int) -> None:
         raise InvalidStreamError(f"unsupported batch header length {header.header_length}")
     if header.column_count != 1:
         raise InvalidStreamError(f"expected one column descriptor, found {header.column_count}")
-    if header.descriptor_table_offset % _ALIGNMENT_BYTES != 0 or header.payload_offset % _ALIGNMENT_BYTES != 0:
-        raise InvalidStreamError("descriptor and payload offsets must be 64-byte aligned")
+    alignment = DEFAULT_RECORD_BATCH_LIMITS.alignment_bytes
+    if header.descriptor_table_offset % alignment != 0 or header.payload_offset % alignment != 0:
+        raise InvalidStreamError(f"descriptor and payload offsets must be {alignment}-byte aligned")
     _validate_payload_window(header.payload_offset, header.payload_length, encoded_length)
 
 

@@ -57,11 +57,12 @@ def test_write_address_bounds_against_the_devices_memory_by_default(tmp_path: Pa
 
 def test_write_address_stays_unbounded_for_a_device_declaring_no_memory() -> None:
     """Duck-typed on purpose: devices are not required to subclass
-    DauDevice, and one that declares no memory behaves as it did before
-    rather than failing."""
+    DauDevice, and one whose memory_bytes is None is not bounded."""
     from dau_driver.device import write_address
 
     class MinimalDevice:
+        memory_bytes = None
+
         def __init__(self) -> None:
             self.written: dict[int, int] = {}
 

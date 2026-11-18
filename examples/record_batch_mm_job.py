@@ -86,7 +86,8 @@ def main() -> None:
     values = [((index * 2_654_435_761) % 200_001) - 100_000 for index in range(rows)]
     decoy = [7] * rows
 
-    devices = discover_devices()
+    # staging sits at the shell's fixed BRAM addresses, so there is no DDR size to bound
+    devices = discover_devices(memory_bytes=None)
     if not devices:
         raise SystemExit("no DAU/XDMA device found")
     device = devices[0]

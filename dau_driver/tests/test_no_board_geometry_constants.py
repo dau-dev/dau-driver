@@ -8,9 +8,10 @@ board differs — which is exactly how a host ended up assuming four lanes on
 a shell that advertises its own count, and how one board's DDR layout ended
 up applied to another behind a `memory_bytes > 1 << 32` conditional.
 
-Wire and record shapes are NOT board geometry and stay: how many bytes a
-bar record occupies is a property of the format both sides compile against,
-not of the board it runs on. The two are easy to confuse, so this pins the
+Wire, record and transport-protocol shapes are NOT board geometry and stay:
+how many bytes a bar record occupies is a property of the format both sides
+compile against, and a DriverKit method selector is a property of the
+extension, not of the board either runs on. The two are easy to confuse, so this pins the
 distinction explicitly rather than leaving it to a reviewer's judgement.
 
 Asserted EXACTLY and in both directions: remove a constant without
@@ -25,11 +26,24 @@ from pathlib import Path
 
 import dau_driver
 
-# Every module-level constant in the device-execution modules, and why it is
-# allowed to be a constant. A name here is a claim that it describes a WIRE
-# or RECORD shape -- fixed by the format, identical on every board.
+# Every module-level constant in the execution and transport modules, and why
+# it is allowed to be a constant. A name here is a claim that it describes a
+# WIRE, RECORD or TRANSPORT shape -- fixed by the format, the OS or the IP,
+# identical on every board.
 WIRE_SHAPE_CONSTANTS = {
-    "DMA_ALIGN_BYTES": "the DMA engine's alignment, a property of the transfer format",
+    "XDMA_DMA_CONSTRAINTS": "the XDMA engine's descriptor format and transfer limit, the same IP on every board",
+    "DEFAULT_DEV_ROOT": "where Linux creates the XDMA devnodes",
+    "DEFAULT_SYSFS_PCI_ROOT": "where the kernel lists PCI devices in sysfs",
+    "DEFAULT_BACKEND": "a transport backend's name",
+    "CANONICAL_SERVICE_NAME": "the DriverKit extension's IOKit service name",
+    "DEFAULT_SERVICE_NAMES": "the DriverKit service names probed by default",
+    "REGISTER_BAR_INDICES": "the six BARs a PCI function can expose",
+    "K_METHOD_READ_BAR": "a DriverKit user-client method selector",
+    "K_METHOD_WRITE_BAR": "a DriverKit user-client method selector",
+    "K_METHOD_DMA_WRITE": "a DriverKit user-client method selector",
+    "K_METHOD_DMA_READ": "a DriverKit user-client method selector",
+    "K_METHOD_GET_INFO": "a DriverKit user-client method selector",
+    "DMA_CHUNK_BYTES": "the macOS user client's per-call DMA buffer size",
 }
 
 # Constants that DO describe board or shell geometry and have not moved to
@@ -45,7 +59,20 @@ WIRE_SHAPE_CONSTANTS = {
 # it did not build. A shell that does not advertise is refused, not guessed.
 UNMIGRATED_GEOMETRY_CONSTANTS: dict[str, str] = {}
 
-_MODULES = ("pipeline_execution",)
+_MODULES = (
+    "device",
+    "fleet",
+    "handle_table",
+    "linux_xdma",
+    "macos_xdma",
+    "pipeline_execution",
+    "scan_execution",
+    "storage",
+    "stream_codec",
+    "stream_execution",
+    "transfer",
+    "xdma_io",
+)
 
 
 def _module_constants(module_name: str) -> set[str]:

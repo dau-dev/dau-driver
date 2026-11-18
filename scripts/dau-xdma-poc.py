@@ -33,7 +33,8 @@ def main() -> int:
     if args.iterations <= 0:
         parser.error("--iterations must be positive")
 
-    device = identify_device(args.user_path)
+    # the loopback addresses are the caller's; this tool does not know the board's memory size
+    device = identify_device(args.user_path, memory_bytes=None)
     print(
         "DEVICE",
         device.name,

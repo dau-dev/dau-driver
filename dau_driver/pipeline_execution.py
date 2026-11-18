@@ -10,7 +10,9 @@ from __future__ import annotations
 
 import struct
 import time
+from collections.abc import Callable
 from dataclasses import dataclass
+from typing import Protocol
 
 from dau_core.operators import FilterPredicate, GroupAggregate, MapConfig
 from dau_core.records import (
@@ -25,10 +27,8 @@ from dau_core.records import (
 )
 from dau_core.registers import JobControlFlag, JobStatusFlag, RegisterOffset, StreamJobRegisterContract
 
-from .device import write_address
+from .device import JobDevice, write_address
 from .errors import RegisterAccessError
-
-DMA_ALIGN_BYTES = 64
 
 
 class PipelineJobError(RegisterAccessError):
@@ -77,11 +77,15 @@ class KeyedPipelineConfig:
         return (self.map_config.constant if self.map_config is not None else 0) & 0xFFFFFFFF
 
 
+def _dma_padded(device: JobDevice, payload: bytes) -> bytes:
+    """``payload`` zero-padded to the device's DMA alignment."""
+    return payload + b"\x00" * (-len(payload) % device.capabilities.dma.alignment_bytes)
+
+
 def pack_keyed_rows(rows: list[tuple[int, int]]) -> bytes:
-    """{value, key} pair rows on the 64-byte DMA grid; the logical length
-    stays ``len(rows) * 8``."""
-    payload = b"".join(struct.pack(struct_format(KEYED_ROW_FIELDS), key, value & 0xFFFFFFFF) for key, value in rows)
-    return payload + b"\x00" * ((-len(payload)) % DMA_ALIGN_BYTES)
+    """{value, key} pair rows, ``len(rows) * 8`` bytes; the job pads them
+    to the device's DMA alignment."""
+    return b"".join(struct.pack(struct_format(KEYED_ROW_FIELDS), key, value & 0xFFFFFFFF) for key, value in rows)
 
 
 def decode_group_records(data: bytes, count: int) -> list[GroupAggregate]:
@@ -92,7 +96,7 @@ def decode_group_records(data: bytes, count: int) -> list[GroupAggregate]:
     return groups
 
 
-def configure_pipeline(device, config: KeyedPipelineConfig) -> None:
+def configure_pipeline(device: JobDevice, config: KeyedPipelineConfig) -> None:
     device.write_register(RegisterOffset.PIPELINE_FILTER_OP, config.filter_op_word())
     device.write_register(RegisterOffset.PIPELINE_FILTER_CONSTANT0, config.predicate.constant0 & 0xFFFFFFFF)
     device.write_register(RegisterOffset.PIPELINE_FILTER_CONSTANT1, config.predicate.constant1 & 0xFFFFFFFF)
@@ -100,7 +104,7 @@ def configure_pipeline(device, config: KeyedPipelineConfig) -> None:
     device.write_register(RegisterOffset.PIPELINE_MAP_CONSTANT, config.map_constant_word())
 
 
-def _wait_for_job_done(device, *, timeout_seconds: float, label: str, poll=None) -> None:
+def _wait_for_job_done(device: JobDevice, *, timeout_seconds: float, label: str, poll: Callable[[], None] | None = None) -> None:
     """Poll JOB_STATUS until DONE, raising on timeout or a hardware error
     flag. Shared by every register-polled job runner so the wait/error
     semantics stay identical across shells. ``poll``, when given, runs
@@ -121,7 +125,7 @@ def _wait_for_job_done(device, *, timeout_seconds: float, label: str, poll=None)
 
 
 def _read_aligned_records(
-    device,
+    device: JobDevice,
     *,
     address: int,
     result_length: int,
@@ -131,7 +135,7 @@ def _read_aligned_records(
     prefix: str = "",
     validate_record_count: bool = True,
 ) -> bytes:
-    """Read the 64-byte-aligned record block that RESULT_LENGTH describes.
+    """Read the DMA-aligned record block that RESULT_LENGTH describes.
     Returns ``b""`` (and issues no C2H read) when the lane produced no
     output.
 
@@ -146,12 +150,13 @@ def _read_aligned_records(
         raise PipelineJobError(f"{prefix}result length {result_length} inconsistent with {count_label} {count}")
     if result_length == 0:
         return b""
-    read_bytes = ((result_length + DMA_ALIGN_BYTES - 1) // DMA_ALIGN_BYTES) * DMA_ALIGN_BYTES
+    alignment = device.capabilities.dma.alignment_bytes
+    read_bytes = ((result_length + alignment - 1) // alignment) * alignment
     return device.read_dma(device_address=address, byte_count=read_bytes)
 
 
 def execute_keyed_pipeline_job(
-    device,
+    device: JobDevice,
     rows: list[tuple[int, int]],
     *,
     timeout_seconds: float = 5.0,
@@ -172,7 +177,7 @@ def execute_keyed_pipeline_job(
         raise PipelineJobError(f"{len(rows)} rows exceed the input staging budget of {budget}")
     resolved = contract or StreamJobRegisterContract()
 
-    device.write_dma(device_address=resolved.input_buffer_address, data=pack_keyed_rows(rows))
+    device.write_dma(device_address=resolved.input_buffer_address, data=_dma_padded(device, pack_keyed_rows(rows)))
     device.write_register(RegisterOffset.INPUT_LENGTH_LOW, len(rows) * 8)
     device.write_register(RegisterOffset.JOB_CONTROL, int(JobControlFlag.START))
 
@@ -202,10 +207,10 @@ def execute_keyed_pipeline_job(
 # read one bitstream differently, so the shapes live here and both sides
 # derive from them.
 def pack_bar_rows(rows: list[tuple[int, int, int, int]]) -> bytes:
-    """(key, price, shares, frac) rows for the fused bar tile, on the DMA
-    grid; the logical length stays ``len(rows) * 16``."""
-    payload = b"".join(struct.pack(struct_format(BAR_ROW_FIELDS), key, price, shares, frac) for key, price, shares, frac in rows)
-    return payload + b"\x00" * ((-len(payload)) % DMA_ALIGN_BYTES)
+    """(key, price, shares, frac) rows for the fused bar tile,
+    ``len(rows) * 16`` bytes; the job pads them to the device's DMA
+    alignment."""
+    return b"".join(struct.pack(struct_format(BAR_ROW_FIELDS), key, price, shares, frac) for key, price, shares, frac in rows)
 
 
 def decode_bar_records(data: bytes, count: int):
@@ -219,7 +224,7 @@ def decode_bar_records(data: bytes, count: int):
 
 
 def execute_bar_job(
-    device,
+    device: JobDevice,
     rows: list[tuple[int, int, int, int]],
     *,
     timeout_seconds: float = 5.0,
@@ -238,7 +243,7 @@ def execute_bar_job(
         raise PipelineJobError(f"{len(rows)} rows exceed the bar staging budget of {budget}")
     resolved = contract or StreamJobRegisterContract()
 
-    device.write_dma(device_address=resolved.input_buffer_address, data=pack_bar_rows(rows))
+    device.write_dma(device_address=resolved.input_buffer_address, data=_dma_padded(device, pack_bar_rows(rows)))
     device.write_register(RegisterOffset.INPUT_LENGTH_LOW, len(rows) * BAR_ROW_BYTES)
     device.write_register(RegisterOffset.JOB_CONTROL, int(JobControlFlag.START))
 
@@ -274,7 +279,27 @@ def execute_bar_job(
 # import and no copy of the model.
 
 
-def bar_ddr_max_rows_per_job(staging) -> int:
+class DdrStaging(Protocol):
+    """The board's DDR staging layout, as these functions read it (the
+    platform's ``dau_build.platforms.DdrStaging``)."""
+
+    @property
+    def input_addresses(self) -> tuple[int, ...]: ...
+
+    @property
+    def input_bytes(self) -> int: ...
+
+    @property
+    def output_address(self) -> int: ...
+
+    @property
+    def output_bytes(self) -> int: ...
+
+    @property
+    def address_align(self) -> int: ...
+
+
+def bar_ddr_max_rows_per_job(staging: DdrStaging) -> int:
     """Rows per job, bounded by the worst case of one record per row so an
     overrun is impossible by construction. An actual overflow would fault
     the job rather than corrupt input, but refusing early says which budget
@@ -282,7 +307,7 @@ def bar_ddr_max_rows_per_job(staging) -> int:
     return min(staging.input_bytes // BAR_ROW_BYTES, staging.output_bytes // BAR_RECORD_BYTES)
 
 
-def stage_bar_ddr_input(device, payload: bytes, row_count: int, *, staging, input_address: int | None = None) -> None:
+def stage_bar_ddr_input(device: JobDevice, payload: bytes, row_count: int, *, staging: DdrStaging, input_address: int | None = None) -> None:
     """DMA one pre-packed batch of bar rows into a DDR input region."""
     if row_count <= 0:
         raise PipelineJobError(f"row_count must be positive, got {row_count}")
@@ -295,12 +320,12 @@ def stage_bar_ddr_input(device, payload: bytes, row_count: int, *, staging, inpu
         raise PipelineJobError(f"payload of {len(payload)} bytes is short for {row_count} rows")
     if input_address % staging.address_align:
         raise PipelineJobError(f"input address 0x{input_address:x} is not 4 KiB-aligned")
-    if len(payload) % DMA_ALIGN_BYTES:
-        payload = payload + b"\x00" * ((-len(payload)) % DMA_ALIGN_BYTES)
-    device.write_dma(device_address=input_address, data=payload)
+    device.write_dma(device_address=input_address, data=_dma_padded(device, payload))
 
 
-def start_bar_ddr_job(device, row_count: int, *, staging, input_address: int | None = None, output_address: int | None = None) -> None:
+def start_bar_ddr_job(
+    device: JobDevice, row_count: int, *, staging: DdrStaging, input_address: int | None = None, output_address: int | None = None
+) -> None:
     """Kick a job over rows already staged in DDR."""
     if row_count <= 0:
         raise PipelineJobError(f"row_count must be positive, got {row_count}")
@@ -316,7 +341,9 @@ def start_bar_ddr_job(device, row_count: int, *, staging, input_address: int | N
     device.write_register(RegisterOffset.JOB_CONTROL, int(JobControlFlag.START))
 
 
-def finish_bar_ddr_job(device, *, staging, output_address: int | None = None, timeout_seconds: float = 60.0) -> tuple[bytes, int]:
+def finish_bar_ddr_job(
+    device: JobDevice, *, staging: DdrStaging, output_address: int | None = None, timeout_seconds: float = 60.0
+) -> tuple[bytes, int]:
     """Wait for the running job and read its records back. Returns the raw
     record bytes and the bar count — decoding stays with the caller so
     hosts can use vectorized decoders."""
@@ -338,11 +365,11 @@ def finish_bar_ddr_job(device, *, staging, output_address: int | None = None, ti
 
 
 def execute_bar_ddr_packed(
-    device,
+    device: JobDevice,
     payload: bytes,
     row_count: int,
     *,
-    staging,
+    staging: DdrStaging,
     timeout_seconds: float = 60.0,
 ) -> tuple[bytes, int]:
     """Run one pre-packed batch of bar rows through the DDR-staged fused
@@ -361,18 +388,18 @@ def execute_bar_ddr_packed(
 # is how a wider composition gets its results silently truncated.
 
 
-def bar_noc_lane_output_bytes(staging, lanes: int) -> int:
+def bar_noc_lane_output_bytes(staging: DdrStaging, lanes: int) -> int:
     """Each lane gets an equal slice of the board's result region."""
     return staging.output_bytes // lanes
 
 
-def bar_noc_max_rows_per_job(staging, lanes: int) -> int:
+def bar_noc_max_rows_per_job(staging: DdrStaging, lanes: int) -> int:
     """Bounded by the worst case of every record landing in ONE lane, so no
     partition can overrun its slice however skewed the keys are."""
     return min(staging.input_bytes // BAR_ROW_BYTES, bar_noc_lane_output_bytes(staging, lanes) // BAR_RECORD_BYTES)
 
 
-def device_lane_count(device) -> int:
+def device_lane_count(device: JobDevice) -> int:
     """The number of NoC lanes the RESIDENT shell advertises.
 
     The shell publishes its lane count in the identity registers, so the
@@ -394,7 +421,7 @@ def device_lane_count(device) -> int:
     return lanes
 
 
-def device_job_capacity(device) -> tuple[int, int]:
+def device_job_capacity(device: JobDevice) -> tuple[int, int]:
     """(input rows, output records) ONE job may stage on the RESIDENT shell.
 
     These are the shell's BRAM depths, and the host used to carry them as
@@ -435,11 +462,11 @@ def device_job_capacity(device) -> tuple[int, int]:
     return rows, records
 
 
-def bar_noc_lane_output_address(staging, lane: int, lanes: int) -> int:
+def bar_noc_lane_output_address(staging: DdrStaging, lane: int, lanes: int) -> int:
     return staging.output_address + lane * bar_noc_lane_output_bytes(staging, lanes)
 
 
-def configure_bar_noc_lanes(device, *, staging, lanes: int | None = None) -> None:
+def configure_bar_noc_lanes(device: JobDevice, *, staging: DdrStaging, lanes: int | None = None) -> None:
     """Point every lane's writer at its slice of the output region.
 
     ``lanes`` defaults to what the DEVICE advertises, not to a constant: the
@@ -459,11 +486,11 @@ def configure_bar_noc_lanes(device, *, staging, lanes: int | None = None) -> Non
 
 
 def execute_bar_noc_packed(
-    device,
+    device: JobDevice,
     payload: bytes,
     row_count: int,
     *,
-    staging,
+    staging: DdrStaging,
     lanes: int | None = None,
     record_bytes: int = BAR_RECORD_BYTES,
     validate_record_count: bool = True,

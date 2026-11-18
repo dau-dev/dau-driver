@@ -37,7 +37,8 @@ def main() -> None:
     assert len(encoded) == expectations["byte_length"], "batch file length mismatch"
     assert hashlib.sha256(encoded).hexdigest() == expectations["sha256"], "batch file digest mismatch"
 
-    devices = discover_devices()
+    # staging sits at the shell's fixed BRAM addresses, so there is no DDR size to bound
+    devices = discover_devices(memory_bytes=None)
     if not devices:
         raise SystemExit("no DAU/XDMA device found; program the FPGA and bind XDMA first")
     device = devices[0]

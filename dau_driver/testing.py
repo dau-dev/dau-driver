@@ -68,6 +68,9 @@ class FakeTransport:
         self.h2c_writes.append((device_address, payload))
         return len(payload)
 
+    def close(self) -> None:
+        pass
+
 
 def default_int32_capabilities(
     operators: tuple[OperatorCapability, ...] | None = None,

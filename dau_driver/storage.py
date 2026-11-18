@@ -8,14 +8,18 @@ not change when it does.
 
 Freed storage is never readdressed: ``free`` bumps the handle's generation,
 and a stale handle raises instead of resolving to reused memory. Exhaustion
-raises before anything is staged. ``stage``/``resolve`` take any object with
-``write_dma`` (the duck-typed device convention).
+raises before anything is staged. ``stage`` takes any
+:class:`~dau_driver.device.DmaWriter` (the duck-typed device convention).
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 from itertools import count
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .device import DmaWriter
 
 
 class StaleHandleError(RuntimeError):
@@ -141,7 +145,7 @@ class StorageAllocator:
             )
         return live.base
 
-    def stage(self, device, handle: StorageHandle, data: bytes) -> None:
+    def stage(self, device: DmaWriter, handle: StorageHandle, data: bytes) -> None:
         """Write ``data`` into the handle's allocation through the device."""
         base = self.resolve(handle)
         live = self._live[handle.id]

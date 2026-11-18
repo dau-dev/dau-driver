@@ -9,6 +9,10 @@ from concurrent.futures import Future, ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from typing import Any
 
+from dau_core.capabilities import DeviceCapabilities
+from dau_core.registers import RegisterBlockSnapshot, RegisterOffset
+
+from .device import JobDevice
 from .scan_execution import ScanBatch, run_scan_batches
 
 
@@ -22,14 +26,14 @@ class FleetScanResult:
     """
 
     batch_index: int
-    device: Any
+    device: JobDevice
     value: Any
 
 
 class FleetScanError(RuntimeError):
     """Failure from one device pipeline, annotated with fleet provenance."""
 
-    def __init__(self, batch_index: int | None, device: Any, cause: Exception) -> None:
+    def __init__(self, batch_index: int | None, device: JobDevice, cause: Exception) -> None:
         self.batch_index = batch_index
         self.device = device
         identity = getattr(device, "name", repr(device))
@@ -77,14 +81,31 @@ class _DeviceTracker:
 
 
 class _TrackedDevice:
-    def __init__(self, device: Any, tracker: _DeviceTracker) -> None:
+    def __init__(self, device: JobDevice, tracker: _DeviceTracker) -> None:
         self._device = device
         self._tracker = tracker
 
-    def __getattr__(self, name: str) -> Any:
-        return getattr(self._device, name)
+    @property
+    def capabilities(self) -> DeviceCapabilities:
+        return self._device.capabilities
 
-    def write_dma(self, *, device_address: int, data: bytes | bytearray | memoryview):
+    @property
+    def memory_bytes(self) -> int | None:
+        return self._device.memory_bytes
+
+    def read_register(self, offset: RegisterOffset | int) -> int:
+        return self._device.read_register(offset)
+
+    def write_register(self, offset: RegisterOffset | int, value: int) -> None:
+        self._device.write_register(offset, value)
+
+    def read_register_block_snapshot(self) -> RegisterBlockSnapshot:
+        return self._device.read_register_block_snapshot()
+
+    def read_dma(self, *, device_address: int, byte_count: int) -> bytes:
+        return self._device.read_dma(device_address=device_address, byte_count=byte_count)
+
+    def write_dma(self, *, device_address: int, data: bytes | bytearray | memoryview) -> object:
         result = self._device.write_dma(device_address=device_address, data=data)
         self._tracker.staged()
         return result
@@ -179,7 +200,7 @@ class _Progress:
 
 
 class _WorkerError(Exception):
-    def __init__(self, batch_index: int | None, device: Any, cause: Exception) -> None:
+    def __init__(self, batch_index: int | None, device: JobDevice, cause: Exception) -> None:
         self.batch_index = batch_index
         self.device = device
         self.cause = cause
@@ -187,7 +208,7 @@ class _WorkerError(Exception):
 
 
 def run_scan_batches_fleet(
-    devices,
+    devices: Iterable[JobDevice],
     batches: Iterable[ScanBatch],
     *,
     per_key_state: bool,
@@ -195,7 +216,7 @@ def run_scan_batches_fleet(
     row_bytes: int,
     collect: Callable[[Any], Any],
     timeout_seconds: float = 60.0,
-    progress=None,
+    progress: Callable[[int], Any] | None = None,
     weights: Sequence[float] | None = None,
     poll_yield_seconds: float | None = None,
 ) -> list[FleetScanResult]:
