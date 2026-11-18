@@ -104,7 +104,7 @@ def test_identify_macos_xdma_device_finds_dau_register_window() -> None:
         }
     )
 
-    device = identify_device(client, index=0)
+    device = identify_device(client, memory_bytes=None, index=0)
 
     assert device.name == "xdma0"
     assert device.backend == "macos-xdma"
@@ -143,16 +143,26 @@ def test_identify_macos_xdma_device_retries_a_transient_zero_magic_read() -> Non
         unsettled_reads=len(REGISTER_BAR_INDICES) * len(REGISTER_WINDOW_OFFSETS),
     )
 
-    device = identify_device(client)
+    device = identify_device(client, memory_bytes=None)
 
     assert device.read_register(RegisterOffset.MAGIC) == DAU_MAGIC_WORD
+
+
+def test_a_macos_device_bounds_addresses_by_the_memory_its_caller_states() -> None:
+    from dau_driver.device import write_address
+    from dau_driver.errors import RegisterAccessError
+
+    [device] = discover_devices(client_factory=lambda: [FakeMacOSXDMAClient({(0, int(RegisterOffset.MAGIC)): DAU_MAGIC_WORD})], memory_bytes=1 << 20)
+
+    with pytest.raises(RegisterAccessError, match="past the device"):
+        write_address(device, RegisterOffset.INPUT_ADDRESS_LOW, RegisterOffset.INPUT_ADDRESS_HIGH, 1 << 20)
 
 
 def test_identify_macos_xdma_device_rejects_non_dau_bitstream() -> None:
     client = FakeMacOSXDMAClient({(0, int(RegisterOffset.MAGIC)): 0x58584D41})
 
     with pytest.raises(WrongBitstreamError, match="DAU magic"):
-        identify_device(client)
+        identify_device(client, memory_bytes=None)
 
 
 def test_discover_macos_xdma_devices_skips_unhealthy_or_wrong_bitstreams() -> None:
@@ -162,7 +172,7 @@ def test_discover_macos_xdma_devices_skips_unhealthy_or_wrong_bitstreams() -> No
         FakeMacOSXDMAClient({(0, int(RegisterOffset.MAGIC)): DAU_MAGIC_WORD}),
     ]
 
-    devices = discover_devices(client_factory=lambda: clients)
+    devices = discover_devices(client_factory=lambda: clients, memory_bytes=None)
 
     assert [device.name for device in devices] == ["xdma2"]
 
@@ -171,14 +181,14 @@ def test_discover_macos_xdma_devices_reports_no_user_client_as_no_devices() -> N
     def raise_not_found():
         raise DeviceNotFoundError("XDMADriver service not found")
 
-    assert discover_devices(client_factory=raise_not_found) == []
+    assert discover_devices(client_factory=raise_not_found, memory_bytes=None) == []
 
 
 def test_probe_macos_xdma_reports_services_tried_when_no_driverkit_service_is_visible() -> None:
     def raise_not_found():
         raise DeviceNotFoundError("no XDMA DriverKit service matched any candidate")
 
-    result = probe_devices(client_factory=raise_not_found, service_names=DEFAULT_SERVICE_NAMES)
+    result = probe_devices(client_factory=raise_not_found, memory_bytes=None, service_names=DEFAULT_SERVICE_NAMES)
 
     assert result.status == "no-service"
     assert result.devices == ()
@@ -190,6 +200,7 @@ def test_probe_macos_xdma_reports_services_tried_when_no_driverkit_service_is_vi
 def test_probe_macos_xdma_reports_matched_service_without_open_user_client() -> None:
     result = probe_devices(
         client_factory=lambda: (),
+        memory_bytes=None,
         service_probes=(MacOSXDMAServiceProbe(service_name="com.dau-dev.xdma", matched_services=1, opened_clients=0),),
     )
 
@@ -201,7 +212,7 @@ def test_probe_macos_xdma_reports_matched_service_without_open_user_client() -> 
 def test_probe_macos_xdma_reports_visible_service_with_wrong_bitstream() -> None:
     client = FakeMacOSXDMAClient({(0, int(RegisterOffset.MAGIC)): 0x58584D41})
 
-    result = probe_devices(client_factory=lambda: (client,))
+    result = probe_devices(client_factory=lambda: (client,), memory_bytes=None)
 
     assert result.status == "wrong-bitstream"
     assert result.devices == ()
@@ -211,7 +222,7 @@ def test_probe_macos_xdma_reports_visible_service_with_wrong_bitstream() -> None
 
 def test_macos_xdma_dma_roundtrip_carries_buffers() -> None:
     client = FakeMacOSXDMAClient({(0, int(RegisterOffset.MAGIC)): DAU_MAGIC_WORD})
-    device = identify_device(client)
+    device = identify_device(client, memory_bytes=None)
 
     payload = bytes(range(256)) * 16
     transfer = device.write_dma(device_address=0x2000, data=payload)
@@ -221,7 +232,7 @@ def test_macos_xdma_dma_roundtrip_carries_buffers() -> None:
 
 def test_macos_xdma_device_close_releases_user_client() -> None:
     client = FakeMacOSXDMAClient({(0, int(RegisterOffset.MAGIC)): DAU_MAGIC_WORD})
-    device = identify_device(client)
+    device = identify_device(client, memory_bytes=None)
 
     device.close()
 

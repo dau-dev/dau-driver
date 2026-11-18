@@ -76,7 +76,8 @@ def _decode_groups(data: bytes, count: int) -> list[GroupAggregate]:
 
 def main() -> int:
     rows = int(sys.argv[1]) if len(sys.argv) > 1 else 10_000
-    devices = discover_devices()
+    # staging sits at the shell's fixed BRAM addresses, so there is no DDR size to bound
+    devices = discover_devices(memory_bytes=None)
     if not devices:
         print("no DAU device found", file=sys.stderr)
         return 1

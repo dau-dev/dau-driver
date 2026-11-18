@@ -103,7 +103,7 @@ the ping-pong: while job 0 computes out of region A, batch 1's DMA is already
 filling region B. Batch 2 would go back to region A, and so on.
 
 The payloads went out as 64 bytes, not 48. The runner pads the DMA up to the
-64-byte grid, while `INPUT_LENGTH`, which is what the device reads, stays exact
+device's 64-byte alignment, while `INPUT_LENGTH`, which is what the device reads, stays exact
 at 48. That is why `collect` returned 48 for each batch.
 
 `collect` was called once per batch, after that batch's job reported DONE, and the

@@ -110,7 +110,7 @@ def test_execute_bar_job_done(tmp_path):
 
     assert result == BARS
     # input was staged verbatim through the packer at the input buffer
-    assert transport.h2c_writes == [(contract.input_buffer_address, pack_bar_rows(rows))]
+    assert transport.h2c_writes == [(contract.input_buffer_address, _pad64(pack_bar_rows(rows)))]
 
 
 def test_execute_bar_job_empty(tmp_path):
@@ -170,7 +170,7 @@ def test_execute_keyed_pipeline_job_done(tmp_path):
 
     assert groups == GROUPS
     assert selected == 42
-    assert transport.h2c_writes == [(contract.input_buffer_address, pack_keyed_rows(rows))]
+    assert transport.h2c_writes == [(contract.input_buffer_address, _pad64(pack_keyed_rows(rows)))]
     # register-read order: capacity, then poll JOB_STATUS, then result
     # length, selected, group count
     assert transport.register_reads == [
@@ -460,13 +460,15 @@ def test_a_duck_typed_device_can_program_addresses() -> None:
     """Devices here are DUCK-TYPED: test fakes and alternative transports
     implement `write_register` without subclassing DauDevice. Making the
     paired address write a method silently broke every one of them — the
-    dau-polars emulated devices among them — so the callable path must need
-    nothing but `write_register`."""
+    dau-polars emulated devices among them — so the callable path needs
+    only `write_register` and the declared `memory_bytes`."""
     from dau_core.registers import RegisterOffset
 
     from dau_driver.device import write_address
 
     class _Fake:  # no DauDevice inheritance, exactly like the emulated shells
+        memory_bytes = None
+
         def __init__(self):
             self.writes = []
 

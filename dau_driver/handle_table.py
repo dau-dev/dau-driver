@@ -39,9 +39,9 @@ from dau_core.registers import (
     RegisterOffset,
 )
 
-from .device import write_address
+from .device import JobDevice, write_address
 from .errors import DauDriverError
-from .pipeline_execution import DMA_ALIGN_BYTES, PipelineJobError, _wait_for_job_done
+from .pipeline_execution import PipelineJobError, _wait_for_job_done
 from .scan_execution import ScanBatch
 from .storage import StorageAllocator, StorageHandle
 
@@ -103,7 +103,7 @@ class HandleTable:
     nothing.
     """
 
-    def __init__(self, device, allocator: StorageAllocator, *, capacity: int) -> None:
+    def __init__(self, device: JobDevice, allocator: StorageAllocator, *, capacity: int) -> None:
         if capacity <= 0:
             raise ValueError(f"capacity must be positive; a shell with no table has nothing to bind, got {capacity}")
         self.device = device
@@ -122,12 +122,13 @@ class HandleTable:
         """
         base = self.allocator.resolve(handle)  # raises on stale, forged, or foreign
         self._check_slot(handle.id)
-        if base % DMA_ALIGN_BYTES:
+        alignment = self.device.capabilities.dma.alignment_bytes
+        if base % alignment:
             # the same refusal run_resident_scan makes about a raw address, at
             # the point a base becomes a grant: an unaligned region is a
             # silent-wrong-bytes failure on silicon, and an allocator built at
             # a finer alignment reaches it without ever writing an address down
-            raise HandleTableError(f"handle {handle.id} is based at 0x{base:X}, which is not {DMA_ALIGN_BYTES}-byte aligned")
+            raise HandleTableError(f"handle {handle.id} is based at 0x{base:X}, which is not {alignment}-byte aligned")
         self.device.write_register(HandleTableRegisterOffset.INDEX, handle.id)
         # both halves, always: a slot left holding the previous entry's high
         # half grants a region in the wrong 4 GiB
@@ -166,11 +167,11 @@ class HandleTable:
         *,
         row_count: int,
         row_bytes: int,
-        collect,
+        collect: Callable[[Any], Any],
         repeats: int = 1,
         timeout_seconds: float = 60.0,
         poll_yield_seconds: float | None = None,
-    ) -> list:
+    ) -> list[Any]:
         """:func:`~dau_driver.scan_execution.run_resident_scan` with the raw
         address replaced by a handle: arm once, then run the job ``repeats``
         times over rows already on the device, uploading nothing.
@@ -197,11 +198,12 @@ class HandleTable:
         if repeats <= 0:
             raise ValueError(f"repeats must be positive, got {repeats}")
         length = row_count * row_bytes
-        if length % DMA_ALIGN_BYTES:
+        alignment = self.device.capabilities.dma.alignment_bytes
+        if length % alignment:
             # the shell's own 0xFE length gate fires before the table is even
             # asked, so an off-grid length would arrive as a fault that says
             # nothing about the handle
-            raise ValueError(f"{length} bytes is not a multiple of the {DMA_ALIGN_BYTES}-byte DMA grid")
+            raise ValueError(f"{length} bytes is not a multiple of the {alignment}-byte DMA grid")
 
         self.arm(handle)
         results = []
@@ -255,6 +257,7 @@ class HandleTable:
             raise ValueError(f"row_bytes must be positive, got {row_bytes}")
         iterator = iter(batches)
         pair = (first, second)
+        alignment = self.device.capabilities.dma.alignment_bytes
 
         def stage(index: int) -> tuple[StorageHandle, int] | None:
             try:
@@ -266,8 +269,8 @@ class HandleTable:
             length = batch.row_count * row_bytes
             if len(batch.payload) != length:
                 raise ValueError(f"batch {index}: payload of {len(batch.payload)} bytes is not row_count {batch.row_count} * row_bytes {row_bytes}")
-            if length % DMA_ALIGN_BYTES:
-                raise ValueError(f"batch {index}: {length} bytes is not a multiple of the {DMA_ALIGN_BYTES}-byte DMA grid")
+            if length % alignment:
+                raise ValueError(f"batch {index}: {length} bytes is not a multiple of the {alignment}-byte DMA grid")
             handle = pair[index % 2]
             self.allocator.stage(self.device, handle, batch.payload)
             return handle, batch.row_count

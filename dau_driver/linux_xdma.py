@@ -15,7 +15,11 @@ DEFAULT_SYSFS_PCI_ROOT = Path("/sys/bus/pci/devices")
 DEFAULT_BACKEND = "linux-xdma"
 
 
-def discover_devices(root: str | Path = DEFAULT_DEV_ROOT) -> list[DauDevice]:
+def discover_devices(root: str | Path = DEFAULT_DEV_ROOT, *, memory_bytes: int | None) -> list[DauDevice]:
+    """Every DAU device under ``root``. ``memory_bytes`` is the boards'
+    addressable memory, which the platform states and the registers do not;
+    it bounds every address the devices are given. Pass None only when it is
+    not known, which turns that guard off."""
     root_path = Path(root)
     devices: list[DauDevice] = []
     for user_path in sorted(root_path.glob("xdma*_user")):
@@ -23,13 +27,15 @@ def discover_devices(root: str | Path = DEFAULT_DEV_ROOT) -> list[DauDevice]:
         if not h2c_path.exists() or not c2h_path.exists():
             continue
         try:
-            devices.append(identify_device(user_path, h2c_path=h2c_path, c2h_path=c2h_path))
+            devices.append(identify_device(user_path, memory_bytes=memory_bytes, h2c_path=h2c_path, c2h_path=c2h_path))
         except (UnhealthyBarError, WrongBitstreamError):
             continue
     return devices
 
 
-def identify_device(user_path: str | Path, *, h2c_path: str | Path | None = None, c2h_path: str | Path | None = None) -> DauDevice:
+def identify_device(
+    user_path: str | Path, *, memory_bytes: int | None, h2c_path: str | Path | None = None, c2h_path: str | Path | None = None
+) -> DauDevice:
     user = Path(user_path)
     resolved_h2c, resolved_c2h = _channel_paths(user)
     if h2c_path is not None:
@@ -66,6 +72,7 @@ def identify_device(user_path: str | Path, *, h2c_path: str | Path | None = None
         c2h_path=resolved_c2h,
         capabilities=capabilities,
         register_window_offset=register_window_offset,
+        memory_bytes=memory_bytes,
     )
 
 

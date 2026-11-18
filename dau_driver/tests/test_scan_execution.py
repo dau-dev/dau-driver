@@ -444,14 +444,32 @@ def test_a_resident_run_still_programs_the_exact_input_length(tmp_path) -> None:
 def test_a_misaligned_resident_address_is_refused(tmp_path) -> None:
     """An unaligned DMA region is a silent-wrong-bytes failure on silicon,
     so it is refused where the mistake is still cheap."""
-    from dau_driver.pipeline_execution import DMA_ALIGN_BYTES
     from dau_driver.scan_execution import run_resident_scan
 
+    device = fake_device(tmp_path, ResidentTransport())
     with pytest.raises(ValueError, match="aligned"):
         run_resident_scan(
-            fake_device(tmp_path, ResidentTransport()),
-            address=DMA_ALIGN_BYTES + 1,
+            device,
+            address=device.capabilities.dma.alignment_bytes + 1,
             row_count=8,
             row_bytes=8,
             collect=lambda _d: None,
         )
+
+
+def test_the_dma_grid_is_the_devices_alignment(tmp_path) -> None:
+    """Padding and the resident-address check follow the alignment the
+    device advertises, not a 64-byte constant."""
+    from dataclasses import replace
+
+    from dau_driver.scan_execution import run_resident_scan
+
+    base = fake_device(tmp_path, OverlapTransport(total_batches=1))
+    device = replace(base, capabilities=replace(base.capabilities, dma=replace(base.capabilities.dma, alignment_bytes=128)))
+    transport = cast(OverlapTransport, device.transport)
+
+    run_scan_batches(device, _batches([4]), per_key_state=False, input_regions=(REGION_A, REGION_B), row_bytes=16, collect=lambda _d: None)
+
+    assert [len(payload) for _, payload in transport.h2c_writes] == [128]
+    with pytest.raises(ValueError, match="128-byte aligned"):
+        run_resident_scan(device, address=64, row_count=8, row_bytes=16, collect=lambda _d: None)

@@ -377,13 +377,14 @@ class _IOKitBindings:
             return int(ctypes.c_uint32.in_dll(self.libsystem, "mach_task_self_").value)
 
 
-def discover_devices(client_factory: Callable[[], Iterable[MacOSXDMAClientProtocol]] | None = None) -> list[DauDevice]:
-    return list(probe_devices(client_factory=client_factory).devices)
+def discover_devices(client_factory: Callable[[], Iterable[MacOSXDMAClientProtocol]] | None = None, *, memory_bytes: int | None) -> list[DauDevice]:
+    return list(probe_devices(client_factory=client_factory, memory_bytes=memory_bytes).devices)
 
 
 def probe_devices(
     client_factory: Callable[[], Iterable[MacOSXDMAClientProtocol]] | None = None,
     *,
+    memory_bytes: int | None,
     service_names: Sequence[str] = DEFAULT_SERVICE_NAMES,
     service_probes: Sequence[MacOSXDMAServiceProbe] = (),
 ) -> MacOSXDMAProbeResult:
@@ -406,7 +407,7 @@ def probe_devices(
     failures: list[str] = []
     for index, client in enumerate(clients):
         try:
-            devices.append(identify_device(client, index=index))
+            devices.append(identify_device(client, memory_bytes=memory_bytes, index=index))
         except (UnhealthyBarError, WrongBitstreamError, RegisterAccessError) as exc:
             failures.append(str(exc))
             client.close()
@@ -519,7 +520,7 @@ def _format_service_probe_details(service_probes: Sequence[MacOSXDMAServiceProbe
     return "; ".join(parts)
 
 
-def identify_device(client: MacOSXDMAClientProtocol, *, index: int = 0) -> DauDevice:
+def identify_device(client: MacOSXDMAClientProtocol, *, memory_bytes: int | None, index: int = 0) -> DauDevice:
     bar_index, register_window_offset, magic = find_register_window(client.read_bar_u32, REGISTER_BAR_INDICES)
     if magic == 0xFFFF_FFFF:
         raise UnhealthyBarError("DAU BAR magic read all ones from macOS XDMA user client; BAR/AXI-lite path may be unhealthy")
@@ -549,6 +550,7 @@ def identify_device(client: MacOSXDMAClientProtocol, *, index: int = 0) -> DauDe
         capabilities=capabilities,
         register_window_offset=register_window_offset,
         transport=MacOSXDMATransport(client=client, bar_index=bar_index),
+        memory_bytes=memory_bytes,
     )
 
 
@@ -567,7 +569,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     service_names = tuple(args.service_names) if args.service_names else DEFAULT_SERVICE_NAMES
-    result = probe_devices(service_names=service_names)
+    # the probe runs no DMA, so it needs no memory bound
+    result = probe_devices(memory_bytes=None, service_names=service_names)
     if not result.devices:
         print(f"macos-xdma\tstatus={result.status} devices=0 message={result.message}")
         if args.verbose:

@@ -36,15 +36,15 @@ class FakeXdmaPaths:
 
 
 def test_discover_devices_returns_empty_list_when_no_xdma_paths(tmp_path: Path) -> None:
-    assert discover_devices(tmp_path) == []
+    assert discover_devices(tmp_path, memory_bytes=None) == []
 
 
 def test_discover_devices_uses_macos_backend_on_darwin_default_dev_root(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(discovery_module.sys, "platform", "darwin")
-    monkeypatch.setattr(discovery_module.linux_xdma, "discover_devices", lambda root: [])
-    monkeypatch.setattr(discovery_module, "_discover_macos_devices", lambda: ["mac-device"])
+    monkeypatch.setattr(discovery_module.linux_xdma, "discover_devices", lambda root, *, memory_bytes: [])
+    monkeypatch.setattr(discovery_module, "_discover_macos_devices", lambda *, memory_bytes: [("mac-device", memory_bytes)])
 
-    assert discover_devices() == ["mac-device"]
+    assert discover_devices(memory_bytes=1 << 30) == [("mac-device", 1 << 30)]
 
 
 @pytest.mark.posix_only
@@ -52,7 +52,7 @@ def test_identify_device_rejects_generic_xdma_bitstream(tmp_path: Path) -> None:
     paths = write_fake_xdma_device(tmp_path, magic=0x58584D41)
 
     with pytest.raises(WrongBitstreamError, match="DAU magic"):
-        identify_device(paths.user)
+        identify_device(paths.user, memory_bytes=None)
 
 
 @pytest.mark.posix_only
@@ -60,9 +60,9 @@ def test_identify_device_reports_unhealthy_bar_when_magic_reads_all_ones(tmp_pat
     paths = write_fake_xdma_device(tmp_path, magic=0xFFFF_FFFF)
 
     with pytest.raises(UnhealthyBarError, match="all ones"):
-        identify_device(paths.user)
+        identify_device(paths.user, memory_bytes=None)
 
-    assert discover_devices(tmp_path) == []
+    assert discover_devices(tmp_path, memory_bytes=None) == []
 
 
 @pytest.mark.posix_only
@@ -76,7 +76,7 @@ def test_discover_devices_reports_one_matching_fake_device(tmp_path: Path, monke
     (sysfs / "0000:04:00.0" / "device").write_text("0x7011\n")
     monkeypatch.setattr(linux_xdma, "DEFAULT_SYSFS_PCI_ROOT", sysfs)
 
-    devices = discover_devices(tmp_path)
+    devices = discover_devices(tmp_path, memory_bytes=None)
 
     assert len(devices) == 1
     device = devices[0]
@@ -106,7 +106,7 @@ def test_a_device_sysfs_does_not_place_reports_no_pci_ids(tmp_path: Path, monkey
     write_fake_xdma_device(tmp_path)
     monkeypatch.setattr(linux_xdma, "DEFAULT_SYSFS_PCI_ROOT", tmp_path / "absent")
 
-    [device] = discover_devices(tmp_path)
+    [device] = discover_devices(tmp_path, memory_bytes=None)
 
     assert (device.capabilities.pci_vendor_id, device.capabilities.pci_device_id) == (0, 0)
 
@@ -125,7 +125,7 @@ def test_discover_devices_decodes_the_concrete_contract_on_register_map_0_2(tmp_
         sort_capacity=16,
     )
 
-    device = discover_devices(tmp_path)[0]
+    device = discover_devices(tmp_path, memory_bytes=None)[0]
 
     assert device.capabilities.register_map_version == RegisterMapVersion(0, 2)
     assert device.capabilities.supports(OperationCode.SUM, LogicalType.INT32)
@@ -139,10 +139,28 @@ def test_discover_devices_decodes_the_concrete_contract_on_register_map_0_2(tmp_
 
 
 @pytest.mark.posix_only
+def test_a_discovered_device_bounds_addresses_by_the_memory_its_caller_states(tmp_path: Path) -> None:
+    """The registers do not state the board's memory, so discovery takes it
+    from the caller and every address the device is given is checked
+    against it. A device left at None never had the wrap guard on."""
+    from dau_driver.device import write_address
+    from dau_driver.errors import RegisterAccessError
+
+    write_fake_xdma_device(tmp_path)
+    [device] = discover_devices(tmp_path, memory_bytes=1 << 20)
+
+    assert device.memory_bytes == 1 << 20
+    with pytest.raises(RegisterAccessError, match="past the device"):
+        write_address(device, RegisterOffset.INPUT_ADDRESS_LOW, RegisterOffset.INPUT_ADDRESS_HIGH, 1 << 20)
+    with pytest.raises(TransferValidationError, match="past the device"):
+        device.prepare_transfer(DmaDirection.H2C, device_address=(1 << 20) - 64, byte_count=128)
+
+
+@pytest.mark.posix_only
 def test_identify_device_supports_register_window_offset(tmp_path: Path) -> None:
     paths = write_fake_xdma_device(tmp_path, register_window_offset=0x1000)
 
-    device = identify_device(paths.user)
+    device = identify_device(paths.user, memory_bytes=None)
 
     assert device.register_window_offset == 0x1000
     assert device.read_register(RegisterOffset.MAGIC) == DAU_MAGIC_WORD
@@ -170,7 +188,7 @@ def test_identify_device_retries_transient_zero_magic_read(tmp_path: Path, monke
 
     monkeypatch.setattr(linux_xdma, "read_u32", flaky_read_u32)
 
-    device = identify_device(paths.user)
+    device = identify_device(paths.user, memory_bytes=None)
 
     assert device.register_window_offset == 0x1000
     assert device.read_register(RegisterOffset.MAGIC) == DAU_MAGIC_WORD
@@ -191,7 +209,7 @@ def test_identify_device_reports_unadvertised_metadata_honestly(tmp_path: Path) 
     h2c_path.write_bytes(b"")
     c2h_path.write_bytes(b"")
 
-    device = identify_device(user_path)
+    device = identify_device(user_path, memory_bytes=None)
 
     assert device.register_window_offset == 0x1000
     # the platform word is all-ones, so the device identifies as NOTHING.
@@ -224,7 +242,7 @@ def test_an_undecoded_operator_word_advertises_nothing(tmp_path: Path) -> None:
         struct.pack_into("<I", register_image, 0x1000 + int(offset), 0xFFFF_FFFF)
     user_path.write_bytes(register_image)
 
-    device = identify_device(user_path)
+    device = identify_device(user_path, memory_bytes=None)
 
     assert device.capabilities.operators == ()
     assert OperationCode.AVERAGE not in {operator.opcode for operator in device.capabilities.operators}
@@ -242,7 +260,7 @@ def test_device_decodes_status_and_counters_from_register_block(tmp_path: Path) 
         batches=9,
         stalls=13,
     )
-    device = discover_devices(tmp_path)[0]
+    device = discover_devices(tmp_path, memory_bytes=None)[0]
 
     status = device.read_status()
     counters = device.read_counters()
@@ -269,7 +287,7 @@ def test_device_reads_register_block_snapshot_from_dau_core_contract(tmp_path: P
         batches=11,
         stalls=17,
     )
-    device = discover_devices(tmp_path)[0]
+    device = discover_devices(tmp_path, memory_bytes=None)[0]
 
     assert device.read_register_block_snapshot() == RegisterBlockSnapshot(
         platform_id="DPV1",
@@ -306,7 +324,7 @@ def test_read_u64_uses_two_u32_register_reads_for_xdma_user_bar(tmp_path: Path, 
 @pytest.mark.posix_only
 def test_device_bar_health_check_reports_all_ones_for_selected_register(tmp_path: Path) -> None:
     paths = write_fake_xdma_device(tmp_path, status=0xFFFF_FFFF)
-    device = identify_device(paths.user)
+    device = identify_device(paths.user, memory_bytes=None)
 
     with pytest.raises(UnhealthyBarError, match="STATUS.*all ones"):
         device.check_bar_health(offsets=(RegisterOffset.STATUS,))
@@ -319,7 +337,7 @@ def test_a_device_holds_its_register_node_open(tmp_path: Path, monkeypatch: pyte
     import os
 
     paths = write_fake_xdma_device(tmp_path)
-    device = identify_device(paths.user)
+    device = identify_device(paths.user, memory_bytes=None)
     opened: list[int] = []
     real_open = os.open
 
@@ -343,7 +361,7 @@ def test_a_device_holds_its_register_node_open(tmp_path: Path, monkeypatch: pyte
 @pytest.mark.posix_only
 def test_device_validates_dma_transfer_shape_before_real_xdma_io(tmp_path: Path) -> None:
     write_fake_xdma_device(tmp_path)
-    device = discover_devices(tmp_path)[0]
+    device = discover_devices(tmp_path, memory_bytes=None)[0]
 
     transfer = device.prepare_transfer(DmaDirection.H2C, device_address=0x1000, byte_count=4096)
 
@@ -396,7 +414,7 @@ def test_a_discovered_linux_device_is_identified_by_its_pci_endpoint(tmp_path: P
     from dau_driver import DeviceIdentity, linux_xdma
 
     write_fake_xdma_device(tmp_path)
-    [device] = discover_devices(tmp_path)
+    [device] = discover_devices(tmp_path, memory_bytes=None)
     sysfs = tmp_path / "sys"
     monkeypatch.setattr(linux_xdma, "DEFAULT_SYSFS_PCI_ROOT", sysfs)
 

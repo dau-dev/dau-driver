@@ -15,7 +15,7 @@ pytestmark = pytest.mark.skipif(
 
 
 def test_macos_xdma_hardware_discovers_dau_identity() -> None:
-    devices = discover_devices()
+    devices = discover_devices(memory_bytes=None)
 
     assert devices, "expected at least one DAU XDMA DriverKit device"
     device = devices[0]
@@ -41,7 +41,7 @@ def test_concurrent_transfers_on_both_engines_round_trip() -> None:
     other thread rewrote returns the wrong bytes or fails."""
     from concurrent.futures import ThreadPoolExecutor
 
-    device = discover_devices()[0]
+    device = discover_devices(memory_bytes=None)[0]
     first, second = _scratch_addresses()
     length = 1 << 20
 

@@ -200,7 +200,8 @@ def _verify(args: argparse.Namespace) -> int:
     from dau_driver.discovery import discover_devices
 
     contract, spec_hash, platform = contract_from_manifest_path(args.manifest)
-    devices = discover_devices() if args.device_root is None else discover_devices(args.device_root)
+    # register reads only, so no memory bound is needed
+    devices = discover_devices(memory_bytes=None) if args.device_root is None else discover_devices(args.device_root, memory_bytes=None)
     if not devices:
         print("no DAU device found to verify", file=sys.stderr)
         return 1

@@ -24,8 +24,8 @@ from typing import Any, cast
 
 from dau_core.registers import JobControlFlag, RegisterOffset
 
-from .device import write_address
-from .pipeline_execution import DMA_ALIGN_BYTES, _wait_for_job_done
+from .device import JobDevice, write_address
+from .pipeline_execution import _dma_padded, _wait_for_job_done
 
 
 @dataclass(frozen=True)
@@ -33,7 +33,7 @@ class ScanBatch:
     """One staged scan batch: the packed row payload and its row count.
 
     The payload is ``row_count * row_bytes`` bytes; the runner pads the DMA
-    to the 64-byte grid while ``INPUT_LENGTH`` stays exact."""
+    to the device's alignment while ``INPUT_LENGTH`` stays exact."""
 
     payload: bytes
     row_count: int
@@ -177,7 +177,7 @@ def key_range_scan_batches[Record](
 
 
 def run_scan_batches(
-    device,
+    device: JobDevice,
     batches: Iterable[ScanBatch],
     *,
     per_key_state: bool,
@@ -185,7 +185,7 @@ def run_scan_batches(
     row_bytes: int,
     collect: Callable[[Any], Any],
     timeout_seconds: float = 60.0,
-    progress=None,
+    progress: Callable[[int], None] | None = None,
     poll_yield_seconds: float | None = None,
 ) -> list[Any]:
     """Run scan jobs over ``batches`` with ping-pong input staging: batch
@@ -215,11 +215,8 @@ def run_scan_batches(
             raise ValueError(f"batch {index}: zero rows; a scan job needs a non-empty batch")
         if len(batch.payload) != batch.row_count * row_bytes:
             raise ValueError(f"batch {index}: payload of {len(batch.payload)} bytes is not row_count {batch.row_count} * row_bytes {row_bytes}")
-        payload = batch.payload
-        if len(payload) % DMA_ALIGN_BYTES:
-            payload = payload + b"\x00" * (-len(payload) % DMA_ALIGN_BYTES)
         address = regions[index % 2]
-        device.write_dma(device_address=address, data=payload)
+        device.write_dma(device_address=address, data=_dma_padded(device, batch.payload))
         return address, batch.row_count
 
     results: list[Any] = []
@@ -253,7 +250,7 @@ def run_scan_batches(
 
 
 def run_resident_scan(
-    device,
+    device: JobDevice,
     *,
     address: int,
     row_count: int,
@@ -289,9 +286,10 @@ def run_resident_scan(
         raise ValueError(f"row_bytes must be positive, got {row_bytes}")
     if repeats <= 0:
         raise ValueError(f"repeats must be positive, got {repeats}")
-    if address % DMA_ALIGN_BYTES:
-        raise ValueError(f"resident address {address:#x} is not {DMA_ALIGN_BYTES}-byte aligned")
-    memory_bytes = getattr(device, "memory_bytes", None)
+    alignment = device.capabilities.dma.alignment_bytes
+    if address % alignment:
+        raise ValueError(f"resident address {address:#x} is not {alignment}-byte aligned")
+    memory_bytes = device.memory_bytes
     if memory_bytes is not None and address + row_count * row_bytes > memory_bytes:
         raise ValueError(f"{row_count} rows of {row_bytes} bytes at {address:#x} end past the device's {memory_bytes} byte memory")
 

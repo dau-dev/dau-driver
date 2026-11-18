@@ -51,21 +51,22 @@ computing the descriptor limit yourself.
 ## Guard against addressing past the end of memory
 
 An address beyond the device's memory does not fail. It wraps to the bottom, and
-you read or overwrite the wrong region without any error. Tell the handle how big its
-memory is, then program addresses through the method form:
+you read or overwrite the wrong region without any error. Discovery takes the
+memory size from you, because the registers do not report it:
 
 ```python
-import dataclasses
-
 from dau_core.registers import RegisterOffset
+from dau_driver import discover_devices
 
-device = dataclasses.replace(device, memory_bytes=platform.memory.size_bytes)
+device = discover_devices(memory_bytes=platform.memory.size_bytes)[0]
 device.write_address_register(RegisterOffset.INPUT_ADDRESS_LOW, RegisterOffset.INPUT_ADDRESS_HIGH, address)
 ```
 
-`RegisterAccessError` is then raised for an address at or past the limit. Left as
-`None`, the caller is trusted: the guard is only as good as the fact, and an
-invented default would either reject valid addresses or give false confidence.
+`RegisterAccessError` is then raised for an address at or past the limit, and
+`TransferValidationError` for a transfer that ends past it. With
+`memory_bytes=None` the caller is trusted: the guard is only as good as the
+fact, and an invented default would either reject valid addresses or give false
+confidence.
 
 The module-level `write_address` function reads `memory_bytes` off the device by
 default. Pass an integer to override the limit, or `None` to disable the check
@@ -94,8 +95,8 @@ adjacent, but a NoC lane's is not: its high half is at `0x14`, because `0x04` is
 the result length.
 
 `write_address` is a function, not a method, because devices here are duck-typed:
-test fakes and alternative transports implement `write_register` without
-subclassing `DauDevice`.
+test fakes and alternative transports implement `write_register` and
+`memory_bytes` without subclassing `DauDevice`.
 
 ## Encode typed columns as a stream batch
 

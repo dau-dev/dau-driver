@@ -29,6 +29,40 @@ class DeviceTransport(Protocol):
 
     def write_dma(self, device_address: int, data: bytes | bytearray | memoryview) -> int: ...
 
+    def close(self) -> None: ...
+
+
+class DmaWriter(Protocol):
+    """A device as :meth:`StorageAllocator.stage` uses it."""
+
+    def write_dma(self, *, device_address: int, data: bytes | bytearray | memoryview) -> object: ...
+
+
+class AddressRegisters(Protocol):
+    """A device as :func:`write_address` uses it: register writes and the
+    memory bound an address is checked against."""
+
+    @property
+    def memory_bytes(self) -> int | None: ...
+
+    def write_register(self, offset: RegisterOffset | int, value: int) -> None: ...
+
+
+class JobDevice(AddressRegisters, DmaWriter, Protocol):
+    """What the job runners and the handle table use of a device: its
+    declared capabilities and memory bound, register access and DMA.
+    ``DauDevice`` implements it, and so does any test fake or alternative
+    device that does not subclass it."""
+
+    @property
+    def capabilities(self) -> DeviceCapabilities: ...
+
+    def read_register(self, offset: RegisterOffset | int) -> int: ...
+
+    def read_register_block_snapshot(self) -> RegisterBlockSnapshot: ...
+
+    def read_dma(self, *, device_address: int, byte_count: int) -> bytes: ...
+
 
 class PathDeviceTransport:
     """A device's devnodes, with the register node held open.
@@ -112,11 +146,11 @@ class DauDevice:
     capabilities: DeviceCapabilities
     register_window_offset: int = 0
     transport: DeviceTransport | None = None
-    # the addressable size of the device's memory, when the caller knows it
-    # (the platform's `memory.size_bytes`). None keeps the previous
-    # behaviour of trusting the caller — the guard is only as good as the
-    # fact, and inventing a default would either refuse valid addresses or
-    # give false confidence.
+    # the addressable size of the device's memory, which the platform states
+    # (its `memory.size_bytes`) and the registers do not. Discovery takes it
+    # from the caller. None means the caller does not know it and turns the
+    # wrap guard off; inventing a default would either reject valid
+    # addresses or give false confidence.
     memory_bytes: int | None = None
 
     @property
@@ -192,11 +226,8 @@ class DauDevice:
 
     def close(self) -> None:
         transport = self.transport if self.transport is not None else self.__dict__.get("_path_transport")
-        if transport is None:
-            return
-        close = getattr(transport, "close", None)
-        if close is not None:
-            close()
+        if transport is not None:
+            transport.close()
 
     def prepare_transfer(
         self,
@@ -290,7 +321,14 @@ def _offset_name(offset: RegisterOffset | int) -> str:
 _DEVICE_MEMORY = object()  # sentinel: take the bound from the device
 
 
-def write_address(device, low_offset, high_offset, address: int, *, memory_bytes: int | None | object = _DEVICE_MEMORY) -> None:
+def write_address(
+    device: AddressRegisters,
+    low_offset: RegisterOffset | int,
+    high_offset: RegisterOffset | int,
+    address: int,
+    *,
+    memory_bytes: int | None | object = _DEVICE_MEMORY,
+) -> None:
     """Program an address across its LOW/HIGH register pair on any device.
 
     A FUNCTION, not a method, because devices here are duck-typed: test
@@ -311,12 +349,10 @@ def write_address(device, low_offset, high_offset, address: int, *, memory_bytes
     declared memory rather than to None, because a guard that is off
     unless every call site remembers to switch it on is not a guard: the
     execution paths that program job addresses all used the plain function
-    and so ran unbounded. Reading it off the device is a duck-typed probe
-    on purpose — devices here are not required to subclass `DauDevice`, and
-    one that does not declare its memory simply goes unbounded, as before.
-    Pass an explicit value to override, or `None` to disable the check.
+    and so ran unbounded. Pass an explicit value to override, or `None` to
+    disable the check.
     """
-    bound: int | None = getattr(device, "memory_bytes", None) if memory_bytes is _DEVICE_MEMORY else cast("int | None", memory_bytes)
+    bound = device.memory_bytes if memory_bytes is _DEVICE_MEMORY else cast("int | None", memory_bytes)
     if not 0 <= address <= 0xFFFF_FFFF_FFFF_FFFF:
         raise RegisterAccessError(f"address must fit in 64 bits, got {address!r}")
     if bound is not None and address >= bound:

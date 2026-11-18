@@ -90,6 +90,17 @@ def test_column_payload_length_mismatch_rejected() -> None:
         StreamEncoder.encode_record_batch(bad, row_count=4)
 
 
+def test_the_payload_layout_follows_the_limits_alignment() -> None:
+    """The encoder lays payloads out on the alignment it validates against;
+    a fixed 64-byte layout failed its own check under any other limit."""
+    limits = RecordBatchLimits(alignment_bytes=128)
+    encoded = StreamEncoder.encode_record_batch(_columns(), row_count=4, limits=limits)
+
+    assert len(encoded) % 128 == 0
+    decoded = StreamDecoder.decode_record_batch(encoded, limits=limits)
+    assert all(column.payload_offset % 128 == 0 for column in decoded.columns)
+
+
 def test_limits_enforced_on_encode_and_decode() -> None:
     limits = RecordBatchLimits(max_columns=2)
     with pytest.raises(InvalidStreamError, match="exceeds limit 2"):

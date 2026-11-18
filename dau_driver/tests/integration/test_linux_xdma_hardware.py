@@ -15,7 +15,7 @@ pytestmark = pytest.mark.skipif(
 
 
 def test_linux_xdma_hardware_discovers_dau_identity() -> None:
-    devices = discover_devices(Path(os.environ.get("DAU_XDMA_DEV_ROOT", "/dev")))
+    devices = discover_devices(Path(os.environ.get("DAU_XDMA_DEV_ROOT", "/dev")), memory_bytes=None)
 
     assert devices, "expected at least one DAU XDMA device"
     device = devices[0]

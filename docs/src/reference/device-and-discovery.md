@@ -10,10 +10,11 @@ from `dau-core`; this package owns transport and execution.
 ### `discover_devices`
 
 ```python
-discover_devices(root: str | Path = Path("/dev")) -> list[DauDevice]
+discover_devices(root: str | Path = Path("/dev"), *, memory_bytes: int | None) -> list[DauDevice]
 ```
 
-Every DAU-compatible device under `root`. Scans for `xdma*_user` nodes paired
+Every DAU-compatible device under `root`, each with `memory_bytes` as its memory
+bound (`None` when the caller does not know it). Scans for `xdma*_user` nodes paired
 with `xdma*_h2c_0` and `xdma*_c2h_0`. When the Linux scan finds nothing, `root`
 is the default, and the platform is macOS, falls back to the DriverKit transport.
 Endpoints raising `UnhealthyBarError` or `WrongBitstreamError` are skipped.
@@ -21,7 +22,7 @@ Endpoints raising `UnhealthyBarError` or `WrongBitstreamError` are skipped.
 ### `identify_device`
 
 ```python
-identify_device(user_path, *, h2c_path=None, c2h_path=None) -> DauDevice
+identify_device(user_path, *, memory_bytes, h2c_path=None, c2h_path=None) -> DauDevice
 ```
 
 Identify one device by its user node. Channel paths default to the conventional
@@ -38,17 +39,17 @@ masquerade as a wrong bitstream.
 A frozen dataclass bundling the register window and DMA channel paths behind a
 transport.
 
-| Field                    | Type                      | Default | Description                                                                                            |
-| ------------------------ | ------------------------- | ------- | ------------------------------------------------------------------------------------------------------ |
-| `name`                   | `str`                     | —       | Device name, e.g. `xdma0`.                                                                             |
-| `backend`                | `str`                     | —       | Transport backend, e.g. `linux-xdma`.                                                                  |
-| `user_path`              | `Path`                    | —       | Register window node.                                                                                  |
-| `h2c_path`               | `Path`                    | —       | Host-to-card channel.                                                                                  |
-| `c2h_path`               | `Path`                    | —       | Card-to-host channel.                                                                                  |
-| `capabilities`           | `DeviceCapabilities`      | —       | The decoded advertisement.                                                                             |
-| `register_window_offset` | `int`                     | `0`     | Added to every register offset.                                                                        |
-| `transport`              | `DeviceTransport \| None` | `None`  | Overrides the path-based transport.                                                                    |
-| `memory_bytes`           | `int \| None`             | `None`  | The addressable size of device memory, when known. Enables the wrap guard in `write_address_register`. |
+| Field                    | Type                      | Default | Description                                                                               |
+| ------------------------ | ------------------------- | ------- | ----------------------------------------------------------------------------------------- |
+| `name`                   | `str`                     | —       | Device name, e.g. `xdma0`.                                                                |
+| `backend`                | `str`                     | —       | Transport backend, e.g. `linux-xdma`.                                                     |
+| `user_path`              | `Path`                    | —       | Register window node.                                                                     |
+| `h2c_path`               | `Path`                    | —       | Host-to-card channel.                                                                     |
+| `c2h_path`               | `Path`                    | —       | Card-to-host channel.                                                                     |
+| `capabilities`           | `DeviceCapabilities`      | —       | The decoded advertisement.                                                                |
+| `register_window_offset` | `int`                     | `0`     | Added to every register offset.                                                           |
+| `transport`              | `DeviceTransport \| None` | `None`  | Overrides the path-based transport.                                                       |
+| `memory_bytes`           | `int \| None`             | `None`  | The addressable size of device memory, as discovery was given it. Enables the wrap guard. |
 
 `resolved_transport` (property) returns `transport`, or a `PathDeviceTransport`
 over the three paths.
@@ -117,8 +118,7 @@ implementation, using `os.pread` / `os.pwrite` through `dau_driver.xdma_io`.
 write_address(device, low_offset, high_offset, address: int, *, memory_bytes=<from device>) -> None
 ```
 
-Program a 64-bit address across its LOW/HIGH register pair on any object with a
-`write_register` method. Both halves are always written, including a zero high
+Program a 64-bit address across its LOW/HIGH register pair on any `JobDevice`. Both halves are always written, including a zero high
 half. Raises `RegisterAccessError` when the address does not fit 64 bits, or when
 a memory limit is known and the address is at or past it.
 

@@ -96,7 +96,7 @@ def test_device_snapshot_normalizes_undecoded_capability_words(tmp_path) -> None
     write_u32(image, 0, RegisterOffset.SORT_CAPACITY, 0xFFFF_FFFF)
     paths.user.write_bytes(bytes(image))
 
-    snapshot = discover_devices(tmp_path)[0].read_register_block_snapshot()
+    snapshot = discover_devices(tmp_path, memory_bytes=None)[0].read_register_block_snapshot()
     assert snapshot.lane_count == 4
     assert snapshot.sort_capacity == 0  # all-ones = not decoded = not advertised
 
