@@ -103,8 +103,8 @@ and the request:
 StorageExhaustedError: tier 'ddr' cannot hold 1073741824 bytes
 ```
 
-One thing to watch: `stage` and `resolve` take any object with a
-`write_dma` method rather than a typed device. That is the duck-typed device
+One thing to watch: `stage` takes any object with a `write_dma` method (the
+`DmaWriter` protocol) rather than a `DauDevice`. That is the duck-typed device
 convention used throughout the package, and it is what lets a fake stand in for a
 board, for the same reason [the transport boundary](transport-boundary.md) is a
 protocol rather than a base class.

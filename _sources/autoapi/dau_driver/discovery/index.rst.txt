@@ -17,9 +17,9 @@ Functions
 Module Contents
 ---------------
 
-.. py:function:: discover_devices(root: str | pathlib.Path = linux_xdma.DEFAULT_DEV_ROOT) -> list[dau_driver.device.DauDevice]
+.. py:function:: discover_devices(root: str | pathlib.Path = linux_xdma.DEFAULT_DEV_ROOT, *, memory_bytes: int | None) -> list[dau_driver.device.DauDevice]
 
-.. py:function:: identify_device(user_path: str | pathlib.Path, *, h2c_path: str | pathlib.Path | None = None, c2h_path: str | pathlib.Path | None = None) -> dau_driver.device.DauDevice
+.. py:function:: identify_device(user_path: str | pathlib.Path, *, memory_bytes: int | None, h2c_path: str | pathlib.Path | None = None, c2h_path: str | pathlib.Path | None = None) -> dau_driver.device.DauDevice
 
-.. py:function:: _discover_macos_devices() -> list[dau_driver.device.DauDevice]
+.. py:function:: _discover_macos_devices(*, memory_bytes: int | None) -> list[dau_driver.device.DauDevice]
 

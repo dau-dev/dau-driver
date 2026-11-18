@@ -506,17 +506,18 @@ from <code class="docutils literal notranslate"><span class="pre">dau-core</span
 <h2>Discovery<a class="headerlink" href="#discovery" title="Link to this heading">¶</a></h2>
 <section id="discover-devices">
 <h3><code class="docutils literal notranslate"><span class="pre">discover_devices</span></code><a class="headerlink" href="#discover-devices" title="Link to this heading">¶</a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">discover_devices</span><span class="p">(</span><span class="n">root</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"/dev"</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">DauDevice</span><span class="p">]</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">discover_devices</span><span class="p">(</span><span class="n">root</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"/dev"</span><span class="p">),</span> <span class="o">*</span><span class="p">,</span> <span class="n">memory_bytes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">DauDevice</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>Every DAU-compatible device under <code class="docutils literal notranslate"><span class="pre">root</span></code>. Scans for <code class="docutils literal notranslate"><span class="pre">xdma*_user</span></code> nodes paired
+<p>Every DAU-compatible device under <code class="docutils literal notranslate"><span class="pre">root</span></code>, each with <code class="docutils literal notranslate"><span class="pre">memory_bytes</span></code> as its memory
+bound (<code class="docutils literal notranslate"><span class="pre">None</span></code> when the caller does not know it). Scans for <code class="docutils literal notranslate"><span class="pre">xdma*_user</span></code> nodes paired
 with <code class="docutils literal notranslate"><span class="pre">xdma*_h2c_0</span></code> and <code class="docutils literal notranslate"><span class="pre">xdma*_c2h_0</span></code>. When the Linux scan finds nothing, <code class="docutils literal notranslate"><span class="pre">root</span></code>
 is the default, and the platform is macOS, falls back to the DriverKit transport.
 Endpoints raising <code class="docutils literal notranslate"><span class="pre">UnhealthyBarError</span></code> or <code class="docutils literal notranslate"><span class="pre">WrongBitstreamError</span></code> are skipped.</p>
 </section>
 <section id="identify-device">
 <h3><code class="docutils literal notranslate"><span class="pre">identify_device</span></code><a class="headerlink" href="#identify-device" title="Link to this heading">¶</a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">identify_device</span><span class="p">(</span><span class="n">user_path</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">h2c_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">c2h_path</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DauDevice</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">identify_device</span><span class="p">(</span><span class="n">user_path</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">memory_bytes</span><span class="p">,</span> <span class="n">h2c_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">c2h_path</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DauDevice</span>
 </pre></div>
 </div>
 <p>Identify one device by its user node. Channel paths default to the conventional
@@ -584,7 +585,7 @@ transport.</p>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">memory_bytes</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
-<td><p>The addressable size of device memory, when known. Enables the wrap guard in <code class="docutils literal notranslate"><span class="pre">write_address_register</span></code>.</p></td>
+<td><p>The addressable size of device memory, as discovery was given it. Enables the wrap guard.</p></td>
 </tr>
 </tbody>
 </table>
@@ -686,8 +687,7 @@ implementation, using <code class="docutils literal notranslate"><span class="pr
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">write_address</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">low_offset</span><span class="p">,</span> <span class="n">high_offset</span><span class="p">,</span> <span class="n">address</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">memory_bytes</span><span class="o">=&lt;</span><span class="kn">from</span><span class="w"> </span><span class="nn">device</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </pre></div>
 </div>
-<p>Program a 64-bit address across its LOW/HIGH register pair on any object with a
-<code class="docutils literal notranslate"><span class="pre">write_register</span></code> method. Both halves are always written, including a zero high
+<p>Program a 64-bit address across its LOW/HIGH register pair on any <code class="docutils literal notranslate"><span class="pre">JobDevice</span></code>. Both halves are always written, including a zero high
 half. Raises <code class="docutils literal notranslate"><span class="pre">RegisterAccessError</span></code> when the address does not fit 64 bits, or when
 a memory limit is known and the address is at or past it.</p>
 <p><code class="docutils literal notranslate"><span class="pre">memory_bytes</span></code> defaults to a sentinel, not to <code class="docutils literal notranslate"><span class="pre">None</span></code>, and the sentinel means

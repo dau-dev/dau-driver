@@ -838,6 +838,10 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">dau_core.capabilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">DeviceCapabilities</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dau_core.registers</span><span class="w"> </span><span class="kn">import</span> <span class="n">RegisterBlockSnapshot</span><span class="p">,</span> <span class="n">RegisterOffset</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.device</span><span class="w"> </span><span class="kn">import</span> <span class="n">JobDevice</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.scan_execution</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScanBatch</span><span class="p">,</span> <span class="n">run_scan_batches</span>
 
 
@@ -853,7 +857,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    """</span>
 
     <span class="n">batch_index</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="n">device</span><span class="p">:</span> <span class="n">Any</span>
+    <span class="n">device</span><span class="p">:</span> <span class="n">JobDevice</span>
     <span class="n">value</span><span class="p">:</span> <span class="n">Any</span></div>
 
 
@@ -863,7 +867,7 @@ window.runMermaid = runMermaid;</script>
 <span class="k">class</span><span class="w"> </span><span class="nc">FleetScanError</span><span class="p">(</span><span class="ne">RuntimeError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Failure from one device pipeline, annotated with fleet provenance."""</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">cause</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="n">JobDevice</span><span class="p">,</span> <span class="n">cause</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">batch_index</span> <span class="o">=</span> <span class="n">batch_index</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>
         <span class="n">identity</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="s2">"name"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">device</span><span class="p">))</span>
@@ -935,19 +939,45 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_TrackedDevice">
 <a class="viewcode-back" href="../../autoapi/dau_driver/fleet/index.html#dau_driver.fleet._TrackedDevice">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">_TrackedDevice</span><span class="p">:</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">tracker</span><span class="p">:</span> <span class="n">_DeviceTracker</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="n">JobDevice</span><span class="p">,</span> <span class="n">tracker</span><span class="p">:</span> <span class="n">_DeviceTracker</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_device</span> <span class="o">=</span> <span class="n">device</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tracker</span> <span class="o">=</span> <span class="n">tracker</span>
 
-<div class="viewcode-block" id="_TrackedDevice.__getattr__">
-<a class="viewcode-back" href="../../autoapi/dau_driver/fleet/index.html#dau_driver.fleet._TrackedDevice.__getattr__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_device</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span></div>
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">capabilities</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DeviceCapabilities</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_device</span><span class="o">.</span><span class="n">capabilities</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">memory_bytes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_device</span><span class="o">.</span><span class="n">memory_bytes</span>
+
+<div class="viewcode-block" id="_TrackedDevice.read_register">
+<a class="viewcode-back" href="../../autoapi/dau_driver/fleet/index.html#dau_driver.fleet._TrackedDevice.read_register">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="n">RegisterOffset</span> <span class="o">|</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_device</span><span class="o">.</span><span class="n">read_register</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="_TrackedDevice.write_register">
+<a class="viewcode-back" href="../../autoapi/dau_driver/fleet/index.html#dau_driver.fleet._TrackedDevice.write_register">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="n">RegisterOffset</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_device</span><span class="o">.</span><span class="n">write_register</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="_TrackedDevice.read_register_block_snapshot">
+<a class="viewcode-back" href="../../autoapi/dau_driver/fleet/index.html#dau_driver.fleet._TrackedDevice.read_register_block_snapshot">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_register_block_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RegisterBlockSnapshot</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_device</span><span class="o">.</span><span class="n">read_register_block_snapshot</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="_TrackedDevice.read_dma">
+<a class="viewcode-back" href="../../autoapi/dau_driver/fleet/index.html#dau_driver.fleet._TrackedDevice.read_dma">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_dma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">device_address</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">byte_count</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_device</span><span class="o">.</span><span class="n">read_dma</span><span class="p">(</span><span class="n">device_address</span><span class="o">=</span><span class="n">device_address</span><span class="p">,</span> <span class="n">byte_count</span><span class="o">=</span><span class="n">byte_count</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="_TrackedDevice.write_dma">
 <a class="viewcode-back" href="../../autoapi/dau_driver/fleet/index.html#dau_driver.fleet._TrackedDevice.write_dma">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">write_dma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">device_address</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="nb">bytearray</span> <span class="o">|</span> <span class="nb">memoryview</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_dma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">device_address</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="nb">bytearray</span> <span class="o">|</span> <span class="nb">memoryview</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_device</span><span class="o">.</span><span class="n">write_dma</span><span class="p">(</span><span class="n">device_address</span><span class="o">=</span><span class="n">device_address</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tracker</span><span class="o">.</span><span class="n">staged</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">result</span></div>
@@ -1079,7 +1109,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_WorkerError">
 <a class="viewcode-back" href="../../autoapi/dau_driver/fleet/index.html#dau_driver.fleet._WorkerError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">_WorkerError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">cause</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="n">JobDevice</span><span class="p">,</span> <span class="n">cause</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">batch_index</span> <span class="o">=</span> <span class="n">batch_index</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cause</span> <span class="o">=</span> <span class="n">cause</span>
@@ -1090,7 +1120,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="run_scan_batches_fleet">
 <a class="viewcode-back" href="../../autoapi/dau_driver/fleet/index.html#dau_driver.fleet.run_scan_batches_fleet">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">run_scan_batches_fleet</span><span class="p">(</span>
-    <span class="n">devices</span><span class="p">,</span>
+    <span class="n">devices</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">JobDevice</span><span class="p">],</span>
     <span class="n">batches</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">ScanBatch</span><span class="p">],</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">per_key_state</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
@@ -1098,7 +1128,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">row_bytes</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">collect</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">],</span>
     <span class="n">timeout_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">60.0</span><span class="p">,</span>
-    <span class="n">progress</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">progress</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">weights</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">poll_yield_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">FleetScanResult</span><span class="p">]:</span>

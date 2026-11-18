@@ -466,9 +466,10 @@ something the platform already declares, and the two drift the first time a
 board differs — which is exactly how a host ended up assuming four lanes on
 a shell that advertises its own count, and how one board’s DDR layout ended
 up applied to another behind a <cite>memory_bytes &gt; 1 &lt;&lt; 32</cite> conditional.</p>
-<p>Wire and record shapes are NOT board geometry and stay: how many bytes a
-bar record occupies is a property of the format both sides compile against,
-not of the board it runs on. The two are easy to confuse, so this pins the
+<p>Wire, record and transport-protocol shapes are NOT board geometry and stay:
+how many bytes a bar record occupies is a property of the format both sides
+compile against, and a DriverKit method selector is a property of the
+extension, not of the board either runs on. The two are easy to confuse, so this pins the
 distinction explicitly rather than leaving it to a reviewer’s judgement.</p>
 <p>Asserted EXACTLY and in both directions: remove a constant without
 tightening this list and the test fails; add one without justifying it here
@@ -519,7 +520,7 @@ and the test fails. The list is expected to shrink.</p>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="test_no_board_geometry_constants._MODULES">
-<span class="sig-prename descclassname"><span class="pre">test_no_board_geometry_constants.</span></span><span class="sig-name descname"><span class="pre">_MODULES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('pipeline_execution',)</span></em><a class="headerlink" href="#test_no_board_geometry_constants._MODULES" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">test_no_board_geometry_constants.</span></span><span class="sig-name descname"><span class="pre">_MODULES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('device',</span> <span class="pre">'fleet',</span> <span class="pre">'handle_table',</span> <span class="pre">'linux_xdma',</span> <span class="pre">'macos_xdma',</span> <span class="pre">'pipeline_execution',...</span></em><a class="headerlink" href="#test_no_board_geometry_constants._MODULES" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">

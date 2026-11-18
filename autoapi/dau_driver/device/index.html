@@ -441,6 +441,39 @@
   <li class="fd-toc-item" data-depth="3">
     <a href="#dau_driver.device.DeviceTransport.write_dma">DeviceTransport.write_dma()</a>
   </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.device.DeviceTransport.close">DeviceTransport.close()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.device.DmaWriter">DmaWriter</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.device.DmaWriter.write_dma">DmaWriter.write_dma()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.device.AddressRegisters">AddressRegisters</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.device.AddressRegisters.memory_bytes">AddressRegisters.memory_bytes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.device.AddressRegisters.write_register">AddressRegisters.write_register()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.device.JobDevice">JobDevice</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.device.JobDevice.capabilities">JobDevice.capabilities</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.device.JobDevice.read_register">JobDevice.read_register()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.device.JobDevice.read_register_block_snapshot">JobDevice.read_register_block_snapshot()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.device.JobDevice.read_dma">JobDevice.read_dma()</a>
+  </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_driver.device.PathDeviceTransport">PathDeviceTransport</a>
   </li>
@@ -636,13 +669,22 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.device.DeviceTransport" title="dau_driver.device.DeviceTransport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DeviceTransport</span></code></a></p></td>
 <td><p>Base class for protocol classes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.device.PathDeviceTransport" title="dau_driver.device.PathDeviceTransport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PathDeviceTransport</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.device.DmaWriter" title="dau_driver.device.DmaWriter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DmaWriter</span></code></a></p></td>
+<td><p>A device as <code class="xref py py-meth docutils literal notranslate"><span class="pre">StorageAllocator.stage()</span></code> uses it.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.device.AddressRegisters" title="dau_driver.device.AddressRegisters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AddressRegisters</span></code></a></p></td>
+<td><p>A device as <a class="reference internal" href="#dau_driver.device.write_address" title="dau_driver.device.write_address"><code class="xref py py-func docutils literal notranslate"><span class="pre">write_address()</span></code></a> uses it: register writes and the</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.device.JobDevice" title="dau_driver.device.JobDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">JobDevice</span></code></a></p></td>
+<td><p>What the job runners and the handle table use of a device: its</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.device.PathDeviceTransport" title="dau_driver.device.PathDeviceTransport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PathDeviceTransport</span></code></a></p></td>
 <td><p>A device's devnodes, with the register node held open.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.device.DeviceIdentity" title="dau_driver.device.DeviceIdentity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DeviceIdentity</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.device.DeviceIdentity" title="dau_driver.device.DeviceIdentity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DeviceIdentity</span></code></a></p></td>
 <td><p>What a device is called for keying purposes, and how stable that is.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.device.DauDevice" title="dau_driver.device.DauDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DauDevice</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.device.DauDevice" title="dau_driver.device.DauDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DauDevice</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -735,6 +777,71 @@ Protocol classes can be generic, they are defined as:</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dau_driver.device.DeviceTransport.write_dma">
 <span class="sig-name descname"><span class="pre">write_dma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device_address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytearray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">memoryview</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/device.html#DeviceTransport.write_dma"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.device.DeviceTransport.write_dma" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_driver.device.DeviceTransport.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/device.html#DeviceTransport.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.device.DeviceTransport.close" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_driver.device.DmaWriter">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_driver.device.</span></span><span class="sig-name descname"><span class="pre">DmaWriter</span></span><a class="reference internal" href="../../../_modules/dau_driver/device.html#DmaWriter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.device.DmaWriter" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">Protocol</span></code></p>
+<p>A device as <code class="xref py py-meth docutils literal notranslate"><span class="pre">StorageAllocator.stage()</span></code> uses it.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_driver.device.DmaWriter.write_dma">
+<span class="sig-name descname"><span class="pre">write_dma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">device_address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytearray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">memoryview</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">object</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/device.html#DmaWriter.write_dma"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.device.DmaWriter.write_dma" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_driver.device.AddressRegisters">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_driver.device.</span></span><span class="sig-name descname"><span class="pre">AddressRegisters</span></span><a class="reference internal" href="../../../_modules/dau_driver/device.html#AddressRegisters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.device.AddressRegisters" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">Protocol</span></code></p>
+<p>A device as <a class="reference internal" href="#dau_driver.device.write_address" title="dau_driver.device.write_address"><code class="xref py py-func docutils literal notranslate"><span class="pre">write_address()</span></code></a> uses it: register writes and the
+memory bound an address is checked against.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="dau_driver.device.AddressRegisters.memory_bytes">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">memory_bytes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dau_driver.device.AddressRegisters.memory_bytes" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_driver.device.AddressRegisters.write_register">
+<span class="sig-name descname"><span class="pre">write_register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dau_core.registers.RegisterOffset</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/device.html#AddressRegisters.write_register"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.device.AddressRegisters.write_register" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dau_driver.device.JobDevice">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dau_driver.device.</span></span><span class="sig-name descname"><span class="pre">JobDevice</span></span><a class="reference internal" href="../../../_modules/dau_driver/device.html#JobDevice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.device.JobDevice" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dau_driver.device.AddressRegisters" title="dau_driver.device.AddressRegisters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AddressRegisters</span></code></a>, <a class="reference internal" href="#dau_driver.device.DmaWriter" title="dau_driver.device.DmaWriter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DmaWriter</span></code></a>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">Protocol</span></code></p>
+<p>What the job runners and the handle table use of a device: its
+declared capabilities and memory bound, register access and DMA.
+<code class="docutils literal notranslate"><span class="pre">DauDevice</span></code> implements it, and so does any test fake or alternative
+device that does not subclass it.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="dau_driver.device.JobDevice.capabilities">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">capabilities</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dau_core.capabilities.DeviceCapabilities</span></em><a class="headerlink" href="#dau_driver.device.JobDevice.capabilities" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_driver.device.JobDevice.read_register">
+<span class="sig-name descname"><span class="pre">read_register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dau_core.registers.RegisterOffset</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/device.html#JobDevice.read_register"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.device.JobDevice.read_register" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_driver.device.JobDevice.read_register_block_snapshot">
+<span class="sig-name descname"><span class="pre">read_register_block_snapshot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dau_core.registers.RegisterBlockSnapshot</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/device.html#JobDevice.read_register_block_snapshot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.device.JobDevice.read_register_block_snapshot" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dau_driver.device.JobDevice.read_dma">
+<span class="sig-name descname"><span class="pre">read_dma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">device_address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">byte_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/device.html#JobDevice.read_dma"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.device.JobDevice.read_dma" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1022,7 +1129,7 @@ somewhere unintended.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_driver.device.write_address">
-<span class="sig-prename descclassname"><span class="pre">dau_driver.device.</span></span><span class="sig-name descname"><span class="pre">write_address</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low_offset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high_offset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">memory_bytes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">object</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">_DEVICE_MEMORY</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/device.html#write_address"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.device.write_address" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">dau_driver.device.</span></span><span class="sig-name descname"><span class="pre">write_address</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dau_driver.device.AddressRegisters" title="dau_driver.device.AddressRegisters"><span class="pre">AddressRegisters</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">low_offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dau_core.registers.RegisterOffset</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high_offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dau_core.registers.RegisterOffset</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">memory_bytes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">object</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">_DEVICE_MEMORY</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/device.html#write_address"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.device.write_address" title="Link to this definition">¶</a></dt>
 <dd><p>Program an address across its LOW/HIGH register pair on any device.</p>
 <p>A FUNCTION, not a method, because devices here are duck-typed: test
 fakes and alternative transports implement <cite>write_register</cite> without
@@ -1039,10 +1146,8 @@ because 0x04 is the result length.</p>
 declared memory rather than to None, because a guard that is off
 unless every call site remembers to switch it on is not a guard: the
 execution paths that program job addresses all used the plain function
-and so ran unbounded. Reading it off the device is a duck-typed probe
-on purpose — devices here are not required to subclass <cite>DauDevice</cite>, and
-one that does not declare its memory simply goes unbounded, as before.
-Pass an explicit value to override, or <cite>None</cite> to disable the check.</p>
+and so ran unbounded. Pass an explicit value to override, or <cite>None</cite> to
+disable the check.</p>
 </dd></dl>
 
 </section>
@@ -1107,6 +1212,39 @@ Pass an explicit value to override, or <cite>None</cite> to disable the check.</
   </li>
   <li class="fd-toc-item" data-depth="3">
     <a href="#dau_driver.device.DeviceTransport.write_dma">DeviceTransport.write_dma()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.device.DeviceTransport.close">DeviceTransport.close()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.device.DmaWriter">DmaWriter</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.device.DmaWriter.write_dma">DmaWriter.write_dma()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.device.AddressRegisters">AddressRegisters</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.device.AddressRegisters.memory_bytes">AddressRegisters.memory_bytes</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.device.AddressRegisters.write_register">AddressRegisters.write_register()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.device.JobDevice">JobDevice</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.device.JobDevice.capabilities">JobDevice.capabilities</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.device.JobDevice.read_register">JobDevice.read_register()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.device.JobDevice.read_register_block_snapshot">JobDevice.read_register_block_snapshot()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="3">
+    <a href="#dau_driver.device.JobDevice.read_dma">JobDevice.read_dma()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_driver.device.PathDeviceTransport">PathDeviceTransport</a>

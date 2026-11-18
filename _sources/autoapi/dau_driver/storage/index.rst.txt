@@ -15,8 +15,8 @@ dau_driver.storage
 
    Freed storage is never readdressed: ``free`` bumps the handle's generation,
    and a stale handle raises instead of resolving to reused memory. Exhaustion
-   raises before anything is staged. ``stage``/``resolve`` take any object with
-   ``write_dma`` (the duck-typed device convention).
+   raises before anything is staged. ``stage`` takes any
+   :class:`~dau_driver.device.DmaWriter` (the duck-typed device convention).
 
 
 
@@ -159,7 +159,7 @@ Module Contents
 
 
 
-   .. py:method:: stage(device, handle: StorageHandle, data: bytes) -> None
+   .. py:method:: stage(device: dau_driver.device.DmaWriter, handle: StorageHandle, data: bytes) -> None
 
       Write ``data`` into the handle's allocation through the device.
 

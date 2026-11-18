@@ -9,8 +9,6 @@ Attributes
 
 .. autoapisummary::
 
-   dau_driver.stream_codec._ALIGNMENT_BYTES
-   dau_driver.stream_codec._SCALAR_RESULT_STRUCTS
    dau_driver.stream_codec._STRUCT_CODES
    dau_driver.stream_codec._ARROW_TYPE_FACTORIES
 
@@ -48,12 +46,6 @@ Functions
 
 Module Contents
 ---------------
-
-.. py:data:: _ALIGNMENT_BYTES
-   :value: 64
-
-
-.. py:data:: _SCALAR_RESULT_STRUCTS
 
 .. py:data:: _STRUCT_CODES
 

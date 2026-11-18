@@ -17,6 +17,7 @@ Functions
    test_record_batch_codec.test_arrow_batch_with_nulls_rejected
    test_record_batch_codec.test_arrow_batch_with_strings_rejected
    test_record_batch_codec.test_column_payload_length_mismatch_rejected
+   test_record_batch_codec.test_the_payload_layout_follows_the_limits_alignment
    test_record_batch_codec.test_limits_enforced_on_encode_and_decode
    test_record_batch_codec.test_truncated_batch_rejected
    test_record_batch_codec.test_prepared_taq_shaped_batch_round_trips
@@ -41,6 +42,12 @@ Module Contents
 .. py:function:: test_arrow_batch_with_strings_rejected() -> None
 
 .. py:function:: test_column_payload_length_mismatch_rejected() -> None
+
+.. py:function:: test_the_payload_layout_follows_the_limits_alignment() -> None
+
+   The encoder lays payloads out on the alignment it validates against;
+   a fixed 64-byte layout failed its own check under any other limit.
+
 
 .. py:function:: test_limits_enforced_on_encode_and_decode() -> None
 

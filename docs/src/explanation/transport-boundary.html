@@ -526,10 +526,11 @@ across a LOW write, so writing only LOW reuses whatever the previous job left th
 and addresses the wrong region. And when the handle knows the device’s
 memory size, an address past it raises rather than wrapping to the bottom of
 memory, which is what the hardware would otherwise do.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">memory_bytes</span></code> field defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>, because a guard is only as good as
-the fact behind it. Inventing a default size would either
-refuse valid addresses on a larger board or give false confidence on a smaller
-one.</p>
+<p>Discovery requires <code class="docutils literal notranslate"><span class="pre">memory_bytes</span></code> from its caller, because the registers do not
+report the board’s memory and the platform does. <code class="docutils literal notranslate"><span class="pre">None</span></code> is accepted and turns the
+guard off: a guard is only as good as the fact behind it, and inventing a
+default size would either reject valid addresses on a larger board or give false
+confidence on a smaller one.</p>
 </section>
 <section id="where-the-model-bends">
 <h2>Where the model bends<a class="headerlink" href="#where-the-model-bends" title="Link to this heading">¶</a></h2>
@@ -537,8 +538,9 @@ one.</p>
 <p><code class="docutils literal notranslate"><span class="pre">write_address</span></code> is a module-level function rather than a method on <code class="docutils literal notranslate"><span class="pre">DauDevice</span></code>,
 because devices in this codebase are duck-typed. Test fakes and alternative
 transports implement <code class="docutils literal notranslate"><span class="pre">write_register</span></code> without subclassing <code class="docutils literal notranslate"><span class="pre">DauDevice</span></code>, and making
-this a method broke every one of them. The runners take <code class="docutils literal notranslate"><span class="pre">device</span></code> untyped for the
-same reason.</p>
+this a method broke every one of them. The runners type <code class="docutils literal notranslate"><span class="pre">device</span></code> as the
+<code class="docutils literal notranslate"><span class="pre">JobDevice</span></code> protocol for the same reason: any object with the right members
+works.</p>
 <p><code class="docutils literal notranslate"><span class="pre">KeyedPipelineConfig</span></code> is a plain dataclass while the rest of the DAU stack uses
 frozen pydantic models. It mirrors the <code class="docutils literal notranslate"><span class="pre">PIPELINE_*</span></code> register encodings (it is
 wire packing, not configuration), and the rule the codebase follows is that

@@ -537,6 +537,9 @@
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_scan_execution.test_a_misaligned_resident_address_is_refused">test_a_misaligned_resident_address_is_refused()</a>
   </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_the_dma_grid_is_the_devices_alignment">test_the_dma_grid_is_the_devices_alignment()</a>
+  </li>
 </ul>
 </div>
   </div>
@@ -666,6 +669,9 @@ landed), and the error paths.</p>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#test_scan_execution.test_a_misaligned_resident_address_is_refused" title="test_scan_execution.test_a_misaligned_resident_address_is_refused"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_misaligned_resident_address_is_refused</span></code></a>(tmp_path) → None</p></td>
 <td><p>An unaligned DMA region is a silent-wrong-bytes failure on silicon,</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_scan_execution.test_the_dma_grid_is_the_devices_alignment" title="test_scan_execution.test_the_dma_grid_is_the_devices_alignment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_dma_grid_is_the_devices_alignment</span></code></a>(tmp_path) → None</p></td>
+<td><p>Padding and the resident-address check follow the alignment the</p></td>
 </tr>
 </tbody>
 </table>
@@ -882,6 +888,13 @@ wrong bytes and would be indistinguishable from a bad answer.</p>
 so it is refused where the mistake is still cheap.</p>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="test_scan_execution.test_the_dma_grid_is_the_devices_alignment">
+<span class="sig-prename descclassname"><span class="pre">test_scan_execution.</span></span><span class="sig-name descname"><span class="pre">test_the_dma_grid_is_the_devices_alignment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_scan_execution.test_the_dma_grid_is_the_devices_alignment" title="Link to this definition">¶</a></dt>
+<dd><p>Padding and the resident-address check follow the alignment the
+device advertises, not a 64-byte constant.</p>
+</dd></dl>
+
 </section>
 </section>
 
@@ -1040,6 +1053,9 @@ so it is refused where the mistake is still cheap.</p>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_scan_execution.test_a_misaligned_resident_address_is_refused">test_a_misaligned_resident_address_is_refused()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_scan_execution.test_the_dma_grid_is_the_devices_alignment">test_the_dma_grid_is_the_devices_alignment()</a>
   </li>
 </ul>
 

@@ -98,10 +98,11 @@ and addresses the wrong region. And when the handle knows the device's
 memory size, an address past it raises rather than wrapping to the bottom of
 memory, which is what the hardware would otherwise do.
 
-The `memory_bytes` field defaults to `None`, because a guard is only as good as
-the fact behind it. Inventing a default size would either
-refuse valid addresses on a larger board or give false confidence on a smaller
-one.
+Discovery requires `memory_bytes` from its caller, because the registers do not
+report the board's memory and the platform does. `None` is accepted and turns the
+guard off: a guard is only as good as the fact behind it, and inventing a
+default size would either reject valid addresses on a larger board or give false
+confidence on a smaller one.
 
 ## Where the model bends
 
@@ -110,8 +111,9 @@ Two places do not fit this picture.
 `write_address` is a module-level function rather than a method on `DauDevice`,
 because devices in this codebase are duck-typed. Test fakes and alternative
 transports implement `write_register` without subclassing `DauDevice`, and making
-this a method broke every one of them. The runners take `device` untyped for the
-same reason.
+this a method broke every one of them. The runners type `device` as the
+`JobDevice` protocol for the same reason: any object with the right members
+works.
 
 `KeyedPipelineConfig` is a plain dataclass while the rest of the DAU stack uses
 frozen pydantic models. It mirrors the `PIPELINE_*` register encodings (it is

@@ -226,7 +226,7 @@ Use `dau-driver` from the DAU checkout or installed environment:
 from dau_driver import discover_devices
 from dau_core.registers import RegisterOffset
 
-devices = discover_devices()
+devices = discover_devices(memory_bytes=None)  # register reads only; pass the board's memory size before running jobs
 dev = devices[0]
 magic = dev.read_register(RegisterOffset.MAGIC)
 snapshot = dev.read_register_block_snapshot()

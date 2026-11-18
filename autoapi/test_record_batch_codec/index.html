@@ -445,6 +445,9 @@
     <a href="#test_record_batch_codec.test_column_payload_length_mismatch_rejected">test_column_payload_length_mismatch_rejected()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
+    <a href="#test_record_batch_codec.test_the_payload_layout_follows_the_limits_alignment">test_the_payload_layout_follows_the_limits_alignment()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
     <a href="#test_record_batch_codec.test_limits_enforced_on_encode_and_decode">test_limits_enforced_on_encode_and_decode()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
@@ -502,16 +505,19 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#test_record_batch_codec.test_column_payload_length_mismatch_rejected" title="test_record_batch_codec.test_column_payload_length_mismatch_rejected"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_column_payload_length_mismatch_rejected</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_record_batch_codec.test_limits_enforced_on_encode_and_decode" title="test_record_batch_codec.test_limits_enforced_on_encode_and_decode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_limits_enforced_on_encode_and_decode</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_record_batch_codec.test_the_payload_layout_follows_the_limits_alignment" title="test_record_batch_codec.test_the_payload_layout_follows_the_limits_alignment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_payload_layout_follows_the_limits_alignment</span></code></a>() → None</p></td>
+<td><p>The encoder lays payloads out on the alignment it validates against;</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_record_batch_codec.test_limits_enforced_on_encode_and_decode" title="test_record_batch_codec.test_limits_enforced_on_encode_and_decode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_limits_enforced_on_encode_and_decode</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_record_batch_codec.test_truncated_batch_rejected" title="test_record_batch_codec.test_truncated_batch_rejected"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_truncated_batch_rejected</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_record_batch_codec.test_truncated_batch_rejected" title="test_record_batch_codec.test_truncated_batch_rejected"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_truncated_batch_rejected</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_record_batch_codec.test_prepared_taq_shaped_batch_round_trips" title="test_record_batch_codec.test_prepared_taq_shaped_batch_round_trips"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_prepared_taq_shaped_batch_round_trips</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_record_batch_codec.test_prepared_taq_shaped_batch_round_trips" title="test_record_batch_codec.test_prepared_taq_shaped_batch_round_trips"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_prepared_taq_shaped_batch_round_trips</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_record_batch_codec.test_arrow_encode_handles_sliced_arrays" title="test_record_batch_codec.test_arrow_encode_handles_sliced_arrays"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_arrow_encode_handles_sliced_arrays</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_record_batch_codec.test_arrow_encode_handles_sliced_arrays" title="test_record_batch_codec.test_arrow_encode_handles_sliced_arrays"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_arrow_encode_handles_sliced_arrays</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -558,6 +564,13 @@
 <dt class="sig sig-object py" id="test_record_batch_codec.test_column_payload_length_mismatch_rejected">
 <span class="sig-prename descclassname"><span class="pre">test_record_batch_codec.</span></span><span class="sig-name descname"><span class="pre">test_column_payload_length_mismatch_rejected</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_record_batch_codec.test_column_payload_length_mismatch_rejected" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_record_batch_codec.test_the_payload_layout_follows_the_limits_alignment">
+<span class="sig-prename descclassname"><span class="pre">test_record_batch_codec.</span></span><span class="sig-name descname"><span class="pre">test_the_payload_layout_follows_the_limits_alignment</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_record_batch_codec.test_the_payload_layout_follows_the_limits_alignment" title="Link to this definition">¶</a></dt>
+<dd><p>The encoder lays payloads out on the alignment it validates against;
+a fixed 64-byte layout failed its own check under any other limit.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="test_record_batch_codec.test_limits_enforced_on_encode_and_decode">
@@ -644,6 +657,9 @@
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_record_batch_codec.test_column_payload_length_mismatch_rejected">test_column_payload_length_mismatch_rejected()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_record_batch_codec.test_the_payload_layout_follows_the_limits_alignment">test_the_payload_layout_follows_the_limits_alignment()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_record_batch_codec.test_limits_enforced_on_encode_and_decode">test_limits_enforced_on_encode_and_decode()</a>

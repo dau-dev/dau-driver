@@ -92,6 +92,9 @@ Module Contents
    .. py:method:: write_dma(device_address: int, data: bytes | bytearray | memoryview) -> int
 
 
+   .. py:method:: close() -> None
+
+
 .. py:function:: default_int32_capabilities(operators: tuple[dau_core.capabilities.OperatorCapability, ...] | None = None, *, max_transfer_bytes: int = 4096) -> dau_core.capabilities.DeviceCapabilities
 
    The standard fake INT32 aggregation device capability set.

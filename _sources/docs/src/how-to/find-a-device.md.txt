@@ -13,7 +13,7 @@ Anything else is skipped, or raises a named error when you asked for it by path.
 ```python
 from dau_driver import discover_devices
 
-devices = discover_devices()
+devices = discover_devices(memory_bytes=platform.memory.size_bytes)
 for device in devices:
     print(device.name, device.backend, device.capabilities.platform_id)
 ```
@@ -22,10 +22,16 @@ On Linux this scans `/dev` for `xdma*_user` character devices, pairing each with
 its `xdma*_h2c_0` and `xdma*_c2h_0` channels. On macOS, when the Linux scan finds
 nothing, it falls back to the DriverKit transport over IOKit.
 
+`memory_bytes` is required. The registers do not report how much memory the
+board has, but the platform does, and every address the device is given is
+checked against it (see the move-data guide). Pass `None` only when the size is
+not known, for example in a tool that reads registers and never runs a job;
+that turns the check off.
+
 Point it somewhere else if your devnodes are not under `/dev`:
 
 ```python
-devices = discover_devices("/some/other/dev")
+devices = discover_devices("/some/other/dev", memory_bytes=platform.memory.size_bytes)
 ```
 
 An endpoint whose BAR reads all ones, or whose magic word is not DAU's, is
@@ -39,7 +45,7 @@ When you know which node you want, skip the scan:
 ```python
 from dau_driver import identify_device
 
-device = identify_device("/dev/xdma0_user")
+device = identify_device("/dev/xdma0_user", memory_bytes=platform.memory.size_bytes)
 ```
 
 This one raises: you named this device, so a bad answer is an error rather than

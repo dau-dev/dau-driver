@@ -912,8 +912,8 @@ only place this can be caught.</p>
 <dd><p>Devices here are DUCK-TYPED: test fakes and alternative transports
 implement <cite>write_register</cite> without subclassing DauDevice. Making the
 paired address write a method silently broke every one of them — the
-dau-polars emulated devices among them — so the callable path must need
-nothing but <cite>write_register</cite>.</p>
+dau-polars emulated devices among them — so the callable path needs
+only <cite>write_register</cite> and the declared <cite>memory_bytes</cite>.</p>
 </dd></dl>
 
 <dl class="py function">

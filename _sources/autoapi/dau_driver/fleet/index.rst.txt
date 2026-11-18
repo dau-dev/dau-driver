@@ -59,14 +59,14 @@ Module Contents
 
 
    .. py:attribute:: device
-      :type:  Any
+      :type:  dau_driver.device.JobDevice
 
 
    .. py:attribute:: value
       :type:  Any
 
 
-.. py:exception:: FleetScanError(batch_index: int | None, device: Any, cause: Exception)
+.. py:exception:: FleetScanError(batch_index: int | None, device: dau_driver.device.JobDevice, cause: Exception)
 
    Bases: :py:obj:`RuntimeError`
 
@@ -130,7 +130,7 @@ Module Contents
    .. py:method:: failure_index() -> int | None
 
 
-.. py:class:: _TrackedDevice(device: Any, tracker: _DeviceTracker)
+.. py:class:: _TrackedDevice(device: dau_driver.device.JobDevice, tracker: _DeviceTracker)
 
    .. py:attribute:: _device
 
@@ -138,10 +138,29 @@ Module Contents
    .. py:attribute:: _tracker
 
 
-   .. py:method:: __getattr__(name: str) -> Any
+   .. py:property:: capabilities
+      :type: dau_core.capabilities.DeviceCapabilities
 
 
-   .. py:method:: write_dma(*, device_address: int, data: bytes | bytearray | memoryview)
+
+   .. py:property:: memory_bytes
+      :type: int | None
+
+
+
+   .. py:method:: read_register(offset: dau_core.registers.RegisterOffset | int) -> int
+
+
+   .. py:method:: write_register(offset: dau_core.registers.RegisterOffset | int, value: int) -> None
+
+
+   .. py:method:: read_register_block_snapshot() -> dau_core.registers.RegisterBlockSnapshot
+
+
+   .. py:method:: read_dma(*, device_address: int, byte_count: int) -> bytes
+
+
+   .. py:method:: write_dma(*, device_address: int, data: bytes | bytearray | memoryview) -> object
 
 
 .. py:exception:: _BatchIterationError(batch_index: int, cause: Exception)
@@ -234,7 +253,7 @@ Module Contents
    .. py:method:: report() -> None
 
 
-.. py:exception:: _WorkerError(batch_index: int | None, device: Any, cause: Exception)
+.. py:exception:: _WorkerError(batch_index: int | None, device: dau_driver.device.JobDevice, cause: Exception)
 
    Bases: :py:obj:`Exception`
 
@@ -253,7 +272,7 @@ Module Contents
    .. py:attribute:: cause
 
 
-.. py:function:: run_scan_batches_fleet(devices, batches: collections.abc.Iterable[dau_driver.scan_execution.ScanBatch], *, per_key_state: bool, input_regions: tuple[int, int], row_bytes: int, collect: collections.abc.Callable[[Any], Any], timeout_seconds: float = 60.0, progress=None, weights: collections.abc.Sequence[float] | None = None, poll_yield_seconds: float | None = None) -> list[FleetScanResult]
+.. py:function:: run_scan_batches_fleet(devices: collections.abc.Iterable[dau_driver.device.JobDevice], batches: collections.abc.Iterable[dau_driver.scan_execution.ScanBatch], *, per_key_state: bool, input_regions: tuple[int, int], row_bytes: int, collect: collections.abc.Callable[[Any], Any], timeout_seconds: float = 60.0, progress: collections.abc.Callable[[int], Any] | None = None, weights: collections.abc.Sequence[float] | None = None, poll_yield_seconds: float | None = None) -> list[FleetScanResult]
 
    Run one independent scan pipeline per device over a shared lazy input.
 

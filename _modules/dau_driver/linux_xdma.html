@@ -846,7 +846,11 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="discover_devices">
 <a class="viewcode-back" href="../../autoapi/dau_driver/linux_xdma/index.html#dau_driver.linux_xdma.discover_devices">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">discover_devices</span><span class="p">(</span><span class="n">root</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">DEFAULT_DEV_ROOT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">DauDevice</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">discover_devices</span><span class="p">(</span><span class="n">root</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">DEFAULT_DEV_ROOT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">memory_bytes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">DauDevice</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Every DAU device under ``root``. ``memory_bytes`` is the boards'</span>
+<span class="sd">    addressable memory, which the platform states and the registers do not;</span>
+<span class="sd">    it bounds every address the devices are given. Pass None only when it is</span>
+<span class="sd">    not known, which turns that guard off."""</span>
     <span class="n">root_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
     <span class="n">devices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">DauDevice</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">user_path</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">root_path</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">"xdma*_user"</span><span class="p">)):</span>
@@ -854,7 +858,7 @@ window.runMermaid = runMermaid;</script>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">h2c_path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">c2h_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
             <span class="k">continue</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">devices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">identify_device</span><span class="p">(</span><span class="n">user_path</span><span class="p">,</span> <span class="n">h2c_path</span><span class="o">=</span><span class="n">h2c_path</span><span class="p">,</span> <span class="n">c2h_path</span><span class="o">=</span><span class="n">c2h_path</span><span class="p">))</span>
+            <span class="n">devices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">identify_device</span><span class="p">(</span><span class="n">user_path</span><span class="p">,</span> <span class="n">memory_bytes</span><span class="o">=</span><span class="n">memory_bytes</span><span class="p">,</span> <span class="n">h2c_path</span><span class="o">=</span><span class="n">h2c_path</span><span class="p">,</span> <span class="n">c2h_path</span><span class="o">=</span><span class="n">c2h_path</span><span class="p">))</span>
         <span class="k">except</span> <span class="p">(</span><span class="n">UnhealthyBarError</span><span class="p">,</span> <span class="n">WrongBitstreamError</span><span class="p">):</span>
             <span class="k">continue</span>
     <span class="k">return</span> <span class="n">devices</span></div>
@@ -863,7 +867,9 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="identify_device">
 <a class="viewcode-back" href="../../autoapi/dau_driver/linux_xdma/index.html#dau_driver.linux_xdma.identify_device">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">identify_device</span><span class="p">(</span><span class="n">user_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">h2c_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">c2h_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DauDevice</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">identify_device</span><span class="p">(</span>
+    <span class="n">user_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">memory_bytes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">h2c_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">c2h_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DauDevice</span><span class="p">:</span>
     <span class="n">user</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">user_path</span><span class="p">)</span>
     <span class="n">resolved_h2c</span><span class="p">,</span> <span class="n">resolved_c2h</span> <span class="o">=</span> <span class="n">_channel_paths</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">h2c_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -900,6 +906,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">c2h_path</span><span class="o">=</span><span class="n">resolved_c2h</span><span class="p">,</span>
         <span class="n">capabilities</span><span class="o">=</span><span class="n">capabilities</span><span class="p">,</span>
         <span class="n">register_window_offset</span><span class="o">=</span><span class="n">register_window_offset</span><span class="p">,</span>
+        <span class="n">memory_bytes</span><span class="o">=</span><span class="n">memory_bytes</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 

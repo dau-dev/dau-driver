@@ -15,9 +15,10 @@ test_no_board_geometry_constants
    a shell that advertises its own count, and how one board's DDR layout ended
    up applied to another behind a `memory_bytes > 1 << 32` conditional.
 
-   Wire and record shapes are NOT board geometry and stay: how many bytes a
-   bar record occupies is a property of the format both sides compile against,
-   not of the board it runs on. The two are easy to confuse, so this pins the
+   Wire, record and transport-protocol shapes are NOT board geometry and stay:
+   how many bytes a bar record occupies is a property of the format both sides
+   compile against, and a DriverKit method selector is a property of the
+   extension, not of the board either runs on. The two are easy to confuse, so this pins the
    distinction explicitly rather than leaving it to a reviewer's judgement.
 
    Asserted EXACTLY and in both directions: remove a constant without
@@ -55,7 +56,7 @@ Module Contents
    :type:  dict[str, str]
 
 .. py:data:: _MODULES
-   :value: ('pipeline_execution',)
+   :value: ('device', 'fleet', 'handle_table', 'linux_xdma', 'macos_xdma', 'pipeline_execution',...
 
 
 .. py:function:: _module_constants(module_name: str) -> set[str]

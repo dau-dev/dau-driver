@@ -853,8 +853,8 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">dau_core.registers</span><span class="w"> </span><span class="kn">import</span> <span class="n">JobControlFlag</span><span class="p">,</span> <span class="n">RegisterOffset</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">.device</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_address</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.pipeline_execution</span><span class="w"> </span><span class="kn">import</span> <span class="n">DMA_ALIGN_BYTES</span><span class="p">,</span> <span class="n">_wait_for_job_done</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.device</span><span class="w"> </span><span class="kn">import</span> <span class="n">JobDevice</span><span class="p">,</span> <span class="n">write_address</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.pipeline_execution</span><span class="w"> </span><span class="kn">import</span> <span class="n">_dma_padded</span><span class="p">,</span> <span class="n">_wait_for_job_done</span>
 
 
 <div class="viewcode-block" id="ScanBatch">
@@ -864,7 +864,7 @@ window.runMermaid = runMermaid;</script>
 <span class="w">    </span><span class="sd">"""One staged scan batch: the packed row payload and its row count.</span>
 
 <span class="sd">    The payload is ``row_count * row_bytes`` bytes; the runner pads the DMA</span>
-<span class="sd">    to the 64-byte grid while ``INPUT_LENGTH`` stays exact."""</span>
+<span class="sd">    to the device's alignment while ``INPUT_LENGTH`` stays exact."""</span>
 
     <span class="n">payload</span><span class="p">:</span> <span class="nb">bytes</span>
     <span class="n">row_count</span><span class="p">:</span> <span class="nb">int</span></div>
@@ -1032,7 +1032,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="run_scan_batches">
 <a class="viewcode-back" href="../../autoapi/dau_driver/scan_execution/index.html#dau_driver.scan_execution.run_scan_batches">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">run_scan_batches</span><span class="p">(</span>
-    <span class="n">device</span><span class="p">,</span>
+    <span class="n">device</span><span class="p">:</span> <span class="n">JobDevice</span><span class="p">,</span>
     <span class="n">batches</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">ScanBatch</span><span class="p">],</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">per_key_state</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
@@ -1040,7 +1040,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">row_bytes</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">collect</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">],</span>
     <span class="n">timeout_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">60.0</span><span class="p">,</span>
-    <span class="n">progress</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">progress</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">int</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">poll_yield_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Run scan jobs over ``batches`` with ping-pong input staging: batch</span>
@@ -1070,11 +1070,8 @@ window.runMermaid = runMermaid;</script>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"batch </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">: zero rows; a scan job needs a non-empty batch"</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">payload</span><span class="p">)</span> <span class="o">!=</span> <span class="n">batch</span><span class="o">.</span><span class="n">row_count</span> <span class="o">*</span> <span class="n">row_bytes</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"batch </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">: payload of </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">payload</span><span class="p">)</span><span class="si">}</span><span class="s2"> bytes is not row_count </span><span class="si">{</span><span class="n">batch</span><span class="o">.</span><span class="n">row_count</span><span class="si">}</span><span class="s2"> * row_bytes </span><span class="si">{</span><span class="n">row_bytes</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-        <span class="n">payload</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">payload</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span> <span class="o">%</span> <span class="n">DMA_ALIGN_BYTES</span><span class="p">:</span>
-            <span class="n">payload</span> <span class="o">=</span> <span class="n">payload</span> <span class="o">+</span> <span class="sa">b</span><span class="s2">"</span><span class="se">\x00</span><span class="s2">"</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span> <span class="o">%</span> <span class="n">DMA_ALIGN_BYTES</span><span class="p">)</span>
         <span class="n">address</span> <span class="o">=</span> <span class="n">regions</span><span class="p">[</span><span class="n">index</span> <span class="o">%</span> <span class="mi">2</span><span class="p">]</span>
-        <span class="n">device</span><span class="o">.</span><span class="n">write_dma</span><span class="p">(</span><span class="n">device_address</span><span class="o">=</span><span class="n">address</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span>
+        <span class="n">device</span><span class="o">.</span><span class="n">write_dma</span><span class="p">(</span><span class="n">device_address</span><span class="o">=</span><span class="n">address</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">_dma_padded</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">batch</span><span class="o">.</span><span class="n">payload</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">address</span><span class="p">,</span> <span class="n">batch</span><span class="o">.</span><span class="n">row_count</span>
 
     <span class="n">results</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1111,7 +1108,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="run_resident_scan">
 <a class="viewcode-back" href="../../autoapi/dau_driver/scan_execution/index.html#dau_driver.scan_execution.run_resident_scan">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">run_resident_scan</span><span class="p">(</span>
-    <span class="n">device</span><span class="p">,</span>
+    <span class="n">device</span><span class="p">:</span> <span class="n">JobDevice</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">address</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">row_count</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -1147,9 +1144,10 @@ window.runMermaid = runMermaid;</script>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"row_bytes must be positive, got </span><span class="si">{</span><span class="n">row_bytes</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">repeats</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"repeats must be positive, got </span><span class="si">{</span><span class="n">repeats</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">address</span> <span class="o">%</span> <span class="n">DMA_ALIGN_BYTES</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"resident address </span><span class="si">{</span><span class="n">address</span><span class="si">:</span><span class="s2">#x</span><span class="si">}</span><span class="s2"> is not </span><span class="si">{</span><span class="n">DMA_ALIGN_BYTES</span><span class="si">}</span><span class="s2">-byte aligned"</span><span class="p">)</span>
-    <span class="n">memory_bytes</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="s2">"memory_bytes"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">alignment</span> <span class="o">=</span> <span class="n">device</span><span class="o">.</span><span class="n">capabilities</span><span class="o">.</span><span class="n">dma</span><span class="o">.</span><span class="n">alignment_bytes</span>
+    <span class="k">if</span> <span class="n">address</span> <span class="o">%</span> <span class="n">alignment</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"resident address </span><span class="si">{</span><span class="n">address</span><span class="si">:</span><span class="s2">#x</span><span class="si">}</span><span class="s2"> is not </span><span class="si">{</span><span class="n">alignment</span><span class="si">}</span><span class="s2">-byte aligned"</span><span class="p">)</span>
+    <span class="n">memory_bytes</span> <span class="o">=</span> <span class="n">device</span><span class="o">.</span><span class="n">memory_bytes</span>
     <span class="k">if</span> <span class="n">memory_bytes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">address</span> <span class="o">+</span> <span class="n">row_count</span> <span class="o">*</span> <span class="n">row_bytes</span> <span class="o">&gt;</span> <span class="n">memory_bytes</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">row_count</span><span class="si">}</span><span class="s2"> rows of </span><span class="si">{</span><span class="n">row_bytes</span><span class="si">}</span><span class="s2"> bytes at </span><span class="si">{</span><span class="n">address</span><span class="si">:</span><span class="s2">#x</span><span class="si">}</span><span class="s2"> end past the device's </span><span class="si">{</span><span class="n">memory_bytes</span><span class="si">}</span><span class="s2"> byte memory"</span><span class="p">)</span>
 

@@ -14,14 +14,6 @@ dau_driver.pipeline_execution
 
 
 
-Attributes
-----------
-
-.. autoapisummary::
-
-   dau_driver.pipeline_execution.DMA_ALIGN_BYTES
-
-
 Exceptions
 ----------
 
@@ -36,6 +28,7 @@ Classes
 .. autoapisummary::
 
    dau_driver.pipeline_execution.KeyedPipelineConfig
+   dau_driver.pipeline_execution.DdrStaging
 
 
 Functions
@@ -43,6 +36,7 @@ Functions
 
 .. autoapisummary::
 
+   dau_driver.pipeline_execution._dma_padded
    dau_driver.pipeline_execution.pack_keyed_rows
    dau_driver.pipeline_execution.decode_group_records
    dau_driver.pipeline_execution.configure_pipeline
@@ -68,10 +62,6 @@ Functions
 
 Module Contents
 ---------------
-
-.. py:data:: DMA_ALIGN_BYTES
-   :value: 64
-
 
 .. py:exception:: PipelineJobError(message: str, *, last_error: int | None = None)
 
@@ -133,17 +123,22 @@ Module Contents
    .. py:method:: map_constant_word() -> int
 
 
+.. py:function:: _dma_padded(device: dau_driver.device.JobDevice, payload: bytes) -> bytes
+
+   ``payload`` zero-padded to the device's DMA alignment.
+
+
 .. py:function:: pack_keyed_rows(rows: list[tuple[int, int]]) -> bytes
 
-   {value, key} pair rows on the 64-byte DMA grid; the logical length
-   stays ``len(rows) * 8``.
+   {value, key} pair rows, ``len(rows) * 8`` bytes; the job pads them
+   to the device's DMA alignment.
 
 
 .. py:function:: decode_group_records(data: bytes, count: int) -> list[dau_core.operators.GroupAggregate]
 
-.. py:function:: configure_pipeline(device, config: KeyedPipelineConfig) -> None
+.. py:function:: configure_pipeline(device: dau_driver.device.JobDevice, config: KeyedPipelineConfig) -> None
 
-.. py:function:: _wait_for_job_done(device, *, timeout_seconds: float, label: str, poll=None) -> None
+.. py:function:: _wait_for_job_done(device: dau_driver.device.JobDevice, *, timeout_seconds: float, label: str, poll: collections.abc.Callable[[], None] | None = None) -> None
 
    Poll JOB_STATUS until DONE, raising on timeout or a hardware error
    flag. Shared by every register-polled job runner so the wait/error
@@ -152,9 +147,9 @@ Module Contents
    its failure instead of hiding behind this wait's timeout.
 
 
-.. py:function:: _read_aligned_records(device, *, address: int, result_length: int, record_bytes: int, count: int, count_label: str, prefix: str = '', validate_record_count: bool = True) -> bytes
+.. py:function:: _read_aligned_records(device: dau_driver.device.JobDevice, *, address: int, result_length: int, record_bytes: int, count: int, count_label: str, prefix: str = '', validate_record_count: bool = True) -> bytes
 
-   Read the 64-byte-aligned record block that RESULT_LENGTH describes.
+   Read the DMA-aligned record block that RESULT_LENGTH describes.
    Returns ``b""`` (and issues no C2H read) when the lane produced no
    output.
 
@@ -167,7 +162,7 @@ Module Contents
    whenever the invariant holds.
 
 
-.. py:function:: execute_keyed_pipeline_job(device, rows: list[tuple[int, int]], *, timeout_seconds: float = 5.0, contract: dau_core.registers.StreamJobRegisterContract | None = None, max_rows: int | None = None) -> tuple[list[dau_core.operators.GroupAggregate], int]
+.. py:function:: execute_keyed_pipeline_job(device: dau_driver.device.JobDevice, rows: list[tuple[int, int]], *, timeout_seconds: float = 5.0, contract: dau_core.registers.StreamJobRegisterContract | None = None, max_rows: int | None = None) -> tuple[list[dau_core.operators.GroupAggregate], int]
 
    Run one batch of (key, value) rows; the pipeline must already be
    configured (``configure_pipeline``). Returns (group records, selected
@@ -180,13 +175,14 @@ Module Contents
 
 .. py:function:: pack_bar_rows(rows: list[tuple[int, int, int, int]]) -> bytes
 
-   (key, price, shares, frac) rows for the fused bar tile, on the DMA
-   grid; the logical length stays ``len(rows) * 16``.
+   (key, price, shares, frac) rows for the fused bar tile,
+   ``len(rows) * 16`` bytes; the job pads them to the device's DMA
+   alignment.
 
 
 .. py:function:: decode_bar_records(data: bytes, count: int)
 
-.. py:function:: execute_bar_job(device, rows: list[tuple[int, int, int, int]], *, timeout_seconds: float = 5.0, contract: dau_core.registers.StreamJobRegisterContract | None = None, max_rows: int | None = None)
+.. py:function:: execute_bar_job(device: dau_driver.device.JobDevice, rows: list[tuple[int, int, int, int]], *, timeout_seconds: float = 5.0, contract: dau_core.registers.StreamJobRegisterContract | None = None, max_rows: int | None = None)
 
    Run one batch of (key, price, shares, frac) rows through the fused
    bar shell. Returns the decoded bar records.
@@ -195,7 +191,41 @@ Module Contents
    staging depth is its own, not the grouped shell's.
 
 
-.. py:function:: bar_ddr_max_rows_per_job(staging) -> int
+.. py:class:: DdrStaging
+
+   Bases: :py:obj:`Protocol`
+
+
+   The board's DDR staging layout, as these functions read it (the
+   platform's ``dau_build.platforms.DdrStaging``).
+
+
+   .. py:property:: input_addresses
+      :type: tuple[int, ...]
+
+
+
+   .. py:property:: input_bytes
+      :type: int
+
+
+
+   .. py:property:: output_address
+      :type: int
+
+
+
+   .. py:property:: output_bytes
+      :type: int
+
+
+
+   .. py:property:: address_align
+      :type: int
+
+
+
+.. py:function:: bar_ddr_max_rows_per_job(staging: DdrStaging) -> int
 
    Rows per job, bounded by the worst case of one record per row so an
    overrun is impossible by construction. An actual overflow would fault
@@ -203,41 +233,41 @@ Module Contents
    was exceeded.
 
 
-.. py:function:: stage_bar_ddr_input(device, payload: bytes, row_count: int, *, staging, input_address: int | None = None) -> None
+.. py:function:: stage_bar_ddr_input(device: dau_driver.device.JobDevice, payload: bytes, row_count: int, *, staging: DdrStaging, input_address: int | None = None) -> None
 
    DMA one pre-packed batch of bar rows into a DDR input region.
 
 
-.. py:function:: start_bar_ddr_job(device, row_count: int, *, staging, input_address: int | None = None, output_address: int | None = None) -> None
+.. py:function:: start_bar_ddr_job(device: dau_driver.device.JobDevice, row_count: int, *, staging: DdrStaging, input_address: int | None = None, output_address: int | None = None) -> None
 
    Kick a job over rows already staged in DDR.
 
 
-.. py:function:: finish_bar_ddr_job(device, *, staging, output_address: int | None = None, timeout_seconds: float = 60.0) -> tuple[bytes, int]
+.. py:function:: finish_bar_ddr_job(device: dau_driver.device.JobDevice, *, staging: DdrStaging, output_address: int | None = None, timeout_seconds: float = 60.0) -> tuple[bytes, int]
 
    Wait for the running job and read its records back. Returns the raw
    record bytes and the bar count — decoding stays with the caller so
    hosts can use vectorized decoders.
 
 
-.. py:function:: execute_bar_ddr_packed(device, payload: bytes, row_count: int, *, staging, timeout_seconds: float = 60.0) -> tuple[bytes, int]
+.. py:function:: execute_bar_ddr_packed(device: dau_driver.device.JobDevice, payload: bytes, row_count: int, *, staging: DdrStaging, timeout_seconds: float = 60.0) -> tuple[bytes, int]
 
    Run one pre-packed batch of bar rows through the DDR-staged fused
    bar shell (dau_mm_bar_ddr_job): stage, start, finish.
 
 
-.. py:function:: bar_noc_lane_output_bytes(staging, lanes: int) -> int
+.. py:function:: bar_noc_lane_output_bytes(staging: DdrStaging, lanes: int) -> int
 
    Each lane gets an equal slice of the board's result region.
 
 
-.. py:function:: bar_noc_max_rows_per_job(staging, lanes: int) -> int
+.. py:function:: bar_noc_max_rows_per_job(staging: DdrStaging, lanes: int) -> int
 
    Bounded by the worst case of every record landing in ONE lane, so no
    partition can overrun its slice however skewed the keys are.
 
 
-.. py:function:: device_lane_count(device) -> int
+.. py:function:: device_lane_count(device: dau_driver.device.JobDevice) -> int
 
    The number of NoC lanes the RESIDENT shell advertises.
 
@@ -252,7 +282,7 @@ Module Contents
    a caller running such a shell knows its geometry and must say so.
 
 
-.. py:function:: device_job_capacity(device) -> tuple[int, int]
+.. py:function:: device_job_capacity(device: dau_driver.device.JobDevice) -> tuple[int, int]
 
    (input rows, output records) ONE job may stage on the RESIDENT shell.
 
@@ -274,9 +304,9 @@ Module Contents
    cached capacity would then describe the previous shell.
 
 
-.. py:function:: bar_noc_lane_output_address(staging, lane: int, lanes: int) -> int
+.. py:function:: bar_noc_lane_output_address(staging: DdrStaging, lane: int, lanes: int) -> int
 
-.. py:function:: configure_bar_noc_lanes(device, *, staging, lanes: int | None = None) -> None
+.. py:function:: configure_bar_noc_lanes(device: dau_driver.device.JobDevice, *, staging: DdrStaging, lanes: int | None = None) -> None
 
    Point every lane's writer at its slice of the output region.
 
@@ -284,7 +314,7 @@ Module Contents
    shell knows its own geometry and the host should ask.
 
 
-.. py:function:: execute_bar_noc_packed(device, payload: bytes, row_count: int, *, staging, lanes: int | None = None, record_bytes: int = BAR_RECORD_BYTES, validate_record_count: bool = True, timeout_seconds: float = 60.0) -> list[tuple[bytes, int]]
+.. py:function:: execute_bar_noc_packed(device: dau_driver.device.JobDevice, payload: bytes, row_count: int, *, staging: DdrStaging, lanes: int | None = None, record_bytes: int = BAR_RECORD_BYTES, validate_record_count: bool = True, timeout_seconds: float = 60.0) -> list[tuple[bytes, int]]
 
    Run one pre-packed batch through a broadcast-NoC shell: one scan
    computes every lane's partition concurrently. The lanes must already

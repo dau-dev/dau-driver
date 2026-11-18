@@ -457,7 +457,7 @@ Anything else is skipped, or raises a named error when you asked for it by path.
 <h2>Discover every device on the host<a class="headerlink" href="#discover-every-device-on-the-host" title="Link to this heading">¶</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dau_driver</span><span class="w"> </span><span class="kn">import</span> <span class="n">discover_devices</span>
 
-<span class="n">devices</span> <span class="o">=</span> <span class="n">discover_devices</span><span class="p">()</span>
+<span class="n">devices</span> <span class="o">=</span> <span class="n">discover_devices</span><span class="p">(</span><span class="n">memory_bytes</span><span class="o">=</span><span class="n">platform</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">size_bytes</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">device</span> <span class="ow">in</span> <span class="n">devices</span><span class="p">:</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">device</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">device</span><span class="o">.</span><span class="n">backend</span><span class="p">,</span> <span class="n">device</span><span class="o">.</span><span class="n">capabilities</span><span class="o">.</span><span class="n">platform_id</span><span class="p">)</span>
 </pre></div>
@@ -465,8 +465,13 @@ Anything else is skipped, or raises a named error when you asked for it by path.
 <p>On Linux this scans <code class="docutils literal notranslate"><span class="pre">/dev</span></code> for <code class="docutils literal notranslate"><span class="pre">xdma*_user</span></code> character devices, pairing each with
 its <code class="docutils literal notranslate"><span class="pre">xdma*_h2c_0</span></code> and <code class="docutils literal notranslate"><span class="pre">xdma*_c2h_0</span></code> channels. On macOS, when the Linux scan finds
 nothing, it falls back to the DriverKit transport over IOKit.</p>
+<p><code class="docutils literal notranslate"><span class="pre">memory_bytes</span></code> is required. The registers do not report how much memory the
+board has, but the platform does, and every address the device is given is
+checked against it (see the move-data guide). Pass <code class="docutils literal notranslate"><span class="pre">None</span></code> only when the size is
+not known, for example in a tool that reads registers and never runs a job;
+that turns the check off.</p>
 <p>Point it somewhere else if your devnodes are not under <code class="docutils literal notranslate"><span class="pre">/dev</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">devices</span> <span class="o">=</span> <span class="n">discover_devices</span><span class="p">(</span><span class="s2">"/some/other/dev"</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">devices</span> <span class="o">=</span> <span class="n">discover_devices</span><span class="p">(</span><span class="s2">"/some/other/dev"</span><span class="p">,</span> <span class="n">memory_bytes</span><span class="o">=</span><span class="n">platform</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">size_bytes</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>An endpoint whose BAR reads all ones, or whose magic word is not DAU’s, is
@@ -478,7 +483,7 @@ the box is running someone else’s bitstream.</p>
 <p>When you know which node you want, skip the scan:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dau_driver</span><span class="w"> </span><span class="kn">import</span> <span class="n">identify_device</span>
 
-<span class="n">device</span> <span class="o">=</span> <span class="n">identify_device</span><span class="p">(</span><span class="s2">"/dev/xdma0_user"</span><span class="p">)</span>
+<span class="n">device</span> <span class="o">=</span> <span class="n">identify_device</span><span class="p">(</span><span class="s2">"/dev/xdma0_user"</span><span class="p">,</span> <span class="n">memory_bytes</span><span class="o">=</span><span class="n">platform</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">size_bytes</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>This one raises: you named this device, so a bad answer is an error rather than

@@ -534,8 +534,8 @@ and the request:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>StorageExhaustedError: tier 'ddr' cannot hold 1073741824 bytes
 </pre></div>
 </div>
-<p>One thing to watch: <code class="docutils literal notranslate"><span class="pre">stage</span></code> and <code class="docutils literal notranslate"><span class="pre">resolve</span></code> take any object with a
-<code class="docutils literal notranslate"><span class="pre">write_dma</span></code> method rather than a typed device. That is the duck-typed device
+<p>One thing to watch: <code class="docutils literal notranslate"><span class="pre">stage</span></code> takes any object with a <code class="docutils literal notranslate"><span class="pre">write_dma</span></code> method (the
+<code class="docutils literal notranslate"><span class="pre">DmaWriter</span></code> protocol) rather than a <code class="docutils literal notranslate"><span class="pre">DauDevice</span></code>. That is the duck-typed device
 convention used throughout the package, and it is what lets a fake stand in for a
 board, for the same reason <a class="reference internal" href="transport-boundary.html"><span class="std std-doc">the transport boundary</span></a> is a
 protocol rather than a base class.</p>

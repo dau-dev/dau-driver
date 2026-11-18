@@ -553,7 +553,8 @@ alternate region (and, for a lazy iterable, is produced) while job <em>i</em> co
 Returns the <code class="docutils literal notranslate"><span class="pre">collect(device)</span></code> values in batch order.</p>
 <p>Per batch the runner writes <code class="docutils literal notranslate"><span class="pre">INPUT_ADDRESS_LOW</span></code>/<code class="docutils literal notranslate"><span class="pre">HIGH</span></code> and <code class="docutils literal notranslate"><span class="pre">INPUT_LENGTH_LOW</span></code>,
 sets <code class="docutils literal notranslate"><span class="pre">JOB_CONTROL</span></code> to <code class="docutils literal notranslate"><span class="pre">START</span></code>, waits for DONE, then calls <code class="docutils literal notranslate"><span class="pre">collect</span></code>. The DMA is
-padded to the 64-byte grid while <code class="docutils literal notranslate"><span class="pre">INPUT_LENGTH</span></code> stays exact.</p>
+padded to the device’s DMA alignment (<code class="docutils literal notranslate"><span class="pre">device.capabilities.dma.alignment_bytes</span></code>)
+while <code class="docutils literal notranslate"><span class="pre">INPUT_LENGTH</span></code> stays exact.</p>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Parameter</p></th>
@@ -607,7 +608,7 @@ runner writes <code class="docutils literal notranslate"><span class="pre">INPUT
 <code class="docutils literal notranslate"><span class="pre">collect(device)</span></code> per repeat rather than one merged answer, so a caller can
 check that every run returns identical results instead of assuming it.</p>
 <p><code class="docutils literal notranslate"><span class="pre">row_count</span></code>, <code class="docutils literal notranslate"><span class="pre">row_bytes</span></code>, and <code class="docutils literal notranslate"><span class="pre">repeats</span></code> must be positive, and <code class="docutils literal notranslate"><span class="pre">address</span></code> must be
-on the <code class="docutils literal notranslate"><span class="pre">DMA_ALIGN_BYTES</span></code> grid, because an unaligned region returns wrong bytes on
+a multiple of the device’s DMA alignment, because an unaligned region returns wrong bytes on
 silicon without any error. All four raise <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>.</p>
 <p><code class="docutils literal notranslate"><span class="pre">address</span></code> is raw, and a raw address outlives the allocation it came from.
 <code class="docutils literal notranslate"><span class="pre">HandleTable.run_resident_scan</span></code> is this same run with a generation-checked
@@ -776,7 +777,7 @@ identity.</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pack_keyed_rows(rows)</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">(key,</span> <span class="pre">value)</span></code> pairs packed onto the 64-byte grid; the logical length stays <code class="docutils literal notranslate"><span class="pre">len(rows)</span> <span class="pre">*</span> <span class="pre">8</span></code>.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(key,</span> <span class="pre">value)</span></code> pairs packed as <code class="docutils literal notranslate"><span class="pre">len(rows)</span> <span class="pre">*</span> <span class="pre">8</span></code> bytes; the job pads them to the DMA alignment.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">decode_group_records(data,</span> <span class="pre">count)</span></code></p></td>
 <td><p>40-byte group records as <code class="docutils literal notranslate"><span class="pre">GroupAggregate</span></code> values.</p></td>
@@ -786,8 +787,8 @@ identity.</p>
 </tr>
 </tbody>
 </table>
-<p><code class="docutils literal notranslate"><span class="pre">DMA_ALIGN_BYTES</span> <span class="pre">=</span> <span class="pre">64</span></code> is a <strong>wire shape</strong>: fixed by the transfer format, not by
-the board. The record layouts and their sizes (<code class="docutils literal notranslate"><span class="pre">GROUP_RECORD_BYTES</span></code> is 40) are
+<p>The DMA alignment is the device’s, read from <code class="docutils literal notranslate"><span class="pre">device.capabilities.dma</span></code>. The
+record layouts and their sizes (<code class="docutils literal notranslate"><span class="pre">GROUP_RECORD_BYTES</span></code> is 40) are
 defined in <code class="docutils literal notranslate"><span class="pre">dau_core.records</span></code>, next to the tiles that produce them.</p>
 <p>Capacity is not a constant. <code class="docutils literal notranslate"><span class="pre">device_job_capacity(device)</span></code> reads the input row
 and output record capacities the shell advertises; exceeding them raises
@@ -812,7 +813,7 @@ registry entry.</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pack_bar_rows(rows)</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">(key,</span> <span class="pre">price,</span> <span class="pre">shares,</span> <span class="pre">frac)</span></code> rows on the DMA grid.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(key,</span> <span class="pre">price,</span> <span class="pre">shares,</span> <span class="pre">frac)</span></code> rows, <code class="docutils literal notranslate"><span class="pre">len(rows)</span> <span class="pre">*</span> <span class="pre">16</span></code> bytes; the job pads them to the DMA alignment.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">decode_bar_records(data,</span> <span class="pre">count)</span></code></p></td>
 <td><p>48-byte records as <code class="docutils literal notranslate"><span class="pre">BarAggregate</span></code> values.</p></td>

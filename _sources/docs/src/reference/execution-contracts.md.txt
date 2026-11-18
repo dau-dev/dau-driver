@@ -71,7 +71,8 @@ Returns the `collect(device)` values in batch order.
 
 Per batch the runner writes `INPUT_ADDRESS_LOW`/`HIGH` and `INPUT_LENGTH_LOW`,
 sets `JOB_CONTROL` to `START`, waits for DONE, then calls `collect`. The DMA is
-padded to the 64-byte grid while `INPUT_LENGTH` stays exact.
+padded to the device's DMA alignment (`device.capabilities.dma.alignment_bytes`)
+while `INPUT_LENGTH` stays exact.
 
 | Parameter            | Notes                                                                                                          |
 | -------------------- | -------------------------------------------------------------------------------------------------------------- |
@@ -111,7 +112,7 @@ runner writes `INPUT_ADDRESS_LOW`/`HIGH` and `INPUT_LENGTH_LOW`, sets
 check that every run returns identical results instead of assuming it.
 
 `row_count`, `row_bytes`, and `repeats` must be positive, and `address` must be
-on the `DMA_ALIGN_BYTES` grid, because an unaligned region returns wrong bytes on
+a multiple of the device's DMA alignment, because an unaligned region returns wrong bytes on
 silicon without any error. All four raise `ValueError`.
 
 `address` is raw, and a raw address outlives the allocation it came from.
@@ -250,14 +251,14 @@ identity.
 
 ### Keyed pipeline execution
 
-| Function                                                                                         | Behaviour                                                                                    |
-| ------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------- |
-| `pack_keyed_rows(rows)`                                                                          | `(key, value)` pairs packed onto the 64-byte grid; the logical length stays `len(rows) * 8`. |
-| `decode_group_records(data, count)`                                                              | 40-byte group records as `GroupAggregate` values.                                            |
-| `execute_keyed_pipeline_job(device, rows, *, timeout_seconds=5.0, contract=None, max_rows=None)` | One batch through a configured pipeline. Returns `(group records, selected row count)`.      |
+| Function                                                                                         | Behaviour                                                                                     |
+| ------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------- |
+| `pack_keyed_rows(rows)`                                                                          | `(key, value)` pairs packed as `len(rows) * 8` bytes; the job pads them to the DMA alignment. |
+| `decode_group_records(data, count)`                                                              | 40-byte group records as `GroupAggregate` values.                                             |
+| `execute_keyed_pipeline_job(device, rows, *, timeout_seconds=5.0, contract=None, max_rows=None)` | One batch through a configured pipeline. Returns `(group records, selected row count)`.       |
 
-`DMA_ALIGN_BYTES = 64` is a **wire shape**: fixed by the transfer format, not by
-the board. The record layouts and their sizes (`GROUP_RECORD_BYTES` is 40) are
+The DMA alignment is the device's, read from `device.capabilities.dma`. The
+record layouts and their sizes (`GROUP_RECORD_BYTES` is 40) are
 defined in `dau_core.records`, next to the tiles that produce them.
 
 Capacity is not a constant. `device_job_capacity(device)` reads the input row
@@ -278,7 +279,7 @@ registry entry.
 
 | Function                                                                                    | Behaviour                                                                                                                     |
 | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `pack_bar_rows(rows)`                                                                       | `(key, price, shares, frac)` rows on the DMA grid.                                                                            |
+| `pack_bar_rows(rows)`                                                                       | `(key, price, shares, frac)` rows, `len(rows) * 16` bytes; the job pads them to the DMA alignment.                            |
 | `decode_bar_records(data, count)`                                                           | 48-byte records as `BarAggregate` values.                                                                                     |
 | `execute_bar_job(device, rows, *, timeout_seconds=5.0, contract=None, max_rows=None)`       | One batch through the SRAM-staged fused bar shell.                                                                            |
 | `stage_bar_ddr_input(device, payload, row_count, *, staging, input_address=None)`           | DMA one pre-packed batch into a memory input region.                                                                          |

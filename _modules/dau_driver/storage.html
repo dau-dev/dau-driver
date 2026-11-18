@@ -837,14 +837,18 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">Freed storage is never readdressed: ``free`` bumps the handle's generation,</span>
 <span class="sd">and a stale handle raises instead of resolving to reused memory. Exhaustion</span>
-<span class="sd">raises before anything is staged. ``stage``/``resolve`` take any object with</span>
-<span class="sd">``write_dma`` (the duck-typed device convention).</span>
+<span class="sd">raises before anything is staged. ``stage`` takes any</span>
+<span class="sd">:class:`~dau_driver.device.DmaWriter` (the duck-typed device convention).</span>
 <span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">count</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.device</span><span class="w"> </span><span class="kn">import</span> <span class="n">DmaWriter</span>
 
 
 <div class="viewcode-block" id="StaleHandleError">
@@ -992,7 +996,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="StorageAllocator.stage">
 <a class="viewcode-back" href="../../autoapi/dau_driver/storage/index.html#dau_driver.storage.StorageAllocator.stage">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">stage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">handle</span><span class="p">:</span> <span class="n">StorageHandle</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">stage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="n">DmaWriter</span><span class="p">,</span> <span class="n">handle</span><span class="p">:</span> <span class="n">StorageHandle</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Write ``data`` into the handle's allocation through the device."""</span>
         <span class="n">base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
         <span class="n">live</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_live</span><span class="p">[</span><span class="n">handle</span><span class="o">.</span><span class="n">id</span><span class="p">]</span>

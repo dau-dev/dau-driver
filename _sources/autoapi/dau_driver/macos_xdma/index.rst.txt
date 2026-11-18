@@ -345,9 +345,9 @@ Module Contents
    .. py:method:: mach_task_self() -> int
 
 
-.. py:function:: discover_devices(client_factory: collections.abc.Callable[[], collections.abc.Iterable[MacOSXDMAClientProtocol]] | None = None) -> list[dau_driver.device.DauDevice]
+.. py:function:: discover_devices(client_factory: collections.abc.Callable[[], collections.abc.Iterable[MacOSXDMAClientProtocol]] | None = None, *, memory_bytes: int | None) -> list[dau_driver.device.DauDevice]
 
-.. py:function:: probe_devices(client_factory: collections.abc.Callable[[], collections.abc.Iterable[MacOSXDMAClientProtocol]] | None = None, *, service_names: collections.abc.Sequence[str] = DEFAULT_SERVICE_NAMES, service_probes: collections.abc.Sequence[MacOSXDMAServiceProbe] = ()) -> MacOSXDMAProbeResult
+.. py:function:: probe_devices(client_factory: collections.abc.Callable[[], collections.abc.Iterable[MacOSXDMAClientProtocol]] | None = None, *, memory_bytes: int | None, service_names: collections.abc.Sequence[str] = DEFAULT_SERVICE_NAMES, service_probes: collections.abc.Sequence[MacOSXDMAServiceProbe] = ()) -> MacOSXDMAProbeResult
 
 .. py:function:: _normalize_service_names(*, service_name: str | None = None, service_names: collections.abc.Sequence[str] | None = None) -> tuple[str, ...]
 
@@ -359,7 +359,7 @@ Module Contents
 
 .. py:function:: _format_service_probe_details(service_probes: collections.abc.Sequence[MacOSXDMAServiceProbe]) -> str
 
-.. py:function:: identify_device(client: MacOSXDMAClientProtocol, *, index: int = 0) -> dau_driver.device.DauDevice
+.. py:function:: identify_device(client: MacOSXDMAClientProtocol, *, memory_bytes: int | None, index: int = 0) -> dau_driver.device.DauDevice
 
 .. py:function:: _read_register_block_snapshot(client: MacOSXDMAClientProtocol, bar_index: int, register_window_offset: int) -> dau_core.registers.RegisterBlockSnapshot
 

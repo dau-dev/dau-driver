@@ -755,7 +755,7 @@ log<span class="w"> </span>show<span class="w"> </span>--predicate<span class="w
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dau_driver</span><span class="w"> </span><span class="kn">import</span> <span class="n">discover_devices</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dau_core.registers</span><span class="w"> </span><span class="kn">import</span> <span class="n">RegisterOffset</span>
 
-<span class="n">devices</span> <span class="o">=</span> <span class="n">discover_devices</span><span class="p">()</span>
+<span class="n">devices</span> <span class="o">=</span> <span class="n">discover_devices</span><span class="p">(</span><span class="n">memory_bytes</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>  <span class="c1"># register reads only; pass the board's memory size before running jobs</span>
 <span class="n">dev</span> <span class="o">=</span> <span class="n">devices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="n">magic</span> <span class="o">=</span> <span class="n">dev</span><span class="o">.</span><span class="n">read_register</span><span class="p">(</span><span class="n">RegisterOffset</span><span class="o">.</span><span class="n">MAGIC</span><span class="p">)</span>
 <span class="n">snapshot</span> <span class="o">=</span> <span class="n">dev</span><span class="o">.</span><span class="n">read_register_block_snapshot</span><span class="p">()</span>

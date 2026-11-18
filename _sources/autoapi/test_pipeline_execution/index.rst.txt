@@ -186,8 +186,8 @@ Module Contents
    Devices here are DUCK-TYPED: test fakes and alternative transports
    implement `write_register` without subclassing DauDevice. Making the
    paired address write a method silently broke every one of them — the
-   dau-polars emulated devices among them — so the callable path must need
-   nothing but `write_register`.
+   dau-polars emulated devices among them — so the callable path needs
+   only `write_register` and the declared `memory_bytes`.
 
 
 .. py:function:: test_a_shell_that_does_not_advertise_capacity_is_refused(tmp_path)

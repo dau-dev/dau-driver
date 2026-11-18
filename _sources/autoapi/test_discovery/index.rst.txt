@@ -24,6 +24,7 @@ Functions
    test_discovery.test_discover_devices_reports_one_matching_fake_device
    test_discovery.test_a_device_sysfs_does_not_place_reports_no_pci_ids
    test_discovery.test_discover_devices_decodes_the_concrete_contract_on_register_map_0_2
+   test_discovery.test_a_discovered_device_bounds_addresses_by_the_memory_its_caller_states
    test_discovery.test_identify_device_supports_register_window_offset
    test_discovery.test_identify_device_retries_transient_zero_magic_read
    test_discovery.test_identify_device_reports_unadvertised_metadata_honestly
@@ -81,6 +82,13 @@ Module Contents
    Register map 0.2: OPERATOR_BITMAP is hardware truth (typed INT32 at
    register level, no five-type expansion) and HOST_OPCODE_BITMAP carries
    the host-computed opcodes (AVERAGE = SUM/COUNT divide) separately.
+
+
+.. py:function:: test_a_discovered_device_bounds_addresses_by_the_memory_its_caller_states(tmp_path: pathlib.Path) -> None
+
+   The registers do not state the board's memory, so discovery takes it
+   from the caller and every address the device is given is checked
+   against it. A device left at None never had the wrap guard on.
 
 
 .. py:function:: test_identify_device_supports_register_window_offset(tmp_path: pathlib.Path) -> None

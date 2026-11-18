@@ -50,7 +50,7 @@ Module Contents
    One staged scan batch: the packed row payload and its row count.
 
    The payload is ``row_count * row_bytes`` bytes; the runner pads the DMA
-   to the 64-byte grid while ``INPUT_LENGTH`` stays exact.
+   to the device's alignment while ``INPUT_LENGTH`` stays exact.
 
 
    .. py:attribute:: payload
@@ -153,7 +153,7 @@ Module Contents
    caller whose ``key_capacity`` does not match the built design.
 
 
-.. py:function:: run_scan_batches(device, batches: collections.abc.Iterable[ScanBatch], *, per_key_state: bool, input_regions: tuple[int, int], row_bytes: int, collect: collections.abc.Callable[[Any], Any], timeout_seconds: float = 60.0, progress=None, poll_yield_seconds: float | None = None) -> list[Any]
+.. py:function:: run_scan_batches(device: dau_driver.device.JobDevice, batches: collections.abc.Iterable[ScanBatch], *, per_key_state: bool, input_regions: tuple[int, int], row_bytes: int, collect: collections.abc.Callable[[Any], Any], timeout_seconds: float = 60.0, progress: collections.abc.Callable[[int], None] | None = None, poll_yield_seconds: float | None = None) -> list[Any]
 
    Run scan jobs over ``batches`` with ping-pong input staging: batch
    ``i + 1`` DMAs into the alternate region (and, for a lazy iterable,
@@ -164,7 +164,7 @@ Module Contents
    jobs accept only the result of :func:`key_partitioned_scan_batches`.
 
 
-.. py:function:: run_resident_scan(device, *, address: int, row_count: int, row_bytes: int, collect: collections.abc.Callable[[Any], Any], repeats: int = 1, timeout_seconds: float = 60.0) -> list[Any]
+.. py:function:: run_resident_scan(device: dau_driver.device.JobDevice, *, address: int, row_count: int, row_bytes: int, collect: collections.abc.Callable[[Any], Any], repeats: int = 1, timeout_seconds: float = 60.0) -> list[Any]
 
    Run the job over rows ALREADY on the device, uploading nothing.
 

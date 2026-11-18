@@ -88,7 +88,7 @@ Module Contents
    .. py:attribute:: generation
 
 
-.. py:class:: HandleTable(device, allocator: dau_driver.storage.StorageAllocator, *, capacity: int)
+.. py:class:: HandleTable(device: dau_driver.device.JobDevice, allocator: dau_driver.storage.StorageAllocator, *, capacity: int)
 
    One allocator's slots, mirrored into one device's handle table.
 
@@ -145,7 +145,7 @@ Module Contents
 
 
 
-   .. py:method:: run_resident_scan(handle: dau_driver.storage.StorageHandle, *, row_count: int, row_bytes: int, collect, repeats: int = 1, timeout_seconds: float = 60.0, poll_yield_seconds: float | None = None) -> list
+   .. py:method:: run_resident_scan(handle: dau_driver.storage.StorageHandle, *, row_count: int, row_bytes: int, collect: collections.abc.Callable[[Any], Any], repeats: int = 1, timeout_seconds: float = 60.0, poll_yield_seconds: float | None = None) -> list[Any]
 
       :func:`~dau_driver.scan_execution.run_resident_scan` with the raw
       address replaced by a handle: arm once, then run the job ``repeats``

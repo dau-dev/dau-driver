@@ -63,7 +63,7 @@ from pathlib import Path
 from dau_driver import discover_devices
 from dau_driver.testing import FakeTransport, fake_device
 
-devices = discover_devices()                       # the XDMA devices under /dev, when a board is installed
+devices = discover_devices(memory_bytes=None)      # the XDMA devices under /dev; pass the board's memory size to bound addresses
 device = devices[0] if devices else fake_device(Path("."), FakeTransport())
 device.check_bar_health()                          # all-ones reads fail here, not later
 print(device.name, device.backend)                 # xdma0 linux-xdma

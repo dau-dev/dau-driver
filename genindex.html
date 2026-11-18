@@ -831,6 +831,7 @@ window.runMermaid = runMermaid;</script>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
+ | <a href="#J"><strong>J</strong></a>
  | <a href="#K"><strong>K</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
@@ -849,8 +850,6 @@ window.runMermaid = runMermaid;</script>
 <h2 id="_">_</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="autoapi/dau_driver/fleet/index.html#dau_driver.fleet._TrackedDevice.__getattr__">__getattr__() (dau_driver.fleet._TrackedDevice method)</a>
-</li>
       <li><a href="autoapi/dau_driver/fleet/index.html#dau_driver.fleet._DeviceBatches.__iter__">__iter__() (dau_driver.fleet._DeviceBatches method)</a>
 
       <ul>
@@ -874,8 +873,6 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/test_pipeline_execution/index.html#test_pipeline_execution._advertise_lane_count">_advertise_lane_count() (in module test_pipeline_execution)</a>
 </li>
       <li><a href="autoapi/dau_driver/stream_codec/index.html#dau_driver.stream_codec._align_up">_align_up() (in module dau_driver.stream_codec)</a>
-</li>
-      <li><a href="autoapi/dau_driver/stream_codec/index.html#dau_driver.stream_codec._ALIGNMENT_BYTES">_ALIGNMENT_BYTES (in module dau_driver.stream_codec)</a>
 </li>
       <li><a href="autoapi/dau_driver/storage/index.html#dau_driver.storage._ALLOCATOR_TOKENS">_ALLOCATOR_TOKENS (in module dau_driver.storage)</a>
 </li>
@@ -956,6 +953,8 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/dau_driver/fleet/index.html#dau_driver.fleet._DeviceTracker">_DeviceTracker (class in dau_driver.fleet)</a>
 </li>
       <li><a href="autoapi/dau_driver/discovery/index.html#dau_driver.discovery._discover_macos_devices">_discover_macos_devices() (in module dau_driver.discovery)</a>
+</li>
+      <li><a href="autoapi/dau_driver/pipeline_execution/index.html#dau_driver.pipeline_execution._dma_padded">_dma_padded() (in module dau_driver.pipeline_execution)</a>
 </li>
       <li><a href="autoapi/dau_driver/scan_execution/index.html#dau_driver.scan_execution._KeyPartitionedScanBatches._encode">_encode (dau_driver.scan_execution._KeyPartitionedScanBatches attribute)</a>
 
@@ -1109,8 +1108,6 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/test_docs/index.html#test_docs._runs">_runs() (in module test_docs)</a>
 </li>
-      <li><a href="autoapi/dau_driver/stream_codec/index.html#dau_driver.stream_codec._SCALAR_RESULT_STRUCTS">_SCALAR_RESULT_STRUCTS (in module dau_driver.stream_codec)</a>
-</li>
       <li><a href="autoapi/test_macos_xdma_hardware/index.html#test_macos_xdma_hardware._scratch_addresses">_scratch_addresses() (in module test_macos_xdma_hardware)</a>
 </li>
       <li><a href="autoapi/dau_driver/fleet/index.html#dau_driver.fleet._SharedBatches">_SharedBatches (class in dau_driver.fleet)</a>
@@ -1189,12 +1186,16 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/dau_driver/extension/index.html#dau_driver.extension.add">add() (in module dau_driver.extension)</a>
 </li>
-      <li><a href="autoapi/dau_driver/verify_advertisement/index.html#dau_driver.verify_advertisement.advertised_words">advertised_words() (in module dau_driver.verify_advertisement)</a>
+      <li><a href="autoapi/dau_driver/pipeline_execution/index.html#dau_driver.pipeline_execution.DdrStaging.address_align">address_align (dau_driver.pipeline_execution.DdrStaging property)</a>
 </li>
-      <li><a href="autoapi/dau_driver/verify_advertisement/index.html#dau_driver.verify_advertisement.advertisement_mismatches">advertisement_mismatches() (in module dau_driver.verify_advertisement)</a>
+      <li><a href="autoapi/dau_driver/device/index.html#dau_driver.device.AddressRegisters">AddressRegisters (class in dau_driver.device)</a>
+</li>
+      <li><a href="autoapi/dau_driver/verify_advertisement/index.html#dau_driver.verify_advertisement.advertised_words">advertised_words() (in module dau_driver.verify_advertisement)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/dau_driver/verify_advertisement/index.html#dau_driver.verify_advertisement.advertisement_mismatches">advertisement_mismatches() (in module dau_driver.verify_advertisement)</a>
+</li>
       <li><a href="autoapi/dau_driver/storage/index.html#dau_driver.storage.StorageAllocator.align">align (dau_driver.storage.StorageAllocator attribute)</a>
 </li>
       <li><a href="autoapi/dau_driver/storage/index.html#dau_driver.storage.StorageAllocator.allocate">allocate() (dau_driver.storage.StorageAllocator method)</a>
@@ -1292,7 +1293,13 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.CANONICAL_SERVICE_NAME">CANONICAL_SERVICE_NAME (in module dau_driver.macos_xdma)</a>
 </li>
       <li><a href="autoapi/dau_driver/device/index.html#dau_driver.device.DauDevice.capabilities">capabilities (dau_driver.device.DauDevice attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/dau_driver/device/index.html#dau_driver.device.JobDevice.capabilities">(dau_driver.device.JobDevice property)</a>
 </li>
+        <li><a href="autoapi/dau_driver/fleet/index.html#dau_driver.fleet._TrackedDevice.capabilities">(dau_driver.fleet._TrackedDevice property)</a>
+</li>
+      </ul></li>
       <li><a href="autoapi/dau_driver/handle_table/index.html#dau_driver.handle_table.HandleTable.capacity">capacity (dau_driver.handle_table.HandleTable attribute)</a>
 
       <ul>
@@ -1320,6 +1327,8 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/dau_driver/device/index.html#dau_driver.device.DauDevice.close">close() (dau_driver.device.DauDevice method)</a>
 
       <ul>
+        <li><a href="autoapi/dau_driver/device/index.html#dau_driver.device.DeviceTransport.close">(dau_driver.device.DeviceTransport method)</a>
+</li>
         <li><a href="autoapi/dau_driver/device/index.html#dau_driver.device.PathDeviceTransport.close">(dau_driver.device.PathDeviceTransport method)</a>
 </li>
         <li><a href="autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma._IOKitBindings.close">(dau_driver.macos_xdma._IOKitBindings method)</a>
@@ -1329,6 +1338,8 @@ window.runMermaid = runMermaid;</script>
         <li><a href="autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.MacOSXDMAClientProtocol.close">(dau_driver.macos_xdma.MacOSXDMAClientProtocol method)</a>
 </li>
         <li><a href="autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.MacOSXDMATransport.close">(dau_driver.macos_xdma.MacOSXDMATransport method)</a>
+</li>
+        <li><a href="autoapi/dau_driver/testing/index.html#dau_driver.testing.FakeTransport.close">(dau_driver.testing.FakeTransport method)</a>
 </li>
         <li><a href="autoapi/test_macos_xdma/index.html#test_macos_xdma.FakeIOKitBindings.close">(test_macos_xdma.FakeIOKitBindings method)</a>
 </li>
@@ -1538,10 +1549,12 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/dau_driver/errors/index.html#dau_driver.errors.DauDriverError">DauDriverError</a>
 </li>
-      <li><a href="autoapi/dau_driver/pipeline_execution/index.html#dau_driver.pipeline_execution.decode_bar_records">decode_bar_records() (in module dau_driver.pipeline_execution)</a>
+      <li><a href="autoapi/dau_driver/pipeline_execution/index.html#dau_driver.pipeline_execution.DdrStaging">DdrStaging (class in dau_driver.pipeline_execution)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/dau_driver/pipeline_execution/index.html#dau_driver.pipeline_execution.decode_bar_records">decode_bar_records() (in module dau_driver.pipeline_execution)</a>
+</li>
       <li><a href="autoapi/dau_driver/stream_codec/index.html#dau_driver.stream_codec.StreamDecoder.decode_column">decode_column() (dau_driver.stream_codec.StreamDecoder static method)</a>
 </li>
       <li><a href="autoapi/dau_driver/pipeline_execution/index.html#dau_driver.pipeline_execution.decode_group_records">decode_group_records() (in module dau_driver.pipeline_execution)</a>
@@ -1624,8 +1637,6 @@ window.runMermaid = runMermaid;</script>
         <li><a href="autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.discover_devices">(in module dau_driver.macos_xdma)</a>
 </li>
       </ul></li>
-      <li><a href="autoapi/dau_driver/pipeline_execution/index.html#dau_driver.pipeline_execution.DMA_ALIGN_BYTES">DMA_ALIGN_BYTES (in module dau_driver.pipeline_execution)</a>
-</li>
       <li><a href="autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.DMA_CHUNK_BYTES">DMA_CHUNK_BYTES (in module dau_driver.macos_xdma)</a>
 </li>
       <li><a href="autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.MacOSXDMAClient.dma_read">dma_read() (dau_driver.macos_xdma.MacOSXDMAClient method)</a>
@@ -1647,6 +1658,8 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/dau_driver/transfer/index.html#dau_driver.transfer.DmaDirection">DmaDirection (class in dau_driver.transfer)</a>
 </li>
       <li><a href="autoapi/dau_driver/transfer/index.html#dau_driver.transfer.DmaTransfer">DmaTransfer (class in dau_driver.transfer)</a>
+</li>
+      <li><a href="autoapi/dau_driver/device/index.html#dau_driver.device.DmaWriter">DmaWriter (class in dau_driver.device)</a>
 </li>
       <li><a href="autoapi/test_docs/index.html#test_docs.DOCS">DOCS (in module test_docs)</a>
 </li>
@@ -1816,17 +1829,29 @@ window.runMermaid = runMermaid;</script>
       </ul></li>
       <li><a href="autoapi/dau_driver/device/index.html#dau_driver.device.DauDevice.identity">identity (dau_driver.device.DauDevice property)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/dau_driver/fleet/index.html#dau_driver.fleet._DeviceTracker.indices">indices (dau_driver.fleet._DeviceTracker attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/test_macos_xdma/index.html#test_macos_xdma.FakeMacOSXDMAClient.info">info (test_macos_xdma.FakeMacOSXDMAClient attribute)</a>
 </li>
       <li><a href="autoapi/test_lazy_exports/index.html#test_lazy_exports.INIT">INIT (in module test_lazy_exports)</a>
 </li>
+      <li><a href="autoapi/dau_driver/pipeline_execution/index.html#dau_driver.pipeline_execution.DdrStaging.input_addresses">input_addresses (dau_driver.pipeline_execution.DdrStaging property)</a>
+</li>
+      <li><a href="autoapi/dau_driver/pipeline_execution/index.html#dau_driver.pipeline_execution.DdrStaging.input_bytes">input_bytes (dau_driver.pipeline_execution.DdrStaging property)</a>
+</li>
       <li><a href="autoapi/dau_driver/handle_table/index.html#dau_driver.handle_table.HandleTable.install">install() (dau_driver.handle_table.HandleTable method)</a>
 </li>
       <li><a href="autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma._IOKitBindings.iokit">iokit (dau_driver.macos_xdma._IOKitBindings attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="J">J</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/dau_driver/device/index.html#dau_driver.device.JobDevice">JobDevice (class in dau_driver.device)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1934,8 +1959,14 @@ window.runMermaid = runMermaid;</script>
       </ul></li>
       <li><a href="autoapi/test_macos_xdma/index.html#test_macos_xdma.FakeMacOSXDMAClient.memory">memory (test_macos_xdma.FakeMacOSXDMAClient attribute)</a>
 </li>
-      <li><a href="autoapi/dau_driver/device/index.html#dau_driver.device.DauDevice.memory_bytes">memory_bytes (dau_driver.device.DauDevice attribute)</a>
+      <li><a href="autoapi/dau_driver/device/index.html#dau_driver.device.AddressRegisters.memory_bytes">memory_bytes (dau_driver.device.AddressRegisters property)</a>
+
+      <ul>
+        <li><a href="autoapi/dau_driver/device/index.html#dau_driver.device.DauDevice.memory_bytes">(dau_driver.device.DauDevice attribute)</a>
 </li>
+        <li><a href="autoapi/dau_driver/fleet/index.html#dau_driver.fleet._TrackedDevice.memory_bytes">(dau_driver.fleet._TrackedDevice property)</a>
+</li>
+      </ul></li>
       <li><a href="autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.MacOSXDMAProbeResult.message">message (dau_driver.macos_xdma.MacOSXDMAProbeResult attribute)</a>
 </li>
       <li>
@@ -2075,17 +2106,21 @@ window.runMermaid = runMermaid;</script>
       </ul></li>
       <li><a href="autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.MacOSXDMAServiceProbe.opened_clients">opened_clients (dau_driver.macos_xdma.MacOSXDMAServiceProbe attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/dau_driver/stream_codec/index.html#dau_driver.stream_codec.DecodedRecordBatch.operations">operations (dau_driver.stream_codec.DecodedRecordBatch attribute)</a>
 
       <ul>
         <li><a href="autoapi/dau_driver/stream_codec/index.html#dau_driver.stream_codec.DecodedStreamColumn.operations">(dau_driver.stream_codec.DecodedStreamColumn attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/dau_driver/capability_decode/index.html#dau_driver.capability_decode.operators_from_contract">operators_from_contract() (in module dau_driver.capability_decode)</a>
 </li>
       <li><a href="autoapi/dau_driver/capability_decode/index.html#dau_driver.capability_decode.operators_from_snapshot">operators_from_snapshot() (in module dau_driver.capability_decode)</a>
+</li>
+      <li><a href="autoapi/dau_driver/pipeline_execution/index.html#dau_driver.pipeline_execution.DdrStaging.output_address">output_address (dau_driver.pipeline_execution.DdrStaging property)</a>
+</li>
+      <li><a href="autoapi/dau_driver/pipeline_execution/index.html#dau_driver.pipeline_execution.DdrStaging.output_bytes">output_bytes (dau_driver.pipeline_execution.DdrStaging property)</a>
 </li>
       <li><a href="autoapi/test_handle_table/index.html#test_handle_table.OverlappingHandleTransport">OverlappingHandleTransport (class in test_handle_table)</a>
 </li>
@@ -2172,7 +2207,11 @@ window.runMermaid = runMermaid;</script>
       <ul>
         <li><a href="autoapi/dau_driver/device/index.html#dau_driver.device.DeviceTransport.read_dma">(dau_driver.device.DeviceTransport method)</a>
 </li>
+        <li><a href="autoapi/dau_driver/device/index.html#dau_driver.device.JobDevice.read_dma">(dau_driver.device.JobDevice method)</a>
+</li>
         <li><a href="autoapi/dau_driver/device/index.html#dau_driver.device.PathDeviceTransport.read_dma">(dau_driver.device.PathDeviceTransport method)</a>
+</li>
+        <li><a href="autoapi/dau_driver/fleet/index.html#dau_driver.fleet._TrackedDevice.read_dma">(dau_driver.fleet._TrackedDevice method)</a>
 </li>
         <li><a href="autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.MacOSXDMATransport.read_dma">(dau_driver.macos_xdma.MacOSXDMATransport method)</a>
 </li>
@@ -2182,10 +2221,20 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/dau_driver/xdma_io/index.html#dau_driver.xdma_io.read_exact_at">read_exact_at() (in module dau_driver.xdma_io)</a>
 </li>
       <li><a href="autoapi/dau_driver/device/index.html#dau_driver.device.DauDevice.read_register">read_register() (dau_driver.device.DauDevice method)</a>
+
+      <ul>
+        <li><a href="autoapi/dau_driver/device/index.html#dau_driver.device.JobDevice.read_register">(dau_driver.device.JobDevice method)</a>
 </li>
+        <li><a href="autoapi/dau_driver/fleet/index.html#dau_driver.fleet._TrackedDevice.read_register">(dau_driver.fleet._TrackedDevice method)</a>
+</li>
+      </ul></li>
       <li><a href="autoapi/dau_driver/device/index.html#dau_driver.device.DauDevice.read_register_block_snapshot">read_register_block_snapshot() (dau_driver.device.DauDevice method)</a>
 
       <ul>
+        <li><a href="autoapi/dau_driver/device/index.html#dau_driver.device.JobDevice.read_register_block_snapshot">(dau_driver.device.JobDevice method)</a>
+</li>
+        <li><a href="autoapi/dau_driver/fleet/index.html#dau_driver.fleet._TrackedDevice.read_register_block_snapshot">(dau_driver.fleet._TrackedDevice method)</a>
+</li>
         <li><a href="autoapi/dau_driver/capability_decode/index.html#dau_driver.capability_decode.read_register_block_snapshot">(in module dau_driver.capability_decode)</a>
 </li>
       </ul></li>
@@ -2217,14 +2266,14 @@ window.runMermaid = runMermaid;</script>
       </ul></li>
       <li><a href="autoapi/dau_driver/device/index.html#dau_driver.device.read_u64">read_u64() (in module dau_driver.device)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/test_readme/index.html#test_readme.README">README (in module test_readme)</a>
 </li>
       <li><a href="autoapi/dau_driver/stream_codec/index.html#dau_driver.stream_codec.RecordBatchColumn">RecordBatchColumn (class in dau_driver.stream_codec)</a>
 </li>
       <li><a href="autoapi/test_scan_execution/index.html#test_scan_execution.REGION_A">REGION_A (in module test_scan_execution)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/test_scan_execution/index.html#test_scan_execution.REGION_B">REGION_B (in module test_scan_execution)</a>
 </li>
       <li><a href="autoapi/test_fleet/index.html#test_fleet.REGIONS">REGIONS (in module test_fleet)</a>
@@ -2389,6 +2438,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/test_discovery/index.html#test_discovery.test_a_device_sysfs_does_not_place_reports_no_pci_ids">test_a_device_sysfs_does_not_place_reports_no_pci_ids() (in module test_discovery)</a>
 </li>
+      <li><a href="autoapi/test_discovery/index.html#test_discovery.test_a_discovered_device_bounds_addresses_by_the_memory_its_caller_states">test_a_discovered_device_bounds_addresses_by_the_memory_its_caller_states() (in module test_discovery)</a>
+</li>
       <li><a href="autoapi/test_discovery/index.html#test_discovery.test_a_discovered_linux_device_is_identified_by_its_pci_endpoint">test_a_discovered_linux_device_is_identified_by_its_pci_endpoint() (in module test_discovery)</a>
 </li>
       <li><a href="autoapi/test_pipeline_execution/index.html#test_pipeline_execution.test_a_duck_typed_device_can_program_addresses">test_a_duck_typed_device_can_program_addresses() (in module test_pipeline_execution)</a>
@@ -2408,6 +2459,8 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/test_handle_table/index.html#test_handle_table.test_a_lazy_batch_iterator_is_consumed_one_ahead">test_a_lazy_batch_iterator_is_consumed_one_ahead() (in module test_handle_table)</a>
 </li>
       <li><a href="autoapi/test_handle_table/index.html#test_handle_table.test_a_live_handle_resolves_to_its_region">test_a_live_handle_resolves_to_its_region() (in module test_handle_table)</a>
+</li>
+      <li><a href="autoapi/test_macos_xdma/index.html#test_macos_xdma.test_a_macos_device_bounds_addresses_by_the_memory_its_caller_states">test_a_macos_device_bounds_addresses_by_the_memory_its_caller_states() (in module test_macos_xdma)</a>
 </li>
       <li><a href="autoapi/test_verify_advertisement/index.html#test_verify_advertisement.test_a_manifest_without_a_contract_refuses">test_a_manifest_without_a_contract_refuses() (in module test_verify_advertisement)</a>
 </li>
@@ -2876,6 +2929,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/test_lazy_exports/index.html#test_lazy_exports.test_the_declaration_and_the_type_checking_block_agree">test_the_declaration_and_the_type_checking_block_agree() (in module test_lazy_exports)</a>
 </li>
+      <li><a href="autoapi/test_scan_execution/index.html#test_scan_execution.test_the_dma_grid_is_the_devices_alignment">test_the_dma_grid_is_the_devices_alignment() (in module test_scan_execution)</a>
+</li>
       <li><a href="autoapi/test_capability_decode/index.html#test_capability_decode.test_the_fake_device_advertises_the_shell_its_registers_describe">test_the_fake_device_advertises_the_shell_its_registers_describe() (in module test_capability_decode)</a>
 </li>
       <li><a href="autoapi/test_transfer/index.html#test_transfer.test_the_fake_transport_refuses_a_short_read_like_the_real_one">test_the_fake_transport_refuses_a_short_read_like_the_real_one() (in module test_transfer)</a>
@@ -2889,6 +2944,8 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/test_pipeline_execution/index.html#test_pipeline_execution.test_the_keyed_pipeline_flags_must_be_bool">test_the_keyed_pipeline_flags_must_be_bool() (in module test_pipeline_execution)</a>
 </li>
       <li><a href="autoapi/test_docs/index.html#test_docs.test_the_page_runs_as_written">test_the_page_runs_as_written() (in module test_docs)</a>
+</li>
+      <li><a href="autoapi/test_record_batch_codec/index.html#test_record_batch_codec.test_the_payload_layout_follows_the_limits_alignment">test_the_payload_layout_follows_the_limits_alignment() (in module test_record_batch_codec)</a>
 </li>
       <li><a href="autoapi/test_readme/index.html#test_readme.test_the_readme_example_runs_as_written">test_the_readme_example_runs_as_written() (in module test_readme)</a>
 </li>
@@ -3034,6 +3091,8 @@ window.runMermaid = runMermaid;</script>
       <ul>
         <li><a href="autoapi/dau_driver/device/index.html#dau_driver.device.DeviceTransport.write_dma">(dau_driver.device.DeviceTransport method)</a>
 </li>
+        <li><a href="autoapi/dau_driver/device/index.html#dau_driver.device.DmaWriter.write_dma">(dau_driver.device.DmaWriter method)</a>
+</li>
         <li><a href="autoapi/dau_driver/device/index.html#dau_driver.device.PathDeviceTransport.write_dma">(dau_driver.device.PathDeviceTransport method)</a>
 </li>
         <li><a href="autoapi/dau_driver/fleet/index.html#dau_driver.fleet._TrackedDevice.write_dma">(dau_driver.fleet._TrackedDevice method)</a>
@@ -3049,8 +3108,14 @@ window.runMermaid = runMermaid;</script>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/test_discovery/index.html#test_discovery.write_fake_xdma_device">write_fake_xdma_device() (in module test_discovery)</a>
 </li>
-      <li><a href="autoapi/dau_driver/device/index.html#dau_driver.device.DauDevice.write_register">write_register() (dau_driver.device.DauDevice method)</a>
+      <li><a href="autoapi/dau_driver/device/index.html#dau_driver.device.AddressRegisters.write_register">write_register() (dau_driver.device.AddressRegisters method)</a>
+
+      <ul>
+        <li><a href="autoapi/dau_driver/device/index.html#dau_driver.device.DauDevice.write_register">(dau_driver.device.DauDevice method)</a>
 </li>
+        <li><a href="autoapi/dau_driver/fleet/index.html#dau_driver.fleet._TrackedDevice.write_register">(dau_driver.fleet._TrackedDevice method)</a>
+</li>
+      </ul></li>
       <li><a href="autoapi/dau_driver/device/index.html#dau_driver.device.DeviceTransport.write_u32">write_u32() (dau_driver.device.DeviceTransport method)</a>
 
       <ul>

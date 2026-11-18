@@ -532,7 +532,7 @@ bytes:   [64, 64]
 the ping-pong: while job 0 computes out of region A, batch 1’s DMA is already
 filling region B. Batch 2 would go back to region A, and so on.</p>
 <p>The payloads went out as 64 bytes, not 48. The runner pads the DMA up to the
-64-byte grid, while <code class="docutils literal notranslate"><span class="pre">INPUT_LENGTH</span></code>, which is what the device reads, stays exact
+device’s 64-byte alignment, while <code class="docutils literal notranslate"><span class="pre">INPUT_LENGTH</span></code>, which is what the device reads, stays exact
 at 48. That is why <code class="docutils literal notranslate"><span class="pre">collect</span></code> returned 48 for each batch.</p>
 <p><code class="docutils literal notranslate"><span class="pre">collect</span></code> was called once per batch, after that batch’s job reported DONE, and the
 results came back in batch order.</p>

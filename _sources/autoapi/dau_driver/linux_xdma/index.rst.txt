@@ -40,9 +40,15 @@ Module Contents
    :value: 'linux-xdma'
 
 
-.. py:function:: discover_devices(root: str | pathlib.Path = DEFAULT_DEV_ROOT) -> list[dau_driver.device.DauDevice]
+.. py:function:: discover_devices(root: str | pathlib.Path = DEFAULT_DEV_ROOT, *, memory_bytes: int | None) -> list[dau_driver.device.DauDevice]
 
-.. py:function:: identify_device(user_path: str | pathlib.Path, *, h2c_path: str | pathlib.Path | None = None, c2h_path: str | pathlib.Path | None = None) -> dau_driver.device.DauDevice
+   Every DAU device under ``root``. ``memory_bytes`` is the boards'
+   addressable memory, which the platform states and the registers do not;
+   it bounds every address the devices are given. Pass None only when it is
+   not known, which turns that guard off.
+
+
+.. py:function:: identify_device(user_path: str | pathlib.Path, *, memory_bytes: int | None, h2c_path: str | pathlib.Path | None = None, c2h_path: str | pathlib.Path | None = None) -> dau_driver.device.DauDevice
 
 .. py:function:: _read_register(user_path: pathlib.Path, register_window_offset: int, offset: dau_core.registers.RegisterOffset) -> int
 

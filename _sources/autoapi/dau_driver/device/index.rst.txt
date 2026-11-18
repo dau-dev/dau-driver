@@ -18,6 +18,9 @@ Classes
 .. autoapisummary::
 
    dau_driver.device.DeviceTransport
+   dau_driver.device.DmaWriter
+   dau_driver.device.AddressRegisters
+   dau_driver.device.JobDevice
    dau_driver.device.PathDeviceTransport
    dau_driver.device.DeviceIdentity
    dau_driver.device.DauDevice
@@ -89,6 +92,62 @@ Module Contents
 
 
    .. py:method:: write_dma(device_address: int, data: bytes | bytearray | memoryview) -> int
+
+
+   .. py:method:: close() -> None
+
+
+.. py:class:: DmaWriter
+
+   Bases: :py:obj:`Protocol`
+
+
+   A device as :meth:`StorageAllocator.stage` uses it.
+
+
+   .. py:method:: write_dma(*, device_address: int, data: bytes | bytearray | memoryview) -> object
+
+
+.. py:class:: AddressRegisters
+
+   Bases: :py:obj:`Protocol`
+
+
+   A device as :func:`write_address` uses it: register writes and the
+   memory bound an address is checked against.
+
+
+   .. py:property:: memory_bytes
+      :type: int | None
+
+
+
+   .. py:method:: write_register(offset: dau_core.registers.RegisterOffset | int, value: int) -> None
+
+
+.. py:class:: JobDevice
+
+   Bases: :py:obj:`AddressRegisters`, :py:obj:`DmaWriter`, :py:obj:`Protocol`
+
+
+   What the job runners and the handle table use of a device: its
+   declared capabilities and memory bound, register access and DMA.
+   ``DauDevice`` implements it, and so does any test fake or alternative
+   device that does not subclass it.
+
+
+   .. py:property:: capabilities
+      :type: dau_core.capabilities.DeviceCapabilities
+
+
+
+   .. py:method:: read_register(offset: dau_core.registers.RegisterOffset | int) -> int
+
+
+   .. py:method:: read_register_block_snapshot() -> dau_core.registers.RegisterBlockSnapshot
+
+
+   .. py:method:: read_dma(*, device_address: int, byte_count: int) -> bytes
 
 
 .. py:class:: PathDeviceTransport(user_path: pathlib.Path, h2c_path: pathlib.Path, c2h_path: pathlib.Path)
@@ -295,7 +354,7 @@ Module Contents
 
 .. py:data:: _DEVICE_MEMORY
 
-.. py:function:: write_address(device, low_offset, high_offset, address: int, *, memory_bytes: int | None | object = _DEVICE_MEMORY) -> None
+.. py:function:: write_address(device: AddressRegisters, low_offset: dau_core.registers.RegisterOffset | int, high_offset: dau_core.registers.RegisterOffset | int, address: int, *, memory_bytes: int | None | object = _DEVICE_MEMORY) -> None
 
    Program an address across its LOW/HIGH register pair on any device.
 
@@ -317,9 +376,7 @@ Module Contents
    declared memory rather than to None, because a guard that is off
    unless every call site remembers to switch it on is not a guard: the
    execution paths that program job addresses all used the plain function
-   and so ran unbounded. Reading it off the device is a duck-typed probe
-   on purpose — devices here are not required to subclass `DauDevice`, and
-   one that does not declare its memory simply goes unbounded, as before.
-   Pass an explicit value to override, or `None` to disable the check.
+   and so ran unbounded. Pass an explicit value to override, or `None` to
+   disable the check.
 
 

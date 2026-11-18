@@ -870,6 +870,67 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="DeviceTransport.write_dma">
 <a class="viewcode-back" href="../../autoapi/dau_driver/device/index.html#dau_driver.device.DeviceTransport.write_dma">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">write_dma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_address</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="nb">bytearray</span> <span class="o">|</span> <span class="nb">memoryview</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span> <span class="o">...</span></div>
+
+
+<div class="viewcode-block" id="DeviceTransport.close">
+<a class="viewcode-back" href="../../autoapi/dau_driver/device/index.html#dau_driver.device.DeviceTransport.close">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="DmaWriter">
+<a class="viewcode-back" href="../../autoapi/dau_driver/device/index.html#dau_driver.device.DmaWriter">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DmaWriter</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A device as :meth:`StorageAllocator.stage` uses it."""</span>
+
+<div class="viewcode-block" id="DmaWriter.write_dma">
+<a class="viewcode-back" href="../../autoapi/dau_driver/device/index.html#dau_driver.device.DmaWriter.write_dma">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_dma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">device_address</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="nb">bytearray</span> <span class="o">|</span> <span class="nb">memoryview</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span> <span class="o">...</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="AddressRegisters">
+<a class="viewcode-back" href="../../autoapi/dau_driver/device/index.html#dau_driver.device.AddressRegisters">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AddressRegisters</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A device as :func:`write_address` uses it: register writes and the</span>
+<span class="sd">    memory bound an address is checked against."""</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">memory_bytes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
+
+<div class="viewcode-block" id="AddressRegisters.write_register">
+<a class="viewcode-back" href="../../autoapi/dau_driver/device/index.html#dau_driver.device.AddressRegisters.write_register">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="n">RegisterOffset</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="JobDevice">
+<a class="viewcode-back" href="../../autoapi/dau_driver/device/index.html#dau_driver.device.JobDevice">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">JobDevice</span><span class="p">(</span><span class="n">AddressRegisters</span><span class="p">,</span> <span class="n">DmaWriter</span><span class="p">,</span> <span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""What the job runners and the handle table use of a device: its</span>
+<span class="sd">    declared capabilities and memory bound, register access and DMA.</span>
+<span class="sd">    ``DauDevice`` implements it, and so does any test fake or alternative</span>
+<span class="sd">    device that does not subclass it."""</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">capabilities</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DeviceCapabilities</span><span class="p">:</span> <span class="o">...</span>
+
+<div class="viewcode-block" id="JobDevice.read_register">
+<a class="viewcode-back" href="../../autoapi/dau_driver/device/index.html#dau_driver.device.JobDevice.read_register">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="n">RegisterOffset</span> <span class="o">|</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span> <span class="o">...</span></div>
+
+
+<div class="viewcode-block" id="JobDevice.read_register_block_snapshot">
+<a class="viewcode-back" href="../../autoapi/dau_driver/device/index.html#dau_driver.device.JobDevice.read_register_block_snapshot">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_register_block_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RegisterBlockSnapshot</span><span class="p">:</span> <span class="o">...</span></div>
+
+
+<div class="viewcode-block" id="JobDevice.read_dma">
+<a class="viewcode-back" href="../../autoapi/dau_driver/device/index.html#dau_driver.device.JobDevice.read_dma">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_dma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">device_address</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">byte_count</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span> <span class="o">...</span></div>
 </div>
 
 
@@ -985,11 +1046,11 @@ window.runMermaid = runMermaid;</script>
     <span class="n">capabilities</span><span class="p">:</span> <span class="n">DeviceCapabilities</span>
     <span class="n">register_window_offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">transport</span><span class="p">:</span> <span class="n">DeviceTransport</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="c1"># the addressable size of the device's memory, when the caller knows it</span>
-    <span class="c1"># (the platform's `memory.size_bytes`). None keeps the previous</span>
-    <span class="c1"># behaviour of trusting the caller — the guard is only as good as the</span>
-    <span class="c1"># fact, and inventing a default would either refuse valid addresses or</span>
-    <span class="c1"># give false confidence.</span>
+    <span class="c1"># the addressable size of the device's memory, which the platform states</span>
+    <span class="c1"># (its `memory.size_bytes`) and the registers do not. Discovery takes it</span>
+    <span class="c1"># from the caller. None means the caller does not know it and turns the</span>
+    <span class="c1"># wrap guard off; inventing a default would either reject valid</span>
+    <span class="c1"># addresses or give false confidence.</span>
     <span class="n">memory_bytes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
@@ -1091,11 +1152,8 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../autoapi/dau_driver/device/index.html#dau_driver.device.DauDevice.close">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">transport</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transport</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">transport</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"_path_transport"</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">transport</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span>
-        <span class="n">close</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">transport</span><span class="p">,</span> <span class="s2">"close"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">close</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">close</span><span class="p">()</span></div>
+        <span class="k">if</span> <span class="n">transport</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">transport</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="DauDevice.prepare_transfer">
@@ -1226,7 +1284,14 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="write_address">
 <a class="viewcode-back" href="../../autoapi/dau_driver/device/index.html#dau_driver.device.write_address">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">write_address</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">low_offset</span><span class="p">,</span> <span class="n">high_offset</span><span class="p">,</span> <span class="n">address</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">memory_bytes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">object</span> <span class="o">=</span> <span class="n">_DEVICE_MEMORY</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_address</span><span class="p">(</span>
+    <span class="n">device</span><span class="p">:</span> <span class="n">AddressRegisters</span><span class="p">,</span>
+    <span class="n">low_offset</span><span class="p">:</span> <span class="n">RegisterOffset</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">high_offset</span><span class="p">:</span> <span class="n">RegisterOffset</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">address</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">memory_bytes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">object</span> <span class="o">=</span> <span class="n">_DEVICE_MEMORY</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Program an address across its LOW/HIGH register pair on any device.</span>
 
 <span class="sd">    A FUNCTION, not a method, because devices here are duck-typed: test</span>
@@ -1247,12 +1312,10 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    declared memory rather than to None, because a guard that is off</span>
 <span class="sd">    unless every call site remembers to switch it on is not a guard: the</span>
 <span class="sd">    execution paths that program job addresses all used the plain function</span>
-<span class="sd">    and so ran unbounded. Reading it off the device is a duck-typed probe</span>
-<span class="sd">    on purpose — devices here are not required to subclass `DauDevice`, and</span>
-<span class="sd">    one that does not declare its memory simply goes unbounded, as before.</span>
-<span class="sd">    Pass an explicit value to override, or `None` to disable the check.</span>
+<span class="sd">    and so ran unbounded. Pass an explicit value to override, or `None` to</span>
+<span class="sd">    disable the check.</span>
 <span class="sd">    """</span>
-    <span class="n">bound</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="s2">"memory_bytes"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">if</span> <span class="n">memory_bytes</span> <span class="ow">is</span> <span class="n">_DEVICE_MEMORY</span> <span class="k">else</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"int | None"</span><span class="p">,</span> <span class="n">memory_bytes</span><span class="p">)</span>
+    <span class="n">bound</span> <span class="o">=</span> <span class="n">device</span><span class="o">.</span><span class="n">memory_bytes</span> <span class="k">if</span> <span class="n">memory_bytes</span> <span class="ow">is</span> <span class="n">_DEVICE_MEMORY</span> <span class="k">else</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"int | None"</span><span class="p">,</span> <span class="n">memory_bytes</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">address</span> <span class="o">&lt;=</span> <span class="mh">0xFFFF_FFFF_FFFF_FFFF</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">RegisterAccessError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"address must fit in 64 bits, got </span><span class="si">{</span><span class="n">address</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">bound</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">address</span> <span class="o">&gt;=</span> <span class="n">bound</span><span class="p">:</span>
