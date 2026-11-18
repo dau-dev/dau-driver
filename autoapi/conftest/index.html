@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>conftest &#8212; dau-driver v0.3.0</title>
+    <title>conftest &#8212; dau-driver v0.3.1</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../_static/fuma.css?v=ca04d621" />
     <link rel="stylesheet" type="text/css" href="../../_static/fuma-code.css?v=a950e949" />
@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=6a604523" />
     <link rel="stylesheet" type="text/css" href="../../_static/fonts/fuma-fonts.css?v=c2892c73" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/custom.css?v=88c24c6a" />
-    <script src="../../_static/documentation_options.js?v=e259d695"></script>
+    <script src="../../_static/documentation_options.js?v=4621528c"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -49,7 +49,7 @@
   <div class="fd-subnav-inner">
     <button type="button" class="fd-icon-button fd-sidebar-toggle" aria-controls="fd-sidebar" aria-expanded="false" aria-label="Toggle navigation" title="Toggle navigation">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
-    </button><a class="fd-brand" href="../../index.html"><span class="fd-brand-name">dau-driver v0.3.0</span>
+    </button><a class="fd-brand" href="../../index.html"><span class="fd-brand-name">dau-driver v0.3.1</span>
 </a>
 
     <div class="fd-nav-actions">
@@ -64,7 +64,7 @@
 
 <aside id="fd-sidebar" aria-label="Documentation">
   <div class="fd-sidebar-header">
-    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../index.html"><span class="fd-brand-name">dau-driver v0.3.0</span>
+    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../index.html"><span class="fd-brand-name">dau-driver v0.3.1</span>
 </a>
       <button type="button" class="fd-icon-button fd-sidebar-collapse" aria-label="Collapse sidebar" title="Collapse sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
     </div>
@@ -418,6 +418,9 @@
     <a href="#attributes">Attributes</a>
   </li>
   <li class="fd-toc-item" data-depth="1">
+    <a href="#functions">Functions</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
     <a href="#module-contents">Module Contents</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
@@ -425,6 +428,15 @@
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#conftest.DAU_CORE_SOURCE">DAU_CORE_SOURCE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#conftest.POSIX_ONLY_REASON">POSIX_ONLY_REASON</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#conftest.pytest_configure">pytest_configure()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#conftest.pytest_collection_modifyitems">pytest_collection_modifyitems()</a>
   </li>
 </ul>
 </div>
@@ -454,6 +466,22 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#conftest.DAU_CORE_SOURCE" title="conftest.DAU_CORE_SOURCE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAU_CORE_SOURCE</span></code></a></p></td>
 <td><p></p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#conftest.POSIX_ONLY_REASON" title="conftest.POSIX_ONLY_REASON"><code class="xref py py-obj docutils literal notranslate"><span class="pre">POSIX_ONLY_REASON</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#conftest.pytest_configure" title="conftest.pytest_configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pytest_configure</span></code></a>(config) → None</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#conftest.pytest_collection_modifyitems" title="conftest.pytest_collection_modifyitems"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pytest_collection_modifyitems</span></code></a>(config, items) → None</p></td>
+<td><p></p></td>
+</tr>
 </tbody>
 </table>
 </section>
@@ -467,6 +495,21 @@
 <dl class="py data">
 <dt class="sig sig-object py" id="conftest.DAU_CORE_SOURCE">
 <span class="sig-prename descclassname"><span class="pre">conftest.</span></span><span class="sig-name descname"><span class="pre">DAU_CORE_SOURCE</span></span><a class="headerlink" href="#conftest.DAU_CORE_SOURCE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="conftest.POSIX_ONLY_REASON">
+<span class="sig-prename descclassname"><span class="pre">conftest.</span></span><span class="sig-name descname"><span class="pre">POSIX_ONLY_REASON</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'device</span> <span class="pre">I/O</span> <span class="pre">is</span> <span class="pre">os.pread/os.pwrite</span> <span class="pre">over</span> <span class="pre">Linux</span> <span class="pre">devnodes</span> <span class="pre">and</span> <span class="pre">sysfs;</span> <span class="pre">dau-driver</span> <span class="pre">has</span> <span class="pre">no</span> <span class="pre">Windows</span> <span class="pre">backend'</span></em><a class="headerlink" href="#conftest.POSIX_ONLY_REASON" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="conftest.pytest_configure">
+<span class="sig-prename descclassname"><span class="pre">conftest.</span></span><span class="sig-name descname"><span class="pre">pytest_configure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#conftest.pytest_configure" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="conftest.pytest_collection_modifyitems">
+<span class="sig-prename descclassname"><span class="pre">conftest.</span></span><span class="sig-name descname"><span class="pre">pytest_collection_modifyitems</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#conftest.pytest_collection_modifyitems" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </section>
@@ -509,6 +552,9 @@
     <a href="#attributes">Attributes</a>
   </li>
   <li class="fd-toc-item" data-depth="1">
+    <a href="#functions">Functions</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
     <a href="#module-contents">Module Contents</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
@@ -516,6 +562,15 @@
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#conftest.DAU_CORE_SOURCE">DAU_CORE_SOURCE</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#conftest.POSIX_ONLY_REASON">POSIX_ONLY_REASON</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#conftest.pytest_configure">pytest_configure()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#conftest.pytest_collection_modifyitems">pytest_collection_modifyitems()</a>
   </li>
 </ul>
 

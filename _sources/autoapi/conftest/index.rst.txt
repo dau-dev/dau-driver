@@ -11,6 +11,16 @@ Attributes
 
    conftest.SLOP_ROOT
    conftest.DAU_CORE_SOURCE
+   conftest.POSIX_ONLY_REASON
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   conftest.pytest_configure
+   conftest.pytest_collection_modifyitems
 
 
 Module Contents
@@ -19,4 +29,12 @@ Module Contents
 .. py:data:: SLOP_ROOT
 
 .. py:data:: DAU_CORE_SOURCE
+
+.. py:data:: POSIX_ONLY_REASON
+   :value: 'device I/O is os.pread/os.pwrite over Linux devnodes and sysfs; dau-driver has no Windows backend'
+
+
+.. py:function:: pytest_configure(config) -> None
+
+.. py:function:: pytest_collection_modifyitems(config, items) -> None
 
