@@ -8,12 +8,13 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
 
-from dau_core.capabilities import DeviceCapabilities, DmaConstraints
+from dau_core.capabilities import DeviceCapabilities
 from dau_core.registers import DAU_MAGIC_WORD, RegisterBlockSnapshot, RegisterOffset
 
-from .capability_decode import REGISTER_WINDOW_OFFSETS, operators_from_snapshot, read_register_block_snapshot
+from .capability_decode import find_register_window, operators_from_snapshot, read_register_block_snapshot
 from .device import DauDevice
 from .errors import DeviceNotFoundError, RegisterAccessError, TransferIoError, UnhealthyBarError, WrongBitstreamError
+from .transfer import XDMA_DMA_CONSTRAINTS
 
 DEFAULT_BACKEND = "macos-xdma"
 CANONICAL_SERVICE_NAME = "com.dau-dev.xdma"
@@ -25,13 +26,6 @@ K_METHOD_DMA_WRITE = 2
 K_METHOD_DMA_READ = 3
 K_METHOD_GET_INFO = 4
 DMA_CHUNK_BYTES = 8 << 20
-MACOS_XDMA_DMA_CONSTRAINTS = DmaConstraints(
-    alignment_bytes=64,
-    descriptor_bytes=32,
-    max_transfer_bytes=(1 << 28) - 1,
-    read_channels=1,
-    write_channels=1,
-)
 
 
 @dataclass(frozen=True)
@@ -526,7 +520,7 @@ def _format_service_probe_details(service_probes: Sequence[MacOSXDMAServiceProbe
 
 
 def identify_device(client: MacOSXDMAClientProtocol, *, index: int = 0) -> DauDevice:
-    bar_index, register_window_offset, magic = _find_register_window(client)
+    bar_index, register_window_offset, magic = find_register_window(client.read_bar_u32, REGISTER_BAR_INDICES)
     if magic == 0xFFFF_FFFF:
         raise UnhealthyBarError("DAU BAR magic read all ones from macOS XDMA user client; BAR/AXI-lite path may be unhealthy")
     if magic != DAU_MAGIC_WORD:
@@ -541,7 +535,7 @@ def identify_device(client: MacOSXDMAClientProtocol, *, index: int = 0) -> DauDe
         pci_device_id=info.device_id,
         register_map_version=snapshot.register_map_version,
         stream_protocol_version=snapshot.stream_protocol_version,
-        dma=MACOS_XDMA_DMA_CONSTRAINTS,
+        dma=XDMA_DMA_CONSTRAINTS,
         operators=operators,
         host_operators=host_operators,
     )
@@ -556,21 +550,6 @@ def identify_device(client: MacOSXDMAClientProtocol, *, index: int = 0) -> DauDe
         register_window_offset=register_window_offset,
         transport=MacOSXDMATransport(client=client, bar_index=bar_index),
     )
-
-
-def _find_register_window(client: MacOSXDMAClientProtocol) -> tuple[int, int, int]:
-    first_magic: int | None = None
-    for bar_index in REGISTER_BAR_INDICES:
-        for register_window_offset in REGISTER_WINDOW_OFFSETS:
-            try:
-                magic = client.read_bar_u32(bar_index, register_window_offset + int(RegisterOffset.MAGIC))
-            except RegisterAccessError:
-                continue
-            if first_magic is None:
-                first_magic = magic
-            if magic == DAU_MAGIC_WORD:
-                return bar_index, register_window_offset, magic
-    return 0, 0, 0 if first_magic is None else first_magic
 
 
 def _read_register_block_snapshot(client: MacOSXDMAClientProtocol, bar_index: int, register_window_offset: int) -> RegisterBlockSnapshot:

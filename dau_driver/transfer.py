@@ -8,6 +8,16 @@ from dau_core.capabilities import DmaConstraints
 
 from .errors import TransferValidationError
 
+# what the XDMA engine accepts, whichever OS transport drives it: the same IP
+# on the same descriptor format
+XDMA_DMA_CONSTRAINTS = DmaConstraints(
+    alignment_bytes=64,
+    descriptor_bytes=32,
+    max_transfer_bytes=(1 << 28) - 1,
+    read_channels=1,
+    write_channels=1,
+)
+
 
 class DmaDirection(StrEnum):
     H2C = "h2c"

@@ -120,6 +120,34 @@ def test_identify_macos_xdma_device_finds_dau_register_window() -> None:
     assert device.capabilities.dma.write_channels == 1
 
 
+def test_identify_macos_xdma_device_retries_a_transient_zero_magic_read() -> None:
+    """The first BAR reads after the link comes up can return 0 before it
+    settles. One zero sweep must not read a healthy shell as the wrong
+    bitstream, on this backend as on Linux."""
+
+    @dataclass
+    class SettlingClient(FakeMacOSXDMAClient):
+        unsettled_reads: int = 0
+
+        def read_bar_u32(self, bar_index: int, offset: int) -> int:
+            if self.unsettled_reads:
+                self.unsettled_reads -= 1
+                return 0
+            return super().read_bar_u32(bar_index, offset)
+
+    from dau_driver.capability_decode import REGISTER_WINDOW_OFFSETS
+    from dau_driver.macos_xdma import REGISTER_BAR_INDICES
+
+    client = SettlingClient(
+        {(0, int(RegisterOffset.MAGIC)): DAU_MAGIC_WORD},
+        unsettled_reads=len(REGISTER_BAR_INDICES) * len(REGISTER_WINDOW_OFFSETS),
+    )
+
+    device = identify_device(client)
+
+    assert device.read_register(RegisterOffset.MAGIC) == DAU_MAGIC_WORD
+
+
 def test_identify_macos_xdma_device_rejects_non_dau_bitstream() -> None:
     client = FakeMacOSXDMAClient({(0, int(RegisterOffset.MAGIC)): 0x58584D41})
 
