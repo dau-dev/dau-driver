@@ -19,7 +19,6 @@ Attributes
    dau_driver.macos_xdma.K_METHOD_DMA_READ
    dau_driver.macos_xdma.K_METHOD_GET_INFO
    dau_driver.macos_xdma.DMA_CHUNK_BYTES
-   dau_driver.macos_xdma.MACOS_XDMA_DMA_CONSTRAINTS
 
 
 Classes
@@ -50,7 +49,6 @@ Functions
    dau_driver.macos_xdma._probe_message
    dau_driver.macos_xdma._format_service_probe_details
    dau_driver.macos_xdma.identify_device
-   dau_driver.macos_xdma._find_register_window
    dau_driver.macos_xdma._read_register_block_snapshot
    dau_driver.macos_xdma._read_register
    dau_driver.macos_xdma.main
@@ -96,8 +94,6 @@ Module Contents
 .. py:data:: DMA_CHUNK_BYTES
    :value: 8388608
 
-
-.. py:data:: MACOS_XDMA_DMA_CONSTRAINTS
 
 .. py:class:: MacOSXDMAServiceProbe
 
@@ -364,8 +360,6 @@ Module Contents
 .. py:function:: _format_service_probe_details(service_probes: collections.abc.Sequence[MacOSXDMAServiceProbe]) -> str
 
 .. py:function:: identify_device(client: MacOSXDMAClientProtocol, *, index: int = 0) -> dau_driver.device.DauDevice
-
-.. py:function:: _find_register_window(client: MacOSXDMAClientProtocol) -> tuple[int, int, int]
 
 .. py:function:: _read_register_block_snapshot(client: MacOSXDMAClientProtocol, bar_index: int, register_window_offset: int) -> dau_core.registers.RegisterBlockSnapshot
 

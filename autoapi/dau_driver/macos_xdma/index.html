@@ -457,9 +457,6 @@
     <a href="#dau_driver.macos_xdma.DMA_CHUNK_BYTES">DMA_CHUNK_BYTES</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#dau_driver.macos_xdma.MACOS_XDMA_DMA_CONSTRAINTS">MACOS_XDMA_DMA_CONSTRAINTS</a>
-  </li>
-  <li class="fd-toc-item" data-depth="2">
     <a href="#dau_driver.macos_xdma.MacOSXDMAServiceProbe">MacOSXDMAServiceProbe</a>
   </li>
   <li class="fd-toc-item" data-depth="3">
@@ -667,9 +664,6 @@
     <a href="#dau_driver.macos_xdma.identify_device">identify_device()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#dau_driver.macos_xdma._find_register_window">_find_register_window()</a>
-  </li>
-  <li class="fd-toc-item" data-depth="2">
     <a href="#dau_driver.macos_xdma._read_register_block_snapshot">_read_register_block_snapshot()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
@@ -734,9 +728,6 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.macos_xdma.DMA_CHUNK_BYTES" title="dau_driver.macos_xdma.DMA_CHUNK_BYTES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DMA_CHUNK_BYTES</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.macos_xdma.MACOS_XDMA_DMA_CONSTRAINTS" title="dau_driver.macos_xdma.MACOS_XDMA_DMA_CONSTRAINTS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MACOS_XDMA_DMA_CONSTRAINTS</span></code></a></p></td>
-<td><p></p></td>
-</tr>
 </tbody>
 </table>
 </section>
@@ -799,16 +790,13 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.macos_xdma.identify_device" title="dau_driver.macos_xdma.identify_device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">identify_device</span></code></a>(client, *[, index]) → dau_driver.device.DauDevice</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.macos_xdma._find_register_window" title="dau_driver.macos_xdma._find_register_window"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_find_register_window</span></code></a>(client) → tuple[int, int, int]</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.macos_xdma._read_register_block_snapshot" title="dau_driver.macos_xdma._read_register_block_snapshot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_read_register_block_snapshot</span></code></a>(client, bar_index, ...) → dau_core.registers.RegisterBlockSnapshot</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.macos_xdma._read_register_block_snapshot" title="dau_driver.macos_xdma._read_register_block_snapshot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_read_register_block_snapshot</span></code></a>(client, bar_index, ...) → dau_core.registers.RegisterBlockSnapshot</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.macos_xdma._read_register" title="dau_driver.macos_xdma._read_register"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_read_register</span></code></a>(client, bar_index, ...) → int</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.macos_xdma._read_register" title="dau_driver.macos_xdma._read_register"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_read_register</span></code></a>(client, bar_index, ...) → int</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.macos_xdma.main" title="dau_driver.macos_xdma.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a>([argv]) → int</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.macos_xdma.main" title="dau_driver.macos_xdma.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a>([argv]) → int</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -864,11 +852,6 @@
 <dl class="py data">
 <dt class="sig sig-object py" id="dau_driver.macos_xdma.DMA_CHUNK_BYTES">
 <span class="sig-prename descclassname"><span class="pre">dau_driver.macos_xdma.</span></span><span class="sig-name descname"><span class="pre">DMA_CHUNK_BYTES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8388608</span></em><a class="headerlink" href="#dau_driver.macos_xdma.DMA_CHUNK_BYTES" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="dau_driver.macos_xdma.MACOS_XDMA_DMA_CONSTRAINTS">
-<span class="sig-prename descclassname"><span class="pre">dau_driver.macos_xdma.</span></span><span class="sig-name descname"><span class="pre">MACOS_XDMA_DMA_CONSTRAINTS</span></span><a class="headerlink" href="#dau_driver.macos_xdma.MACOS_XDMA_DMA_CONSTRAINTS" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py class">
@@ -1250,11 +1233,6 @@ Protocol classes can be generic, they are defined as:</p>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="dau_driver.macos_xdma._find_register_window">
-<span class="sig-prename descclassname"><span class="pre">dau_driver.macos_xdma.</span></span><span class="sig-name descname"><span class="pre">_find_register_window</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dau_driver.macos_xdma.MacOSXDMAClientProtocol" title="dau_driver.macos_xdma.MacOSXDMAClientProtocol"><span class="pre">MacOSXDMAClientProtocol</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_driver/macos_xdma.html#_find_register_window"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.macos_xdma._find_register_window" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="dau_driver.macos_xdma._read_register_block_snapshot">
 <span class="sig-prename descclassname"><span class="pre">dau_driver.macos_xdma.</span></span><span class="sig-name descname"><span class="pre">_read_register_block_snapshot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dau_driver.macos_xdma.MacOSXDMAClientProtocol" title="dau_driver.macos_xdma.MacOSXDMAClientProtocol"><span class="pre">MacOSXDMAClientProtocol</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">bar_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">register_window_offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dau_core.registers.RegisterBlockSnapshot</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/macos_xdma.html#_read_register_block_snapshot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.macos_xdma._read_register_block_snapshot" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -1346,9 +1324,6 @@ Protocol classes can be generic, they are defined as:</p>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_driver.macos_xdma.DMA_CHUNK_BYTES">DMA_CHUNK_BYTES</a>
-  </li>
-  <li class="fd-toc-item" data-depth="2">
-    <a href="#dau_driver.macos_xdma.MACOS_XDMA_DMA_CONSTRAINTS">MACOS_XDMA_DMA_CONSTRAINTS</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_driver.macos_xdma.MacOSXDMAServiceProbe">MacOSXDMAServiceProbe</a>
@@ -1556,9 +1531,6 @@ Protocol classes can be generic, they are defined as:</p>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_driver.macos_xdma.identify_device">identify_device()</a>
-  </li>
-  <li class="fd-toc-item" data-depth="2">
-    <a href="#dau_driver.macos_xdma._find_register_window">_find_register_window()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_driver.macos_xdma._read_register_block_snapshot">_read_register_block_snapshot()</a>

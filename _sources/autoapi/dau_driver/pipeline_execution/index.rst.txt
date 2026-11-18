@@ -60,7 +60,6 @@ Functions
    dau_driver.pipeline_execution.bar_noc_lane_output_bytes
    dau_driver.pipeline_execution.bar_noc_max_rows_per_job
    dau_driver.pipeline_execution.device_lane_count
-   dau_driver.pipeline_execution._advertised
    dau_driver.pipeline_execution.device_job_capacity
    dau_driver.pipeline_execution.bar_noc_lane_output_address
    dau_driver.pipeline_execution.configure_bar_noc_lanes
@@ -251,12 +250,6 @@ Module Contents
    Refuses when the shell advertises nothing (0, which fixed binding tops
    and any pre-0.2 shell report) rather than falling back to a default:
    a caller running such a shell knows its geometry and must say so.
-
-
-.. py:function:: _advertised(value: int) -> int
-
-   All-ones is a word nobody decoded, not a four-billion-row capacity —
-   the same normalization every capability reader applies.
 
 
 .. py:function:: device_job_capacity(device) -> tuple[int, int]

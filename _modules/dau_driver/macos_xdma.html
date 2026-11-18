@@ -837,12 +837,13 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Protocol</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">dau_core.capabilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">DeviceCapabilities</span><span class="p">,</span> <span class="n">DmaConstraints</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dau_core.capabilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">DeviceCapabilities</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dau_core.registers</span><span class="w"> </span><span class="kn">import</span> <span class="n">DAU_MAGIC_WORD</span><span class="p">,</span> <span class="n">RegisterBlockSnapshot</span><span class="p">,</span> <span class="n">RegisterOffset</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">.capability_decode</span><span class="w"> </span><span class="kn">import</span> <span class="n">REGISTER_WINDOW_OFFSETS</span><span class="p">,</span> <span class="n">operators_from_snapshot</span><span class="p">,</span> <span class="n">read_register_block_snapshot</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.capability_decode</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_register_window</span><span class="p">,</span> <span class="n">operators_from_snapshot</span><span class="p">,</span> <span class="n">read_register_block_snapshot</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.device</span><span class="w"> </span><span class="kn">import</span> <span class="n">DauDevice</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.errors</span><span class="w"> </span><span class="kn">import</span> <span class="n">DeviceNotFoundError</span><span class="p">,</span> <span class="n">RegisterAccessError</span><span class="p">,</span> <span class="n">TransferIoError</span><span class="p">,</span> <span class="n">UnhealthyBarError</span><span class="p">,</span> <span class="n">WrongBitstreamError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.transfer</span><span class="w"> </span><span class="kn">import</span> <span class="n">XDMA_DMA_CONSTRAINTS</span>
 
 <span class="n">DEFAULT_BACKEND</span> <span class="o">=</span> <span class="s2">"macos-xdma"</span>
 <span class="n">CANONICAL_SERVICE_NAME</span> <span class="o">=</span> <span class="s2">"com.dau-dev.xdma"</span>
@@ -854,13 +855,6 @@ window.runMermaid = runMermaid;</script>
 <span class="n">K_METHOD_DMA_READ</span> <span class="o">=</span> <span class="mi">3</span>
 <span class="n">K_METHOD_GET_INFO</span> <span class="o">=</span> <span class="mi">4</span>
 <span class="n">DMA_CHUNK_BYTES</span> <span class="o">=</span> <span class="mi">8</span> <span class="o">&lt;&lt;</span> <span class="mi">20</span>
-<span class="n">MACOS_XDMA_DMA_CONSTRAINTS</span> <span class="o">=</span> <span class="n">DmaConstraints</span><span class="p">(</span>
-    <span class="n">alignment_bytes</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
-    <span class="n">descriptor_bytes</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
-    <span class="n">max_transfer_bytes</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">28</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
-    <span class="n">read_channels</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-    <span class="n">write_channels</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-<span class="p">)</span>
 
 
 <div class="viewcode-block" id="MacOSXDMAServiceProbe">
@@ -1498,7 +1492,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="identify_device">
 <a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma.identify_device">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">identify_device</span><span class="p">(</span><span class="n">client</span><span class="p">:</span> <span class="n">MacOSXDMAClientProtocol</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DauDevice</span><span class="p">:</span>
-    <span class="n">bar_index</span><span class="p">,</span> <span class="n">register_window_offset</span><span class="p">,</span> <span class="n">magic</span> <span class="o">=</span> <span class="n">_find_register_window</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+    <span class="n">bar_index</span><span class="p">,</span> <span class="n">register_window_offset</span><span class="p">,</span> <span class="n">magic</span> <span class="o">=</span> <span class="n">find_register_window</span><span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">read_bar_u32</span><span class="p">,</span> <span class="n">REGISTER_BAR_INDICES</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">magic</span> <span class="o">==</span> <span class="mh">0xFFFF_FFFF</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">UnhealthyBarError</span><span class="p">(</span><span class="s2">"DAU BAR magic read all ones from macOS XDMA user client; BAR/AXI-lite path may be unhealthy"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">magic</span> <span class="o">!=</span> <span class="n">DAU_MAGIC_WORD</span><span class="p">:</span>
@@ -1513,7 +1507,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">pci_device_id</span><span class="o">=</span><span class="n">info</span><span class="o">.</span><span class="n">device_id</span><span class="p">,</span>
         <span class="n">register_map_version</span><span class="o">=</span><span class="n">snapshot</span><span class="o">.</span><span class="n">register_map_version</span><span class="p">,</span>
         <span class="n">stream_protocol_version</span><span class="o">=</span><span class="n">snapshot</span><span class="o">.</span><span class="n">stream_protocol_version</span><span class="p">,</span>
-        <span class="n">dma</span><span class="o">=</span><span class="n">MACOS_XDMA_DMA_CONSTRAINTS</span><span class="p">,</span>
+        <span class="n">dma</span><span class="o">=</span><span class="n">XDMA_DMA_CONSTRAINTS</span><span class="p">,</span>
         <span class="n">operators</span><span class="o">=</span><span class="n">operators</span><span class="p">,</span>
         <span class="n">host_operators</span><span class="o">=</span><span class="n">host_operators</span><span class="p">,</span>
     <span class="p">)</span>
@@ -1528,24 +1522,6 @@ window.runMermaid = runMermaid;</script>
         <span class="n">register_window_offset</span><span class="o">=</span><span class="n">register_window_offset</span><span class="p">,</span>
         <span class="n">transport</span><span class="o">=</span><span class="n">MacOSXDMATransport</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">,</span> <span class="n">bar_index</span><span class="o">=</span><span class="n">bar_index</span><span class="p">),</span>
     <span class="p">)</span></div>
-
-
-
-<div class="viewcode-block" id="_find_register_window">
-<a class="viewcode-back" href="../../autoapi/dau_driver/macos_xdma/index.html#dau_driver.macos_xdma._find_register_window">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_find_register_window</span><span class="p">(</span><span class="n">client</span><span class="p">:</span> <span class="n">MacOSXDMAClientProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
-    <span class="n">first_magic</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">for</span> <span class="n">bar_index</span> <span class="ow">in</span> <span class="n">REGISTER_BAR_INDICES</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">register_window_offset</span> <span class="ow">in</span> <span class="n">REGISTER_WINDOW_OFFSETS</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">magic</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">read_bar_u32</span><span class="p">(</span><span class="n">bar_index</span><span class="p">,</span> <span class="n">register_window_offset</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">RegisterOffset</span><span class="o">.</span><span class="n">MAGIC</span><span class="p">))</span>
-            <span class="k">except</span> <span class="n">RegisterAccessError</span><span class="p">:</span>
-                <span class="k">continue</span>
-            <span class="k">if</span> <span class="n">first_magic</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">first_magic</span> <span class="o">=</span> <span class="n">magic</span>
-            <span class="k">if</span> <span class="n">magic</span> <span class="o">==</span> <span class="n">DAU_MAGIC_WORD</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">bar_index</span><span class="p">,</span> <span class="n">register_window_offset</span><span class="p">,</span> <span class="n">magic</span>
-    <span class="k">return</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">first_magic</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">first_magic</span></div>
 
 
 

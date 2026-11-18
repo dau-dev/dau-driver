@@ -20,6 +20,8 @@ Attributes
 
    dau_driver.capability_decode.REGISTER_BITMAP_INPUT_TYPES
    dau_driver.capability_decode.REGISTER_WINDOW_OFFSETS
+   dau_driver.capability_decode._MAGIC_PROBE_ATTEMPTS
+   dau_driver.capability_decode._MAGIC_PROBE_DELAY_S
    dau_driver.capability_decode.NOT_ADVERTISED_REGISTER_MAP_VERSION
 
 
@@ -28,6 +30,7 @@ Functions
 
 .. autoapisummary::
 
+   dau_driver.capability_decode.find_register_window
    dau_driver.capability_decode.decode_platform_id
    dau_driver.capability_decode.decode_register_map_version
    dau_driver.capability_decode._typed_operators_from_bitmap
@@ -37,6 +40,7 @@ Functions
    dau_driver.capability_decode._capability_word
    dau_driver.capability_decode._build_id
    dau_driver.capability_decode._capability_words
+   dau_driver.capability_decode._counter
    dau_driver.capability_decode.read_register_block_snapshot
 
 
@@ -46,6 +50,25 @@ Module Contents
 .. py:data:: REGISTER_BITMAP_INPUT_TYPES
 
 .. py:data:: REGISTER_WINDOW_OFFSETS
+
+.. py:data:: _MAGIC_PROBE_ATTEMPTS
+   :value: 5
+
+
+.. py:data:: _MAGIC_PROBE_DELAY_S
+   :value: 0.01
+
+
+.. py:function:: find_register_window(read_u32: collections.abc.Callable[[int, int], int], bar_indices: collections.abc.Sequence[int]) -> tuple[int, int, int]
+
+   (BAR index, window offset, magic) of the DAU identity window.
+
+   ``read_u32(bar_index, offset)`` is the backend's raw BAR read. Every
+   candidate BAR and window is probed for MAGIC, the whole sweep retried
+   while the link settles. When no candidate reads MAGIC the first value
+   read comes back, so the caller can tell an all-ones (unhealthy) path
+   from a different bitstream.
+
 
 .. py:function:: decode_platform_id(value: int) -> str
 
@@ -123,11 +146,14 @@ Module Contents
    all-ones normalization cannot diverge between them.
 
 
+.. py:function:: _counter(read_register: collections.abc.Callable[[dau_core.registers.RegisterOffset], int], low: dau_core.registers.RegisterOffset, high: dau_core.registers.RegisterOffset) -> int
+
 .. py:function:: read_register_block_snapshot(read_register: collections.abc.Callable[[dau_core.registers.RegisterOffset], int]) -> dau_core.registers.RegisterBlockSnapshot
 
-   Discovery-time identity snapshot; ``read_register`` abstracts the
-   backend-specific window access (dev-node pread vs DriverKit BAR read).
-   The composed-capability words are only read on register map >= 0.2 —
-   older shells do not decode those offsets.
+   The register-block snapshot every reader takes, at discovery and on a
+   live device; ``read_register`` abstracts the backend-specific window
+   access (dev-node pread vs DriverKit BAR read). The composed-capability
+   words are only read on register map >= 0.2 — older shells do not decode
+   those offsets.
 
 

@@ -14,33 +14,24 @@ Attributes
    test_verify_advertisement._PLATFORM
 
 
-Classes
--------
-
-.. autoapisummary::
-
-   test_verify_advertisement._Snapshot
-   test_verify_advertisement._StampedSnapshot
-
-
 Functions
 ---------
 
 .. autoapisummary::
 
+   test_verify_advertisement._lane
+   test_verify_advertisement._snapshot
    test_verify_advertisement._manifest
    test_verify_advertisement.test_a_matching_device_reports_no_mismatches
    test_verify_advertisement.test_the_resident_design_that_fooled_the_flash_is_caught
    test_verify_advertisement.test_every_mismatch_is_reported_not_just_the_first
-   test_verify_advertisement.test_hex_and_int_spellings_of_a_word_compare_equal
-   test_verify_advertisement.test_a_word_the_manifest_does_not_record_is_skipped
-   test_verify_advertisement.test_contract_is_read_from_a_manifest
+   test_verify_advertisement.test_contract_is_read_from_a_manifest_as_the_typed_model
+   test_verify_advertisement.test_the_words_compared_are_the_contract_lanes_not_its_summary_fields
    test_verify_advertisement.test_a_manifest_without_a_contract_refuses
    test_verify_advertisement.test_a_contract_that_advertises_nothing_is_refused
    test_verify_advertisement.test_a_zero_device_word_means_not_advertised_not_zero
    test_verify_advertisement.test_a_dead_board_is_caught_by_the_required_identity_not_by_the_words
-   test_verify_advertisement.test_an_unreadable_word_is_a_mismatch_not_a_skip_and_never_raises
-   test_verify_advertisement.test_a_float_lane_count_does_not_pass_a_mismatched_device
+   test_verify_advertisement.test_the_command_reports_a_contract_it_cannot_parse_in_one_line
    test_verify_advertisement.test_device_name_for_endpoint_resolves_through_sysfs
    test_verify_advertisement.test_an_endpoint_that_did_not_re_enumerate_refuses
    test_verify_advertisement._stamped
@@ -53,35 +44,19 @@ Functions
    test_verify_advertisement.test_a_manifest_without_a_platform_does_not_fail_the_exact_check
    test_verify_advertisement.test_the_snapshot_actually_reads_build_id_back_from_the_registers
    test_verify_advertisement.test_a_dead_aperture_reads_back_as_unstamped_not_as_an_identity
-   test_verify_advertisement.test_a_json_boolean_is_not_a_capability_word
-   test_verify_advertisement.test_an_unreadable_only_contract_reports_the_reason_not_the_all_zero_guard
    test_verify_advertisement.test_the_command_reports_a_missing_or_malformed_manifest_in_one_line
 
 
 Module Contents
 ---------------
 
+.. py:function:: _lane(core: str = 'hash-grouped-scan') -> dau_core.capability_contract.LaneCapability
+
 .. py:data:: _CONTRACT
 
-.. py:class:: _Snapshot
+.. py:function:: _snapshot(*, lane_count: int = 1, operator_bitmap: int = 24, host_opcode_bitmap: int = 32, sort_capacity: int = 0, build_id: int = 0)
 
-   .. py:attribute:: lane_count
-      :type:  int
-
-
-   .. py:attribute:: operator_bitmap
-      :type:  int
-
-
-   .. py:attribute:: host_opcode_bitmap
-      :type:  int
-
-
-   .. py:attribute:: sort_capacity
-      :type:  int
-
-
-.. py:function:: _manifest(tmp_path: pathlib.Path, contract=_CONTRACT) -> pathlib.Path
+.. py:function:: _manifest(tmp_path: pathlib.Path, contract=None, **metadata) -> pathlib.Path
 
 .. py:function:: test_a_matching_device_reports_no_mismatches() -> None
 
@@ -91,7 +66,7 @@ Module Contents
    leaves the FPGA on its flash-resident design, and the endpoint
    enumerates exactly as it would on success — same vendor, same device id,
    same address. Only the composed advertisement differs: here the resident
-   shell carries three lanes where the manifest declares one.
+   shell has three lanes where the manifest declares one.
 
 
 .. py:function:: test_every_mismatch_is_reported_not_just_the_first() -> None
@@ -100,15 +75,14 @@ Module Contents
    differs' and 'operator bitmap differs' have different causes.
 
 
-.. py:function:: test_hex_and_int_spellings_of_a_word_compare_equal() -> None
+.. py:function:: test_contract_is_read_from_a_manifest_as_the_typed_model(tmp_path: pathlib.Path) -> None
 
-.. py:function:: test_a_word_the_manifest_does_not_record_is_skipped() -> None
+.. py:function:: test_the_words_compared_are_the_contract_lanes_not_its_summary_fields(tmp_path: pathlib.Path) -> None
 
-   An older manifest predating a word must not fail a device that
-   advertises it -- absence is not disagreement.
+   The manifest's summary words are a serialization of its lanes. The
+   lanes are what the typed contract keeps, so a summary that disagrees
+   with them cannot mislead the check.
 
-
-.. py:function:: test_contract_is_read_from_a_manifest(tmp_path: pathlib.Path) -> None
 
 .. py:function:: test_a_manifest_without_a_contract_refuses(tmp_path: pathlib.Path) -> None
 
@@ -138,45 +112,15 @@ Module Contents
    flash path requires one.
 
 
-.. py:function:: test_an_unreadable_word_is_a_mismatch_not_a_skip_and_never_raises(bad) -> None
+.. py:function:: test_the_command_reports_a_contract_it_cannot_parse_in_one_line(tmp_path: pathlib.Path, capsys) -> None
 
-   Fail CLOSED. A word the manifest records in a form this cannot read
-   is not the same as one it does not record: reading it as absent is how a
-   check silently stops checking. Raising is worse still -- this runs
-   before the deadman disarm, so an uncaught exception reboots the host.
-
-
-.. py:function:: test_a_float_lane_count_does_not_pass_a_mismatched_device() -> None
-
-   The concrete fail-open case: 4.0 parsed as 'absent' let a device
-   advertising 1 pass a manifest expecting 4.
+   A malformed contract fails the verification with its reason instead
+   of a traceback; the step runs before the deadman disarm.
 
 
 .. py:function:: test_device_name_for_endpoint_resolves_through_sysfs(tmp_path) -> None
 
 .. py:function:: test_an_endpoint_that_did_not_re_enumerate_refuses(tmp_path) -> None
-
-.. py:class:: _StampedSnapshot
-
-   .. py:attribute:: lane_count
-      :type:  int
-
-
-   .. py:attribute:: operator_bitmap
-      :type:  int
-
-
-   .. py:attribute:: host_opcode_bitmap
-      :type:  int
-
-
-   .. py:attribute:: sort_capacity
-      :type:  int
-
-
-   .. py:attribute:: build_id
-      :type:  int
-
 
 .. py:data:: _SPEC_HASH
    :value: '5:cbbe0c39ca6857cf1854804711d7abac7c301b620d4a478185ca0686dedd5575'
@@ -186,7 +130,7 @@ Module Contents
    :value: 'dpv1'
 
 
-.. py:function:: _stamped(build_id: int) -> _StampedSnapshot
+.. py:function:: _stamped(build_id: int) -> dau_core.registers.RegisterBlockSnapshot
 
 .. py:function:: test_a_matching_build_id_is_the_exact_check() -> None
 
@@ -242,17 +186,6 @@ Module Contents
 
 
 .. py:function:: test_a_dead_aperture_reads_back_as_unstamped_not_as_an_identity() -> None
-
-.. py:function:: test_a_json_boolean_is_not_a_capability_word() -> None
-
-   int(True) == 1 would quietly satisfy a device advertising one lane.
-
-
-.. py:function:: test_an_unreadable_only_contract_reports_the_reason_not_the_all_zero_guard() -> None
-
-   Guard ordering: the all-zero refusal must not swallow an unreadable
-   word and raise, which loses the specific reason a caller needs.
-
 
 .. py:function:: test_the_command_reports_a_missing_or_malformed_manifest_in_one_line(tmp_path: pathlib.Path, capsys) -> None
 

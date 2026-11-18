@@ -490,6 +490,9 @@
     <a href="#test_macos_xdma.test_identify_macos_xdma_device_finds_dau_register_window">test_identify_macos_xdma_device_finds_dau_register_window()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
+    <a href="#test_macos_xdma.test_identify_macos_xdma_device_retries_a_transient_zero_magic_read">test_identify_macos_xdma_device_retries_a_transient_zero_magic_read()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
     <a href="#test_macos_xdma.test_identify_macos_xdma_device_rejects_non_dau_bitstream">test_identify_macos_xdma_device_rejects_non_dau_bitstream()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
@@ -557,31 +560,34 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#test_macos_xdma.test_identify_macos_xdma_device_finds_dau_register_window" title="test_macos_xdma.test_identify_macos_xdma_device_finds_dau_register_window"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_identify_macos_xdma_device_finds_dau_register_window</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_macos_xdma.test_identify_macos_xdma_device_rejects_non_dau_bitstream" title="test_macos_xdma.test_identify_macos_xdma_device_rejects_non_dau_bitstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_identify_macos_xdma_device_rejects_non_dau_bitstream</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_macos_xdma.test_identify_macos_xdma_device_retries_a_transient_zero_magic_read" title="test_macos_xdma.test_identify_macos_xdma_device_retries_a_transient_zero_magic_read"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_identify_macos_xdma_device_retries_a_transient_zero_magic_read</span></code></a>() → None</p></td>
+<td><p>The first BAR reads after the link comes up can return 0 before it</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_macos_xdma.test_identify_macos_xdma_device_rejects_non_dau_bitstream" title="test_macos_xdma.test_identify_macos_xdma_device_rejects_non_dau_bitstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_identify_macos_xdma_device_rejects_non_dau_bitstream</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_macos_xdma.test_discover_macos_xdma_devices_skips_unhealthy_or_wrong_bitstreams" title="test_macos_xdma.test_discover_macos_xdma_devices_skips_unhealthy_or_wrong_bitstreams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_discover_macos_xdma_devices_skips_unhealthy_or_wrong_bitstreams</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_macos_xdma.test_discover_macos_xdma_devices_skips_unhealthy_or_wrong_bitstreams" title="test_macos_xdma.test_discover_macos_xdma_devices_skips_unhealthy_or_wrong_bitstreams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_discover_macos_xdma_devices_skips_unhealthy_or_wrong_bitstreams</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_macos_xdma.test_discover_macos_xdma_devices_reports_no_user_client_as_no_devices" title="test_macos_xdma.test_discover_macos_xdma_devices_reports_no_user_client_as_no_devices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_discover_macos_xdma_devices_reports_no_user_client_as_no_devices</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_macos_xdma.test_discover_macos_xdma_devices_reports_no_user_client_as_no_devices" title="test_macos_xdma.test_discover_macos_xdma_devices_reports_no_user_client_as_no_devices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_discover_macos_xdma_devices_reports_no_user_client_as_no_devices</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_macos_xdma.test_probe_macos_xdma_reports_services_tried_when_no_driverkit_service_is_visible" title="test_macos_xdma.test_probe_macos_xdma_reports_services_tried_when_no_driverkit_service_is_visible"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_probe_macos_xdma_reports_services_tried_when_no_driverkit_service_is_visible</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_macos_xdma.test_probe_macos_xdma_reports_services_tried_when_no_driverkit_service_is_visible" title="test_macos_xdma.test_probe_macos_xdma_reports_services_tried_when_no_driverkit_service_is_visible"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_probe_macos_xdma_reports_services_tried_when_no_driverkit_service_is_visible</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_macos_xdma.test_probe_macos_xdma_reports_matched_service_without_open_user_client" title="test_macos_xdma.test_probe_macos_xdma_reports_matched_service_without_open_user_client"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_probe_macos_xdma_reports_matched_service_without_open_user_client</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_macos_xdma.test_probe_macos_xdma_reports_matched_service_without_open_user_client" title="test_macos_xdma.test_probe_macos_xdma_reports_matched_service_without_open_user_client"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_probe_macos_xdma_reports_matched_service_without_open_user_client</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_macos_xdma.test_probe_macos_xdma_reports_visible_service_with_wrong_bitstream" title="test_macos_xdma.test_probe_macos_xdma_reports_visible_service_with_wrong_bitstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_probe_macos_xdma_reports_visible_service_with_wrong_bitstream</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_macos_xdma.test_probe_macos_xdma_reports_visible_service_with_wrong_bitstream" title="test_macos_xdma.test_probe_macos_xdma_reports_visible_service_with_wrong_bitstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_probe_macos_xdma_reports_visible_service_with_wrong_bitstream</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_macos_xdma.test_macos_xdma_dma_roundtrip_carries_buffers" title="test_macos_xdma.test_macos_xdma_dma_roundtrip_carries_buffers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_macos_xdma_dma_roundtrip_carries_buffers</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_macos_xdma.test_macos_xdma_dma_roundtrip_carries_buffers" title="test_macos_xdma.test_macos_xdma_dma_roundtrip_carries_buffers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_macos_xdma_dma_roundtrip_carries_buffers</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_macos_xdma.test_macos_xdma_device_close_releases_user_client" title="test_macos_xdma.test_macos_xdma_device_close_releases_user_client"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_macos_xdma_device_close_releases_user_client</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_macos_xdma.test_macos_xdma_device_close_releases_user_client" title="test_macos_xdma.test_macos_xdma_device_close_releases_user_client"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_macos_xdma_device_close_releases_user_client</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_macos_xdma.test_the_real_client_checks_bar_index_and_offset_before_calling_the_dext" title="test_macos_xdma.test_the_real_client_checks_bar_index_and_offset_before_calling_the_dext"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_real_client_checks_bar_index_and_offset_before_calling_the_dext</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_macos_xdma.test_the_real_client_checks_bar_index_and_offset_before_calling_the_dext" title="test_macos_xdma.test_the_real_client_checks_bar_index_and_offset_before_calling_the_dext"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_real_client_checks_bar_index_and_offset_before_calling_the_dext</span></code></a>() → None</p></td>
 <td><p>The user client hands the scalars to the dext as unsigned 64-bit values;</p></td>
 </tr>
 </tbody>
@@ -698,6 +704,14 @@
 <dt class="sig sig-object py" id="test_macos_xdma.test_identify_macos_xdma_device_finds_dau_register_window">
 <span class="sig-prename descclassname"><span class="pre">test_macos_xdma.</span></span><span class="sig-name descname"><span class="pre">test_identify_macos_xdma_device_finds_dau_register_window</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_macos_xdma.test_identify_macos_xdma_device_finds_dau_register_window" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_macos_xdma.test_identify_macos_xdma_device_retries_a_transient_zero_magic_read">
+<span class="sig-prename descclassname"><span class="pre">test_macos_xdma.</span></span><span class="sig-name descname"><span class="pre">test_identify_macos_xdma_device_retries_a_transient_zero_magic_read</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_macos_xdma.test_identify_macos_xdma_device_retries_a_transient_zero_magic_read" title="Link to this definition">¶</a></dt>
+<dd><p>The first BAR reads after the link comes up can return 0 before it
+settles. One zero sweep must not read a healthy shell as the wrong
+bitstream, on this backend as on Linux.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="test_macos_xdma.test_identify_macos_xdma_device_rejects_non_dau_bitstream">
@@ -857,6 +871,9 @@ binding is touched, so a bindings object that cannot be called proves it.</p>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_macos_xdma.test_identify_macos_xdma_device_finds_dau_register_window">test_identify_macos_xdma_device_finds_dau_register_window()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_macos_xdma.test_identify_macos_xdma_device_retries_a_transient_zero_magic_read">test_identify_macos_xdma_device_retries_a_transient_zero_magic_read()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_macos_xdma.test_identify_macos_xdma_device_rejects_non_dau_bitstream">test_identify_macos_xdma_device_rejects_non_dau_bitstream()</a>

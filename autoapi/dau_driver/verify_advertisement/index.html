@@ -415,16 +415,13 @@
     </button>
     <div id="fd-toc-mobile" hidden><ul class="fd-toc-list">
   <li class="fd-toc-item" data-depth="1">
-    <a href="#attributes">Attributes</a>
-  </li>
-  <li class="fd-toc-item" data-depth="1">
     <a href="#functions">Functions</a>
   </li>
   <li class="fd-toc-item" data-depth="1">
     <a href="#module-contents">Module Contents</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#dau_driver.verify_advertisement.ADVERTISED_WORDS">ADVERTISED_WORDS</a>
+    <a href="#dau_driver.verify_advertisement.advertised_words">advertised_words()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_driver.verify_advertisement.contract_from_manifest_path">contract_from_manifest_path()</a>
@@ -488,33 +485,26 @@ there is — but a pass on words alone is reported as the weaker result it is.</
 mismatch rather than the first, because “lane count differs” and “operator
 bitmap differs” have different causes and a caller staring at a failed flash
 wants both.</p>
-<section id="attributes">
-<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h2>
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.verify_advertisement.ADVERTISED_WORDS" title="dau_driver.verify_advertisement.ADVERTISED_WORDS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ADVERTISED_WORDS</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-</tbody>
-</table>
-</section>
 <section id="functions">
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.verify_advertisement.contract_from_manifest_path" title="dau_driver.verify_advertisement.contract_from_manifest_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">contract_from_manifest_path</span></code></a>(path, *[, with_identity]) → Any</p></td>
-<td><p>The capability contract a shell-build manifest carries, as plain data,</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.verify_advertisement.advertised_words" title="dau_driver.verify_advertisement.advertised_words"><code class="xref py py-obj docutils literal notranslate"><span class="pre">advertised_words</span></code></a>(source) → dict[str, int]</p></td>
+<td><p>The identity-register words a shell advertises, by the name the</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.verify_advertisement.build_id_mismatch" title="dau_driver.verify_advertisement.build_id_mismatch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_id_mismatch</span></code></a>(snapshot, spec_hash, platform, *[, ...]) → str | None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.verify_advertisement.contract_from_manifest_path" title="dau_driver.verify_advertisement.contract_from_manifest_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">contract_from_manifest_path</span></code></a>(path) → tuple[dau_core.capability_contract.CapabilityContract, str | None, str | None]</p></td>
+<td><p>The capability contract a shell-build manifest records, with the</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.verify_advertisement.build_id_mismatch" title="dau_driver.verify_advertisement.build_id_mismatch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_id_mismatch</span></code></a>(snapshot, spec_hash, platform, *[, ...]) → str | None</p></td>
 <td><p>The EXACT check, when both sides carry it: does the shell's BUILD_ID</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.verify_advertisement.advertisement_mismatches" title="dau_driver.verify_advertisement.advertisement_mismatches"><code class="xref py py-obj docutils literal notranslate"><span class="pre">advertisement_mismatches</span></code></a>(snapshot, contract) → tuple[str, ...]</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.verify_advertisement.advertisement_mismatches" title="dau_driver.verify_advertisement.advertisement_mismatches"><code class="xref py py-obj docutils literal notranslate"><span class="pre">advertisement_mismatches</span></code></a>(snapshot, contract) → tuple[str, ...]</p></td>
 <td><p>Every advertised word where the device and the contract disagree.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.verify_advertisement.device_name_for_endpoint" title="dau_driver.verify_advertisement.device_name_for_endpoint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_name_for_endpoint</span></code></a>(bdf, *[, sysfs_root]) → str</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.verify_advertisement.device_name_for_endpoint" title="dau_driver.verify_advertisement.device_name_for_endpoint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_name_for_endpoint</span></code></a>(bdf, *[, sysfs_root]) → str</p></td>
 <td><p>The xdma instance an endpoint owns, e.g. <code class="docutils literal notranslate"><span class="pre">0000:04:00.0</span></code> -&gt;</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.verify_advertisement.main" title="dau_driver.verify_advertisement.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a>([argv]) → int</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.verify_advertisement.main" title="dau_driver.verify_advertisement.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a>([argv]) → int</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -522,25 +512,28 @@ wants both.</p>
 </section>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
-<dl class="py data">
-<dt class="sig sig-object py" id="dau_driver.verify_advertisement.ADVERTISED_WORDS">
-<span class="sig-prename descclassname"><span class="pre">dau_driver.verify_advertisement.</span></span><span class="sig-name descname"><span class="pre">ADVERTISED_WORDS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(('lane_count',</span> <span class="pre">'lane_count'),</span> <span class="pre">('operator_bitmap',</span> <span class="pre">'operator_bitmap'),</span> <span class="pre">('host_opcode_bitmap',...</span></em><a class="headerlink" href="#dau_driver.verify_advertisement.ADVERTISED_WORDS" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_driver.verify_advertisement.advertised_words">
+<span class="sig-prename descclassname"><span class="pre">dau_driver.verify_advertisement.</span></span><span class="sig-name descname"><span class="pre">advertised_words</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dau_core.registers.RegisterBlockSnapshot</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dau_core.capability_contract.CapabilityContract</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_driver/verify_advertisement.html#advertised_words"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.verify_advertisement.advertised_words" title="Link to this definition">¶</a></dt>
+<dd><p>The identity-register words a shell advertises, by the name the
+register snapshot and the capability contract both use. The two sides
+must agree on all of them for the device to be running the manifest’s
+design.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_driver.verify_advertisement.contract_from_manifest_path">
-<span class="sig-prename descclassname"><span class="pre">dau_driver.verify_advertisement.</span></span><span class="sig-name descname"><span class="pre">contract_from_manifest_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_identity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/verify_advertisement.html#contract_from_manifest_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.verify_advertisement.contract_from_manifest_path" title="Link to this definition">¶</a></dt>
-<dd><p>The capability contract a shell-build manifest carries, as plain data,
-and optionally the spec hash and platform beside it, which together make
-the build id the shell stamps.</p>
-<p>Reads the manifest as text and pulls the embedded JSON rather than
-importing the build package: this runs on a bench host where only the
-driver may be installed.</p>
+<span class="sig-prename descclassname"><span class="pre">dau_driver.verify_advertisement.</span></span><span class="sig-name descname"><span class="pre">contract_from_manifest_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dau_core.capability_contract.CapabilityContract</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_driver/verify_advertisement.html#contract_from_manifest_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.verify_advertisement.contract_from_manifest_path" title="Link to this definition">¶</a></dt>
+<dd><p>The capability contract a shell-build manifest records, with the
+spec hash and platform beside it, which together make the build id the
+shell stamps.</p>
+<p>Reads the manifest as YAML rather than importing the build package:
+this runs on a bench host where only the driver may be installed.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_driver.verify_advertisement.build_id_mismatch">
-<span class="sig-prename descclassname"><span class="pre">dau_driver.verify_advertisement.</span></span><span class="sig-name descname"><span class="pre">build_id_mismatch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snapshot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spec_hash</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">platform</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">required</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/verify_advertisement.html#build_id_mismatch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.verify_advertisement.build_id_mismatch" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">dau_driver.verify_advertisement.</span></span><span class="sig-name descname"><span class="pre">build_id_mismatch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snapshot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dau_core.registers.RegisterBlockSnapshot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spec_hash</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">platform</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">required</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/verify_advertisement.html#build_id_mismatch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.verify_advertisement.build_id_mismatch" title="Link to this definition">¶</a></dt>
 <dd><p>The EXACT check, when both sides carry it: does the shell’s BUILD_ID
 match the build id of the design the manifest describes, its spec on the
 platform it was built for?</p>
@@ -558,13 +551,9 @@ verification, not a passing one.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_driver.verify_advertisement.advertisement_mismatches">
-<span class="sig-prename descclassname"><span class="pre">dau_driver.verify_advertisement.</span></span><span class="sig-name descname"><span class="pre">advertisement_mismatches</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snapshot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contract</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_driver/verify_advertisement.html#advertisement_mismatches"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.verify_advertisement.advertisement_mismatches" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">dau_driver.verify_advertisement.</span></span><span class="sig-name descname"><span class="pre">advertisement_mismatches</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snapshot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dau_core.registers.RegisterBlockSnapshot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contract</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dau_core.capability_contract.CapabilityContract</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_driver/verify_advertisement.html#advertisement_mismatches"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.verify_advertisement.advertisement_mismatches" title="Link to this definition">¶</a></dt>
 <dd><p>Every advertised word where the device and the contract disagree.</p>
-<p>A word the contract does not record is SKIPPED rather than treated as
-zero: an older manifest that predates a word should not fail a device
-that advertises it. A word the contract records and the device does not
-match is a mismatch, which is the case that matters.</p>
-<p>Raises when the contract records no NON-ZERO word. All-zero is what a
+<p>Raises when the contract advertises no NON-ZERO word. All-zero is what a
 dead or undecoded register aperture reads back as — the driver
 normalizes all-ones to zero precisely so a dead word advertises nothing
 — so a contract of all zeros would match a board that is not answering
@@ -575,7 +564,7 @@ prevent.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_driver.verify_advertisement.device_name_for_endpoint">
-<span class="sig-prename descclassname"><span class="pre">dau_driver.verify_advertisement.</span></span><span class="sig-name descname"><span class="pre">device_name_for_endpoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bdf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">sysfs_root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">Path('/sys/bus/pci/devices')</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/verify_advertisement.html#device_name_for_endpoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.verify_advertisement.device_name_for_endpoint" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">dau_driver.verify_advertisement.</span></span><span class="sig-name descname"><span class="pre">device_name_for_endpoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bdf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">sysfs_root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/verify_advertisement.html#device_name_for_endpoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.verify_advertisement.device_name_for_endpoint" title="Link to this definition">¶</a></dt>
 <dd><p>The xdma instance an endpoint owns, e.g. <code class="docutils literal notranslate"><span class="pre">0000:04:00.0</span></code> -&gt;
 <code class="docutils literal notranslate"><span class="pre">xdma0</span></code>. The devnodes hang off the PCI device in sysfs, which is the
 only link between the BDF a programming plan knows and the device the
@@ -624,16 +613,13 @@ driver enumerates.</p>
       <path class="fd-toc-thumb" fill="none" />
     </svg><ul class="fd-toc-list">
   <li class="fd-toc-item" data-depth="1">
-    <a href="#attributes">Attributes</a>
-  </li>
-  <li class="fd-toc-item" data-depth="1">
     <a href="#functions">Functions</a>
   </li>
   <li class="fd-toc-item" data-depth="1">
     <a href="#module-contents">Module Contents</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#dau_driver.verify_advertisement.ADVERTISED_WORDS">ADVERTISED_WORDS</a>
+    <a href="#dau_driver.verify_advertisement.advertised_words">advertised_words()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_driver.verify_advertisement.contract_from_manifest_path">contract_from_manifest_path()</a>

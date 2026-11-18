@@ -829,26 +829,19 @@ window.runMermaid = runMermaid;</script>
   <h1>Source code for dau_driver.linux_xdma</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">dau_core.capabilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">DPV1_DEVICE_ID</span><span class="p">,</span> <span class="n">XILINX_VENDOR_ID</span><span class="p">,</span> <span class="n">DeviceCapabilities</span><span class="p">,</span> <span class="n">DmaConstraints</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dau_core.capabilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">DeviceCapabilities</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dau_core.registers</span><span class="w"> </span><span class="kn">import</span> <span class="n">DAU_MAGIC_WORD</span><span class="p">,</span> <span class="n">RegisterBlockSnapshot</span><span class="p">,</span> <span class="n">RegisterOffset</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">.capability_decode</span><span class="w"> </span><span class="kn">import</span> <span class="n">REGISTER_WINDOW_OFFSETS</span><span class="p">,</span> <span class="n">operators_from_snapshot</span><span class="p">,</span> <span class="n">read_register_block_snapshot</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.capability_decode</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_register_window</span><span class="p">,</span> <span class="n">operators_from_snapshot</span><span class="p">,</span> <span class="n">read_register_block_snapshot</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.device</span><span class="w"> </span><span class="kn">import</span> <span class="n">DauDevice</span><span class="p">,</span> <span class="n">read_u32</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.errors</span><span class="w"> </span><span class="kn">import</span> <span class="n">RegisterAccessError</span><span class="p">,</span> <span class="n">UnhealthyBarError</span><span class="p">,</span> <span class="n">WrongBitstreamError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.errors</span><span class="w"> </span><span class="kn">import</span> <span class="n">UnhealthyBarError</span><span class="p">,</span> <span class="n">WrongBitstreamError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.transfer</span><span class="w"> </span><span class="kn">import</span> <span class="n">XDMA_DMA_CONSTRAINTS</span>
 
 <span class="n">DEFAULT_DEV_ROOT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"/dev"</span><span class="p">)</span>
 <span class="n">DEFAULT_SYSFS_PCI_ROOT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"/sys/bus/pci/devices"</span><span class="p">)</span>
 <span class="n">DEFAULT_BACKEND</span> <span class="o">=</span> <span class="s2">"linux-xdma"</span>
-<span class="n">DEFAULT_DMA_CONSTRAINTS</span> <span class="o">=</span> <span class="n">DmaConstraints</span><span class="p">(</span>
-    <span class="n">alignment_bytes</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
-    <span class="n">descriptor_bytes</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
-    <span class="n">max_transfer_bytes</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">28</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
-    <span class="n">read_channels</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-    <span class="n">write_channels</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-<span class="p">)</span>
 
 
 <div class="viewcode-block" id="discover_devices">
@@ -878,7 +871,7 @@ window.runMermaid = runMermaid;</script>
     <span class="k">if</span> <span class="n">c2h_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">resolved_c2h</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">c2h_path</span><span class="p">)</span>
 
-    <span class="n">register_window_offset</span><span class="p">,</span> <span class="n">magic</span> <span class="o">=</span> <span class="n">_find_register_window</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">register_window_offset</span><span class="p">,</span> <span class="n">magic</span> <span class="o">=</span> <span class="n">find_register_window</span><span class="p">(</span><span class="k">lambda</span> <span class="n">_bar</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="n">read_u32</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">offset</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,))</span>
     <span class="k">if</span> <span class="n">magic</span> <span class="o">==</span> <span class="mh">0xFFFF_FFFF</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">UnhealthyBarError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"DAU BAR magic read all ones at </span><span class="si">{</span><span class="n">user</span><span class="si">}</span><span class="s2">; FPGA-side AXI-lite path may be unhealthy"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">magic</span> <span class="o">!=</span> <span class="n">DAU_MAGIC_WORD</span><span class="p">:</span>
@@ -886,14 +879,15 @@ window.runMermaid = runMermaid;</script>
 
     <span class="n">snapshot</span> <span class="o">=</span> <span class="n">_read_register_block_snapshot</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">register_window_offset</span><span class="p">)</span>
     <span class="n">operators</span><span class="p">,</span> <span class="n">host_operators</span> <span class="o">=</span> <span class="n">operators_from_snapshot</span><span class="p">(</span><span class="n">snapshot</span><span class="p">)</span>
+    <span class="n">vendor_id</span><span class="p">,</span> <span class="n">device_id</span> <span class="o">=</span> <span class="n">_pci_ids</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
 
     <span class="n">capabilities</span> <span class="o">=</span> <span class="n">DeviceCapabilities</span><span class="p">(</span>
         <span class="n">platform_id</span><span class="o">=</span><span class="n">snapshot</span><span class="o">.</span><span class="n">platform_id</span><span class="p">,</span>
-        <span class="n">pci_vendor_id</span><span class="o">=</span><span class="n">XILINX_VENDOR_ID</span><span class="p">,</span>
-        <span class="n">pci_device_id</span><span class="o">=</span><span class="n">DPV1_DEVICE_ID</span><span class="p">,</span>
+        <span class="n">pci_vendor_id</span><span class="o">=</span><span class="n">vendor_id</span><span class="p">,</span>
+        <span class="n">pci_device_id</span><span class="o">=</span><span class="n">device_id</span><span class="p">,</span>
         <span class="n">register_map_version</span><span class="o">=</span><span class="n">snapshot</span><span class="o">.</span><span class="n">register_map_version</span><span class="p">,</span>
         <span class="n">stream_protocol_version</span><span class="o">=</span><span class="n">snapshot</span><span class="o">.</span><span class="n">stream_protocol_version</span><span class="p">,</span>
-        <span class="n">dma</span><span class="o">=</span><span class="n">DEFAULT_DMA_CONSTRAINTS</span><span class="p">,</span>
+        <span class="n">dma</span><span class="o">=</span><span class="n">XDMA_DMA_CONSTRAINTS</span><span class="p">,</span>
         <span class="n">operators</span><span class="o">=</span><span class="n">operators</span><span class="p">,</span>
         <span class="n">host_operators</span><span class="o">=</span><span class="n">host_operators</span><span class="p">,</span>
     <span class="p">)</span>
@@ -907,34 +901,6 @@ window.runMermaid = runMermaid;</script>
         <span class="n">capabilities</span><span class="o">=</span><span class="n">capabilities</span><span class="p">,</span>
         <span class="n">register_window_offset</span><span class="o">=</span><span class="n">register_window_offset</span><span class="p">,</span>
     <span class="p">)</span></div>
-
-
-
-<span class="c1"># The first AXI-Lite reads after a PCIe rescan can transiently return 0/stale</span>
-<span class="c1"># data before the link settles, so a single-shot magic probe can misread a</span>
-<span class="c1"># healthy DAU shell as the wrong bitstream. Re-probe a few times before giving</span>
-<span class="c1"># up so a transient does not masquerade as a real mismatch.</span>
-<span class="n">_MAGIC_PROBE_ATTEMPTS</span> <span class="o">=</span> <span class="mi">5</span>
-<span class="n">_MAGIC_PROBE_DELAY_S</span> <span class="o">=</span> <span class="mf">0.01</span>
-
-
-<div class="viewcode-block" id="_find_register_window">
-<a class="viewcode-back" href="../../autoapi/dau_driver/linux_xdma/index.html#dau_driver.linux_xdma._find_register_window">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_find_register_window</span><span class="p">(</span><span class="n">user_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
-    <span class="n">first_magic</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">for</span> <span class="n">attempt</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">_MAGIC_PROBE_ATTEMPTS</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">register_window_offset</span> <span class="ow">in</span> <span class="n">REGISTER_WINDOW_OFFSETS</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">magic</span> <span class="o">=</span> <span class="n">_read_register</span><span class="p">(</span><span class="n">user_path</span><span class="p">,</span> <span class="n">register_window_offset</span><span class="p">,</span> <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">MAGIC</span><span class="p">)</span>
-            <span class="k">except</span> <span class="n">RegisterAccessError</span><span class="p">:</span>
-                <span class="k">continue</span>
-            <span class="k">if</span> <span class="n">first_magic</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">first_magic</span> <span class="o">=</span> <span class="n">magic</span>
-            <span class="k">if</span> <span class="n">magic</span> <span class="o">==</span> <span class="n">DAU_MAGIC_WORD</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">register_window_offset</span><span class="p">,</span> <span class="n">magic</span>
-        <span class="k">if</span> <span class="n">attempt</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="n">_MAGIC_PROBE_ATTEMPTS</span><span class="p">:</span>
-            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">_MAGIC_PROBE_DELAY_S</span><span class="p">)</span>
-    <span class="k">return</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">first_magic</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">first_magic</span></div>
 
 
 
@@ -971,6 +937,20 @@ window.runMermaid = runMermaid;</script>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">owners</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="k">return</span> <span class="n">owners</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="_pci_ids">
+<a class="viewcode-back" href="../../autoapi/dau_driver/linux_xdma/index.html#dau_driver.linux_xdma._pci_ids">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_pci_ids</span><span class="p">(</span><span class="n">user_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""The PCI vendor and device id of the endpoint that owns this devnode,</span>
+<span class="sd">    as sysfs states them. (0, 0) when sysfs names no owner: 0 is no</span>
+<span class="sd">    vendor's id, so it reads as unknown rather than as some board."""</span>
+    <span class="n">bdf</span> <span class="o">=</span> <span class="n">endpoint_for_devnode</span><span class="p">(</span><span class="n">user_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">bdf</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+    <span class="n">endpoint</span> <span class="o">=</span> <span class="n">DEFAULT_SYSFS_PCI_ROOT</span> <span class="o">/</span> <span class="n">bdf</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">((</span><span class="n">endpoint</span> <span class="o">/</span> <span class="s2">"vendor"</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">"ascii"</span><span class="p">),</span> <span class="mi">16</span><span class="p">),</span> <span class="nb">int</span><span class="p">((</span><span class="n">endpoint</span> <span class="o">/</span> <span class="s2">"device"</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">"ascii"</span><span class="p">),</span> <span class="mi">16</span><span class="p">)</span></div>
 
 
 

@@ -38,19 +38,12 @@ dau_driver.verify_advertisement
 
 
 
-Attributes
-----------
-
-.. autoapisummary::
-
-   dau_driver.verify_advertisement.ADVERTISED_WORDS
-
-
 Functions
 ---------
 
 .. autoapisummary::
 
+   dau_driver.verify_advertisement.advertised_words
    dau_driver.verify_advertisement.contract_from_manifest_path
    dau_driver.verify_advertisement.build_id_mismatch
    dau_driver.verify_advertisement.advertisement_mismatches
@@ -61,23 +54,25 @@ Functions
 Module Contents
 ---------------
 
-.. py:data:: ADVERTISED_WORDS
-   :type:  tuple[tuple[str, str], ...]
-   :value: (('lane_count', 'lane_count'), ('operator_bitmap', 'operator_bitmap'), ('host_opcode_bitmap',...
+.. py:function:: advertised_words(source: dau_core.registers.RegisterBlockSnapshot | dau_core.capability_contract.CapabilityContract) -> dict[str, int]
+
+   The identity-register words a shell advertises, by the name the
+   register snapshot and the capability contract both use. The two sides
+   must agree on all of them for the device to be running the manifest's
+   design.
 
 
-.. py:function:: contract_from_manifest_path(path: pathlib.Path, *, with_identity: bool = False) -> Any
+.. py:function:: contract_from_manifest_path(path: pathlib.Path) -> tuple[dau_core.capability_contract.CapabilityContract, str | None, str | None]
 
-   The capability contract a shell-build manifest carries, as plain data,
-   and optionally the spec hash and platform beside it, which together make
-   the build id the shell stamps.
+   The capability contract a shell-build manifest records, with the
+   spec hash and platform beside it, which together make the build id the
+   shell stamps.
 
-   Reads the manifest as text and pulls the embedded JSON rather than
-   importing the build package: this runs on a bench host where only the
-   driver may be installed.
+   Reads the manifest as YAML rather than importing the build package:
+   this runs on a bench host where only the driver may be installed.
 
 
-.. py:function:: build_id_mismatch(snapshot, spec_hash: str | None, platform: str | None, *, required: bool = False) -> str | None
+.. py:function:: build_id_mismatch(snapshot: dau_core.registers.RegisterBlockSnapshot, spec_hash: str | None, platform: str | None, *, required: bool = False) -> str | None
 
    The EXACT check, when both sides carry it: does the shell's BUILD_ID
    match the build id of the design the manifest describes, its spec on the
@@ -96,16 +91,11 @@ Module Contents
    verification, not a passing one.
 
 
-.. py:function:: advertisement_mismatches(snapshot, contract: collections.abc.Mapping[str, Any]) -> tuple[str, ...]
+.. py:function:: advertisement_mismatches(snapshot: dau_core.registers.RegisterBlockSnapshot, contract: dau_core.capability_contract.CapabilityContract) -> tuple[str, ...]
 
    Every advertised word where the device and the contract disagree.
 
-   A word the contract does not record is SKIPPED rather than treated as
-   zero: an older manifest that predates a word should not fail a device
-   that advertises it. A word the contract records and the device does not
-   match is a mismatch, which is the case that matters.
-
-   Raises when the contract records no NON-ZERO word. All-zero is what a
+   Raises when the contract advertises no NON-ZERO word. All-zero is what a
    dead or undecoded register aperture reads back as — the driver
    normalizes all-ones to zero precisely so a dead word advertises nothing
    — so a contract of all zeros would match a board that is not answering
@@ -114,7 +104,7 @@ Module Contents
    prevent.
 
 
-.. py:function:: device_name_for_endpoint(bdf: str, *, sysfs_root: pathlib.Path = Path('/sys/bus/pci/devices')) -> str
+.. py:function:: device_name_for_endpoint(bdf: str, *, sysfs_root: pathlib.Path | None = None) -> str
 
    The xdma instance an endpoint owns, e.g. ``0000:04:00.0`` ->
    ``xdma0``. The devnodes hang off the PCI device in sysfs, which is the

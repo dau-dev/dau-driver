@@ -840,9 +840,9 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Protocol</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">dau_core.capabilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">DeviceCapabilities</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">dau_core.registers</span><span class="w"> </span><span class="kn">import</span> <span class="n">RegisterBlockSnapshot</span><span class="p">,</span> <span class="n">RegisterOffset</span><span class="p">,</span> <span class="n">StreamProtocolVersion</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dau_core.registers</span><span class="w"> </span><span class="kn">import</span> <span class="n">RegisterBlockSnapshot</span><span class="p">,</span> <span class="n">RegisterOffset</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">.capability_decode</span><span class="w"> </span><span class="kn">import</span> <span class="n">decode_platform_id</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.capability_decode</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_register_block_snapshot</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.errors</span><span class="w"> </span><span class="kn">import</span> <span class="n">RegisterAccessError</span><span class="p">,</span> <span class="n">UnhealthyBarError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.status</span><span class="w"> </span><span class="kn">import</span> <span class="n">DeviceCounters</span><span class="p">,</span> <span class="n">DeviceStatus</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.transfer</span><span class="w"> </span><span class="kn">import</span> <span class="n">DmaDirection</span><span class="p">,</span> <span class="n">DmaTransfer</span><span class="p">,</span> <span class="n">validate_transfer</span>
@@ -1064,29 +1064,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="DauDevice.read_register_block_snapshot">
 <a class="viewcode-back" href="../../autoapi/dau_driver/device/index.html#dau_driver.device.DauDevice.read_register_block_snapshot">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">read_register_block_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RegisterBlockSnapshot</span><span class="p">:</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">.capability_decode</span><span class="w"> </span><span class="kn">import</span> <span class="n">_capability_words</span><span class="p">,</span> <span class="n">decode_register_map_version</span>
-
-        <span class="c1"># the SHARED decoder: reading this word two ways is how the two</span>
-        <span class="c1"># readers came to disagree on an all-ones result</span>
-        <span class="n">register_map_version</span> <span class="o">=</span> <span class="n">decode_register_map_version</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">read_register</span><span class="p">(</span><span class="n">RegisterOffset</span><span class="o">.</span><span class="n">REGISTER_MAP_VERSION</span><span class="p">))</span>
-        <span class="c1"># all-ones = word not decoded -&gt; not advertised, same normalization</span>
-        <span class="c1"># as the discovery-time snapshot</span>
-        <span class="n">capability_words</span> <span class="o">=</span> <span class="n">_capability_words</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">read_register</span><span class="p">,</span> <span class="n">register_map_version</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">RegisterBlockSnapshot</span><span class="p">(</span>
-            <span class="n">register_map_version</span><span class="o">=</span><span class="n">register_map_version</span><span class="p">,</span>
-            <span class="n">stream_protocol_version</span><span class="o">=</span><span class="n">StreamProtocolVersion</span><span class="o">.</span><span class="n">from_u32</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">read_register</span><span class="p">(</span><span class="n">RegisterOffset</span><span class="o">.</span><span class="n">STREAM_PROTOCOL_VERSION</span><span class="p">)),</span>
-            <span class="n">platform_id</span><span class="o">=</span><span class="n">decode_platform_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">read_register</span><span class="p">(</span><span class="n">RegisterOffset</span><span class="o">.</span><span class="n">PLATFORM_ID</span><span class="p">)),</span>
-            <span class="n">build_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_read_u64</span><span class="p">(</span><span class="n">RegisterOffset</span><span class="o">.</span><span class="n">BUILD_ID_LOW</span><span class="p">),</span>
-            <span class="n">status</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">read_register</span><span class="p">(</span><span class="n">RegisterOffset</span><span class="o">.</span><span class="n">STATUS</span><span class="p">),</span>
-            <span class="n">operator_bitmap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">read_register</span><span class="p">(</span><span class="n">RegisterOffset</span><span class="o">.</span><span class="n">OPERATOR_BITMAP</span><span class="p">),</span>
-            <span class="n">last_error</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">read_register</span><span class="p">(</span><span class="n">RegisterOffset</span><span class="o">.</span><span class="n">LAST_ERROR</span><span class="p">),</span>
-            <span class="n">h2c_bytes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_read_u64</span><span class="p">(</span><span class="n">RegisterOffset</span><span class="o">.</span><span class="n">H2C_BYTES_LOW</span><span class="p">),</span>
-            <span class="n">c2h_bytes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_read_u64</span><span class="p">(</span><span class="n">RegisterOffset</span><span class="o">.</span><span class="n">C2H_BYTES_LOW</span><span class="p">),</span>
-            <span class="n">rows</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_read_u64</span><span class="p">(</span><span class="n">RegisterOffset</span><span class="o">.</span><span class="n">ROWS_LOW</span><span class="p">),</span>
-            <span class="n">batches</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">read_register</span><span class="p">(</span><span class="n">RegisterOffset</span><span class="o">.</span><span class="n">BATCHES</span><span class="p">),</span>
-            <span class="n">stalls</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">read_register</span><span class="p">(</span><span class="n">RegisterOffset</span><span class="o">.</span><span class="n">STALLS</span><span class="p">),</span>
-            <span class="o">**</span><span class="n">capability_words</span><span class="p">,</span>
-        <span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">read_register_block_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">read_register</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="DauDevice.read_counters">

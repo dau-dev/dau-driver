@@ -836,16 +836,18 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">struct</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">replace</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">dau_core.capabilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">DeviceCapabilities</span><span class="p">,</span> <span class="n">DmaConstraints</span><span class="p">,</span> <span class="n">OperatorCapability</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dau_core.capabilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">DeviceCapabilities</span><span class="p">,</span> <span class="n">OperatorCapability</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dau_core.operators</span><span class="w"> </span><span class="kn">import</span> <span class="n">aggregate_values</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">dau_core.registers</span><span class="w"> </span><span class="kn">import</span> <span class="n">CURRENT_REGISTER_MAP_VERSION</span><span class="p">,</span> <span class="n">RegisterMapVersion</span><span class="p">,</span> <span class="n">RegisterOffset</span><span class="p">,</span> <span class="n">StreamProtocolVersion</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dau_core.registers</span><span class="w"> </span><span class="kn">import</span> <span class="n">CURRENT_REGISTER_MAP_VERSION</span><span class="p">,</span> <span class="n">RegisterOffset</span><span class="p">,</span> <span class="n">StreamProtocolVersion</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dau_core.stream</span><span class="w"> </span><span class="kn">import</span> <span class="n">InvalidStreamError</span><span class="p">,</span> <span class="n">LogicalType</span><span class="p">,</span> <span class="n">OperationCode</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.device</span><span class="w"> </span><span class="kn">import</span> <span class="n">DauDevice</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.errors</span><span class="w"> </span><span class="kn">import</span> <span class="n">TransferIoError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.stream_codec</span><span class="w"> </span><span class="kn">import</span> <span class="n">StreamDecoder</span><span class="p">,</span> <span class="n">StreamEncoder</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.transfer</span><span class="w"> </span><span class="kn">import</span> <span class="n">XDMA_DMA_CONSTRAINTS</span>
 
 
 <div class="viewcode-block" id="FakeTransport">
@@ -930,9 +932,9 @@ window.runMermaid = runMermaid;</script>
         <span class="n">platform_id</span><span class="o">=</span><span class="s2">"DPV1"</span><span class="p">,</span>
         <span class="n">pci_vendor_id</span><span class="o">=</span><span class="mh">0x10EE</span><span class="p">,</span>
         <span class="n">pci_device_id</span><span class="o">=</span><span class="mh">0x7011</span><span class="p">,</span>
-        <span class="n">register_map_version</span><span class="o">=</span><span class="n">RegisterMapVersion</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="n">register_map_version</span><span class="o">=</span><span class="n">CURRENT_REGISTER_MAP_VERSION</span><span class="p">,</span>
         <span class="n">stream_protocol_version</span><span class="o">=</span><span class="n">StreamProtocolVersion</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
-        <span class="n">dma</span><span class="o">=</span><span class="n">DmaConstraints</span><span class="p">(</span><span class="n">alignment_bytes</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">descriptor_bytes</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">max_transfer_bytes</span><span class="o">=</span><span class="n">max_transfer_bytes</span><span class="p">,</span> <span class="n">read_channels</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">write_channels</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+        <span class="n">dma</span><span class="o">=</span><span class="n">replace</span><span class="p">(</span><span class="n">XDMA_DMA_CONSTRAINTS</span><span class="p">,</span> <span class="n">max_transfer_bytes</span><span class="o">=</span><span class="n">max_transfer_bytes</span><span class="p">),</span>
         <span class="n">operators</span><span class="o">=</span><span class="n">operators</span><span class="p">,</span>
     <span class="p">)</span></div>
 

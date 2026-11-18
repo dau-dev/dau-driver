@@ -12,9 +12,6 @@ Attributes
    dau_driver.linux_xdma.DEFAULT_DEV_ROOT
    dau_driver.linux_xdma.DEFAULT_SYSFS_PCI_ROOT
    dau_driver.linux_xdma.DEFAULT_BACKEND
-   dau_driver.linux_xdma.DEFAULT_DMA_CONSTRAINTS
-   dau_driver.linux_xdma._MAGIC_PROBE_ATTEMPTS
-   dau_driver.linux_xdma._MAGIC_PROBE_DELAY_S
 
 
 Functions
@@ -24,10 +21,10 @@ Functions
 
    dau_driver.linux_xdma.discover_devices
    dau_driver.linux_xdma.identify_device
-   dau_driver.linux_xdma._find_register_window
    dau_driver.linux_xdma._read_register
    dau_driver.linux_xdma._read_register_block_snapshot
    dau_driver.linux_xdma.endpoint_for_devnode
+   dau_driver.linux_xdma._pci_ids
    dau_driver.linux_xdma._channel_paths
    dau_driver.linux_xdma._device_name
 
@@ -43,21 +40,9 @@ Module Contents
    :value: 'linux-xdma'
 
 
-.. py:data:: DEFAULT_DMA_CONSTRAINTS
-
 .. py:function:: discover_devices(root: str | pathlib.Path = DEFAULT_DEV_ROOT) -> list[dau_driver.device.DauDevice]
 
 .. py:function:: identify_device(user_path: str | pathlib.Path, *, h2c_path: str | pathlib.Path | None = None, c2h_path: str | pathlib.Path | None = None) -> dau_driver.device.DauDevice
-
-.. py:data:: _MAGIC_PROBE_ATTEMPTS
-   :value: 5
-
-
-.. py:data:: _MAGIC_PROBE_DELAY_S
-   :value: 0.01
-
-
-.. py:function:: _find_register_window(user_path: pathlib.Path) -> tuple[int, int]
 
 .. py:function:: _read_register(user_path: pathlib.Path, register_window_offset: int, offset: dau_core.registers.RegisterOffset) -> int
 
@@ -73,6 +58,13 @@ Module Contents
    ``<bdf>/xdma/<node>``. None rather than a raise on a missing sysfs, an
    unowned node or (never seen, but not guessed at) two owners, so the
    caller can fall back to a weaker name and say so.
+
+
+.. py:function:: _pci_ids(user_path: pathlib.Path) -> tuple[int, int]
+
+   The PCI vendor and device id of the endpoint that owns this devnode,
+   as sysfs states them. (0, 0) when sysfs names no owner: 0 is no
+   vendor's id, so it reads as unknown rather than as some board.
 
 
 .. py:function:: _channel_paths(user_path: pathlib.Path) -> tuple[pathlib.Path, pathlib.Path]

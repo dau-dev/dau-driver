@@ -1292,15 +1292,6 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<div class="viewcode-block" id="_advertised">
-<a class="viewcode-back" href="../../autoapi/dau_driver/pipeline_execution/index.html#dau_driver.pipeline_execution._advertised">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_advertised</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""All-ones is a word nobody decoded, not a four-billion-row capacity —</span>
-<span class="sd">    the same normalization every capability reader applies."""</span>
-    <span class="k">return</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="mh">0xFFFF_FFFF</span> <span class="k">else</span> <span class="n">value</span></div>
-
-
-
 <div class="viewcode-block" id="device_job_capacity">
 <a class="viewcode-back" href="../../autoapi/dau_driver/pipeline_execution/index.html#dau_driver.pipeline_execution.device_job_capacity">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">device_job_capacity</span><span class="p">(</span><span class="n">device</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
@@ -1325,7 +1316,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">dau_core.registers</span><span class="w"> </span><span class="kn">import</span> <span class="n">JOB_CAPACITY_REGISTER_MAP_VERSION</span>
 
-    <span class="kn">from</span><span class="w"> </span><span class="nn">.capability_decode</span><span class="w"> </span><span class="kn">import</span> <span class="n">decode_register_map_version</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.capability_decode</span><span class="w"> </span><span class="kn">import</span> <span class="n">_capability_word</span><span class="p">,</span> <span class="n">decode_register_map_version</span>
 
     <span class="n">version</span> <span class="o">=</span> <span class="n">decode_register_map_version</span><span class="p">(</span><span class="n">device</span><span class="o">.</span><span class="n">read_register</span><span class="p">(</span><span class="n">RegisterOffset</span><span class="o">.</span><span class="n">REGISTER_MAP_VERSION</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">version</span> <span class="o">&lt;</span> <span class="n">JOB_CAPACITY_REGISTER_MAP_VERSION</span><span class="p">:</span>
@@ -1333,8 +1324,8 @@ window.runMermaid = runMermaid;</script>
             <span class="sa">f</span><span class="s2">"the resident shell reports register map </span><span class="si">{</span><span class="n">version</span><span class="o">.</span><span class="n">major</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">version</span><span class="o">.</span><span class="n">minor</span><span class="si">}</span><span class="s2">, which predates the job "</span>
             <span class="s2">"capacity words (0.3); rebuild and reflash it, or pass max_rows explicitly"</span>
         <span class="p">)</span>
-    <span class="n">rows</span> <span class="o">=</span> <span class="n">_advertised</span><span class="p">(</span><span class="n">device</span><span class="o">.</span><span class="n">read_register</span><span class="p">(</span><span class="n">RegisterOffset</span><span class="o">.</span><span class="n">INPUT_ROW_CAPACITY</span><span class="p">))</span>
-    <span class="n">records</span> <span class="o">=</span> <span class="n">_advertised</span><span class="p">(</span><span class="n">device</span><span class="o">.</span><span class="n">read_register</span><span class="p">(</span><span class="n">RegisterOffset</span><span class="o">.</span><span class="n">OUTPUT_RECORD_CAPACITY</span><span class="p">))</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="n">_capability_word</span><span class="p">(</span><span class="n">device</span><span class="o">.</span><span class="n">read_register</span><span class="p">,</span> <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">INPUT_ROW_CAPACITY</span><span class="p">)</span>
+    <span class="n">records</span> <span class="o">=</span> <span class="n">_capability_word</span><span class="p">(</span><span class="n">device</span><span class="o">.</span><span class="n">read_register</span><span class="p">,</span> <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">OUTPUT_RECORD_CAPACITY</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">rows</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">records</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">"the resident shell advertises no job capacity (INPUT_ROW_CAPACITY=</span><span class="si">{</span><span class="n">rows</span><span class="si">}</span><span class="s2">, "</span>

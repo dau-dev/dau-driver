@@ -433,22 +433,10 @@
     <a href="#dau_driver.linux_xdma.DEFAULT_BACKEND">DEFAULT_BACKEND</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#dau_driver.linux_xdma.DEFAULT_DMA_CONSTRAINTS">DEFAULT_DMA_CONSTRAINTS</a>
-  </li>
-  <li class="fd-toc-item" data-depth="2">
     <a href="#dau_driver.linux_xdma.discover_devices">discover_devices()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_driver.linux_xdma.identify_device">identify_device()</a>
-  </li>
-  <li class="fd-toc-item" data-depth="2">
-    <a href="#dau_driver.linux_xdma._MAGIC_PROBE_ATTEMPTS">_MAGIC_PROBE_ATTEMPTS</a>
-  </li>
-  <li class="fd-toc-item" data-depth="2">
-    <a href="#dau_driver.linux_xdma._MAGIC_PROBE_DELAY_S">_MAGIC_PROBE_DELAY_S</a>
-  </li>
-  <li class="fd-toc-item" data-depth="2">
-    <a href="#dau_driver.linux_xdma._find_register_window">_find_register_window()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_driver.linux_xdma._read_register">_read_register()</a>
@@ -458,6 +446,9 @@
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_driver.linux_xdma.endpoint_for_devnode">endpoint_for_devnode()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.linux_xdma._pci_ids">_pci_ids()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_driver.linux_xdma._channel_paths">_channel_paths()</a>
@@ -500,15 +491,6 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.linux_xdma.DEFAULT_BACKEND" title="dau_driver.linux_xdma.DEFAULT_BACKEND"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEFAULT_BACKEND</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.linux_xdma.DEFAULT_DMA_CONSTRAINTS" title="dau_driver.linux_xdma.DEFAULT_DMA_CONSTRAINTS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEFAULT_DMA_CONSTRAINTS</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.linux_xdma._MAGIC_PROBE_ATTEMPTS" title="dau_driver.linux_xdma._MAGIC_PROBE_ATTEMPTS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_MAGIC_PROBE_ATTEMPTS</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.linux_xdma._MAGIC_PROBE_DELAY_S" title="dau_driver.linux_xdma._MAGIC_PROBE_DELAY_S"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_MAGIC_PROBE_DELAY_S</span></code></a></p></td>
-<td><p></p></td>
-</tr>
 </tbody>
 </table>
 </section>
@@ -522,17 +504,17 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.linux_xdma.identify_device" title="dau_driver.linux_xdma.identify_device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">identify_device</span></code></a>(user_path, *[, h2c_path, c2h_path]) → dau_driver.device.DauDevice</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.linux_xdma._find_register_window" title="dau_driver.linux_xdma._find_register_window"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_find_register_window</span></code></a>(user_path) → tuple[int, int]</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.linux_xdma._read_register" title="dau_driver.linux_xdma._read_register"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_read_register</span></code></a>(user_path, register_window_offset, offset) → int</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.linux_xdma._read_register" title="dau_driver.linux_xdma._read_register"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_read_register</span></code></a>(user_path, register_window_offset, offset) → int</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.linux_xdma._read_register_block_snapshot" title="dau_driver.linux_xdma._read_register_block_snapshot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_read_register_block_snapshot</span></code></a>(user_path, ...) → dau_core.registers.RegisterBlockSnapshot</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.linux_xdma._read_register_block_snapshot" title="dau_driver.linux_xdma._read_register_block_snapshot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_read_register_block_snapshot</span></code></a>(user_path, ...) → dau_core.registers.RegisterBlockSnapshot</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.linux_xdma.endpoint_for_devnode" title="dau_driver.linux_xdma.endpoint_for_devnode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">endpoint_for_devnode</span></code></a>(user_path, *[, sysfs_root]) → str | None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.linux_xdma.endpoint_for_devnode" title="dau_driver.linux_xdma.endpoint_for_devnode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">endpoint_for_devnode</span></code></a>(user_path, *[, sysfs_root]) → str | None</p></td>
 <td><p>The PCI endpoint (<code class="docutils literal notranslate"><span class="pre">0000:04:00.0</span></code>) whose xdma instance owns this</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.linux_xdma._pci_ids" title="dau_driver.linux_xdma._pci_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_pci_ids</span></code></a>(user_path) → tuple[int, int]</p></td>
+<td><p>The PCI vendor and device id of the endpoint that owns this devnode,</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.linux_xdma._channel_paths" title="dau_driver.linux_xdma._channel_paths"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_channel_paths</span></code></a>(user_path) → tuple[pathlib.Path, pathlib.Path]</p></td>
 <td><p></p></td>
@@ -560,11 +542,6 @@
 <span class="sig-prename descclassname"><span class="pre">dau_driver.linux_xdma.</span></span><span class="sig-name descname"><span class="pre">DEFAULT_BACKEND</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'linux-xdma'</span></em><a class="headerlink" href="#dau_driver.linux_xdma.DEFAULT_BACKEND" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="py data">
-<dt class="sig sig-object py" id="dau_driver.linux_xdma.DEFAULT_DMA_CONSTRAINTS">
-<span class="sig-prename descclassname"><span class="pre">dau_driver.linux_xdma.</span></span><span class="sig-name descname"><span class="pre">DEFAULT_DMA_CONSTRAINTS</span></span><a class="headerlink" href="#dau_driver.linux_xdma.DEFAULT_DMA_CONSTRAINTS" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_driver.linux_xdma.discover_devices">
 <span class="sig-prename descclassname"><span class="pre">dau_driver.linux_xdma.</span></span><span class="sig-name descname"><span class="pre">discover_devices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">pathlib.Path</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">DEFAULT_DEV_ROOT</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../device/index.html#dau_driver.device.DauDevice" title="dau_driver.device.DauDevice"><span class="pre">dau_driver.device.DauDevice</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_driver/linux_xdma.html#discover_devices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.linux_xdma.discover_devices" title="Link to this definition">¶</a></dt>
@@ -573,21 +550,6 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_driver.linux_xdma.identify_device">
 <span class="sig-prename descclassname"><span class="pre">dau_driver.linux_xdma.</span></span><span class="sig-name descname"><span class="pre">identify_device</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">h2c_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">pathlib.Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c2h_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">pathlib.Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../device/index.html#dau_driver.device.DauDevice" title="dau_driver.device.DauDevice"><span class="pre">dau_driver.device.DauDevice</span></a></span></span><a class="reference internal" href="../../../_modules/dau_driver/linux_xdma.html#identify_device"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.linux_xdma.identify_device" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="dau_driver.linux_xdma._MAGIC_PROBE_ATTEMPTS">
-<span class="sig-prename descclassname"><span class="pre">dau_driver.linux_xdma.</span></span><span class="sig-name descname"><span class="pre">_MAGIC_PROBE_ATTEMPTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#dau_driver.linux_xdma._MAGIC_PROBE_ATTEMPTS" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="dau_driver.linux_xdma._MAGIC_PROBE_DELAY_S">
-<span class="sig-prename descclassname"><span class="pre">dau_driver.linux_xdma.</span></span><span class="sig-name descname"><span class="pre">_MAGIC_PROBE_DELAY_S</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.01</span></em><a class="headerlink" href="#dau_driver.linux_xdma._MAGIC_PROBE_DELAY_S" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="dau_driver.linux_xdma._find_register_window">
-<span class="sig-prename descclassname"><span class="pre">dau_driver.linux_xdma.</span></span><span class="sig-name descname"><span class="pre">_find_register_window</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_driver/linux_xdma.html#_find_register_window"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.linux_xdma._find_register_window" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -610,6 +572,14 @@ the same layout: the devnodes hang off the PCI device in sysfs as
 <code class="docutils literal notranslate"><span class="pre">&lt;bdf&gt;/xdma/&lt;node&gt;</span></code>. None rather than a raise on a missing sysfs, an
 unowned node or (never seen, but not guessed at) two owners, so the
 caller can fall back to a weaker name and say so.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_driver.linux_xdma._pci_ids">
+<span class="sig-prename descclassname"><span class="pre">dau_driver.linux_xdma.</span></span><span class="sig-name descname"><span class="pre">_pci_ids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_driver/linux_xdma.html#_pci_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.linux_xdma._pci_ids" title="Link to this definition">¶</a></dt>
+<dd><p>The PCI vendor and device id of the endpoint that owns this devnode,
+as sysfs states them. (0, 0) when sysfs names no owner: 0 is no
+vendor’s id, so it reads as unknown rather than as some board.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -677,22 +647,10 @@ caller can fall back to a weaker name and say so.</p>
     <a href="#dau_driver.linux_xdma.DEFAULT_BACKEND">DEFAULT_BACKEND</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#dau_driver.linux_xdma.DEFAULT_DMA_CONSTRAINTS">DEFAULT_DMA_CONSTRAINTS</a>
-  </li>
-  <li class="fd-toc-item" data-depth="2">
     <a href="#dau_driver.linux_xdma.discover_devices">discover_devices()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_driver.linux_xdma.identify_device">identify_device()</a>
-  </li>
-  <li class="fd-toc-item" data-depth="2">
-    <a href="#dau_driver.linux_xdma._MAGIC_PROBE_ATTEMPTS">_MAGIC_PROBE_ATTEMPTS</a>
-  </li>
-  <li class="fd-toc-item" data-depth="2">
-    <a href="#dau_driver.linux_xdma._MAGIC_PROBE_DELAY_S">_MAGIC_PROBE_DELAY_S</a>
-  </li>
-  <li class="fd-toc-item" data-depth="2">
-    <a href="#dau_driver.linux_xdma._find_register_window">_find_register_window()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_driver.linux_xdma._read_register">_read_register()</a>
@@ -702,6 +660,9 @@ caller can fall back to a weaker name and say so.</p>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_driver.linux_xdma.endpoint_for_devnode">endpoint_for_devnode()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.linux_xdma._pci_ids">_pci_ids()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_driver.linux_xdma._channel_paths">_channel_paths()</a>

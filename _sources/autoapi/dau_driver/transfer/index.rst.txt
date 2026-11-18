@@ -4,6 +4,14 @@ dau_driver.transfer
 .. py:module:: dau_driver.transfer
 
 
+Attributes
+----------
+
+.. autoapisummary::
+
+   dau_driver.transfer.XDMA_DMA_CONSTRAINTS
+
+
 Classes
 -------
 
@@ -23,6 +31,8 @@ Functions
 
 Module Contents
 ---------------
+
+.. py:data:: XDMA_DMA_CONSTRAINTS
 
 .. py:class:: DmaDirection
 

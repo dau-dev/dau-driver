@@ -430,6 +430,15 @@
     <a href="#dau_driver.capability_decode.REGISTER_WINDOW_OFFSETS">REGISTER_WINDOW_OFFSETS</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.capability_decode._MAGIC_PROBE_ATTEMPTS">_MAGIC_PROBE_ATTEMPTS</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.capability_decode._MAGIC_PROBE_DELAY_S">_MAGIC_PROBE_DELAY_S</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.capability_decode.find_register_window">find_register_window()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
     <a href="#dau_driver.capability_decode.decode_platform_id">decode_platform_id()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
@@ -458,6 +467,9 @@
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_driver.capability_decode._capability_words">_capability_words()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.capability_decode._counter">_counter()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_driver.capability_decode.read_register_block_snapshot">read_register_block_snapshot()</a>
@@ -498,6 +510,12 @@ the backends (they were verbatim copies before, and had already drifted).</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.capability_decode.REGISTER_WINDOW_OFFSETS" title="dau_driver.capability_decode.REGISTER_WINDOW_OFFSETS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">REGISTER_WINDOW_OFFSETS</span></code></a></p></td>
 <td><p></p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.capability_decode._MAGIC_PROBE_ATTEMPTS" title="dau_driver.capability_decode._MAGIC_PROBE_ATTEMPTS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_MAGIC_PROBE_ATTEMPTS</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.capability_decode._MAGIC_PROBE_DELAY_S" title="dau_driver.capability_decode._MAGIC_PROBE_DELAY_S"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_MAGIC_PROBE_DELAY_S</span></code></a></p></td>
+<td><p></p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.capability_decode.NOT_ADVERTISED_REGISTER_MAP_VERSION" title="dau_driver.capability_decode.NOT_ADVERTISED_REGISTER_MAP_VERSION"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NOT_ADVERTISED_REGISTER_MAP_VERSION</span></code></a></p></td>
 <td><p></p></td>
 </tr>
@@ -508,35 +526,41 @@ the backends (they were verbatim copies before, and had already drifted).</p>
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.capability_decode.decode_platform_id" title="dau_driver.capability_decode.decode_platform_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decode_platform_id</span></code></a>(value) → str</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.capability_decode.find_register_window" title="dau_driver.capability_decode.find_register_window"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_register_window</span></code></a>(read_u32, bar_indices) → tuple[int, int, int]</p></td>
+<td><p>(BAR index, window offset, magic) of the DAU identity window.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.capability_decode.decode_platform_id" title="dau_driver.capability_decode.decode_platform_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decode_platform_id</span></code></a>(value) → str</p></td>
 <td><p>The platform id as ASCII, or <code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code> when the word is not one. A board</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.capability_decode.decode_register_map_version" title="dau_driver.capability_decode.decode_register_map_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decode_register_map_version</span></code></a>(value) → dau_core.registers.RegisterMapVersion</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.capability_decode.decode_register_map_version" title="dau_driver.capability_decode.decode_register_map_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decode_register_map_version</span></code></a>(value) → dau_core.registers.RegisterMapVersion</p></td>
 <td><p>Decode the register-map version word.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.capability_decode._typed_operators_from_bitmap" title="dau_driver.capability_decode._typed_operators_from_bitmap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_typed_operators_from_bitmap</span></code></a>(bitmap, input_types) → tuple[dau_core.capabilities.OperatorCapability, ...]</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.capability_decode._typed_operators_from_bitmap" title="dau_driver.capability_decode._typed_operators_from_bitmap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_typed_operators_from_bitmap</span></code></a>(bitmap, input_types) → tuple[dau_core.capabilities.OperatorCapability, ...]</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.capability_decode.operators_from_snapshot" title="dau_driver.capability_decode.operators_from_snapshot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">operators_from_snapshot</span></code></a>(snapshot) → tuple[tuple[dau_core.capabilities.OperatorCapability, ...], tuple[dau_core.capabilities.OperatorCapability, ...]]</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.capability_decode.operators_from_snapshot" title="dau_driver.capability_decode.operators_from_snapshot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">operators_from_snapshot</span></code></a>(snapshot) → tuple[tuple[dau_core.capabilities.OperatorCapability, ...], tuple[dau_core.capabilities.OperatorCapability, ...]]</p></td>
 <td><p>(hardware operators, host-computed operators) from the identity</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.capability_decode.contract_from_manifest_metadata" title="dau_driver.capability_decode.contract_from_manifest_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">contract_from_manifest_metadata</span></code></a>(metadata) → dau_core.capability_contract.CapabilityContract | None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.capability_decode.contract_from_manifest_metadata" title="dau_driver.capability_decode.contract_from_manifest_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">contract_from_manifest_metadata</span></code></a>(metadata) → dau_core.capability_contract.CapabilityContract | None</p></td>
 <td><p>The machine-readable capability contract a shell-build manifest</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.capability_decode.operators_from_contract" title="dau_driver.capability_decode.operators_from_contract"><code class="xref py py-obj docutils literal notranslate"><span class="pre">operators_from_contract</span></code></a>(contract) → tuple[tuple[dau_core.capabilities.OperatorCapability, ...], tuple[dau_core.capabilities.OperatorCapability, ...]]</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.capability_decode.operators_from_contract" title="dau_driver.capability_decode.operators_from_contract"><code class="xref py py-obj docutils literal notranslate"><span class="pre">operators_from_contract</span></code></a>(contract) → tuple[tuple[dau_core.capabilities.OperatorCapability, ...], tuple[dau_core.capabilities.OperatorCapability, ...]]</p></td>
 <td><p>(hardware operators, host-computed operators) from the concrete</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.capability_decode._capability_word" title="dau_driver.capability_decode._capability_word"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_capability_word</span></code></a>(read_register, offset) → int</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.capability_decode._capability_word" title="dau_driver.capability_decode._capability_word"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_capability_word</span></code></a>(read_register, offset) → int</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.capability_decode._build_id" title="dau_driver.capability_decode._build_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_build_id</span></code></a>(read_register) → int</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.capability_decode._build_id" title="dau_driver.capability_decode._build_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_build_id</span></code></a>(read_register) → int</p></td>
 <td><p>The shell's 64-bit build identity, as TWO 32-bit reads.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.capability_decode._capability_words" title="dau_driver.capability_decode._capability_words"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_capability_words</span></code></a>(read_register, register_map_version) → dict[str, int]</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.capability_decode._capability_words" title="dau_driver.capability_decode._capability_words"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_capability_words</span></code></a>(read_register, register_map_version) → dict[str, int]</p></td>
 <td><p>The composed-capability words, read only from a shell that</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.capability_decode._counter" title="dau_driver.capability_decode._counter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_counter</span></code></a>(read_register, low, high) → int</p></td>
+<td><p></p></td>
+</tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.capability_decode.read_register_block_snapshot" title="dau_driver.capability_decode.read_register_block_snapshot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_register_block_snapshot</span></code></a>(read_register) → dau_core.registers.RegisterBlockSnapshot</p></td>
-<td><p>Discovery-time identity snapshot; <code class="docutils literal notranslate"><span class="pre">read_register</span></code> abstracts the</p></td>
+<td><p>The register-block snapshot every reader takes, at discovery and on a</p></td>
 </tr>
 </tbody>
 </table>
@@ -552,6 +576,27 @@ the backends (they were verbatim copies before, and had already drifted).</p>
 <dt class="sig sig-object py" id="dau_driver.capability_decode.REGISTER_WINDOW_OFFSETS">
 <span class="sig-prename descclassname"><span class="pre">dau_driver.capability_decode.</span></span><span class="sig-name descname"><span class="pre">REGISTER_WINDOW_OFFSETS</span></span><a class="headerlink" href="#dau_driver.capability_decode.REGISTER_WINDOW_OFFSETS" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="dau_driver.capability_decode._MAGIC_PROBE_ATTEMPTS">
+<span class="sig-prename descclassname"><span class="pre">dau_driver.capability_decode.</span></span><span class="sig-name descname"><span class="pre">_MAGIC_PROBE_ATTEMPTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#dau_driver.capability_decode._MAGIC_PROBE_ATTEMPTS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="dau_driver.capability_decode._MAGIC_PROBE_DELAY_S">
+<span class="sig-prename descclassname"><span class="pre">dau_driver.capability_decode.</span></span><span class="sig-name descname"><span class="pre">_MAGIC_PROBE_DELAY_S</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.01</span></em><a class="headerlink" href="#dau_driver.capability_decode._MAGIC_PROBE_DELAY_S" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dau_driver.capability_decode.find_register_window">
+<span class="sig-prename descclassname"><span class="pre">dau_driver.capability_decode.</span></span><span class="sig-name descname"><span class="pre">find_register_window</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">read_u32</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bar_indices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/dau_driver/capability_decode.html#find_register_window"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.capability_decode.find_register_window" title="Link to this definition">¶</a></dt>
+<dd><p>(BAR index, window offset, magic) of the DAU identity window.</p>
+<p><code class="docutils literal notranslate"><span class="pre">read_u32(bar_index,</span> <span class="pre">offset)</span></code> is the backend’s raw BAR read. Every
+candidate BAR and window is probed for MAGIC, the whole sweep retried
+while the link settles. When no candidate reads MAGIC the first value
+read comes back, so the caller can tell an all-ones (unhealthy) path
+from a different bitstream.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_driver.capability_decode.decode_platform_id">
@@ -642,12 +687,18 @@ all-ones normalization cannot diverge between them.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="dau_driver.capability_decode._counter">
+<span class="sig-prename descclassname"><span class="pre">dau_driver.capability_decode.</span></span><span class="sig-name descname"><span class="pre">_counter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">read_register</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">dau_core.registers.RegisterOffset</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dau_core.registers.RegisterOffset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dau_core.registers.RegisterOffset</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/capability_decode.html#_counter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.capability_decode._counter" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="dau_driver.capability_decode.read_register_block_snapshot">
 <span class="sig-prename descclassname"><span class="pre">dau_driver.capability_decode.</span></span><span class="sig-name descname"><span class="pre">read_register_block_snapshot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">read_register</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">dau_core.registers.RegisterOffset</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dau_core.registers.RegisterBlockSnapshot</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/capability_decode.html#read_register_block_snapshot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.capability_decode.read_register_block_snapshot" title="Link to this definition">¶</a></dt>
-<dd><p>Discovery-time identity snapshot; <code class="docutils literal notranslate"><span class="pre">read_register</span></code> abstracts the
-backend-specific window access (dev-node pread vs DriverKit BAR read).
-The composed-capability words are only read on register map &gt;= 0.2 —
-older shells do not decode those offsets.</p>
+<dd><p>The register-block snapshot every reader takes, at discovery and on a
+live device; <code class="docutils literal notranslate"><span class="pre">read_register</span></code> abstracts the backend-specific window
+access (dev-node pread vs DriverKit BAR read). The composed-capability
+words are only read on register map &gt;= 0.2 — older shells do not decode
+those offsets.</p>
 </dd></dl>
 
 </section>
@@ -702,6 +753,15 @@ older shells do not decode those offsets.</p>
     <a href="#dau_driver.capability_decode.REGISTER_WINDOW_OFFSETS">REGISTER_WINDOW_OFFSETS</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.capability_decode._MAGIC_PROBE_ATTEMPTS">_MAGIC_PROBE_ATTEMPTS</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.capability_decode._MAGIC_PROBE_DELAY_S">_MAGIC_PROBE_DELAY_S</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.capability_decode.find_register_window">find_register_window()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
     <a href="#dau_driver.capability_decode.decode_platform_id">decode_platform_id()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
@@ -730,6 +790,9 @@ older shells do not decode those offsets.</p>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_driver.capability_decode._capability_words">_capability_words()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#dau_driver.capability_decode._counter">_counter()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#dau_driver.capability_decode.read_register_block_snapshot">read_register_block_snapshot()</a>

@@ -836,12 +836,14 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Mapping</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Sequence</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">dau_core.capabilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">OperatorCapability</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dau_core.capability_contract</span><span class="w"> </span><span class="kn">import</span> <span class="n">CapabilityContract</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dau_core.registers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">CAPABILITY_WORDS_REGISTER_MAP_VERSION</span><span class="p">,</span>
+    <span class="n">DAU_MAGIC_WORD</span><span class="p">,</span>
     <span class="n">DEFAULT_STREAM_JOB_REGISTER_CONTRACT</span><span class="p">,</span>
     <span class="n">JOB_CAPACITY_REGISTER_MAP_VERSION</span><span class="p">,</span>
     <span class="n">RegisterBlockSnapshot</span><span class="p">,</span>
@@ -851,12 +853,51 @@ window.runMermaid = runMermaid;</script>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dau_core.stream</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogicalType</span><span class="p">,</span> <span class="n">OperationCode</span><span class="p">,</span> <span class="n">output_type_for</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">.errors</span><span class="w"> </span><span class="kn">import</span> <span class="n">RegisterAccessError</span>
+
 <span class="c1"># the register-level type claim of the bitmap words — every</span>
 <span class="c1"># opcode-driven tile in the palette is INT32 (per-tile types travel in the</span>
 <span class="c1"># manifest capability contract, not in registers)</span>
 <span class="n">REGISTER_BITMAP_INPUT_TYPES</span> <span class="o">=</span> <span class="p">(</span><span class="n">LogicalType</span><span class="o">.</span><span class="n">INT32</span><span class="p">,)</span>
 <span class="c1"># identity window candidates: shell base, then the stream-job contract window</span>
 <span class="n">REGISTER_WINDOW_OFFSETS</span> <span class="o">=</span> <span class="p">(</span><span class="mh">0x0</span><span class="p">,</span> <span class="n">DEFAULT_STREAM_JOB_REGISTER_CONTRACT</span><span class="o">.</span><span class="n">register_window_offset</span><span class="p">)</span>
+
+
+<span class="c1"># The first AXI-Lite reads after a PCIe rescan can transiently return 0/stale</span>
+<span class="c1"># data before the link settles, so a single-shot magic probe can misread a</span>
+<span class="c1"># healthy DAU shell as the wrong bitstream. Re-probe a few times before giving</span>
+<span class="c1"># up so a transient does not masquerade as a real mismatch.</span>
+<span class="n">_MAGIC_PROBE_ATTEMPTS</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">_MAGIC_PROBE_DELAY_S</span> <span class="o">=</span> <span class="mf">0.01</span>
+
+
+<div class="viewcode-block" id="find_register_window">
+<a class="viewcode-back" href="../../autoapi/dau_driver/capability_decode/index.html#dau_driver.capability_decode.find_register_window">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_register_window</span><span class="p">(</span><span class="n">read_u32</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">int</span><span class="p">],</span> <span class="n">bar_indices</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""(BAR index, window offset, magic) of the DAU identity window.</span>
+
+<span class="sd">    ``read_u32(bar_index, offset)`` is the backend's raw BAR read. Every</span>
+<span class="sd">    candidate BAR and window is probed for MAGIC, the whole sweep retried</span>
+<span class="sd">    while the link settles. When no candidate reads MAGIC the first value</span>
+<span class="sd">    read comes back, so the caller can tell an all-ones (unhealthy) path</span>
+<span class="sd">    from a different bitstream.</span>
+<span class="sd">    """</span>
+    <span class="n">first_magic</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">attempt</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">_MAGIC_PROBE_ATTEMPTS</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">bar_index</span> <span class="ow">in</span> <span class="n">bar_indices</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">register_window_offset</span> <span class="ow">in</span> <span class="n">REGISTER_WINDOW_OFFSETS</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">magic</span> <span class="o">=</span> <span class="n">read_u32</span><span class="p">(</span><span class="n">bar_index</span><span class="p">,</span> <span class="n">register_window_offset</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">RegisterOffset</span><span class="o">.</span><span class="n">MAGIC</span><span class="p">))</span>
+                <span class="k">except</span> <span class="n">RegisterAccessError</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="n">first_magic</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">first_magic</span> <span class="o">=</span> <span class="n">magic</span>
+                <span class="k">if</span> <span class="n">magic</span> <span class="o">==</span> <span class="n">DAU_MAGIC_WORD</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">bar_index</span><span class="p">,</span> <span class="n">register_window_offset</span><span class="p">,</span> <span class="n">magic</span>
+        <span class="k">if</span> <span class="n">attempt</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="n">_MAGIC_PROBE_ATTEMPTS</span><span class="p">:</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">_MAGIC_PROBE_DELAY_S</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">first_magic</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">first_magic</span></div>
+
 
 
 <div class="viewcode-block" id="decode_platform_id">
@@ -1028,13 +1069,23 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<div class="viewcode-block" id="_counter">
+<a class="viewcode-back" href="../../autoapi/dau_driver/capability_decode/index.html#dau_driver.capability_decode._counter">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_counter</span><span class="p">(</span><span class="n">read_register</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">RegisterOffset</span><span class="p">],</span> <span class="nb">int</span><span class="p">],</span> <span class="n">low</span><span class="p">:</span> <span class="n">RegisterOffset</span><span class="p">,</span> <span class="n">high</span><span class="p">:</span> <span class="n">RegisterOffset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="c1"># two 32-bit reads, never one 8-byte access: the XDMA user BAR can</span>
+    <span class="c1"># short-read those</span>
+    <span class="k">return</span> <span class="n">read_register</span><span class="p">(</span><span class="n">low</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">read_register</span><span class="p">(</span><span class="n">high</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="mi">32</span><span class="p">)</span></div>
+
+
+
 <div class="viewcode-block" id="read_register_block_snapshot">
 <a class="viewcode-back" href="../../autoapi/dau_driver/capability_decode/index.html#dau_driver.capability_decode.read_register_block_snapshot">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">read_register_block_snapshot</span><span class="p">(</span><span class="n">read_register</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">RegisterOffset</span><span class="p">],</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">RegisterBlockSnapshot</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Discovery-time identity snapshot; ``read_register`` abstracts the</span>
-<span class="sd">    backend-specific window access (dev-node pread vs DriverKit BAR read).</span>
-<span class="sd">    The composed-capability words are only read on register map &gt;= 0.2 —</span>
-<span class="sd">    older shells do not decode those offsets."""</span>
+<span class="w">    </span><span class="sd">"""The register-block snapshot every reader takes, at discovery and on a</span>
+<span class="sd">    live device; ``read_register`` abstracts the backend-specific window</span>
+<span class="sd">    access (dev-node pread vs DriverKit BAR read). The composed-capability</span>
+<span class="sd">    words are only read on register map &gt;= 0.2 — older shells do not decode</span>
+<span class="sd">    those offsets."""</span>
     <span class="n">register_map_version</span> <span class="o">=</span> <span class="n">decode_register_map_version</span><span class="p">(</span><span class="n">read_register</span><span class="p">(</span><span class="n">RegisterOffset</span><span class="o">.</span><span class="n">REGISTER_MAP_VERSION</span><span class="p">))</span>
     <span class="n">capability_words</span> <span class="o">=</span> <span class="n">_capability_words</span><span class="p">(</span><span class="n">read_register</span><span class="p">,</span> <span class="n">register_map_version</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">RegisterBlockSnapshot</span><span class="p">(</span>
@@ -1046,6 +1097,13 @@ window.runMermaid = runMermaid;</script>
         <span class="c1"># hardware, which this module states must never be submitted.</span>
         <span class="n">operator_bitmap</span><span class="o">=</span><span class="n">_capability_word</span><span class="p">(</span><span class="n">read_register</span><span class="p">,</span> <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">OPERATOR_BITMAP</span><span class="p">),</span>
         <span class="n">build_id</span><span class="o">=</span><span class="n">_build_id</span><span class="p">(</span><span class="n">read_register</span><span class="p">),</span>
+        <span class="n">status</span><span class="o">=</span><span class="n">read_register</span><span class="p">(</span><span class="n">RegisterOffset</span><span class="o">.</span><span class="n">STATUS</span><span class="p">),</span>
+        <span class="n">last_error</span><span class="o">=</span><span class="n">read_register</span><span class="p">(</span><span class="n">RegisterOffset</span><span class="o">.</span><span class="n">LAST_ERROR</span><span class="p">),</span>
+        <span class="n">h2c_bytes</span><span class="o">=</span><span class="n">_counter</span><span class="p">(</span><span class="n">read_register</span><span class="p">,</span> <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">H2C_BYTES_LOW</span><span class="p">,</span> <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">H2C_BYTES_HIGH</span><span class="p">),</span>
+        <span class="n">c2h_bytes</span><span class="o">=</span><span class="n">_counter</span><span class="p">(</span><span class="n">read_register</span><span class="p">,</span> <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">C2H_BYTES_LOW</span><span class="p">,</span> <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">C2H_BYTES_HIGH</span><span class="p">),</span>
+        <span class="n">rows</span><span class="o">=</span><span class="n">_counter</span><span class="p">(</span><span class="n">read_register</span><span class="p">,</span> <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">ROWS_LOW</span><span class="p">,</span> <span class="n">RegisterOffset</span><span class="o">.</span><span class="n">ROWS_HIGH</span><span class="p">),</span>
+        <span class="n">batches</span><span class="o">=</span><span class="n">read_register</span><span class="p">(</span><span class="n">RegisterOffset</span><span class="o">.</span><span class="n">BATCHES</span><span class="p">),</span>
+        <span class="n">stalls</span><span class="o">=</span><span class="n">read_register</span><span class="p">(</span><span class="n">RegisterOffset</span><span class="o">.</span><span class="n">STALLS</span><span class="p">),</span>
         <span class="o">**</span><span class="n">capability_words</span><span class="p">,</span>
     <span class="p">)</span></div>
 

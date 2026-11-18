@@ -418,31 +418,19 @@
     <a href="#attributes">Attributes</a>
   </li>
   <li class="fd-toc-item" data-depth="1">
-    <a href="#classes">Classes</a>
-  </li>
-  <li class="fd-toc-item" data-depth="1">
     <a href="#functions">Functions</a>
   </li>
   <li class="fd-toc-item" data-depth="1">
     <a href="#module-contents">Module Contents</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
+    <a href="#test_verify_advertisement._lane">_lane()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
     <a href="#test_verify_advertisement._CONTRACT">_CONTRACT</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_verify_advertisement._Snapshot">_Snapshot</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#test_verify_advertisement._Snapshot.lane_count">_Snapshot.lane_count</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#test_verify_advertisement._Snapshot.operator_bitmap">_Snapshot.operator_bitmap</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#test_verify_advertisement._Snapshot.host_opcode_bitmap">_Snapshot.host_opcode_bitmap</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#test_verify_advertisement._Snapshot.sort_capacity">_Snapshot.sort_capacity</a>
+    <a href="#test_verify_advertisement._snapshot">_snapshot()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_verify_advertisement._manifest">_manifest()</a>
@@ -457,13 +445,10 @@
     <a href="#test_verify_advertisement.test_every_mismatch_is_reported_not_just_the_first">test_every_mismatch_is_reported_not_just_the_first()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_verify_advertisement.test_hex_and_int_spellings_of_a_word_compare_equal">test_hex_and_int_spellings_of_a_word_compare_equal()</a>
+    <a href="#test_verify_advertisement.test_contract_is_read_from_a_manifest_as_the_typed_model">test_contract_is_read_from_a_manifest_as_the_typed_model()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_verify_advertisement.test_a_word_the_manifest_does_not_record_is_skipped">test_a_word_the_manifest_does_not_record_is_skipped()</a>
-  </li>
-  <li class="fd-toc-item" data-depth="2">
-    <a href="#test_verify_advertisement.test_contract_is_read_from_a_manifest">test_contract_is_read_from_a_manifest()</a>
+    <a href="#test_verify_advertisement.test_the_words_compared_are_the_contract_lanes_not_its_summary_fields">test_the_words_compared_are_the_contract_lanes_not_its_summary_fields()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_verify_advertisement.test_a_manifest_without_a_contract_refuses">test_a_manifest_without_a_contract_refuses()</a>
@@ -478,34 +463,13 @@
     <a href="#test_verify_advertisement.test_a_dead_board_is_caught_by_the_required_identity_not_by_the_words">test_a_dead_board_is_caught_by_the_required_identity_not_by_the_words()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_verify_advertisement.test_an_unreadable_word_is_a_mismatch_not_a_skip_and_never_raises">test_an_unreadable_word_is_a_mismatch_not_a_skip_and_never_raises()</a>
-  </li>
-  <li class="fd-toc-item" data-depth="2">
-    <a href="#test_verify_advertisement.test_a_float_lane_count_does_not_pass_a_mismatched_device">test_a_float_lane_count_does_not_pass_a_mismatched_device()</a>
+    <a href="#test_verify_advertisement.test_the_command_reports_a_contract_it_cannot_parse_in_one_line">test_the_command_reports_a_contract_it_cannot_parse_in_one_line()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_verify_advertisement.test_device_name_for_endpoint_resolves_through_sysfs">test_device_name_for_endpoint_resolves_through_sysfs()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_verify_advertisement.test_an_endpoint_that_did_not_re_enumerate_refuses">test_an_endpoint_that_did_not_re_enumerate_refuses()</a>
-  </li>
-  <li class="fd-toc-item" data-depth="2">
-    <a href="#test_verify_advertisement._StampedSnapshot">_StampedSnapshot</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#test_verify_advertisement._StampedSnapshot.lane_count">_StampedSnapshot.lane_count</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#test_verify_advertisement._StampedSnapshot.operator_bitmap">_StampedSnapshot.operator_bitmap</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#test_verify_advertisement._StampedSnapshot.host_opcode_bitmap">_StampedSnapshot.host_opcode_bitmap</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#test_verify_advertisement._StampedSnapshot.sort_capacity">_StampedSnapshot.sort_capacity</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#test_verify_advertisement._StampedSnapshot.build_id">_StampedSnapshot.build_id</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_verify_advertisement._SPEC_HASH">_SPEC_HASH</a>
@@ -544,12 +508,6 @@
     <a href="#test_verify_advertisement.test_a_dead_aperture_reads_back_as_unstamped_not_as_an_identity">test_a_dead_aperture_reads_back_as_unstamped_not_as_an_identity()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_verify_advertisement.test_a_json_boolean_is_not_a_capability_word">test_a_json_boolean_is_not_a_capability_word()</a>
-  </li>
-  <li class="fd-toc-item" data-depth="2">
-    <a href="#test_verify_advertisement.test_an_unreadable_only_contract_reports_the_reason_not_the_all_zero_guard">test_an_unreadable_only_contract_reports_the_reason_not_the_all_zero_guard()</a>
-  </li>
-  <li class="fd-toc-item" data-depth="2">
     <a href="#test_verify_advertisement.test_the_command_reports_a_missing_or_malformed_manifest_in_one_line">test_the_command_reports_a_missing_or_malformed_manifest_in_one_line()</a>
   </li>
 </ul>
@@ -586,23 +544,16 @@
 </tbody>
 </table>
 </section>
-<section id="classes">
-<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h2>
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement._Snapshot" title="test_verify_advertisement._Snapshot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_Snapshot</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement._StampedSnapshot" title="test_verify_advertisement._StampedSnapshot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_StampedSnapshot</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-</tbody>
-</table>
-</section>
 <section id="functions">
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement._lane" title="test_verify_advertisement._lane"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_lane</span></code></a>([core]) → dau_core.capability_contract.LaneCapability</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement._snapshot" title="test_verify_advertisement._snapshot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_snapshot</span></code></a>(*[, lane_count, operator_bitmap, ...])</p></td>
+<td><p></p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement._manifest" title="test_verify_advertisement._manifest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_manifest</span></code></a>(tmp_path[, contract]) → pathlib.Path</p></td>
 <td><p></p></td>
 </tr>
@@ -615,32 +566,26 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement.test_every_mismatch_is_reported_not_just_the_first" title="test_verify_advertisement.test_every_mismatch_is_reported_not_just_the_first"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_every_mismatch_is_reported_not_just_the_first</span></code></a>() → None</p></td>
 <td><p>A caller staring at a failed flash wants all of them: 'lane count</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement.test_hex_and_int_spellings_of_a_word_compare_equal" title="test_verify_advertisement.test_hex_and_int_spellings_of_a_word_compare_equal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_hex_and_int_spellings_of_a_word_compare_equal</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement.test_contract_is_read_from_a_manifest_as_the_typed_model" title="test_verify_advertisement.test_contract_is_read_from_a_manifest_as_the_typed_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_contract_is_read_from_a_manifest_as_the_typed_model</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement.test_a_word_the_manifest_does_not_record_is_skipped" title="test_verify_advertisement.test_a_word_the_manifest_does_not_record_is_skipped"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_word_the_manifest_does_not_record_is_skipped</span></code></a>() → None</p></td>
-<td><p>An older manifest predating a word must not fail a device that</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement.test_the_words_compared_are_the_contract_lanes_not_its_summary_fields" title="test_verify_advertisement.test_the_words_compared_are_the_contract_lanes_not_its_summary_fields"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_words_compared_are_the_contract_lanes_not_its_summary_fields</span></code></a>(...) → None</p></td>
+<td><p>The manifest's summary words are a serialization of its lanes. The</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement.test_contract_is_read_from_a_manifest" title="test_verify_advertisement.test_contract_is_read_from_a_manifest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_contract_is_read_from_a_manifest</span></code></a>(tmp_path) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement.test_a_manifest_without_a_contract_refuses" title="test_verify_advertisement.test_a_manifest_without_a_contract_refuses"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_manifest_without_a_contract_refuses</span></code></a>(tmp_path) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement.test_a_manifest_without_a_contract_refuses" title="test_verify_advertisement.test_a_manifest_without_a_contract_refuses"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_manifest_without_a_contract_refuses</span></code></a>(tmp_path) → None</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement.test_a_contract_that_advertises_nothing_is_refused" title="test_verify_advertisement.test_a_contract_that_advertises_nothing_is_refused"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_contract_that_advertises_nothing_is_refused</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement.test_a_contract_that_advertises_nothing_is_refused" title="test_verify_advertisement.test_a_contract_that_advertises_nothing_is_refused"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_contract_that_advertises_nothing_is_refused</span></code></a>() → None</p></td>
 <td><p>All-zero is exactly what a dead or undecoded aperture reads back as,</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement.test_a_zero_device_word_means_not_advertised_not_zero" title="test_verify_advertisement.test_a_zero_device_word_means_not_advertised_not_zero"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_zero_device_word_means_not_advertised_not_zero</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement.test_a_zero_device_word_means_not_advertised_not_zero" title="test_verify_advertisement.test_a_zero_device_word_means_not_advertised_not_zero"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_zero_device_word_means_not_advertised_not_zero</span></code></a>() → None</p></td>
 <td><p>Fixed binding tops place no NoC lane block, so they advertise</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement.test_a_dead_board_is_caught_by_the_required_identity_not_by_the_words" title="test_verify_advertisement.test_a_dead_board_is_caught_by_the_required_identity_not_by_the_words"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_dead_board_is_caught_by_the_required_identity_not_by_the_words</span></code></a>() → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement.test_a_dead_board_is_caught_by_the_required_identity_not_by_the_words" title="test_verify_advertisement.test_a_dead_board_is_caught_by_the_required_identity_not_by_the_words"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_dead_board_is_caught_by_the_required_identity_not_by_the_words</span></code></a>() → None</p></td>
 <td><p>The consequence of the rule above: a board answering nothing at all</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement.test_an_unreadable_word_is_a_mismatch_not_a_skip_and_never_raises" title="test_verify_advertisement.test_an_unreadable_word_is_a_mismatch_not_a_skip_and_never_raises"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_an_unreadable_word_is_a_mismatch_not_a_skip_and_never_raises</span></code></a>(bad) → None</p></td>
-<td><p>Fail CLOSED. A word the manifest records in a form this cannot read</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement.test_a_float_lane_count_does_not_pass_a_mismatched_device" title="test_verify_advertisement.test_a_float_lane_count_does_not_pass_a_mismatched_device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_float_lane_count_does_not_pass_a_mismatched_device</span></code></a>() → None</p></td>
-<td><p>The concrete fail-open case: 4.0 parsed as 'absent' let a device</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement.test_the_command_reports_a_contract_it_cannot_parse_in_one_line" title="test_verify_advertisement.test_the_command_reports_a_contract_it_cannot_parse_in_one_line"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_command_reports_a_contract_it_cannot_parse_in_one_line</span></code></a>(...) → None</p></td>
+<td><p>A malformed contract fails the verification with its reason instead</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement.test_device_name_for_endpoint_resolves_through_sysfs" title="test_verify_advertisement.test_device_name_for_endpoint_resolves_through_sysfs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_device_name_for_endpoint_resolves_through_sysfs</span></code></a>(...) → None</p></td>
 <td><p></p></td>
@@ -648,7 +593,7 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement.test_an_endpoint_that_did_not_re_enumerate_refuses" title="test_verify_advertisement.test_an_endpoint_that_did_not_re_enumerate_refuses"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_an_endpoint_that_did_not_re_enumerate_refuses</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement._stamped" title="test_verify_advertisement._stamped"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_stamped</span></code></a>(build_id) → _StampedSnapshot</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement._stamped" title="test_verify_advertisement._stamped"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_stamped</span></code></a>(build_id) → dau_core.registers.RegisterBlockSnapshot</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement.test_a_matching_build_id_is_the_exact_check" title="test_verify_advertisement.test_a_matching_build_id_is_the_exact_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_matching_build_id_is_the_exact_check</span></code></a>() → None</p></td>
@@ -678,12 +623,6 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement.test_a_dead_aperture_reads_back_as_unstamped_not_as_an_identity" title="test_verify_advertisement.test_a_dead_aperture_reads_back_as_unstamped_not_as_an_identity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_dead_aperture_reads_back_as_unstamped_not_as_an_identity</span></code></a>() → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement.test_a_json_boolean_is_not_a_capability_word" title="test_verify_advertisement.test_a_json_boolean_is_not_a_capability_word"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_json_boolean_is_not_a_capability_word</span></code></a>() → None</p></td>
-<td><p>int(True) == 1 would quietly satisfy a device advertising one lane.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_verify_advertisement.test_an_unreadable_only_contract_reports_the_reason_not_the_all_zero_guard" title="test_verify_advertisement.test_an_unreadable_only_contract_reports_the_reason_not_the_all_zero_guard"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_an_unreadable_only_contract_reports_the_reason_not_the_all_zero_guard</span></code></a>() → None</p></td>
-<td><p>Guard ordering: the all-zero refusal must not swallow an unreadable</p></td>
-</tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#test_verify_advertisement.test_the_command_reports_a_missing_or_malformed_manifest_in_one_line" title="test_verify_advertisement.test_the_command_reports_a_missing_or_malformed_manifest_in_one_line"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_command_reports_a_missing_or_malformed_manifest_in_one_line</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
@@ -692,39 +631,24 @@
 </section>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="test_verify_advertisement._lane">
+<span class="sig-prename descclassname"><span class="pre">test_verify_advertisement.</span></span><span class="sig-name descname"><span class="pre">_lane</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">core</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'hash-grouped-scan'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dau_core.capability_contract.LaneCapability</span></span></span><a class="headerlink" href="#test_verify_advertisement._lane" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="py data">
 <dt class="sig sig-object py" id="test_verify_advertisement._CONTRACT">
 <span class="sig-prename descclassname"><span class="pre">test_verify_advertisement.</span></span><span class="sig-name descname"><span class="pre">_CONTRACT</span></span><a class="headerlink" href="#test_verify_advertisement._CONTRACT" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="test_verify_advertisement._Snapshot">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">test_verify_advertisement.</span></span><span class="sig-name descname"><span class="pre">_Snapshot</span></span><a class="headerlink" href="#test_verify_advertisement._Snapshot" title="Link to this definition">¶</a></dt>
-<dd><dl class="py attribute">
-<dt class="sig sig-object py" id="test_verify_advertisement._Snapshot.lane_count">
-<span class="sig-name descname"><span class="pre">lane_count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#test_verify_advertisement._Snapshot.lane_count" title="Link to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="test_verify_advertisement._snapshot">
+<span class="sig-prename descclassname"><span class="pre">test_verify_advertisement.</span></span><span class="sig-name descname"><span class="pre">_snapshot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">lane_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operator_bitmap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">24</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host_opcode_bitmap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">build_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#test_verify_advertisement._snapshot" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="test_verify_advertisement._Snapshot.operator_bitmap">
-<span class="sig-name descname"><span class="pre">operator_bitmap</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#test_verify_advertisement._Snapshot.operator_bitmap" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="test_verify_advertisement._Snapshot.host_opcode_bitmap">
-<span class="sig-name descname"><span class="pre">host_opcode_bitmap</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#test_verify_advertisement._Snapshot.host_opcode_bitmap" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="test_verify_advertisement._Snapshot.sort_capacity">
-<span class="sig-name descname"><span class="pre">sort_capacity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#test_verify_advertisement._Snapshot.sort_capacity" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="test_verify_advertisement._manifest">
-<span class="sig-prename descclassname"><span class="pre">test_verify_advertisement.</span></span><span class="sig-name descname"><span class="pre">_manifest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contract</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">_CONTRACT</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pathlib.Path</span></span></span><a class="headerlink" href="#test_verify_advertisement._manifest" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">test_verify_advertisement.</span></span><span class="sig-name descname"><span class="pre">_manifest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contract</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">metadata</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pathlib.Path</span></span></span><a class="headerlink" href="#test_verify_advertisement._manifest" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -739,7 +663,7 @@
 leaves the FPGA on its flash-resident design, and the endpoint
 enumerates exactly as it would on success — same vendor, same device id,
 same address. Only the composed advertisement differs: here the resident
-shell carries three lanes where the manifest declares one.</p>
+shell has three lanes where the manifest declares one.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -750,21 +674,17 @@ differs’ and ‘operator bitmap differs’ have different causes.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="test_verify_advertisement.test_hex_and_int_spellings_of_a_word_compare_equal">
-<span class="sig-prename descclassname"><span class="pre">test_verify_advertisement.</span></span><span class="sig-name descname"><span class="pre">test_hex_and_int_spellings_of_a_word_compare_equal</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_verify_advertisement.test_hex_and_int_spellings_of_a_word_compare_equal" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="test_verify_advertisement.test_contract_is_read_from_a_manifest_as_the_typed_model">
+<span class="sig-prename descclassname"><span class="pre">test_verify_advertisement.</span></span><span class="sig-name descname"><span class="pre">test_contract_is_read_from_a_manifest_as_the_typed_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_verify_advertisement.test_contract_is_read_from_a_manifest_as_the_typed_model" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="test_verify_advertisement.test_a_word_the_manifest_does_not_record_is_skipped">
-<span class="sig-prename descclassname"><span class="pre">test_verify_advertisement.</span></span><span class="sig-name descname"><span class="pre">test_a_word_the_manifest_does_not_record_is_skipped</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_verify_advertisement.test_a_word_the_manifest_does_not_record_is_skipped" title="Link to this definition">¶</a></dt>
-<dd><p>An older manifest predating a word must not fail a device that
-advertises it – absence is not disagreement.</p>
+<dt class="sig sig-object py" id="test_verify_advertisement.test_the_words_compared_are_the_contract_lanes_not_its_summary_fields">
+<span class="sig-prename descclassname"><span class="pre">test_verify_advertisement.</span></span><span class="sig-name descname"><span class="pre">test_the_words_compared_are_the_contract_lanes_not_its_summary_fields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_verify_advertisement.test_the_words_compared_are_the_contract_lanes_not_its_summary_fields" title="Link to this definition">¶</a></dt>
+<dd><p>The manifest’s summary words are a serialization of its lanes. The
+lanes are what the typed contract keeps, so a summary that disagrees
+with them cannot mislead the check.</p>
 </dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="test_verify_advertisement.test_contract_is_read_from_a_manifest">
-<span class="sig-prename descclassname"><span class="pre">test_verify_advertisement.</span></span><span class="sig-name descname"><span class="pre">test_contract_is_read_from_a_manifest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_verify_advertisement.test_contract_is_read_from_a_manifest" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="test_verify_advertisement.test_a_manifest_without_a_contract_refuses">
@@ -801,19 +721,10 @@ flash path requires one.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="test_verify_advertisement.test_an_unreadable_word_is_a_mismatch_not_a_skip_and_never_raises">
-<span class="sig-prename descclassname"><span class="pre">test_verify_advertisement.</span></span><span class="sig-name descname"><span class="pre">test_an_unreadable_word_is_a_mismatch_not_a_skip_and_never_raises</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bad</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_verify_advertisement.test_an_unreadable_word_is_a_mismatch_not_a_skip_and_never_raises" title="Link to this definition">¶</a></dt>
-<dd><p>Fail CLOSED. A word the manifest records in a form this cannot read
-is not the same as one it does not record: reading it as absent is how a
-check silently stops checking. Raising is worse still – this runs
-before the deadman disarm, so an uncaught exception reboots the host.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="test_verify_advertisement.test_a_float_lane_count_does_not_pass_a_mismatched_device">
-<span class="sig-prename descclassname"><span class="pre">test_verify_advertisement.</span></span><span class="sig-name descname"><span class="pre">test_a_float_lane_count_does_not_pass_a_mismatched_device</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_verify_advertisement.test_a_float_lane_count_does_not_pass_a_mismatched_device" title="Link to this definition">¶</a></dt>
-<dd><p>The concrete fail-open case: 4.0 parsed as ‘absent’ let a device
-advertising 1 pass a manifest expecting 4.</p>
+<dt class="sig sig-object py" id="test_verify_advertisement.test_the_command_reports_a_contract_it_cannot_parse_in_one_line">
+<span class="sig-prename descclassname"><span class="pre">test_verify_advertisement.</span></span><span class="sig-name descname"><span class="pre">test_the_command_reports_a_contract_it_cannot_parse_in_one_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capsys</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_verify_advertisement.test_the_command_reports_a_contract_it_cannot_parse_in_one_line" title="Link to this definition">¶</a></dt>
+<dd><p>A malformed contract fails the verification with its reason instead
+of a traceback; the step runs before the deadman disarm.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -825,36 +736,6 @@ advertising 1 pass a manifest expecting 4.</p>
 <dt class="sig sig-object py" id="test_verify_advertisement.test_an_endpoint_that_did_not_re_enumerate_refuses">
 <span class="sig-prename descclassname"><span class="pre">test_verify_advertisement.</span></span><span class="sig-name descname"><span class="pre">test_an_endpoint_that_did_not_re_enumerate_refuses</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_verify_advertisement.test_an_endpoint_that_did_not_re_enumerate_refuses" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="test_verify_advertisement._StampedSnapshot">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">test_verify_advertisement.</span></span><span class="sig-name descname"><span class="pre">_StampedSnapshot</span></span><a class="headerlink" href="#test_verify_advertisement._StampedSnapshot" title="Link to this definition">¶</a></dt>
-<dd><dl class="py attribute">
-<dt class="sig sig-object py" id="test_verify_advertisement._StampedSnapshot.lane_count">
-<span class="sig-name descname"><span class="pre">lane_count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#test_verify_advertisement._StampedSnapshot.lane_count" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="test_verify_advertisement._StampedSnapshot.operator_bitmap">
-<span class="sig-name descname"><span class="pre">operator_bitmap</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#test_verify_advertisement._StampedSnapshot.operator_bitmap" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="test_verify_advertisement._StampedSnapshot.host_opcode_bitmap">
-<span class="sig-name descname"><span class="pre">host_opcode_bitmap</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#test_verify_advertisement._StampedSnapshot.host_opcode_bitmap" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="test_verify_advertisement._StampedSnapshot.sort_capacity">
-<span class="sig-name descname"><span class="pre">sort_capacity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#test_verify_advertisement._StampedSnapshot.sort_capacity" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="test_verify_advertisement._StampedSnapshot.build_id">
-<span class="sig-name descname"><span class="pre">build_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#test_verify_advertisement._StampedSnapshot.build_id" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="test_verify_advertisement._SPEC_HASH">
@@ -868,7 +749,7 @@ advertising 1 pass a manifest expecting 4.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="test_verify_advertisement._stamped">
-<span class="sig-prename descclassname"><span class="pre">test_verify_advertisement.</span></span><span class="sig-name descname"><span class="pre">_stamped</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">build_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#test_verify_advertisement._StampedSnapshot" title="test_verify_advertisement._StampedSnapshot"><span class="pre">_StampedSnapshot</span></a></span></span><a class="headerlink" href="#test_verify_advertisement._stamped" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">test_verify_advertisement.</span></span><span class="sig-name descname"><span class="pre">_stamped</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">build_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dau_core.registers.RegisterBlockSnapshot</span></span></span><a class="headerlink" href="#test_verify_advertisement._stamped" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -942,19 +823,6 @@ a correctly flashed board.</p>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="test_verify_advertisement.test_a_json_boolean_is_not_a_capability_word">
-<span class="sig-prename descclassname"><span class="pre">test_verify_advertisement.</span></span><span class="sig-name descname"><span class="pre">test_a_json_boolean_is_not_a_capability_word</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_verify_advertisement.test_a_json_boolean_is_not_a_capability_word" title="Link to this definition">¶</a></dt>
-<dd><p>int(True) == 1 would quietly satisfy a device advertising one lane.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="test_verify_advertisement.test_an_unreadable_only_contract_reports_the_reason_not_the_all_zero_guard">
-<span class="sig-prename descclassname"><span class="pre">test_verify_advertisement.</span></span><span class="sig-name descname"><span class="pre">test_an_unreadable_only_contract_reports_the_reason_not_the_all_zero_guard</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_verify_advertisement.test_an_unreadable_only_contract_reports_the_reason_not_the_all_zero_guard" title="Link to this definition">¶</a></dt>
-<dd><p>Guard ordering: the all-zero refusal must not swallow an unreadable
-word and raise, which loses the specific reason a caller needs.</p>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="test_verify_advertisement.test_the_command_reports_a_missing_or_malformed_manifest_in_one_line">
 <span class="sig-prename descclassname"><span class="pre">test_verify_advertisement.</span></span><span class="sig-name descname"><span class="pre">test_the_command_reports_a_missing_or_malformed_manifest_in_one_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capsys</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_verify_advertisement.test_the_command_reports_a_missing_or_malformed_manifest_in_one_line" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -999,31 +867,19 @@ word and raise, which loses the specific reason a caller needs.</p>
     <a href="#attributes">Attributes</a>
   </li>
   <li class="fd-toc-item" data-depth="1">
-    <a href="#classes">Classes</a>
-  </li>
-  <li class="fd-toc-item" data-depth="1">
     <a href="#functions">Functions</a>
   </li>
   <li class="fd-toc-item" data-depth="1">
     <a href="#module-contents">Module Contents</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
+    <a href="#test_verify_advertisement._lane">_lane()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
     <a href="#test_verify_advertisement._CONTRACT">_CONTRACT</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_verify_advertisement._Snapshot">_Snapshot</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#test_verify_advertisement._Snapshot.lane_count">_Snapshot.lane_count</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#test_verify_advertisement._Snapshot.operator_bitmap">_Snapshot.operator_bitmap</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#test_verify_advertisement._Snapshot.host_opcode_bitmap">_Snapshot.host_opcode_bitmap</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#test_verify_advertisement._Snapshot.sort_capacity">_Snapshot.sort_capacity</a>
+    <a href="#test_verify_advertisement._snapshot">_snapshot()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_verify_advertisement._manifest">_manifest()</a>
@@ -1038,13 +894,10 @@ word and raise, which loses the specific reason a caller needs.</p>
     <a href="#test_verify_advertisement.test_every_mismatch_is_reported_not_just_the_first">test_every_mismatch_is_reported_not_just_the_first()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_verify_advertisement.test_hex_and_int_spellings_of_a_word_compare_equal">test_hex_and_int_spellings_of_a_word_compare_equal()</a>
+    <a href="#test_verify_advertisement.test_contract_is_read_from_a_manifest_as_the_typed_model">test_contract_is_read_from_a_manifest_as_the_typed_model()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_verify_advertisement.test_a_word_the_manifest_does_not_record_is_skipped">test_a_word_the_manifest_does_not_record_is_skipped()</a>
-  </li>
-  <li class="fd-toc-item" data-depth="2">
-    <a href="#test_verify_advertisement.test_contract_is_read_from_a_manifest">test_contract_is_read_from_a_manifest()</a>
+    <a href="#test_verify_advertisement.test_the_words_compared_are_the_contract_lanes_not_its_summary_fields">test_the_words_compared_are_the_contract_lanes_not_its_summary_fields()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_verify_advertisement.test_a_manifest_without_a_contract_refuses">test_a_manifest_without_a_contract_refuses()</a>
@@ -1059,34 +912,13 @@ word and raise, which loses the specific reason a caller needs.</p>
     <a href="#test_verify_advertisement.test_a_dead_board_is_caught_by_the_required_identity_not_by_the_words">test_a_dead_board_is_caught_by_the_required_identity_not_by_the_words()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_verify_advertisement.test_an_unreadable_word_is_a_mismatch_not_a_skip_and_never_raises">test_an_unreadable_word_is_a_mismatch_not_a_skip_and_never_raises()</a>
-  </li>
-  <li class="fd-toc-item" data-depth="2">
-    <a href="#test_verify_advertisement.test_a_float_lane_count_does_not_pass_a_mismatched_device">test_a_float_lane_count_does_not_pass_a_mismatched_device()</a>
+    <a href="#test_verify_advertisement.test_the_command_reports_a_contract_it_cannot_parse_in_one_line">test_the_command_reports_a_contract_it_cannot_parse_in_one_line()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_verify_advertisement.test_device_name_for_endpoint_resolves_through_sysfs">test_device_name_for_endpoint_resolves_through_sysfs()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_verify_advertisement.test_an_endpoint_that_did_not_re_enumerate_refuses">test_an_endpoint_that_did_not_re_enumerate_refuses()</a>
-  </li>
-  <li class="fd-toc-item" data-depth="2">
-    <a href="#test_verify_advertisement._StampedSnapshot">_StampedSnapshot</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#test_verify_advertisement._StampedSnapshot.lane_count">_StampedSnapshot.lane_count</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#test_verify_advertisement._StampedSnapshot.operator_bitmap">_StampedSnapshot.operator_bitmap</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#test_verify_advertisement._StampedSnapshot.host_opcode_bitmap">_StampedSnapshot.host_opcode_bitmap</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#test_verify_advertisement._StampedSnapshot.sort_capacity">_StampedSnapshot.sort_capacity</a>
-  </li>
-  <li class="fd-toc-item" data-depth="3">
-    <a href="#test_verify_advertisement._StampedSnapshot.build_id">_StampedSnapshot.build_id</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_verify_advertisement._SPEC_HASH">_SPEC_HASH</a>
@@ -1123,12 +955,6 @@ word and raise, which loses the specific reason a caller needs.</p>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_verify_advertisement.test_a_dead_aperture_reads_back_as_unstamped_not_as_an_identity">test_a_dead_aperture_reads_back_as_unstamped_not_as_an_identity()</a>
-  </li>
-  <li class="fd-toc-item" data-depth="2">
-    <a href="#test_verify_advertisement.test_a_json_boolean_is_not_a_capability_word">test_a_json_boolean_is_not_a_capability_word()</a>
-  </li>
-  <li class="fd-toc-item" data-depth="2">
-    <a href="#test_verify_advertisement.test_an_unreadable_only_contract_reports_the_reason_not_the_all_zero_guard">test_an_unreadable_only_contract_reports_the_reason_not_the_all_zero_guard()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_verify_advertisement.test_the_command_reports_a_missing_or_malformed_manifest_in_one_line">test_the_command_reports_a_missing_or_malformed_manifest_in_one_line()</a>

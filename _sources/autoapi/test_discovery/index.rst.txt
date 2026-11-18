@@ -22,6 +22,7 @@ Functions
    test_discovery.test_identify_device_rejects_generic_xdma_bitstream
    test_discovery.test_identify_device_reports_unhealthy_bar_when_magic_reads_all_ones
    test_discovery.test_discover_devices_reports_one_matching_fake_device
+   test_discovery.test_a_device_sysfs_does_not_place_reports_no_pci_ids
    test_discovery.test_discover_devices_decodes_the_concrete_contract_on_register_map_0_2
    test_discovery.test_identify_device_supports_register_window_offset
    test_discovery.test_identify_device_retries_transient_zero_magic_read
@@ -67,7 +68,13 @@ Module Contents
 
 .. py:function:: test_identify_device_reports_unhealthy_bar_when_magic_reads_all_ones(tmp_path: pathlib.Path) -> None
 
-.. py:function:: test_discover_devices_reports_one_matching_fake_device(tmp_path: pathlib.Path) -> None
+.. py:function:: test_discover_devices_reports_one_matching_fake_device(tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch) -> None
+
+.. py:function:: test_a_device_sysfs_does_not_place_reports_no_pci_ids(tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch) -> None
+
+   The ids are the endpoint's, read from sysfs; a node no endpoint owns
+   is not given some board's ids.
+
 
 .. py:function:: test_discover_devices_decodes_the_concrete_contract_on_register_map_0_2(tmp_path: pathlib.Path) -> None
 

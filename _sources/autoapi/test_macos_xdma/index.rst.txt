@@ -20,6 +20,7 @@ Functions
 
    test_macos_xdma.test_macos_xdma_client_open_all_probes_only_the_canonical_service
    test_macos_xdma.test_identify_macos_xdma_device_finds_dau_register_window
+   test_macos_xdma.test_identify_macos_xdma_device_retries_a_transient_zero_magic_read
    test_macos_xdma.test_identify_macos_xdma_device_rejects_non_dau_bitstream
    test_macos_xdma.test_discover_macos_xdma_devices_skips_unhealthy_or_wrong_bitstreams
    test_macos_xdma.test_discover_macos_xdma_devices_reports_no_user_client_as_no_devices
@@ -106,6 +107,13 @@ Module Contents
 .. py:function:: test_macos_xdma_client_open_all_probes_only_the_canonical_service(monkeypatch: pytest.MonkeyPatch) -> None
 
 .. py:function:: test_identify_macos_xdma_device_finds_dau_register_window() -> None
+
+.. py:function:: test_identify_macos_xdma_device_retries_a_transient_zero_magic_read() -> None
+
+   The first BAR reads after the link comes up can return 0 before it
+   settles. One zero sweep must not read a healthy shell as the wrong
+   bitstream, on this backend as on Linux.
+
 
 .. py:function:: test_identify_macos_xdma_device_rejects_non_dau_bitstream() -> None
 
