@@ -51,7 +51,12 @@ def test_the_tutorials_are_found_and_check_output() -> None:
     assert all(any(shown is not None for _body, shown in _runs(page)) for page in PAGES)
 
 
-@pytest.mark.parametrize("page", PAGES, ids=[f"{page.parent.name}/{page.stem}" for page in PAGES])
+@pytest.mark.parametrize(
+    "page",
+    # first-device prints a Linux devnode path, which Windows spells with backslashes
+    [pytest.param(page, marks=pytest.mark.posix_only) if page.stem == "first-device" else page for page in PAGES],
+    ids=[f"{page.parent.name}/{page.stem}" for page in PAGES],
+)
 def test_the_page_runs_as_written(page: Path, tmp_path, monkeypatch) -> None:
     monkeypatch.chdir(tmp_path)
     namespace: dict = {}

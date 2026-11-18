@@ -4,6 +4,7 @@ import importlib.util
 import struct
 from pathlib import Path
 
+import pytest
 from dau_core.registers import DAU_MAGIC_WORD, RegisterOffset, StreamProtocolVersion
 
 SCRIPT_PATH = Path(__file__).resolve().parents[2] / "scripts" / "dau-xdma-poc.py"
@@ -42,6 +43,7 @@ def test_health_offsets_are_mapped_contract_registers_inside_the_window() -> Non
         assert REGISTER_WINDOW_OFFSET <= offset < REGISTER_WINDOW_OFFSET + REGISTER_WINDOW_BYTES
 
 
+@pytest.mark.posix_only
 def test_bar_health_passes_on_composition_top_register_image(tmp_path: Path) -> None:
     user_path = tmp_path / "xdma0_user"
     write_composition_register_image(user_path)
@@ -54,6 +56,7 @@ def test_bar_health_passes_on_composition_top_register_image(tmp_path: Path) -> 
     assert all(value != 0xFFFFFFFF for value in health.values())
 
 
+@pytest.mark.posix_only
 def test_bar_health_offsets_follow_a_non_default_register_window(tmp_path: Path) -> None:
     window = 0x2000
     user_path = tmp_path / "xdma0_user"
@@ -66,6 +69,7 @@ def test_bar_health_offsets_follow_a_non_default_register_window(tmp_path: Path)
     assert all(value != 0xFFFFFFFF for value in health.values())
 
 
+@pytest.mark.posix_only
 def test_bar_health_still_surfaces_all_ones_on_a_mapped_register(tmp_path: Path) -> None:
     user_path = tmp_path / "xdma0_user"
     write_composition_register_image(user_path, operator_bitmap=0xFFFF_FFFF)

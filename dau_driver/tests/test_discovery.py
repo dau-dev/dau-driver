@@ -47,6 +47,7 @@ def test_discover_devices_uses_macos_backend_on_darwin_default_dev_root(monkeypa
     assert discover_devices() == ["mac-device"]
 
 
+@pytest.mark.posix_only
 def test_identify_device_rejects_generic_xdma_bitstream(tmp_path: Path) -> None:
     paths = write_fake_xdma_device(tmp_path, magic=0x58584D41)
 
@@ -54,6 +55,7 @@ def test_identify_device_rejects_generic_xdma_bitstream(tmp_path: Path) -> None:
         identify_device(paths.user)
 
 
+@pytest.mark.posix_only
 def test_identify_device_reports_unhealthy_bar_when_magic_reads_all_ones(tmp_path: Path) -> None:
     paths = write_fake_xdma_device(tmp_path, magic=0xFFFF_FFFF)
 
@@ -63,6 +65,7 @@ def test_identify_device_reports_unhealthy_bar_when_magic_reads_all_ones(tmp_pat
     assert discover_devices(tmp_path) == []
 
 
+@pytest.mark.posix_only
 def test_discover_devices_reports_one_matching_fake_device(tmp_path: Path) -> None:
     write_fake_xdma_device(tmp_path)
 
@@ -87,6 +90,7 @@ def test_discover_devices_reports_one_matching_fake_device(tmp_path: Path) -> No
     assert not device.capabilities.supports(OperationCode.AVERAGE, LogicalType.FLOAT32)
 
 
+@pytest.mark.posix_only
 def test_discover_devices_decodes_the_concrete_contract_on_register_map_0_2(tmp_path: Path) -> None:
     """Register map 0.2: OPERATOR_BITMAP is hardware truth (typed INT32 at
     register level, no five-type expansion) and HOST_OPCODE_BITMAP carries
@@ -113,6 +117,7 @@ def test_discover_devices_decodes_the_concrete_contract_on_register_map_0_2(tmp_
     assert snapshot.sort_capacity == 16
 
 
+@pytest.mark.posix_only
 def test_identify_device_supports_register_window_offset(tmp_path: Path) -> None:
     paths = write_fake_xdma_device(tmp_path, register_window_offset=0x1000)
 
@@ -123,6 +128,7 @@ def test_identify_device_supports_register_window_offset(tmp_path: Path) -> None
     assert device.capabilities.platform_id == "DPV1"
 
 
+@pytest.mark.posix_only
 def test_identify_device_retries_transient_zero_magic_read(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     # the first AXI-Lite reads after a PCIe rescan can transiently return 0
     # before the link settles; the window probe must retry rather than raise
@@ -148,6 +154,7 @@ def test_identify_device_retries_transient_zero_magic_read(tmp_path: Path, monke
     assert device.read_register(RegisterOffset.MAGIC) == DAU_MAGIC_WORD
 
 
+@pytest.mark.posix_only
 def test_identify_device_reports_unadvertised_metadata_honestly(tmp_path: Path) -> None:
     user_path = tmp_path / "xdma0_user"
     h2c_path = tmp_path / "xdma0_h2c_0"
@@ -175,6 +182,7 @@ def test_identify_device_reports_unadvertised_metadata_honestly(tmp_path: Path) 
     assert device.capabilities.register_map_version == RegisterMapVersion(0, 0)
 
 
+@pytest.mark.posix_only
 def test_an_undecoded_operator_word_advertises_nothing(tmp_path: Path) -> None:
     """MAGIC reads, so the path is healthy, but the operator word is
     all-ones. Read literally that word claims every opcode the encoding has
@@ -200,6 +208,7 @@ def test_an_undecoded_operator_word_advertises_nothing(tmp_path: Path) -> None:
     assert OperationCode.AVERAGE not in {operator.opcode for operator in device.capabilities.operators}
 
 
+@pytest.mark.posix_only
 def test_device_decodes_status_and_counters_from_register_block(tmp_path: Path) -> None:
     write_fake_xdma_device(
         tmp_path,
@@ -225,6 +234,7 @@ def test_device_decodes_status_and_counters_from_register_block(tmp_path: Path) 
     assert counters.stalls == 13
 
 
+@pytest.mark.posix_only
 def test_device_reads_register_block_snapshot_from_dau_core_contract(tmp_path: Path) -> None:
     write_fake_xdma_device(
         tmp_path,
@@ -271,6 +281,7 @@ def test_read_u64_uses_two_u32_register_reads_for_xdma_user_bar(tmp_path: Path, 
     assert reads == [(0x1014, 4, "0x1014"), (0x1018, 4, "0x1018")]
 
 
+@pytest.mark.posix_only
 def test_device_bar_health_check_reports_all_ones_for_selected_register(tmp_path: Path) -> None:
     paths = write_fake_xdma_device(tmp_path, status=0xFFFF_FFFF)
     device = identify_device(paths.user)
@@ -279,6 +290,7 @@ def test_device_bar_health_check_reports_all_ones_for_selected_register(tmp_path
         device.check_bar_health(offsets=(RegisterOffset.STATUS,))
 
 
+@pytest.mark.posix_only
 def test_a_device_holds_its_register_node_open(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     """One open per access mode for the device's lifetime, not one per
     register access; close releases them, and the next access reopens."""
@@ -306,6 +318,7 @@ def test_a_device_holds_its_register_node_open(tmp_path: Path, monkeypatch: pyte
     assert opened.count(os.O_RDONLY) == 2
 
 
+@pytest.mark.posix_only
 def test_device_validates_dma_transfer_shape_before_real_xdma_io(tmp_path: Path) -> None:
     write_fake_xdma_device(tmp_path)
     device = discover_devices(tmp_path)[0]
@@ -340,6 +353,7 @@ def test_a_fake_device_is_identified_by_its_node_and_says_so(tmp_path: Path) -> 
     assert str(identity) == "node:xdma0"
 
 
+@pytest.mark.posix_only
 def test_endpoint_for_devnode_reads_the_owning_pci_device_from_sysfs(tmp_path: Path) -> None:
     from dau_driver.linux_xdma import endpoint_for_devnode
 
@@ -355,6 +369,7 @@ def test_endpoint_for_devnode_reads_the_owning_pci_device_from_sysfs(tmp_path: P
     assert endpoint_for_devnode(Path("/dev/xdma0_user"), sysfs_root=tmp_path) is None
 
 
+@pytest.mark.posix_only
 def test_a_discovered_linux_device_is_identified_by_its_pci_endpoint(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     from dau_driver import DeviceIdentity, linux_xdma
 

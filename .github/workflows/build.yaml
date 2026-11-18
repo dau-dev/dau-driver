@@ -37,9 +37,8 @@ jobs:
             os: ubuntu-24.04-arm
           - name: macos-26
             os: macos-26
-          # no Windows XDMA backend; the driver targets Linux and macOS only
-          # - name: windows-2025
-          #   os: windows-2025
+          - name: windows-2025
+            os: windows-2025
         python:
           - version: "3.12"
             cibuildwheel: "cp312"

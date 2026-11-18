@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 
+import pytest
 from dau_core.capability_contract import CapabilityContract, LaneCapability, tile_capability
 from dau_core.registers import RegisterBlockSnapshot, RegisterMapVersion, RegisterOffset
 from dau_core.stream import LogicalType, OperationCode
@@ -85,6 +86,7 @@ def test_contract_from_manifest_metadata_round_trips() -> None:
     assert contract_from_manifest_metadata({}) is None
 
 
+@pytest.mark.posix_only
 def test_device_snapshot_normalizes_undecoded_capability_words(tmp_path) -> None:
     from dau_driver.discovery import discover_devices
     from dau_driver.tests.test_discovery import write_fake_xdma_device, write_u32

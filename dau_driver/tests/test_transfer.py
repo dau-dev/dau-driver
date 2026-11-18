@@ -73,6 +73,7 @@ def test_the_fake_transport_refuses_a_short_read_like_the_real_one(tmp_path: Pat
         fake_device(tmp_path, transport).read_dma(device_address=0x1000, byte_count=64)
 
 
+@pytest.mark.posix_only
 def test_blocking_dma_write_uses_h2c_channel_at_device_address(tmp_path: Path) -> None:
     device = make_fake_device(tmp_path)
     payload = bytes(range(64))
@@ -85,6 +86,7 @@ def test_blocking_dma_write_uses_h2c_channel_at_device_address(tmp_path: Path) -
     assert device.h2c_path.read_bytes()[0x1000 : 0x1000 + len(payload)] == payload
 
 
+@pytest.mark.posix_only
 def test_blocking_dma_read_uses_c2h_channel_at_device_address(tmp_path: Path) -> None:
     device = make_fake_device(tmp_path)
     payload = bytes(reversed(range(64)))
@@ -102,6 +104,7 @@ def test_blocking_dma_io_wraps_missing_channel_as_transfer_error(tmp_path: Path)
         device.read_dma(device_address=0x1000, byte_count=64)
 
 
+@pytest.mark.posix_only
 def test_dma_short_read_error_includes_offset_expected_and_actual_bytes(tmp_path: Path) -> None:
     c2h_path = tmp_path / "xdma0_c2h_0"
     c2h_path.write_bytes((b"\x00" * 0x1000) + b"abcd")
@@ -110,6 +113,7 @@ def test_dma_short_read_error_includes_offset_expected_and_actual_bytes(tmp_path
         read_exact_at(c2h_path, 0x1000, 64)
 
 
+@pytest.mark.posix_only
 def test_dma_short_write_error_includes_offset_expected_and_actual_bytes(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     h2c_path = tmp_path / "xdma0_h2c_0"
     h2c_path.write_bytes(b"\x00" * 4096)

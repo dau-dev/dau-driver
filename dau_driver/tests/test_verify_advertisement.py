@@ -136,6 +136,7 @@ def test_a_float_lane_count_does_not_pass_a_mismatched_device() -> None:
     assert advertisement_mismatches(snapshot, {**_CONTRACT, "lane_count": 4.0}) != ()
 
 
+@pytest.mark.posix_only
 def test_device_name_for_endpoint_resolves_through_sysfs(tmp_path) -> None:
     from dau_driver.verify_advertisement import device_name_for_endpoint
 
