@@ -33,83 +33,52 @@ wants both.
 from __future__ import annotations
 
 import argparse
-import json
 import sys
-from collections.abc import Mapping, Sequence
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Any
 
-__all__ = ("ADVERTISED_WORDS", "advertisement_mismatches", "build_id_mismatch", "contract_from_manifest_path", "device_name_for_endpoint", "main")
+from dau_core.capability_contract import CapabilityContract
+from dau_core.registers import RegisterBlockSnapshot
 
-# the identity-register words a shell advertises, mapped to the key the
-# capability contract records them under. Both sides must agree on all of
-# them for the device to be running the manifest's design.
-ADVERTISED_WORDS: tuple[tuple[str, str], ...] = (
-    ("lane_count", "lane_count"),
-    ("operator_bitmap", "operator_bitmap"),
-    ("host_opcode_bitmap", "host_opcode_bitmap"),
-    ("sort_capacity", "sort_capacity"),
-)
+__all__ = ("advertised_words", "advertisement_mismatches", "build_id_mismatch", "contract_from_manifest_path", "device_name_for_endpoint", "main")
 
 
-# a word the contract does not record at all, versus one it records in a
-# form this cannot read. They must not be conflated: the first is fine to
-# skip, the second is a mismatch. Reading an unparseable word as "absent"
-# is how a check silently stops checking.
-_ABSENT = object()
-_UNREADABLE = object()
+def advertised_words(source: RegisterBlockSnapshot | CapabilityContract) -> dict[str, int]:
+    """The identity-register words a shell advertises, by the name the
+    register snapshot and the capability contract both use. The two sides
+    must agree on all of them for the device to be running the manifest's
+    design."""
+    return {
+        "lane_count": source.lane_count,
+        "operator_bitmap": source.operator_bitmap,
+        "host_opcode_bitmap": source.host_opcode_bitmap,
+        "sort_capacity": source.sort_capacity,
+    }
 
 
-def _as_int(value: Any) -> Any:
-    """A contract word as an int, or ``_ABSENT`` / ``_UNREADABLE``.
+def contract_from_manifest_path(path: Path) -> tuple[CapabilityContract, str | None, str | None]:
+    """The capability contract a shell-build manifest records, with the
+    spec hash and platform beside it, which together make the build id the
+    shell stamps.
 
-    Words are serialized as ints or as strings that ``int(base=0)`` accepts.
-    Anything else — a float, a list, an empty string, a leading-zero decimal
-    — is UNREADABLE rather than absent, and never raises: this runs inside a
-    plan step that sits before the deadman disarm, so an uncaught exception
-    here reboots the host.
-    """
-    if value is None:
-        return _ABSENT
-    if isinstance(value, bool):
-        # a JSON true is not a capability word, and int(True) == 1 would
-        # quietly satisfy a device advertising one lane
-        return _UNREADABLE
-    if isinstance(value, int):
-        return value
-    if isinstance(value, str):
-        try:
-            return int(value.strip(), 0)
-        except ValueError:
-            return _UNREADABLE
-    return _UNREADABLE
-
-
-def contract_from_manifest_path(path: Path, *, with_identity: bool = False) -> Any:
-    """The capability contract a shell-build manifest carries, as plain data,
-    and optionally the spec hash and platform beside it, which together make
-    the build id the shell stamps.
-
-    Reads the manifest as text and pulls the embedded JSON rather than
-    importing the build package: this runs on a bench host where only the
-    driver may be installed.
+    Reads the manifest as YAML rather than importing the build package:
+    this runs on a bench host where only the driver may be installed.
     """
     import yaml
+
+    from .capability_decode import contract_from_manifest_metadata
 
     document = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
     if not isinstance(document, dict):
         raise TypeError(f"{path} is not a manifest mapping")
     metadata = document.get("metadata") or {}
-    serialized = metadata.get("capability_contract")
-    if not serialized:
+    contract = contract_from_manifest_metadata(metadata)
+    if contract is None:
         raise ValueError(f"{path} carries no capability_contract; nothing to verify against")
-    contract = json.loads(serialized)
-    if with_identity:
-        return contract, metadata.get("spec_hash"), metadata.get("platform")
-    return contract
+    return contract, metadata.get("spec_hash"), metadata.get("platform")
 
 
-def build_id_mismatch(snapshot, spec_hash: str | None, platform: str | None, *, required: bool = False) -> str | None:
+def build_id_mismatch(snapshot: RegisterBlockSnapshot, spec_hash: str | None, platform: str | None, *, required: bool = False) -> str | None:
     """The EXACT check, when both sides carry it: does the shell's BUILD_ID
     match the build id of the design the manifest describes, its spec on the
     platform it was built for?
@@ -130,8 +99,8 @@ def build_id_mismatch(snapshot, spec_hash: str | None, platform: str | None, *, 
         return None
     from dau_core.composition import build_id
 
-    advertised = getattr(snapshot, "build_id", None)
-    if not advertised:  # 0 or absent: not stamped
+    advertised = snapshot.build_id
+    if not advertised:  # 0: not stamped
         if required:
             # The caller knows what it just programmed, and everything built
             # since stamping exists carries an identity. An unstamped read
@@ -146,15 +115,10 @@ def build_id_mismatch(snapshot, spec_hash: str | None, platform: str | None, *, 
     return None
 
 
-def advertisement_mismatches(snapshot, contract: Mapping[str, Any]) -> tuple[str, ...]:
+def advertisement_mismatches(snapshot: RegisterBlockSnapshot, contract: CapabilityContract) -> tuple[str, ...]:
     """Every advertised word where the device and the contract disagree.
 
-    A word the contract does not record is SKIPPED rather than treated as
-    zero: an older manifest that predates a word should not fail a device
-    that advertises it. A word the contract records and the device does not
-    match is a mismatch, which is the case that matters.
-
-    Raises when the contract records no NON-ZERO word. All-zero is what a
+    Raises when the contract advertises no NON-ZERO word. All-zero is what a
     dead or undecoded register aperture reads back as — the driver
     normalizes all-ones to zero precisely so a dead word advertises nothing
     — so a contract of all zeros would match a board that is not answering
@@ -162,25 +126,17 @@ def advertisement_mismatches(snapshot, contract: Mapping[str, Any]) -> tuple[str
     only safe answer; silently passing is the failure this module exists to
     prevent.
     """
-    recorded = {key: _as_int(contract.get(key)) for _, key in ADVERTISED_WORDS}
-    # an unreadable word is reported as a mismatch below; it must not first
-    # be swallowed by the all-zero guard, which would raise instead and lose
-    # the specific reason
-    if not any(value is _UNREADABLE for value in recorded.values()) and not any(value for value in recorded.values() if isinstance(value, int)):
+    expected = advertised_words(contract)
+    advertised = advertised_words(snapshot)
+    if not any(expected.values()):
         raise ValueError(
             "capability contract advertises no non-zero word "
-            f"({', '.join(f'{key}={contract.get(key)!r}' for key in recorded)}); "
+            f"({', '.join(f'{word}={value}' for word, value in expected.items())}); "
             "it cannot identify a design, and a dead register aperture reads back as all zeros"
         )
     mismatches = []
-    for register_field, contract_key in ADVERTISED_WORDS:
-        expected = recorded[contract_key]
-        if expected is _ABSENT:
-            continue
-        if expected is _UNREADABLE:
-            mismatches.append(f"{register_field}: manifest records {contract.get(contract_key)!r}, which is not a capability word")
-            continue
-        actual = getattr(snapshot, register_field, None)
+    for word, value in expected.items():
+        actual = advertised[word]
         if not actual:
             # A device word of 0 means NOT ADVERTISED, not "zero". Fixed
             # binding tops place no NoC lane block and leave LANE_COUNT at
@@ -194,17 +150,19 @@ def advertisement_mismatches(snapshot, contract: Mapping[str, Any]) -> tuple[str
             # is caught by the build identity instead -- see
             # build_id_mismatch(required=True), which the flash path uses.
             continue
-        if int(actual) != expected:
-            mismatches.append(f"{register_field}: device advertises {actual} (0x{int(actual):x}), manifest expects {expected} (0x{expected:x})")
+        if actual != value:
+            mismatches.append(f"{word}: device advertises {actual} (0x{actual:x}), manifest expects {value} (0x{value:x})")
     return tuple(mismatches)
 
 
-def device_name_for_endpoint(bdf: str, *, sysfs_root: Path = Path("/sys/bus/pci/devices")) -> str:
+def device_name_for_endpoint(bdf: str, *, sysfs_root: Path | None = None) -> str:
     """The xdma instance an endpoint owns, e.g. ``0000:04:00.0`` ->
     ``xdma0``. The devnodes hang off the PCI device in sysfs, which is the
     only link between the BDF a programming plan knows and the device the
     driver enumerates."""
-    xdma_root = sysfs_root / bdf / "xdma"
+    from .linux_xdma import DEFAULT_SYSFS_PCI_ROOT
+
+    xdma_root = (DEFAULT_SYSFS_PCI_ROOT if sysfs_root is None else sysfs_root) / bdf / "xdma"
     if not xdma_root.is_dir():
         raise ValueError(f"{bdf} owns no xdma devnodes ({xdma_root} is not a directory); it may not have re-enumerated")
     names = {entry.name.split("_", 1)[0] for entry in xdma_root.iterdir() if "_" in entry.name}
@@ -231,7 +189,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     try:
         return _verify(args)
-    except (OSError, TypeError, ValueError, yaml.YAMLError, DauDriverError) as error:
+    except (OSError, KeyError, TypeError, ValueError, yaml.YAMLError, DauDriverError) as error:
         # the expected failures: no manifest, a malformed one, a device that
         # cannot be read -- one line each, not a traceback
         print(f"cannot verify: {error}", file=sys.stderr)
@@ -241,7 +199,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 def _verify(args: argparse.Namespace) -> int:
     from dau_driver.discovery import discover_devices
 
-    contract, spec_hash, platform = contract_from_manifest_path(args.manifest, with_identity=True)
+    contract, spec_hash, platform = contract_from_manifest_path(args.manifest)
     devices = discover_devices() if args.device_root is None else discover_devices(args.device_root)
     if not devices:
         print("no DAU device found to verify", file=sys.stderr)
@@ -276,8 +234,8 @@ def _verify(args: argparse.Namespace) -> int:
             print(f"  {mismatch}", file=sys.stderr)
         print("the endpoint enumerating does not mean the program took: an FPGA falls back to its flash-resident design", file=sys.stderr)
         return 1
-    checked = [field for field, key in ADVERTISED_WORDS if isinstance(_as_int(contract.get(key)), int)]
-    stamped = bool(spec_hash) and bool(platform) and bool(getattr(snapshot, "build_id", 0))
+    checked = list(advertised_words(contract))
+    stamped = bool(spec_hash) and bool(platform) and bool(snapshot.build_id)
     if stamped:
         checked.append("build_id")
     print(f"device advertisement matches {args.manifest} ({', '.join(checked)})")

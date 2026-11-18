@@ -1,41 +1,56 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
 from pathlib import Path
 
 import pytest
 import yaml
+from dau_core.capability_contract import CapabilityContract, LaneCapability, TileCapability
+from dau_core.design import UnitKind
+from dau_core.registers import RegisterBlockSnapshot
+from dau_core.stream import LogicalType, OperationCode
 
 from dau_driver.verify_advertisement import advertisement_mismatches, contract_from_manifest_path
 
-# the four words the hash-grouped-scan build advertises
-_CONTRACT = {
-    "name": "hash-grouped-scan",
-    "lane_count": 1,
-    "operator_bitmap": "0x00000018",
-    "host_opcode_bitmap": "0x00000020",
-    "sort_capacity": 0,
-}
+
+def _lane(core: str = "hash-grouped-scan") -> LaneCapability:
+    return LaneCapability(
+        tile=TileCapability(
+            core=core,
+            module=f"dau_{core.replace('-', '_')}",
+            contract_kind=None,
+            count_port=None,
+            opcodes=(OperationCode.SUM, OperationCode.COUNT),
+            input_types=(LogicalType.INT32,),
+            unit_kind=UnitKind.AGGREGATION,
+        )
+    )
 
 
-@dataclass
-class _Snapshot:
-    lane_count: int
-    operator_bitmap: int
-    host_opcode_bitmap: int
-    sort_capacity: int
+# the hash-grouped-scan build: one lane, SUM and COUNT in hardware (0x18),
+# AVERAGE on the host (0x20), no sort
+_CONTRACT = CapabilityContract(name="hash-grouped-scan", lanes=(_lane(),))
 
 
-def _manifest(tmp_path: Path, contract=_CONTRACT) -> Path:
+def _snapshot(*, lane_count: int = 1, operator_bitmap: int = 0x18, host_opcode_bitmap: int = 0x20, sort_capacity: int = 0, build_id: int = 0):
+    return RegisterBlockSnapshot(
+        lane_count=lane_count,
+        operator_bitmap=operator_bitmap,
+        host_opcode_bitmap=host_opcode_bitmap,
+        sort_capacity=sort_capacity,
+        build_id=build_id,
+    )
+
+
+def _manifest(tmp_path: Path, contract=None, **metadata) -> Path:
+    serialized = json.dumps((_CONTRACT if contract is None else contract).to_mapping())
     path = tmp_path / "shell-build.artifacts.yaml"
-    path.write_text(yaml.safe_dump({"name": "s", "metadata": {"capability_contract": json.dumps(contract)}}), encoding="utf-8")
+    path.write_text(yaml.safe_dump({"name": "s", "metadata": {"capability_contract": serialized, **metadata}}), encoding="utf-8")
     return path
 
 
 def test_a_matching_device_reports_no_mismatches() -> None:
-    snapshot = _Snapshot(lane_count=1, operator_bitmap=0x18, host_opcode_bitmap=0x20, sort_capacity=0)
-    assert advertisement_mismatches(snapshot, _CONTRACT) == ()
+    assert advertisement_mismatches(_snapshot(), _CONTRACT) == ()
 
 
 def test_the_resident_design_that_fooled_the_flash_is_caught() -> None:
@@ -43,9 +58,8 @@ def test_the_resident_design_that_fooled_the_flash_is_caught() -> None:
     leaves the FPGA on its flash-resident design, and the endpoint
     enumerates exactly as it would on success — same vendor, same device id,
     same address. Only the composed advertisement differs: here the resident
-    shell carries three lanes where the manifest declares one."""
-    resident = _Snapshot(lane_count=3, operator_bitmap=0x18, host_opcode_bitmap=0x20, sort_capacity=0)
-    (mismatch,) = advertisement_mismatches(resident, _CONTRACT)
+    shell has three lanes where the manifest declares one."""
+    (mismatch,) = advertisement_mismatches(_snapshot(lane_count=3), _CONTRACT)
     assert "lane_count" in mismatch
     assert "device advertises 3" in mismatch and "manifest expects 1" in mismatch
 
@@ -53,28 +67,26 @@ def test_the_resident_design_that_fooled_the_flash_is_caught() -> None:
 def test_every_mismatch_is_reported_not_just_the_first() -> None:
     """A caller staring at a failed flash wants all of them: 'lane count
     differs' and 'operator bitmap differs' have different causes."""
-    wrong = _Snapshot(lane_count=4, operator_bitmap=0x6, host_opcode_bitmap=0x20, sort_capacity=8)
-    mismatches = advertisement_mismatches(wrong, _CONTRACT)
+    mismatches = advertisement_mismatches(_snapshot(lane_count=4, operator_bitmap=0x6, sort_capacity=8), _CONTRACT)
     assert len(mismatches) == 3
     assert {"lane_count", "operator_bitmap", "sort_capacity"} == {m.split(":")[0] for m in mismatches}
 
 
-def test_hex_and_int_spellings_of_a_word_compare_equal() -> None:
-    contract = {**_CONTRACT, "operator_bitmap": 24}  # 0x18 as an int
-    snapshot = _Snapshot(lane_count=1, operator_bitmap=0x18, host_opcode_bitmap=0x20, sort_capacity=0)
-    assert advertisement_mismatches(snapshot, contract) == ()
+def test_contract_is_read_from_a_manifest_as_the_typed_model(tmp_path: Path) -> None:
+    contract, spec_hash, platform = contract_from_manifest_path(_manifest(tmp_path, spec_hash="5:abc", platform="dpv1"))
+    assert contract == _CONTRACT
+    assert (spec_hash, platform) == ("5:abc", "dpv1")
 
 
-def test_a_word_the_manifest_does_not_record_is_skipped() -> None:
-    """An older manifest predating a word must not fail a device that
-    advertises it -- absence is not disagreement."""
-    contract = {"lane_count": 1}
-    snapshot = _Snapshot(lane_count=1, operator_bitmap=0xDEAD, host_opcode_bitmap=0xBEEF, sort_capacity=99)
-    assert advertisement_mismatches(snapshot, contract) == ()
-
-
-def test_contract_is_read_from_a_manifest(tmp_path: Path) -> None:
-    assert contract_from_manifest_path(_manifest(tmp_path))["lane_count"] == 1
+def test_the_words_compared_are_the_contract_lanes_not_its_summary_fields(tmp_path: Path) -> None:
+    """The manifest's summary words are a serialization of its lanes. The
+    lanes are what the typed contract keeps, so a summary that disagrees
+    with them cannot mislead the check."""
+    mapping = {**_CONTRACT.to_mapping(), "lane_count": 4, "operator_bitmap": "0xffffffff"}
+    path = tmp_path / "shell-build.artifacts.yaml"
+    path.write_text(yaml.safe_dump({"metadata": {"capability_contract": json.dumps(mapping)}}), encoding="utf-8")
+    contract, _, _ = contract_from_manifest_path(path)
+    assert (contract.lane_count, contract.operator_bitmap) == (1, 0x18)
 
 
 def test_a_manifest_without_a_contract_refuses(tmp_path: Path) -> None:
@@ -89,9 +101,8 @@ def test_a_contract_that_advertises_nothing_is_refused() -> None:
     because the driver normalizes all-ones to zero. A contract of all zeros
     would therefore MATCH a board that is not answering, which is the
     failure this module exists to prevent."""
-    dead = _Snapshot(lane_count=0, operator_bitmap=0, host_opcode_bitmap=0, sort_capacity=0)
     with pytest.raises(ValueError, match="cannot identify a design"):
-        advertisement_mismatches(dead, {"lane_count": 0, "operator_bitmap": 0, "host_opcode_bitmap": 0, "sort_capacity": 0})
+        advertisement_mismatches(_snapshot(lane_count=0, operator_bitmap=0, host_opcode_bitmap=0), CapabilityContract(name="empty", lanes=()))
 
 
 def test_a_zero_device_word_means_not_advertised_not_zero() -> None:
@@ -101,8 +112,7 @@ def test_a_zero_device_word_means_not_advertised_not_zero() -> None:
     Treating it as a mismatch failed a correctly programmed board, and
     because the verify runs before the deadman disarm, that rebooted the
     host."""
-    fixed_top = _Snapshot(lane_count=0, operator_bitmap=0x18, host_opcode_bitmap=0x20, sort_capacity=0)
-    assert advertisement_mismatches(fixed_top, _CONTRACT) == ()
+    assert advertisement_mismatches(_snapshot(lane_count=0), _CONTRACT) == ()
 
 
 def test_a_dead_board_is_caught_by_the_required_identity_not_by_the_words() -> None:
@@ -112,28 +122,22 @@ def test_a_dead_board_is_caught_by_the_required_identity_not_by_the_words() -> N
     flash path requires one."""
     from dau_driver.verify_advertisement import build_id_mismatch
 
-    dead = _StampedSnapshot(lane_count=0, operator_bitmap=0, host_opcode_bitmap=0, sort_capacity=0, build_id=0)
+    dead = _snapshot(lane_count=0, operator_bitmap=0, host_opcode_bitmap=0, sort_capacity=0, build_id=0)
     assert advertisement_mismatches(dead, _CONTRACT) == ()  # words are blind to it
     assert build_id_mismatch(dead, _SPEC_HASH, _PLATFORM, required=True) is not None  # identity is not
     assert build_id_mismatch(dead, _SPEC_HASH, _PLATFORM) is None  # and only when required
 
 
-@pytest.mark.parametrize("bad", [1.0, [1], "", "018", {"a": 1}])
-def test_an_unreadable_word_is_a_mismatch_not_a_skip_and_never_raises(bad) -> None:
-    """Fail CLOSED. A word the manifest records in a form this cannot read
-    is not the same as one it does not record: reading it as absent is how a
-    check silently stops checking. Raising is worse still -- this runs
-    before the deadman disarm, so an uncaught exception reboots the host."""
-    snapshot = _Snapshot(lane_count=1, operator_bitmap=0x18, host_opcode_bitmap=0x20, sort_capacity=0)
-    (mismatch,) = advertisement_mismatches(snapshot, {**_CONTRACT, "lane_count": bad})
-    assert mismatch.startswith("lane_count:") and "not a capability word" in mismatch
+def test_the_command_reports_a_contract_it_cannot_parse_in_one_line(tmp_path: Path, capsys) -> None:
+    """A malformed contract fails the verification with its reason instead
+    of a traceback; the step runs before the deadman disarm."""
+    from dau_driver.verify_advertisement import main
 
-
-def test_a_float_lane_count_does_not_pass_a_mismatched_device() -> None:
-    """The concrete fail-open case: 4.0 parsed as 'absent' let a device
-    advertising 1 pass a manifest expecting 4."""
-    snapshot = _Snapshot(lane_count=1, operator_bitmap=0x18, host_opcode_bitmap=0x20, sort_capacity=0)
-    assert advertisement_mismatches(snapshot, {**_CONTRACT, "lane_count": 4.0}) != ()
+    for mapping in ({**_CONTRACT.to_mapping(), "schema": 99}, {"contract": "dau-capability-contract", "schema": 1}):
+        path = tmp_path / "shell-build.artifacts.yaml"
+        path.write_text(yaml.safe_dump({"metadata": {"capability_contract": json.dumps(mapping)}}), encoding="utf-8")
+        assert main(["--manifest", str(path), "--device-root", str(tmp_path)]) == 1
+        assert capsys.readouterr().err.startswith("cannot verify: ")
 
 
 @pytest.mark.posix_only
@@ -154,21 +158,12 @@ def test_an_endpoint_that_did_not_re_enumerate_refuses(tmp_path) -> None:
         device_name_for_endpoint("0000:04:00.0", sysfs_root=tmp_path)
 
 
-@dataclass
-class _StampedSnapshot:
-    lane_count: int
-    operator_bitmap: int
-    host_opcode_bitmap: int
-    sort_capacity: int
-    build_id: int
-
-
 _SPEC_HASH = "5:cbbe0c39ca6857cf1854804711d7abac7c301b620d4a478185ca0686dedd5575"
 _PLATFORM = "dpv1"
 
 
-def _stamped(build_id: int) -> _StampedSnapshot:
-    return _StampedSnapshot(lane_count=1, operator_bitmap=0x18, host_opcode_bitmap=0x20, sort_capacity=0, build_id=build_id)
+def _stamped(build_id: int) -> RegisterBlockSnapshot:
+    return _snapshot(build_id=build_id)
 
 
 def test_a_matching_build_id_is_the_exact_check() -> None:
@@ -209,9 +204,9 @@ def test_a_board_built_under_a_superseded_palette_still_verifies(tmp_path: Path)
     """
     from dau_driver.verify_advertisement import build_id_mismatch
 
-    pre_rename = {**_CONTRACT, "lanes": [{"tile": {"core": "int32-field-sum-aggregation", "module": "dau_int32_field_sum_aggregation"}}]}
-    contract, spec_hash, platform = contract_from_manifest_path(_manifest(tmp_path, pre_rename), with_identity=True)
-    assert contract["lanes"][0]["tile"]["core"] == "int32-field-sum-aggregation"  # read back verbatim
+    pre_rename = CapabilityContract(name="hash-grouped-scan", lanes=(_lane("int32-field-sum-aggregation"),))
+    contract, spec_hash, platform = contract_from_manifest_path(_manifest(tmp_path, pre_rename))
+    assert contract.lanes[0].tile.core == "int32-field-sum-aggregation"  # read back verbatim
     assert advertisement_mismatches(_stamped(0x1234), contract) == ()
     assert spec_hash is None and platform is None  # this fixture records neither; the words are all there is
 
@@ -277,21 +272,6 @@ def test_a_dead_aperture_reads_back_as_unstamped_not_as_an_identity() -> None:
 
     snapshot = read_register_block_snapshot(lambda offset: 0xFFFFFFFF)
     assert snapshot.build_id == 0
-
-
-def test_a_json_boolean_is_not_a_capability_word() -> None:
-    """int(True) == 1 would quietly satisfy a device advertising one lane."""
-    device = _Snapshot(lane_count=1, operator_bitmap=0, host_opcode_bitmap=0, sort_capacity=0)
-    (mismatch,) = advertisement_mismatches(device, {"lane_count": True, "operator_bitmap": 0, "host_opcode_bitmap": 0, "sort_capacity": 0})
-    assert "not a capability word" in mismatch
-
-
-def test_an_unreadable_only_contract_reports_the_reason_not_the_all_zero_guard() -> None:
-    """Guard ordering: the all-zero refusal must not swallow an unreadable
-    word and raise, which loses the specific reason a caller needs."""
-    device = _Snapshot(lane_count=1, operator_bitmap=0, host_opcode_bitmap=0, sort_capacity=0)
-    (mismatch,) = advertisement_mismatches(device, {"lane_count": 4.0, "operator_bitmap": 0, "host_opcode_bitmap": 0, "sort_capacity": 0})
-    assert "4.0" in mismatch and "not a capability word" in mismatch
 
 
 def test_the_command_reports_a_missing_or_malformed_manifest_in_one_line(tmp_path: Path, capsys) -> None:
