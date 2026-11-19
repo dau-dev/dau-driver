@@ -361,7 +361,7 @@ def test_a_device_holds_its_register_node_open(tmp_path: Path, monkeypatch: pyte
 @pytest.mark.posix_only
 def test_device_validates_dma_transfer_shape_before_real_xdma_io(tmp_path: Path) -> None:
     write_fake_xdma_device(tmp_path)
-    device = discover_devices(tmp_path, memory_bytes=None)[0]
+    device = discover_devices(tmp_path, memory_bytes=1 << 32)[0]
 
     transfer = device.prepare_transfer(DmaDirection.H2C, device_address=0x1000, byte_count=4096)
 

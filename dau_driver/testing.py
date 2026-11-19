@@ -96,8 +96,13 @@ def default_int32_capabilities(
     )
 
 
-def fake_device(tmp_path: Path, transport: FakeTransport, *, capabilities: DeviceCapabilities | None = None) -> DauDevice:
-    """A DauDevice backed by a FakeTransport (paths are never opened)."""
+def fake_device(
+    tmp_path: Path, transport: FakeTransport, *, capabilities: DeviceCapabilities | None = None, memory_bytes: int | None = 1 << 40
+) -> DauDevice:
+    """A DauDevice backed by a FakeTransport (paths are never opened).
+
+    ``memory_bytes`` defaults to 1 TiB so the fake accepts any write; pass None
+    for a read-only device."""
     return DauDevice(
         name="xdma0",
         backend="linux-xdma",
@@ -106,6 +111,7 @@ def fake_device(tmp_path: Path, transport: FakeTransport, *, capabilities: Devic
         c2h_path=tmp_path / "xdma0_c2h_0",
         capabilities=capabilities if capabilities is not None else default_int32_capabilities(),
         transport=transport,
+        memory_bytes=memory_bytes,
     )
 
 

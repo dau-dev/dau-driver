@@ -63,15 +63,15 @@ device.write_address_register(RegisterOffset.INPUT_ADDRESS_LOW, RegisterOffset.I
 ```
 
 `RegisterAccessError` is then raised for an address at or past the limit, and
-`TransferValidationError` for a transfer that ends past it. With
-`memory_bytes=None` the caller is trusted: the guard is only as good as the
-fact, and an invented default would either reject valid addresses or give false
-confidence.
+`TransferValidationError` for a transfer that ends past it. A device opened
+with `memory_bytes=None` is read-only: DMA writes raise
+`TransferValidationError` and address programming raises `RegisterAccessError`,
+because neither can be checked. An invented default size would either reject
+valid addresses or give false confidence.
 
 The module-level `write_address` function reads `memory_bytes` off the device by
-default. Pass an integer to override the limit, or `None` to disable the check
-entirely, but only on purpose: the default is what makes the guard apply to
-callers who never thought about it.
+default, which is what makes the guard apply to callers who never thought about
+it. Pass an integer to override the limit.
 
 ## Program a 64-bit address into a register pair
 

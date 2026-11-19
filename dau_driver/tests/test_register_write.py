@@ -55,10 +55,12 @@ def test_write_address_bounds_against_the_devices_memory_by_default(tmp_path: Pa
     assert device.read_register(RegisterOffset.INPUT_ADDRESS_LOW) == 0x1000
 
 
-def test_write_address_stays_unbounded_for_a_device_declaring_no_memory() -> None:
+def test_write_address_refuses_a_device_declaring_no_memory() -> None:
     """Duck-typed on purpose: devices are not required to subclass
-    DauDevice, and one whose memory_bytes is None is not bounded."""
+    DauDevice. One whose memory_bytes is None is read-only: an address that
+    cannot be checked against memory is not written."""
     from dau_driver.device import write_address
+    from dau_driver.errors import RegisterAccessError
 
     class MinimalDevice:
         memory_bytes = None
@@ -70,5 +72,6 @@ def test_write_address_stays_unbounded_for_a_device_declaring_no_memory() -> Non
             self.written[int(offset)] = value
 
     device = MinimalDevice()
-    write_address(device, RegisterOffset.INPUT_ADDRESS_LOW, RegisterOffset.INPUT_ADDRESS_HIGH, 1 << 40)
-    assert len(device.written) == 2
+    with pytest.raises(RegisterAccessError, match="read-only"):
+        write_address(device, RegisterOffset.INPUT_ADDRESS_LOW, RegisterOffset.INPUT_ADDRESS_HIGH, 0x1000)
+    assert device.written == {}

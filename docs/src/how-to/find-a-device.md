@@ -26,7 +26,7 @@ nothing, it falls back to the DriverKit transport over IOKit.
 board has, but the platform does, and every address the device is given is
 checked against it (see the move-data guide). Pass `None` only when the size is
 not known, for example in a tool that reads registers and never runs a job;
-that turns the check off.
+the devices are then read-only, and DMA writes and address programming raise.
 
 Point it somewhere else if your devnodes are not under `/dev`:
 

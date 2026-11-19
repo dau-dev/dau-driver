@@ -222,7 +222,7 @@ def test_probe_macos_xdma_reports_visible_service_with_wrong_bitstream() -> None
 
 def test_macos_xdma_dma_roundtrip_carries_buffers() -> None:
     client = FakeMacOSXDMAClient({(0, int(RegisterOffset.MAGIC)): DAU_MAGIC_WORD})
-    device = identify_device(client, memory_bytes=None)
+    device = identify_device(client, memory_bytes=1 << 32)
 
     payload = bytes(range(256)) * 16
     transfer = device.write_dma(device_address=0x2000, data=payload)

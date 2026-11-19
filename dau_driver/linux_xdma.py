@@ -19,7 +19,7 @@ def discover_devices(root: str | Path = DEFAULT_DEV_ROOT, *, memory_bytes: int |
     """Every DAU device under ``root``. ``memory_bytes`` is the boards'
     addressable memory, which the platform states and the registers do not;
     it bounds every address the devices are given. Pass None only when it is
-    not known, which turns that guard off."""
+    not known, which opens the devices read-only."""
     root_path = Path(root)
     devices: list[DauDevice] = []
     for user_path in sorted(root_path.glob("xdma*_user")):

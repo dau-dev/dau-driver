@@ -14,7 +14,7 @@ from dau_core.capabilities import DeviceCapabilities
 from dau_core.registers import RegisterBlockSnapshot, RegisterOffset
 
 from .capability_decode import read_register_block_snapshot
-from .errors import RegisterAccessError, UnhealthyBarError
+from .errors import RegisterAccessError, TransferValidationError, UnhealthyBarError
 from .status import DeviceCounters, DeviceStatus
 from .transfer import DmaDirection, DmaTransfer, validate_transfer
 from .xdma_io import read_exact_at, write_all_at
@@ -148,9 +148,9 @@ class DauDevice:
     transport: DeviceTransport | None = None
     # the addressable size of the device's memory, which the platform states
     # (its `memory.size_bytes`) and the registers do not. Discovery takes it
-    # from the caller. None means the caller does not know it and turns the
-    # wrap guard off; inventing a default would either reject valid
-    # addresses or give false confidence.
+    # from the caller. None means the caller does not know it, and the
+    # device is read-only: DMA writes and address programming raise, since
+    # neither can be checked against the memory they would wrap around.
     memory_bytes: int | None = None
 
     @property
@@ -236,6 +236,10 @@ class DauDevice:
         device_address: int,
         byte_count: int,
     ) -> DmaTransfer:
+        if direction == DmaDirection.H2C and self.memory_bytes is None:
+            raise TransferValidationError(
+                f"{self.name} was opened without memory_bytes and is read-only; pass the platform's memory size to discovery to write to it"
+            )
         validate_transfer(direction, device_address, byte_count, self.capabilities.dma, memory_bytes=self.memory_bytes)
         return DmaTransfer(
             direction=direction,
@@ -346,16 +350,20 @@ def write_address(
     because 0x04 is the result length.
 
     `memory_bytes` bounds the address. It DEFAULTS to the device's own
-    declared memory rather than to None, because a guard that is off
-    unless every call site remembers to switch it on is not a guard: the
-    execution paths that program job addresses all used the plain function
-    and so ran unbounded. Pass an explicit value to override, or `None` to
-    disable the check.
+    declared memory, because a guard that is off unless every call site
+    remembers to switch it on is not a guard: the execution paths that
+    program job addresses all used the plain function and so ran unbounded.
+    Pass an explicit value to override. With no known bound (None) the
+    address is refused: the device is read-only.
     """
     bound = device.memory_bytes if memory_bytes is _DEVICE_MEMORY else cast("int | None", memory_bytes)
     if not 0 <= address <= 0xFFFF_FFFF_FFFF_FFFF:
         raise RegisterAccessError(f"address must fit in 64 bits, got {address!r}")
-    if bound is not None and address >= bound:
+    if bound is None:
+        raise RegisterAccessError(
+            "the device's memory size is unknown, so it is read-only; pass the platform's memory size to discovery to program addresses"
+        )
+    if address >= bound:
         raise RegisterAccessError(
             f"address 0x{address:X} is past the device's {bound} byte memory; a transfer from here wraps to the bottom of memory instead of failing"
         )
