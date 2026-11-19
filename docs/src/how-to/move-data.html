@@ -503,14 +503,14 @@ memory size from you, because the registers do not report it:</p>
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">RegisterAccessError</span></code> is then raised for an address at or past the limit, and
-<code class="docutils literal notranslate"><span class="pre">TransferValidationError</span></code> for a transfer that ends past it. With
-<code class="docutils literal notranslate"><span class="pre">memory_bytes=None</span></code> the caller is trusted: the guard is only as good as the
-fact, and an invented default would either reject valid addresses or give false
-confidence.</p>
+<code class="docutils literal notranslate"><span class="pre">TransferValidationError</span></code> for a transfer that ends past it. A device opened
+with <code class="docutils literal notranslate"><span class="pre">memory_bytes=None</span></code> is read-only: DMA writes raise
+<code class="docutils literal notranslate"><span class="pre">TransferValidationError</span></code> and address programming raises <code class="docutils literal notranslate"><span class="pre">RegisterAccessError</span></code>,
+because neither can be checked. An invented default size would either reject
+valid addresses or give false confidence.</p>
 <p>The module-level <code class="docutils literal notranslate"><span class="pre">write_address</span></code> function reads <code class="docutils literal notranslate"><span class="pre">memory_bytes</span></code> off the device by
-default. Pass an integer to override the limit, or <code class="docutils literal notranslate"><span class="pre">None</span></code> to disable the check
-entirely, but only on purpose: the default is what makes the guard apply to
-callers who never thought about it.</p>
+default, which is what makes the guard apply to callers who never thought about
+it. Pass an integer to override the limit.</p>
 </section>
 <section id="program-a-64-bit-address-into-a-register-pair">
 <h2>Program a 64-bit address into a register pair<a class="headerlink" href="#program-a-64-bit-address-into-a-register-pair" title="Link to this heading">¶</a></h2>

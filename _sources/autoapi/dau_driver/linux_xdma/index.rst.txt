@@ -45,7 +45,7 @@ Module Contents
    Every DAU device under ``root``. ``memory_bytes`` is the boards'
    addressable memory, which the platform states and the registers do not;
    it bounds every address the devices are given. Pass None only when it is
-   not known, which turns that guard off.
+   not known, which opens the devices read-only.
 
 
 .. py:function:: identify_device(user_path: str | pathlib.Path, *, memory_bytes: int | None, h2c_path: str | pathlib.Path | None = None, c2h_path: str | pathlib.Path | None = None) -> dau_driver.device.DauDevice

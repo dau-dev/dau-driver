@@ -843,7 +843,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dau_core.registers</span><span class="w"> </span><span class="kn">import</span> <span class="n">RegisterBlockSnapshot</span><span class="p">,</span> <span class="n">RegisterOffset</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.capability_decode</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_register_block_snapshot</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.errors</span><span class="w"> </span><span class="kn">import</span> <span class="n">RegisterAccessError</span><span class="p">,</span> <span class="n">UnhealthyBarError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.errors</span><span class="w"> </span><span class="kn">import</span> <span class="n">RegisterAccessError</span><span class="p">,</span> <span class="n">TransferValidationError</span><span class="p">,</span> <span class="n">UnhealthyBarError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.status</span><span class="w"> </span><span class="kn">import</span> <span class="n">DeviceCounters</span><span class="p">,</span> <span class="n">DeviceStatus</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.transfer</span><span class="w"> </span><span class="kn">import</span> <span class="n">DmaDirection</span><span class="p">,</span> <span class="n">DmaTransfer</span><span class="p">,</span> <span class="n">validate_transfer</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.xdma_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_exact_at</span><span class="p">,</span> <span class="n">write_all_at</span>
@@ -1048,9 +1048,9 @@ window.runMermaid = runMermaid;</script>
     <span class="n">transport</span><span class="p">:</span> <span class="n">DeviceTransport</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="c1"># the addressable size of the device's memory, which the platform states</span>
     <span class="c1"># (its `memory.size_bytes`) and the registers do not. Discovery takes it</span>
-    <span class="c1"># from the caller. None means the caller does not know it and turns the</span>
-    <span class="c1"># wrap guard off; inventing a default would either reject valid</span>
-    <span class="c1"># addresses or give false confidence.</span>
+    <span class="c1"># from the caller. None means the caller does not know it, and the</span>
+    <span class="c1"># device is read-only: DMA writes and address programming raise, since</span>
+    <span class="c1"># neither can be checked against the memory they would wrap around.</span>
     <span class="n">memory_bytes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
@@ -1165,6 +1165,10 @@ window.runMermaid = runMermaid;</script>
         <span class="n">device_address</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">byte_count</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DmaTransfer</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">direction</span> <span class="o">==</span> <span class="n">DmaDirection</span><span class="o">.</span><span class="n">H2C</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">memory_bytes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">TransferValidationError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> was opened without memory_bytes and is read-only; pass the platform's memory size to discovery to write to it"</span>
+            <span class="p">)</span>
         <span class="n">validate_transfer</span><span class="p">(</span><span class="n">direction</span><span class="p">,</span> <span class="n">device_address</span><span class="p">,</span> <span class="n">byte_count</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">capabilities</span><span class="o">.</span><span class="n">dma</span><span class="p">,</span> <span class="n">memory_bytes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">memory_bytes</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">DmaTransfer</span><span class="p">(</span>
             <span class="n">direction</span><span class="o">=</span><span class="n">direction</span><span class="p">,</span>
@@ -1309,16 +1313,20 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    because 0x04 is the result length.</span>
 
 <span class="sd">    `memory_bytes` bounds the address. It DEFAULTS to the device's own</span>
-<span class="sd">    declared memory rather than to None, because a guard that is off</span>
-<span class="sd">    unless every call site remembers to switch it on is not a guard: the</span>
-<span class="sd">    execution paths that program job addresses all used the plain function</span>
-<span class="sd">    and so ran unbounded. Pass an explicit value to override, or `None` to</span>
-<span class="sd">    disable the check.</span>
+<span class="sd">    declared memory, because a guard that is off unless every call site</span>
+<span class="sd">    remembers to switch it on is not a guard: the execution paths that</span>
+<span class="sd">    program job addresses all used the plain function and so ran unbounded.</span>
+<span class="sd">    Pass an explicit value to override. With no known bound (None) the</span>
+<span class="sd">    address is refused: the device is read-only.</span>
 <span class="sd">    """</span>
     <span class="n">bound</span> <span class="o">=</span> <span class="n">device</span><span class="o">.</span><span class="n">memory_bytes</span> <span class="k">if</span> <span class="n">memory_bytes</span> <span class="ow">is</span> <span class="n">_DEVICE_MEMORY</span> <span class="k">else</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"int | None"</span><span class="p">,</span> <span class="n">memory_bytes</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">address</span> <span class="o">&lt;=</span> <span class="mh">0xFFFF_FFFF_FFFF_FFFF</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">RegisterAccessError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"address must fit in 64 bits, got </span><span class="si">{</span><span class="n">address</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">bound</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">address</span> <span class="o">&gt;=</span> <span class="n">bound</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">bound</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">RegisterAccessError</span><span class="p">(</span>
+            <span class="s2">"the device's memory size is unknown, so it is read-only; pass the platform's memory size to discovery to program addresses"</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">address</span> <span class="o">&gt;=</span> <span class="n">bound</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">RegisterAccessError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">"address 0x</span><span class="si">{</span><span class="n">address</span><span class="si">:</span><span class="s2">X</span><span class="si">}</span><span class="s2"> is past the device's </span><span class="si">{</span><span class="n">bound</span><span class="si">}</span><span class="s2"> byte memory; a transfer from here wraps to the bottom of memory instead of failing"</span>
         <span class="p">)</span>

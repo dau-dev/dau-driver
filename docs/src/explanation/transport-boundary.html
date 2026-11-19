@@ -527,10 +527,11 @@ and addresses the wrong region. And when the handle knows the device’s
 memory size, an address past it raises rather than wrapping to the bottom of
 memory, which is what the hardware would otherwise do.</p>
 <p>Discovery requires <code class="docutils literal notranslate"><span class="pre">memory_bytes</span></code> from its caller, because the registers do not
-report the board’s memory and the platform does. <code class="docutils literal notranslate"><span class="pre">None</span></code> is accepted and turns the
-guard off: a guard is only as good as the fact behind it, and inventing a
-default size would either reject valid addresses on a larger board or give false
-confidence on a smaller one.</p>
+report the board’s memory and the platform does. <code class="docutils literal notranslate"><span class="pre">None</span></code> is accepted and opens the
+device read-only: a guard is only as good as the fact behind it, so with no size
+there is nothing to check a write against, and inventing a default size would
+either reject valid addresses on a larger board or give false confidence on a
+smaller one.</p>
 </section>
 <section id="where-the-model-bends">
 <h2>Where the model bends<a class="headerlink" href="#where-the-model-bends" title="Link to this heading">¶</a></h2>

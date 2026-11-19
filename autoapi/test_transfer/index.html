@@ -427,6 +427,9 @@
     <a href="#test_transfer.test_transfer_validation_bounds_the_whole_span_by_device_memory">test_transfer_validation_bounds_the_whole_span_by_device_memory()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
+    <a href="#test_transfer.test_a_device_without_a_memory_size_is_read_only">test_a_device_without_a_memory_size_is_read_only()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
     <a href="#test_transfer.test_register_offsets_must_be_word_aligned_and_non_negative">test_register_offsets_must_be_word_aligned_and_non_negative()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
@@ -478,28 +481,31 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#test_transfer.test_transfer_validation_bounds_the_whole_span_by_device_memory" title="test_transfer.test_transfer_validation_bounds_the_whole_span_by_device_memory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_transfer_validation_bounds_the_whole_span_by_device_memory</span></code></a>(...) → None</p></td>
 <td><p>The DMA engine wraps an address past the end of memory to the bottom</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_transfer.test_register_offsets_must_be_word_aligned_and_non_negative" title="test_transfer.test_register_offsets_must_be_word_aligned_and_non_negative"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_register_offsets_must_be_word_aligned_and_non_negative</span></code></a>(...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_transfer.test_a_device_without_a_memory_size_is_read_only" title="test_transfer.test_a_device_without_a_memory_size_is_read_only"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_a_device_without_a_memory_size_is_read_only</span></code></a>(tmp_path) → None</p></td>
+<td><p>Read-only tools open a device without knowing its memory size. Such</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_transfer.test_register_offsets_must_be_word_aligned_and_non_negative" title="test_transfer.test_register_offsets_must_be_word_aligned_and_non_negative"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_register_offsets_must_be_word_aligned_and_non_negative</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_transfer.test_the_fake_transport_refuses_a_short_read_like_the_real_one" title="test_transfer.test_the_fake_transport_refuses_a_short_read_like_the_real_one"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_fake_transport_refuses_a_short_read_like_the_real_one</span></code></a>(...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_transfer.test_the_fake_transport_refuses_a_short_read_like_the_real_one" title="test_transfer.test_the_fake_transport_refuses_a_short_read_like_the_real_one"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_the_fake_transport_refuses_a_short_read_like_the_real_one</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_transfer.test_blocking_dma_write_uses_h2c_channel_at_device_address" title="test_transfer.test_blocking_dma_write_uses_h2c_channel_at_device_address"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_blocking_dma_write_uses_h2c_channel_at_device_address</span></code></a>(...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_transfer.test_blocking_dma_write_uses_h2c_channel_at_device_address" title="test_transfer.test_blocking_dma_write_uses_h2c_channel_at_device_address"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_blocking_dma_write_uses_h2c_channel_at_device_address</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_transfer.test_blocking_dma_read_uses_c2h_channel_at_device_address" title="test_transfer.test_blocking_dma_read_uses_c2h_channel_at_device_address"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_blocking_dma_read_uses_c2h_channel_at_device_address</span></code></a>(...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_transfer.test_blocking_dma_read_uses_c2h_channel_at_device_address" title="test_transfer.test_blocking_dma_read_uses_c2h_channel_at_device_address"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_blocking_dma_read_uses_c2h_channel_at_device_address</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_transfer.test_blocking_dma_io_wraps_missing_channel_as_transfer_error" title="test_transfer.test_blocking_dma_io_wraps_missing_channel_as_transfer_error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_blocking_dma_io_wraps_missing_channel_as_transfer_error</span></code></a>(...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_transfer.test_blocking_dma_io_wraps_missing_channel_as_transfer_error" title="test_transfer.test_blocking_dma_io_wraps_missing_channel_as_transfer_error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_blocking_dma_io_wraps_missing_channel_as_transfer_error</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_transfer.test_dma_short_read_error_includes_offset_expected_and_actual_bytes" title="test_transfer.test_dma_short_read_error_includes_offset_expected_and_actual_bytes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_dma_short_read_error_includes_offset_expected_and_actual_bytes</span></code></a>(...) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_transfer.test_dma_short_read_error_includes_offset_expected_and_actual_bytes" title="test_transfer.test_dma_short_read_error_includes_offset_expected_and_actual_bytes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_dma_short_read_error_includes_offset_expected_and_actual_bytes</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_transfer.test_dma_short_write_error_includes_offset_expected_and_actual_bytes" title="test_transfer.test_dma_short_write_error_includes_offset_expected_and_actual_bytes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_dma_short_write_error_includes_offset_expected_and_actual_bytes</span></code></a>(...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#test_transfer.test_dma_short_write_error_includes_offset_expected_and_actual_bytes" title="test_transfer.test_dma_short_write_error_includes_offset_expected_and_actual_bytes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_dma_short_write_error_includes_offset_expected_and_actual_bytes</span></code></a>(...) → None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#test_transfer.make_fake_device" title="test_transfer.make_fake_device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_fake_device</span></code></a>(tmp_path) → dau_driver.DauDevice</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_transfer.make_fake_device" title="test_transfer.make_fake_device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_fake_device</span></code></a>(tmp_path) → dau_driver.DauDevice</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -518,6 +524,14 @@
 <dd><p>The DMA engine wraps an address past the end of memory to the bottom
 instead of failing, so the END of a transfer has to be checked, not only
 its start.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_transfer.test_a_device_without_a_memory_size_is_read_only">
+<span class="sig-prename descclassname"><span class="pre">test_transfer.</span></span><span class="sig-name descname"><span class="pre">test_a_device_without_a_memory_size_is_read_only</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_transfer.test_a_device_without_a_memory_size_is_read_only" title="Link to this definition">¶</a></dt>
+<dd><p>Read-only tools open a device without knowing its memory size. Such
+a device reads, but a write cannot be checked against the memory it
+would wrap around, so it is refused.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -607,6 +621,9 @@ its start.</p>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_transfer.test_transfer_validation_bounds_the_whole_span_by_device_memory">test_transfer_validation_bounds_the_whole_span_by_device_memory()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#test_transfer.test_a_device_without_a_memory_size_is_read_only">test_a_device_without_a_memory_size_is_read_only()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#test_transfer.test_register_offsets_must_be_word_aligned_and_non_negative">test_register_offsets_must_be_word_aligned_and_non_negative()</a>

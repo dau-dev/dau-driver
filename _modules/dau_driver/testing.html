@@ -948,8 +948,13 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="fake_device">
 <a class="viewcode-back" href="../../autoapi/dau_driver/testing/index.html#dau_driver.testing.fake_device">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">fake_device</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">transport</span><span class="p">:</span> <span class="n">FakeTransport</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">capabilities</span><span class="p">:</span> <span class="n">DeviceCapabilities</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DauDevice</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""A DauDevice backed by a FakeTransport (paths are never opened)."""</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">fake_device</span><span class="p">(</span>
+    <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">transport</span><span class="p">:</span> <span class="n">FakeTransport</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">capabilities</span><span class="p">:</span> <span class="n">DeviceCapabilities</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">memory_bytes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">40</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DauDevice</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A DauDevice backed by a FakeTransport (paths are never opened).</span>
+
+<span class="sd">    ``memory_bytes`` defaults to 1 TiB so the fake accepts any write; pass None</span>
+<span class="sd">    for a read-only device."""</span>
     <span class="k">return</span> <span class="n">DauDevice</span><span class="p">(</span>
         <span class="n">name</span><span class="o">=</span><span class="s2">"xdma0"</span><span class="p">,</span>
         <span class="n">backend</span><span class="o">=</span><span class="s2">"linux-xdma"</span><span class="p">,</span>
@@ -958,6 +963,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">c2h_path</span><span class="o">=</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">"xdma0_c2h_0"</span><span class="p">,</span>
         <span class="n">capabilities</span><span class="o">=</span><span class="n">capabilities</span> <span class="k">if</span> <span class="n">capabilities</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">default_int32_capabilities</span><span class="p">(),</span>
         <span class="n">transport</span><span class="o">=</span><span class="n">transport</span><span class="p">,</span>
+        <span class="n">memory_bytes</span><span class="o">=</span><span class="n">memory_bytes</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 

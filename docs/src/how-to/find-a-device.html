@@ -469,7 +469,7 @@ nothing, it falls back to the DriverKit transport over IOKit.</p>
 board has, but the platform does, and every address the device is given is
 checked against it (see the move-data guide). Pass <code class="docutils literal notranslate"><span class="pre">None</span></code> only when the size is
 not known, for example in a tool that reads registers and never runs a job;
-that turns the check off.</p>
+the devices are then read-only, and DMA writes and address programming raise.</p>
 <p>Point it somewhere else if your devnodes are not under <code class="docutils literal notranslate"><span class="pre">/dev</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">devices</span> <span class="o">=</span> <span class="n">discover_devices</span><span class="p">(</span><span class="s2">"/some/other/dev"</span><span class="p">,</span> <span class="n">memory_bytes</span><span class="o">=</span><span class="n">platform</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">size_bytes</span><span class="p">)</span>
 </pre></div>

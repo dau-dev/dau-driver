@@ -433,7 +433,7 @@
     <a href="#test_register_write.test_write_address_bounds_against_the_devices_memory_by_default">test_write_address_bounds_against_the_devices_memory_by_default()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_register_write.test_write_address_stays_unbounded_for_a_device_declaring_no_memory">test_write_address_stays_unbounded_for_a_device_declaring_no_memory()</a>
+    <a href="#test_register_write.test_write_address_refuses_a_device_declaring_no_memory">test_write_address_refuses_a_device_declaring_no_memory()</a>
   </li>
 </ul>
 </div>
@@ -469,7 +469,7 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#test_register_write.test_write_address_bounds_against_the_devices_memory_by_default" title="test_register_write.test_write_address_bounds_against_the_devices_memory_by_default"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_write_address_bounds_against_the_devices_memory_by_default</span></code></a>(...) → None</p></td>
 <td><p>The guard must cover the plain FUNCTION, not only the method: the</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#test_register_write.test_write_address_stays_unbounded_for_a_device_declaring_no_memory" title="test_register_write.test_write_address_stays_unbounded_for_a_device_declaring_no_memory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_write_address_stays_unbounded_for_a_device_declaring_no_memory</span></code></a>() → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#test_register_write.test_write_address_refuses_a_device_declaring_no_memory" title="test_register_write.test_write_address_refuses_a_device_declaring_no_memory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_write_address_refuses_a_device_declaring_no_memory</span></code></a>() → None</p></td>
 <td><p>Duck-typed on purpose: devices are not required to subclass</p></td>
 </tr>
 </tbody>
@@ -502,10 +502,11 @@ guard the paths that program job addresses.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="test_register_write.test_write_address_stays_unbounded_for_a_device_declaring_no_memory">
-<span class="sig-prename descclassname"><span class="pre">test_register_write.</span></span><span class="sig-name descname"><span class="pre">test_write_address_stays_unbounded_for_a_device_declaring_no_memory</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_register_write.test_write_address_stays_unbounded_for_a_device_declaring_no_memory" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="test_register_write.test_write_address_refuses_a_device_declaring_no_memory">
+<span class="sig-prename descclassname"><span class="pre">test_register_write.</span></span><span class="sig-name descname"><span class="pre">test_write_address_refuses_a_device_declaring_no_memory</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#test_register_write.test_write_address_refuses_a_device_declaring_no_memory" title="Link to this definition">¶</a></dt>
 <dd><p>Duck-typed on purpose: devices are not required to subclass
-DauDevice, and one whose memory_bytes is None is not bounded.</p>
+DauDevice. One whose memory_bytes is None is read-only: an address that
+cannot be checked against memory is not written.</p>
 </dd></dl>
 
 </section>
@@ -563,7 +564,7 @@ DauDevice, and one whose memory_bytes is None is not bounded.</p>
     <a href="#test_register_write.test_write_address_bounds_against_the_devices_memory_by_default">test_write_address_bounds_against_the_devices_memory_by_default()</a>
   </li>
   <li class="fd-toc-item" data-depth="2">
-    <a href="#test_register_write.test_write_address_stays_unbounded_for_a_device_declaring_no_memory">test_write_address_stays_unbounded_for_a_device_declaring_no_memory()</a>
+    <a href="#test_register_write.test_write_address_refuses_a_device_declaring_no_memory">test_write_address_refuses_a_device_declaring_no_memory()</a>
   </li>
 </ul>
 

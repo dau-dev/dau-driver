@@ -11,6 +11,7 @@ Functions
 
    test_transfer.test_transfer_validation_rejects_zero_length_and_unavailable_direction
    test_transfer.test_transfer_validation_bounds_the_whole_span_by_device_memory
+   test_transfer.test_a_device_without_a_memory_size_is_read_only
    test_transfer.test_register_offsets_must_be_word_aligned_and_non_negative
    test_transfer.test_the_fake_transport_refuses_a_short_read_like_the_real_one
    test_transfer.test_blocking_dma_write_uses_h2c_channel_at_device_address
@@ -31,6 +32,13 @@ Module Contents
    The DMA engine wraps an address past the end of memory to the bottom
    instead of failing, so the END of a transfer has to be checked, not only
    its start.
+
+
+.. py:function:: test_a_device_without_a_memory_size_is_read_only(tmp_path: pathlib.Path) -> None
+
+   Read-only tools open a device without knowing its memory size. Such
+   a device reads, but a write cannot be checked against the memory it
+   would wrap around, so it is refused.
 
 
 .. py:function:: test_register_offsets_must_be_word_aligned_and_non_negative(tmp_path: pathlib.Path) -> None

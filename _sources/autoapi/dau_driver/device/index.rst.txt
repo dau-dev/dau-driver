@@ -373,10 +373,10 @@ Module Contents
    because 0x04 is the result length.
 
    `memory_bytes` bounds the address. It DEFAULTS to the device's own
-   declared memory rather than to None, because a guard that is off
-   unless every call site remembers to switch it on is not a guard: the
-   execution paths that program job addresses all used the plain function
-   and so ran unbounded. Pass an explicit value to override, or `None` to
-   disable the check.
+   declared memory, because a guard that is off unless every call site
+   remembers to switch it on is not a guard: the execution paths that
+   program job addresses all used the plain function and so ran unbounded.
+   Pass an explicit value to override. With no known bound (None) the
+   address is refused: the device is read-only.
 
 

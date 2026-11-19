@@ -99,10 +99,11 @@ memory size, an address past it raises rather than wrapping to the bottom of
 memory, which is what the hardware would otherwise do.
 
 Discovery requires `memory_bytes` from its caller, because the registers do not
-report the board's memory and the platform does. `None` is accepted and turns the
-guard off: a guard is only as good as the fact behind it, and inventing a
-default size would either reject valid addresses on a larger board or give false
-confidence on a smaller one.
+report the board's memory and the platform does. `None` is accepted and opens the
+device read-only: a guard is only as good as the fact behind it, so with no size
+there is nothing to check a write against, and inventing a default size would
+either reject valid addresses on a larger board or give false confidence on a
+smaller one.
 
 ## Where the model bends
 

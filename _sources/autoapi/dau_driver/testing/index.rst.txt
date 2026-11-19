@@ -100,9 +100,12 @@ Module Contents
    The standard fake INT32 aggregation device capability set.
 
 
-.. py:function:: fake_device(tmp_path: pathlib.Path, transport: FakeTransport, *, capabilities: dau_core.capabilities.DeviceCapabilities | None = None) -> dau_driver.device.DauDevice
+.. py:function:: fake_device(tmp_path: pathlib.Path, transport: FakeTransport, *, capabilities: dau_core.capabilities.DeviceCapabilities | None = None, memory_bytes: int | None = 1 << 40) -> dau_driver.device.DauDevice
 
    A DauDevice backed by a FakeTransport (paths are never opened).
+
+   ``memory_bytes`` defaults to 1 TiB so the fake accepts any write; pass None
+   for a read-only device.
 
 
 .. py:function:: golden_aggregation_trigger(transport: FakeTransport, output_address: int)
