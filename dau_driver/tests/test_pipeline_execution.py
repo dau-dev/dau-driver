@@ -402,6 +402,7 @@ def test_addresses_are_programmed_across_both_halves() -> None:
             writes.append((int(offset), value))
 
     device = _Recorder.__new__(_Recorder)
+    object.__setattr__(device, "memory_bytes", 1 << 40)
 
     # a low address still writes an explicit ZERO high half
     DauDevice.write_address_register(device, RegisterOffset.INPUT_ADDRESS_LOW, RegisterOffset.INPUT_ADDRESS_HIGH, 0x1000)
@@ -449,11 +450,12 @@ def test_an_address_past_the_end_of_memory_is_refused() -> None:
     with pytest.raises(RegisterAccessError, match="past the device"):
         DauDevice.write_address_register(bounded, RegisterOffset.INPUT_ADDRESS_LOW, RegisterOffset.INPUT_ADDRESS_HIGH, 9 * 2**30)
 
-    # a device that does not know its size keeps the previous behaviour
-    # rather than inventing a bound that would refuse valid addresses
+    # a device that does not know its size is read-only rather than
+    # unbounded: no address can be checked against it
     unbounded = _Recorder.__new__(_Recorder)
     object.__setattr__(unbounded, "memory_bytes", None)
-    DauDevice.write_address_register(unbounded, RegisterOffset.INPUT_ADDRESS_LOW, RegisterOffset.INPUT_ADDRESS_HIGH, 9 * 2**30)
+    with pytest.raises(RegisterAccessError, match="read-only"):
+        DauDevice.write_address_register(unbounded, RegisterOffset.INPUT_ADDRESS_LOW, RegisterOffset.INPUT_ADDRESS_HIGH, 0x1000)
 
 
 def test_a_duck_typed_device_can_program_addresses() -> None:
@@ -467,7 +469,7 @@ def test_a_duck_typed_device_can_program_addresses() -> None:
     from dau_driver.device import write_address
 
     class _Fake:  # no DauDevice inheritance, exactly like the emulated shells
-        memory_bytes = None
+        memory_bytes = 1 << 40
 
         def __init__(self):
             self.writes = []

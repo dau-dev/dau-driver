@@ -26,6 +26,7 @@ def test_transfer_validation_rejects_zero_length_and_unavailable_direction(tmp_p
             dma=DmaConstraints(alignment_bytes=64, descriptor_bytes=32, max_transfer_bytes=4096, read_channels=0, write_channels=1),
             operators=(),
         ),
+        memory_bytes=1 << 32,
     )
 
     with pytest.raises(TransferValidationError, match="positive"):
@@ -47,6 +48,18 @@ def test_transfer_validation_bounds_the_whole_span_by_device_memory(tmp_path: Pa
         device.prepare_transfer(DmaDirection.C2H, device_address=8192 - 64, byte_count=128)
     with pytest.raises(TransferValidationError, match="64-bit address space"):
         make_fake_device(tmp_path).prepare_transfer(DmaDirection.C2H, device_address=(1 << 64) - 64, byte_count=128)
+
+
+def test_a_device_without_a_memory_size_is_read_only(tmp_path: Path) -> None:
+    """Read-only tools open a device without knowing its memory size. Such
+    a device reads, but a write cannot be checked against the memory it
+    would wrap around, so it is refused."""
+    from dataclasses import replace
+
+    device = replace(make_fake_device(tmp_path), memory_bytes=None)
+    device.prepare_transfer(DmaDirection.C2H, device_address=0x1000, byte_count=64)
+    with pytest.raises(TransferValidationError, match="read-only"):
+        device.write_dma(device_address=0x1000, data=bytes(64))
 
 
 def test_register_offsets_must_be_word_aligned_and_non_negative(tmp_path: Path) -> None:
@@ -143,4 +156,5 @@ def make_fake_device(tmp_path: Path) -> DauDevice:
             dma=DmaConstraints(alignment_bytes=64, descriptor_bytes=32, max_transfer_bytes=4096, read_channels=1, write_channels=1),
             operators=(),
         ),
+        memory_bytes=1 << 32,
     )
