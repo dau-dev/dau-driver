@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Overlapped staging: why the runner ping-pongs, and when it stops &#8212; dau-driver v0.4.0</title>
+    <title>Overlapped staging: why the runner ping-pongs, and when it stops &#8212; dau-driver v0.5.0</title>
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../_static/fuma.css?v=ca04d621" />
     <link rel="stylesheet" type="text/css" href="../../../_static/fuma-code.css?v=a950e949" />
@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=6a604523" />
     <link rel="stylesheet" type="text/css" href="../../../_static/fonts/fuma-fonts.css?v=c2892c73" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/custom.css?v=88c24c6a" />
-    <script src="../../../_static/documentation_options.js?v=6c02275b"></script>
+    <script src="../../../_static/documentation_options.js?v=1dd76d02"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -49,7 +49,7 @@
   <div class="fd-subnav-inner">
     <button type="button" class="fd-icon-button fd-sidebar-toggle" aria-controls="fd-sidebar" aria-expanded="false" aria-label="Toggle navigation" title="Toggle navigation">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
-    </button><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau-driver v0.4.0</span>
+    </button><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau-driver v0.5.0</span>
 </a>
 
     <div class="fd-nav-actions">
@@ -64,7 +64,7 @@
 
 <aside id="fd-sidebar" aria-label="Documentation">
   <div class="fd-sidebar-header">
-    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau-driver v0.4.0</span>
+    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau-driver v0.5.0</span>
 </a>
       <button type="button" class="fd-icon-button fd-sidebar-collapse" aria-label="Collapse sidebar" title="Collapse sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
     </div>
@@ -516,7 +516,7 @@ group; it cannot beat it.</p>
 <section id="two-batching-contracts">
 <h2>Two batching contracts<a class="headerlink" href="#two-batching-contracts" title="Link to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">key_range_scan_batches</span></code> looks like the same idea but is a different contract. It bounds the number
-of <em>distinct keys</em> in a batch, because the hash-mode grouped tile’s table is a
+of <em>distinct keys</em> in a batch, because the hash-mode grouped core’s table is a
 fixed-size hardware fact: a batch presenting more keys than it holds closes out
 <code class="docutils literal notranslate"><span class="pre">GROUP_CAPACITY_EXCEEDED</span></code> and is invalidated.</p>
 <p>The host could react to that close-out. Sizing the batches so it cannot happen is
@@ -526,7 +526,7 @@ batch per range.</p>
 <code class="docutils literal notranslate"><span class="pre">key_partitioned_scan_batches</span></code> needs records ordered by key, because it groups
 them with a single pass. <code class="docutils literal notranslate"><span class="pre">key_range_scan_batches</span></code> does not, and preserves arrival
 order within each batch. The hash table needs no key ordering, and imposing one
-would give up the staging freedom that tile exists to provide.</p>
+would give up the staging freedom that core exists to provide.</p>
 <p>Both give the same strong property: each key lands in one batch, so merging the
 per-batch group records is a concatenation rather than an additive merge. The
 general merge still exists in <code class="docutils literal notranslate"><span class="pre">dau_core.operators.merge_hash_grouped</span></code> for batches

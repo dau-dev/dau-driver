@@ -119,7 +119,7 @@ Module Contents
 .. py:function:: operators_from_contract(contract: dau_core.capability_contract.CapabilityContract) -> tuple[tuple[dau_core.capabilities.OperatorCapability, ...], tuple[dau_core.capabilities.OperatorCapability, ...]]
 
    (hardware operators, host-computed operators) from the concrete
-   composition capability contract — per-tile opcodes and input types,
+   composition capability contract — per-core opcodes and input types,
    no bitmap-times-types expansion.
 
 

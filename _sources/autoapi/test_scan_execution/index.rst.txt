@@ -157,7 +157,7 @@ Module Contents
 
 .. py:function:: test_key_range_batches_merge_back_to_the_one_shot_answer() -> None
 
-   End to end against the tile golden: capacity-bounded batches run
+   End to end against the core golden: capacity-bounded batches run
    through the hash-mode model and merge to what one unbounded pass
    would have produced.
 

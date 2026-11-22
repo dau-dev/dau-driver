@@ -146,7 +146,7 @@ Module Contents
 
    Verification is registry-INDEPENDENT, and it has to stay that way.
 
-   A design flashed before a tile rename records a manifest naming tiles
+   A design flashed before a core rename records a manifest naming cores
    the palette no longer carries, under a superseded canonical-form
    version. The design cache refuses such an entry — it cannot re-express
    that spec as one it could build today — but this check asks a different

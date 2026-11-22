@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>dau_driver.scan_execution &#8212; dau-driver v0.4.0</title>
+    <title>dau_driver.scan_execution &#8212; dau-driver v0.5.0</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../_static/fuma.css?v=ca04d621" />
     <link rel="stylesheet" type="text/css" href="../../_static/fuma-code.css?v=a950e949" />
@@ -15,7 +15,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=6a604523" />
     <link rel="stylesheet" type="text/css" href="../../_static/fonts/fuma-fonts.css?v=c2892c73" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/custom.css?v=88c24c6a" />
-    <script src="../../_static/documentation_options.js?v=6c02275b"></script>
+    <script src="../../_static/documentation_options.js?v=1dd76d02"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -453,7 +453,7 @@ window.runMermaid = runMermaid;</script>
   <div class="fd-subnav-inner">
     <button type="button" class="fd-icon-button fd-sidebar-toggle" aria-controls="fd-sidebar" aria-expanded="false" aria-label="Toggle navigation" title="Toggle navigation">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
-    </button><a class="fd-brand" href="../../index.html"><span class="fd-brand-name">dau-driver v0.4.0</span>
+    </button><a class="fd-brand" href="../../index.html"><span class="fd-brand-name">dau-driver v0.5.0</span>
 </a>
 
     <div class="fd-nav-actions">
@@ -468,7 +468,7 @@ window.runMermaid = runMermaid;</script>
 
 <aside id="fd-sidebar" aria-label="Documentation">
   <div class="fd-sidebar-header">
-    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../index.html"><span class="fd-brand-name">dau-driver v0.4.0</span>
+    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../index.html"><span class="fd-brand-name">dau-driver v0.5.0</span>
 </a>
       <button type="button" class="fd-icon-button fd-sidebar-collapse" aria-label="Collapse sidebar" title="Collapse sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
     </div>
@@ -1000,10 +1000,10 @@ window.runMermaid = runMermaid;</script>
     <span class="n">encode</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Iterable</span><span class="p">[</span><span class="n">Record</span><span class="p">]],</span> <span class="nb">bytes</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">ScanBatch</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Split records into batches each holding at most ``key_capacity``</span>
-<span class="sd">    DISTINCT keys — the host half of the hash-mode grouped tile's overflow</span>
+<span class="sd">    DISTINCT keys — the host half of the hash-mode grouped core's overflow</span>
 <span class="sd">    contract.</span>
 
-<span class="sd">    The tile's table is a hardware fact: a batch presenting more distinct</span>
+<span class="sd">    The core's table is a hardware fact: a batch presenting more distinct</span>
 <span class="sd">    keys than it holds closes out ``GROUP_CAPACITY_EXCEEDED`` and is</span>
 <span class="sd">    invalidated. Rather than react to that, size the batches so it cannot</span>
 <span class="sd">    happen: partition the key space into ranges of ``key_capacity`` keys</span>
@@ -1017,7 +1017,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    Unlike :func:`key_partitioned_scan_batches`, records need NOT arrive in</span>
 <span class="sd">    key order and arrival order is preserved within each batch: the</span>
 <span class="sd">    hash-mode table needs no key ordering, and imposing one here would give</span>
-<span class="sd">    back the staging freedom the tile exists to provide. The trade is a</span>
+<span class="sd">    back the staging freedom the core exists to provide. The trade is a</span>
 <span class="sd">    counting pass over every key before the first batch is produced, and</span>
 <span class="sd">    batches whose ROW counts may be uneven — key ranges are equal in keys,</span>
 <span class="sd">    not in rows. The device's error close-out remains the safety net for a</span>

@@ -56,10 +56,10 @@ the allocator's live record, and nothing above it changed.
 The general rule: shape the simple software half of a lifecycle like the
 hardware half that will replace it, not like whatever is easiest in Python.
 
-## The host allocates; tiles consume
+## The host allocates; cores consume
 
 The division of labour is that the host owns an allocator per shared storage tier
-and hands out grants, and tiles consume grants and never allocate. There is no
+and hands out grants, and cores consume grants and never allocate. There is no
 device-side allocation path today and the API is designed so there does not need
 to be one later.
 

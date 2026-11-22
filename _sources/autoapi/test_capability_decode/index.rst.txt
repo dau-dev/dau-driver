@@ -12,7 +12,7 @@ Functions
    test_capability_decode.test_an_all_ones_version_word_decodes_as_not_advertised
    test_capability_decode.test_the_bitmap_words_decode_concretely
    test_capability_decode.test_snapshot_reader_normalizes_undecoded_capability_words
-   test_capability_decode.test_operators_from_contract_uses_per_tile_truth_not_expansion
+   test_capability_decode.test_operators_from_contract_uses_per_core_truth_not_expansion
    test_capability_decode.test_contract_from_manifest_metadata_round_trips
    test_capability_decode.test_device_snapshot_normalizes_undecoded_capability_words
    test_capability_decode.test_a_device_on_a_dead_aperture_advertises_no_opcode_and_no_build_id
@@ -35,7 +35,7 @@ Module Contents
 
 .. py:function:: test_snapshot_reader_normalizes_undecoded_capability_words() -> None
 
-.. py:function:: test_operators_from_contract_uses_per_tile_truth_not_expansion() -> None
+.. py:function:: test_operators_from_contract_uses_per_core_truth_not_expansion() -> None
 
 .. py:function:: test_contract_from_manifest_metadata_round_trips() -> None
 

@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>dau_driver.pipeline_execution &#8212; dau-driver v0.4.0</title>
+    <title>dau_driver.pipeline_execution &#8212; dau-driver v0.5.0</title>
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../_static/fuma.css?v=ca04d621" />
     <link rel="stylesheet" type="text/css" href="../../../_static/fuma-code.css?v=a950e949" />
@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=6a604523" />
     <link rel="stylesheet" type="text/css" href="../../../_static/fonts/fuma-fonts.css?v=c2892c73" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/custom.css?v=88c24c6a" />
-    <script src="../../../_static/documentation_options.js?v=6c02275b"></script>
+    <script src="../../../_static/documentation_options.js?v=1dd76d02"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -49,7 +49,7 @@
   <div class="fd-subnav-inner">
     <button type="button" class="fd-icon-button fd-sidebar-toggle" aria-controls="fd-sidebar" aria-expanded="false" aria-label="Toggle navigation" title="Toggle navigation">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
-    </button><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau-driver v0.4.0</span>
+    </button><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau-driver v0.5.0</span>
 </a>
 
     <div class="fd-nav-actions">
@@ -64,7 +64,7 @@
 
 <aside id="fd-sidebar" aria-label="Documentation">
   <div class="fd-sidebar-header">
-    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau-driver v0.4.0</span>
+    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../../index.html"><span class="fd-brand-name">dau-driver v0.5.0</span>
 </a>
       <button type="button" class="fd-icon-button fd-sidebar-collapse" aria-label="Collapse sidebar" title="Collapse sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
     </div>
@@ -619,7 +619,7 @@ generate_mm_ohlcv_job_top_sv and the PIPELINE_* register contract).</p>
 <td><p>Run one batch of (key, value) rows; the pipeline must already be</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.pack_bar_rows" title="dau_driver.pipeline_execution.pack_bar_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pack_bar_rows</span></code></a>(rows) → bytes</p></td>
-<td><p>(key, price, shares, frac) rows for the fused bar tile,</p></td>
+<td><p>(key, price, shares, frac) rows for the fused bar core,</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dau_driver.pipeline_execution.decode_bar_records" title="dau_driver.pipeline_execution.decode_bar_records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decode_bar_records</span></code></a>(data, count)</p></td>
 <td><p></p></td>
@@ -794,7 +794,7 @@ shell knows it.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="dau_driver.pipeline_execution.pack_bar_rows">
 <span class="sig-prename descclassname"><span class="pre">dau_driver.pipeline_execution.</span></span><span class="sig-name descname"><span class="pre">pack_bar_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span></span></span><a class="reference internal" href="../../../_modules/dau_driver/pipeline_execution.html#pack_bar_rows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dau_driver.pipeline_execution.pack_bar_rows" title="Link to this definition">¶</a></dt>
-<dd><p>(key, price, shares, frac) rows for the fused bar tile,
+<dd><p>(key, price, shares, frac) rows for the fused bar core,
 <code class="docutils literal notranslate"><span class="pre">len(rows)</span> <span class="pre">*</span> <span class="pre">16</span></code> bytes; the job pads them to the device’s DMA
 alignment.</p>
 </dd></dl>

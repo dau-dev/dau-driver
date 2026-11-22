@@ -188,7 +188,7 @@ Shared register-block decode semantics for every transport backend.
 | `read_register_block_snapshot(read_register)` | The discovery-time identity snapshot. `read_register` abstracts the backend's window access.                                                   |
 | `operators_from_snapshot(snapshot)`           | `(hardware operators, host-computed operators)` decoded by register map version.                                                               |
 | `contract_from_manifest_metadata(metadata)`   | The `CapabilityContract` from a shell-build manifest's `capability_contract` key, or `None`.                                                   |
-| `operators_from_contract(contract)`           | `(hardware operators, host-computed operators)` from the concrete composition contract: per-tile opcodes and input types, no bitmap expansion. |
+| `operators_from_contract(contract)`           | `(hardware operators, host-computed operators)` from the concrete composition contract: per-core opcodes and input types, no bitmap expansion. |
 
 Register map 0.2 and above advertises the composed truth: `OPERATOR_BITMAP`
 carries only HDL-executed opcodes, typed INT32 at register level, and

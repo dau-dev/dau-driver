@@ -175,7 +175,7 @@ Module Contents
 
 .. py:function:: pack_bar_rows(rows: list[tuple[int, int, int, int]]) -> bytes
 
-   (key, price, shares, frac) rows for the fused bar tile,
+   (key, price, shares, frac) rows for the fused bar core,
    ``len(rows) * 16`` bytes; the job pads them to the device's DMA
    alignment.
 

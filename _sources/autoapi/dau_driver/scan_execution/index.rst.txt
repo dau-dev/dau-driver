@@ -129,10 +129,10 @@ Module Contents
 .. py:function:: key_range_scan_batches[Record](records: collections.abc.Iterable[Record], *, key_capacity: int, key: collections.abc.Callable[[Record], collections.abc.Hashable], encode: collections.abc.Callable[[collections.abc.Iterable[Record]], bytes]) -> collections.abc.Iterable[ScanBatch]
 
    Split records into batches each holding at most ``key_capacity``
-   DISTINCT keys — the host half of the hash-mode grouped tile's overflow
+   DISTINCT keys — the host half of the hash-mode grouped core's overflow
    contract.
 
-   The tile's table is a hardware fact: a batch presenting more distinct
+   The core's table is a hardware fact: a batch presenting more distinct
    keys than it holds closes out ``GROUP_CAPACITY_EXCEEDED`` and is
    invalidated. Rather than react to that, size the batches so it cannot
    happen: partition the key space into ranges of ``key_capacity`` keys
@@ -146,7 +146,7 @@ Module Contents
    Unlike :func:`key_partitioned_scan_batches`, records need NOT arrive in
    key order and arrival order is preserved within each batch: the
    hash-mode table needs no key ordering, and imposing one here would give
-   back the staging freedom the tile exists to provide. The trade is a
+   back the staging freedom the core exists to provide. The trade is a
    counting pass over every key before the first batch is produced, and
    batches whose ROW counts may be uneven — key ranges are equal in keys,
    not in rows. The device's error close-out remains the safety net for a
