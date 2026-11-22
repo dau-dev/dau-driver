@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 import yaml
-from dau_core.capability_contract import CapabilityContract, LaneCapability, TileCapability
+from dau_core.capability_contract import CapabilityContract, LaneCapability, CoreCapability
 from dau_core.design import UnitKind
 from dau_core.registers import RegisterBlockSnapshot
 from dau_core.stream import LogicalType, OperationCode
@@ -15,7 +15,7 @@ from dau_driver.verify_advertisement import advertisement_mismatches, contract_f
 
 def _lane(core: str = "hash-grouped-scan") -> LaneCapability:
     return LaneCapability(
-        tile=TileCapability(
+        core=CoreCapability(
             core=core,
             module=f"dau_{core.replace('-', '_')}",
             contract_kind=None,
@@ -190,7 +190,7 @@ def test_build_id_catches_what_the_capability_words_cannot() -> None:
 def test_a_board_built_under_a_superseded_palette_still_verifies(tmp_path: Path) -> None:
     """Verification is registry-INDEPENDENT, and it has to stay that way.
 
-    A design flashed before a tile rename records a manifest naming tiles
+    A design flashed before a core rename records a manifest naming cores
     the palette no longer carries, under a superseded canonical-form
     version. The design cache refuses such an entry — it cannot re-express
     that spec as one it could build today — but this check asks a different
@@ -206,7 +206,7 @@ def test_a_board_built_under_a_superseded_palette_still_verifies(tmp_path: Path)
 
     pre_rename = CapabilityContract(name="hash-grouped-scan", lanes=(_lane("int32-field-sum-aggregation"),))
     contract, spec_hash, platform = contract_from_manifest_path(_manifest(tmp_path, pre_rename))
-    assert contract.lanes[0].tile.core == "int32-field-sum-aggregation"  # read back verbatim
+    assert contract.lanes[0].sink.core == "int32-field-sum-aggregation"  # read back verbatim
     assert advertisement_mismatches(_stamped(0x1234), contract) == ()
     assert spec_hash is None and platform is None  # this fixture records neither; the words are all there is
 

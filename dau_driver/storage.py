@@ -2,8 +2,8 @@
 
 The dumb half of the allocation lifecycle in STORAGE_AND_NOC.md: the host
 owns an allocator per shared tier and hands out generation-checked handles;
-tiles consume grants and never allocate. The handle table this allocator
-maintains is exactly what a future allocator tile would drive — the API does
+cores consume grants and never allocate. The handle table this allocator
+maintains is exactly what a future allocator core would drive — the API does
 not change when it does.
 
 Freed storage is never readdressed: ``free`` bumps the handle's generation,

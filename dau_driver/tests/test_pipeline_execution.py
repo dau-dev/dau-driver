@@ -527,7 +527,7 @@ def test_the_keyed_pipeline_config_refuses_fields_that_overflow_their_word() -> 
 
     predicate = FilterPredicate(op0=PredicateOp.GT, constant0=5)
     config = MapConfig(op=MapOp.ADD, constant=1)
-    KeyedPipelineConfig(predicate=predicate, map_config=config)  # the shapes the tile accepts
+    KeyedPipelineConfig(predicate=predicate, map_config=config)  # the shapes the core accepts
     with pytest.raises(ValueError, match="8 bits"):
         KeyedPipelineConfig(predicate=predicate, map_config=cast(Any, SimpleNamespace(op=MapOp.ADD, constant=0, shift=256)))
 

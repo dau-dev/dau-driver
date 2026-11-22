@@ -74,7 +74,7 @@ group; it cannot beat it.
 ## Two batching contracts
 
 `key_range_scan_batches` looks like the same idea but is a different contract. It bounds the number
-of *distinct keys* in a batch, because the hash-mode grouped tile's table is a
+of *distinct keys* in a batch, because the hash-mode grouped core's table is a
 fixed-size hardware fact: a batch presenting more keys than it holds closes out
 `GROUP_CAPACITY_EXCEEDED` and is invalidated.
 
@@ -86,7 +86,7 @@ The interesting difference is what each function *does not* require.
 `key_partitioned_scan_batches` needs records ordered by key, because it groups
 them with a single pass. `key_range_scan_batches` does not, and preserves arrival
 order within each batch. The hash table needs no key ordering, and imposing one
-would give up the staging freedom that tile exists to provide.
+would give up the staging freedom that core exists to provide.
 
 Both give the same strong property: each key lands in one batch, so merging the
 per-batch group records is a concatenation rather than an additive merge. The

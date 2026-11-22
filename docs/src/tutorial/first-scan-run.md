@@ -189,7 +189,7 @@ job by accident.
 
 ## Step 5: Bound the distinct keys per batch
 
-A different constraint applies to the hash-mode grouped tile: its table holds a
+A different constraint applies to the hash-mode grouped core: its table holds a
 fixed number of *distinct keys*, and a batch presenting more is invalidated by the
 device. Rather than react to that, size the batches so it cannot happen. Run:
 

@@ -1,7 +1,7 @@
 """On-FPGA record-batch aggregation over XDMA AXI-Stream.
 
 Requires the DAU stream bitstream (XDMA in AXI-Stream mode with the
-record-batch aggregation tile between H2C0 and C2H0). For each operation, the
+record-batch aggregation core between H2C0 and C2H0). For each operation, the
 host encodes a multi-column record batch carrying the operation descriptor,
 writes it to the H2C stream device, reads the 136-byte scalar result stream
 from C2H, decodes it, and compares against the dau-core golden.

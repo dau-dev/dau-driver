@@ -4,8 +4,8 @@ This guide shows you how to hand out device addresses without hard-coding them:
 one allocator per shared storage tier, generation-checked handles, and staging
 through the handle rather than around it.
 
-The host owns the allocator; tiles consume grants and never allocate. The handle
-table this keeps is exactly what an allocator tile would drive, so the API does
+The host owns the allocator; cores consume grants and never allocate. The handle
+table this keeps is exactly what an allocator core would drive, so the API does
 not change when one exists.
 
 ## Create an allocator for a tier

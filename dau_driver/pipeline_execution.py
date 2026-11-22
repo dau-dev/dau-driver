@@ -207,7 +207,7 @@ def execute_keyed_pipeline_job(
 # read one bitstream differently, so the shapes live here and both sides
 # derive from them.
 def pack_bar_rows(rows: list[tuple[int, int, int, int]]) -> bytes:
-    """(key, price, shares, frac) rows for the fused bar tile,
+    """(key, price, shares, frac) rows for the fused bar core,
     ``len(rows) * 16`` bytes; the job pads them to the device's DMA
     alignment."""
     return b"".join(struct.pack(struct_format(BAR_ROW_FIELDS), key, price, shares, frac) for key, price, shares, frac in rows)

@@ -157,7 +157,7 @@ key_range_scan_batches(
 ```
 
 Split records into batches each holding at most `key_capacity` distinct keys, the
-host half of the hash-mode grouped tile's overflow contract. The sorted key space
+host half of the hash-mode grouped core's overflow contract. The sorted key space
 is partitioned into ranges of `key_capacity` keys and one batch is emitted per
 range.
 
@@ -259,7 +259,7 @@ identity.
 
 The DMA alignment is the device's, read from `device.capabilities.dma`. The
 record layouts and their sizes (`GROUP_RECORD_BYTES` is 40) are
-defined in `dau_core.records`, next to the tiles that produce them.
+defined in `dau_core.records`, next to the cores that produce them.
 
 Capacity is not a constant. `device_job_capacity(device)` reads the input row
 and output record capacities the shell advertises; exceeding them raises
@@ -274,7 +274,7 @@ The bar wire layout is declared once, in `dau_core.records` as `BAR_ROW_FIELDS`
 and `BAR_RECORD_FIELDS`, with `struct_format(fields)` and
 `numpy_dtype_fields(fields)` deriving the two consumers' views so a padding,
 signedness, or field-order change cannot make them read one bitstream
-differently. dau-core's suite checks each layout's size against the tile's
+differently. dau-core's suite checks each layout's size against the core's
 registry entry.
 
 | Function                                                                                    | Behaviour                                                                                                                     |

@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 
 import pytest
-from dau_core.capability_contract import CapabilityContract, LaneCapability, tile_capability
+from dau_core.capability_contract import CapabilityContract, LaneCapability, core_capability
 from dau_core.registers import RegisterBlockSnapshot, RegisterMapVersion, RegisterOffset
 from dau_core.stream import LogicalType, OperationCode
 
@@ -61,12 +61,12 @@ def test_snapshot_reader_normalizes_undecoded_capability_words() -> None:
     assert snapshot.sort_capacity == 0
 
 
-def test_operators_from_contract_uses_per_tile_truth_not_expansion() -> None:
+def test_operators_from_contract_uses_per_core_truth_not_expansion() -> None:
     contract = CapabilityContract(
         name="mixed",
         lanes=(
-            LaneCapability(tile=tile_capability("record-batch-aggregation")),
-            LaneCapability(tile=tile_capability("bitonic-sorter")),
+            LaneCapability(sink=core_capability("record-batch-aggregation")),
+            LaneCapability(sink=core_capability("bitonic-sorter")),
         ),
     )
     operators, host_operators = operators_from_contract(contract)
@@ -75,12 +75,12 @@ def test_operators_from_contract_uses_per_tile_truth_not_expansion() -> None:
     assert [operator.opcode for operator in host_operators] == [OperationCode.AVERAGE]
     assert host_operators[0].output_type == LogicalType.FLOAT64
 
-    bar_only = CapabilityContract(name="bar", lanes=(LaneCapability(tile=tile_capability("bar-aggregation")),))
+    bar_only = CapabilityContract(name="bar", lanes=(LaneCapability(sink=core_capability("bar-aggregation")),))
     assert operators_from_contract(bar_only) == ((), ())
 
 
 def test_contract_from_manifest_metadata_round_trips() -> None:
-    contract = CapabilityContract(name="record-batch", lanes=(LaneCapability(tile=tile_capability("record-batch-aggregation")),))
+    contract = CapabilityContract(name="record-batch", lanes=(LaneCapability(sink=core_capability("record-batch-aggregation")),))
     metadata = {"capability_contract": json.dumps(contract.to_mapping(), sort_keys=True, separators=(",", ":"))}
     assert contract_from_manifest_metadata(metadata) == contract
     assert contract_from_manifest_metadata({}) is None

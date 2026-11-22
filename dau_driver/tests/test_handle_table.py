@@ -48,7 +48,7 @@ class HandleTableTransport(FakeTransport):
         self.capacity = capacity
         self.entries: dict[int, tuple[int, int, int]] = {}  # slot -> (base, length, generation)
         self.runs: list[tuple[int, int]] = []  # (base, length) of every job that actually read
-        # a tile's own error code, reported by a job that RESOLVED and ran: the
+        # a core's own error code, reported by a job that RESOLVED and ran: the
         # shell's error mux ranks a refusal above it, so it can only be seen
         # once the handle was good
         self.datapath_error = datapath_error
@@ -257,7 +257,7 @@ def test_a_datapath_error_is_not_reported_as_a_handle_fault(tmp_path) -> None:
     """The refusal type is only worth having if it means what it says: a code
     from a tile is a job that RAN, and calling that a stale handle would send
     a caller looking for an allocation bug that is not there."""
-    transport = HandleTableTransport(datapath_error=0x03)  # a tile code
+    transport = HandleTableTransport(datapath_error=0x03)  # a core code
     table, allocator, _ = _table(tmp_path, transport)
     handle = allocator.allocate(ROWS * ROW_BYTES)
     table.install(handle)
