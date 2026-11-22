@@ -27,7 +27,7 @@ from dau_core.stream import LogicalType, OperationCode, output_type_for
 from .errors import RegisterAccessError
 
 # the register-level type claim of the bitmap words — every
-# opcode-driven core in the palette is INT32 (per-tile types travel in the
+# opcode-driven core in the palette is INT32 (per-core types travel in the
 # manifest capability contract, not in registers)
 REGISTER_BITMAP_INPUT_TYPES = (LogicalType.INT32,)
 # identity window candidates: shell base, then the stream-job contract window
@@ -144,7 +144,7 @@ def contract_from_manifest_metadata(metadata: Mapping[str, str]) -> CapabilityCo
 
 def operators_from_contract(contract: CapabilityContract) -> tuple[tuple[OperatorCapability, ...], tuple[OperatorCapability, ...]]:
     """(hardware operators, host-computed operators) from the concrete
-    composition capability contract — per-tile opcodes and input types,
+    composition capability contract — per-core opcodes and input types,
     no bitmap-times-types expansion."""
     hardware: dict[OperationCode, set[LogicalType]] = {}
     host: dict[OperationCode, set[LogicalType]] = {}

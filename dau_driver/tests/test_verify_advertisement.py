@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 import yaml
-from dau_core.capability_contract import CapabilityContract, LaneCapability, CoreCapability
+from dau_core.capability_contract import CapabilityContract, CoreCapability, LaneCapability
 from dau_core.design import UnitKind
 from dau_core.registers import RegisterBlockSnapshot
 from dau_core.stream import LogicalType, OperationCode
@@ -15,7 +15,7 @@ from dau_driver.verify_advertisement import advertisement_mismatches, contract_f
 
 def _lane(core: str = "hash-grouped-scan") -> LaneCapability:
     return LaneCapability(
-        core=CoreCapability(
+        sink=CoreCapability(
             core=core,
             module=f"dau_{core.replace('-', '_')}",
             contract_kind=None,

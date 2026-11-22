@@ -91,7 +91,7 @@ def test_discover_devices_reports_one_matching_fake_device(tmp_path: Path, monke
     assert device.capabilities.register_map_version == CURRENT_REGISTER_MAP_VERSION
     assert device.capabilities.stream_protocol_version == StreamProtocolVersion(0, 1)
     assert device.capabilities.dma.is_aligned(128)
-    # the bitmap words make a concrete INT32 claim; per-tile types travel
+    # the bitmap words make a concrete INT32 claim; per-core types travel
     # in the manifest capability contract, not in registers
     assert device.capabilities.supports(OperationCode.AVERAGE, LogicalType.INT32)
     assert not device.capabilities.supports(OperationCode.AVERAGE, LogicalType.FLOAT32)

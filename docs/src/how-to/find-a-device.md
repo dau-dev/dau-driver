@@ -112,7 +112,7 @@ never be submitted to the device.
 ## Read the concrete capability contract
 
 The register bitmap is a coarse advertisement. A design's shell-build manifest
-holds the exact composed contract, per-tile opcodes and input types, with no
+holds the exact composed contract, per-core opcodes and input types, with no
 bitmap-times-types expansion:
 
 ```python
