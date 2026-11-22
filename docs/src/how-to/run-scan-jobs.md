@@ -59,7 +59,7 @@ behind its timeout.
 | --------------------------------------------- | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
 | Position slicing (build `ScanBatch` yourself) | The composition is stateless per batch.                                  | None beyond batch size.                                                                         |
 | `key_partitioned_scan_batches`                | The composition carries per-key state across a batch.                    | Each key lands in exactly one batch.                                                            |
-| `key_range_scan_batches`                      | The composition uses a hash-mode grouped tile with a fixed key capacity. | Each batch holds at most `key_capacity` distinct keys, and each key lands in exactly one batch. |
+| `key_range_scan_batches`                      | The composition uses a hash-mode grouped core with a fixed key capacity. | Each batch holds at most `key_capacity` distinct keys, and each key lands in exactly one batch. |
 
 ### Key-confined batches
 
@@ -108,7 +108,7 @@ ranges of `key_capacity` keys and one batch is emitted per range.
 
 Records need **not** arrive in key order here, and arrival order is preserved
 within each batch. The hash table needs no key ordering, and imposing one would
-give up the staging freedom the tile exists to provide. The trade is a counting
+give up the staging freedom the core exists to provide. The trade is a counting
 pass over every key before the first batch, and row counts that may be uneven:
 key ranges are equal in keys, not in rows.
 

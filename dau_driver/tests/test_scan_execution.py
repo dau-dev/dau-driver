@@ -326,7 +326,7 @@ def _encode_pairs(records) -> bytes:
 def test_key_range_batches_bound_the_distinct_keys_per_batch() -> None:
     from dau_driver.scan_execution import key_range_scan_batches
 
-    # keys deliberately UNSORTED on arrival: the hash-mode tile needs no
+    # keys deliberately UNSORTED on arrival: the hash-mode core needs no
     # key ordering, so neither may this splitter
     records = [((seed * 7) % 10, seed) for seed in range(40)]
     batches = list(key_range_scan_batches(records, key_capacity=3, key=lambda record: record[0], encode=_encode_pairs))
@@ -374,7 +374,7 @@ def test_key_range_batches_handle_the_boundaries() -> None:
 
 
 def test_key_range_batches_merge_back_to_the_one_shot_answer() -> None:
-    """End to end against the tile golden: capacity-bounded batches run
+    """End to end against the core golden: capacity-bounded batches run
     through the hash-mode model and merge to what one unbounded pass
     would have produced."""
     from dau_core.operators import HashGroupedErrorCode, hash_grouped_field_sum_rows, merge_hash_grouped
